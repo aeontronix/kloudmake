@@ -134,6 +134,22 @@ public class FileInfo {
         this.linkTarget = linkTarget;
     }
 
+    public boolean isDirectory() {
+        return type != null && type == Type.DIRECTORY;
+    }
+
+    public boolean isFile() {
+        return type != null && type == Type.FILE;
+    }
+
+    public boolean isSymlink() {
+        return type != null && type == Type.SYMLINK;
+    }
+
+    public boolean isOther() {
+        return type != null && type == Type.OTHER;
+    }
+
     public enum Type {
         FILE, DIRECTORY, SYMLINK, OTHER
     }

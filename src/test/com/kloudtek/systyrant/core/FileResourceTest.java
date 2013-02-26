@@ -90,6 +90,7 @@ public class FileResourceTest {
     public void testDeleteExistingFile() throws STRuntimeException {
         file.set("ensure", ABSENT);
         fileExists();
+        when(adminMock.getFileInfo(PATH)).thenReturn(new FileInfo(PATH, FileInfo.Type.FILE));
         assertTrue(context.execute());
 
         verify(adminMock).deleteFile(PATH, false);
