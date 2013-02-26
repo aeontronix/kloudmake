@@ -229,6 +229,16 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
+    public void setFileOwner(String path, String owner) throws STRuntimeException {
+        exec("chown " + owner);
+    }
+
+    @Override
+    public void setFileGroup(String path, String group) throws STRuntimeException {
+        exec("chown :" + group);
+    }
+
+    @Override
     public String createTempDir() throws STRuntimeException {
         String tempdir = exec("mktemp -d", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), false).getOutput().trim();
         tempDirs.add(tempdir);

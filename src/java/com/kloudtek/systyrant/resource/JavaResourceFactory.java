@@ -142,14 +142,11 @@ public class JavaResourceFactory extends ResourceFactory {
         public ActionMethod(Method method, Annotation actionAnnotation, int order) {
             this.method = method;
             this.annotation = actionAnnotation;
+            this.order = order;
         }
 
         public String getClassAndMethodName() {
             return method.getDeclaringClass().getName() + "#" + method.getName();
-        }
-
-        public int getOrder() {
-            return order;
         }
     }
 

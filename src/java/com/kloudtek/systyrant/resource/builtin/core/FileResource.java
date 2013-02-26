@@ -53,17 +53,17 @@ public class FileResource {
     @Attr
     protected String source;
     @Attr
-    protected String sourceRetrievable;
-    @Attr
-    protected String mode;
+    protected String permissions;
     @Attr
     protected boolean force;
     @Attr
     protected String sha1;
     @Attr
-    protected boolean skipStreamVerification = false;
-    @Attr
     protected boolean recursive;
+    @Attr
+    protected String owner;
+    @Attr
+    protected String group;
     @Attr
     protected String target;
     @Attr
@@ -196,6 +196,7 @@ public class FileResource {
                 logger.info("Created directory {}", path);
                 break;
             case FILE:
+                // TODO this is probably slightly insecure (might be readable by others), to fix later
                 MessageDigest digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
                 if (sha1Bytes == null) {
                     contentStream = new DigestInputStream(contentStream, digest);
@@ -219,6 +220,8 @@ public class FileResource {
             default:
                 throw new STRuntimeException(ensure + " not supported");
         }
+        assert host.fileExists(path);
+        finfo = host.getFileInfo(path);
     }
 
     @Verify(value = "permissions")
@@ -232,11 +235,30 @@ public class FileResource {
 
     @Verify(value = "owner")
     public boolean checkOwner() {
-        return false;
+        if (owner == null) {
+            owner = "root";
+        }
+        return owner.equals(finfo.getOwner());
     }
 
     @Sync("owner")
-    public void syncOwner() {
+    public void syncOwner() throws STRuntimeException {
+        host.setFileOwner(path, owner);
+        logger.info("Changed owner of {} from {} to {}", path, finfo.getOwner(), owner);
+    }
+
+    @Verify(value = "group")
+    public boolean checkGroup() {
+        if (group == null) {
+            group = "root";
+        }
+        return finfo != null && group.equals(finfo.getGroup());
+    }
+
+    @Sync("group")
+    public void syncGroup() throws STRuntimeException {
+        host.setFileGroup(path, group);
+        logger.info("Changed group of {} from {} to {}", path, finfo.getGroup(), group);
     }
 
     public enum Ensure {

@@ -15,9 +15,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Map;
 
 import static com.kloudtek.util.CryptoUtils.sha1;
@@ -180,6 +183,28 @@ public class LocalHost extends AbstractHost {
             Files.createSymbolicLink(new File(path).toPath(), new File(target).toPath());
         } catch (IOException e) {
             throw new STRuntimeException("Unable to create symlink " + path + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public void setFileOwner(String path, String owner) throws STRuntimeException {
+        try {
+            UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
+            Files.setOwner(new File(path).toPath(), lookupService.lookupPrincipalByName(owner));
+        } catch (IOException e) {
+            throw new STRuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void setFileGroup(String path, String group) throws STRuntimeException {
+        try {
+            Path jpath = new File(path).toPath();
+            PosixFileAttributeView view = Files.getFileAttributeView(jpath, PosixFileAttributeView.class);
+            UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
+            view.setGroup(lookupService.lookupPrincipalByGroupName(group));
+        } catch (IOException e) {
+            throw new STRuntimeException(e.getMessage(), e);
         }
     }
 

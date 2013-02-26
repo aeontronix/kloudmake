@@ -88,6 +88,10 @@ public interface Host extends Stoppable, Startable {
 
     void createSymlink(String path, String target) throws STRuntimeException;
 
+    void setFileOwner(String path, String owner) throws STRuntimeException;
+
+    void setFileGroup(String path, String group) throws STRuntimeException;
+
     String getUsername();
 
     String createTempDir() throws STRuntimeException;
