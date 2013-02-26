@@ -1,0 +1,3 @@
+def postgresql {
+    new core:package { name="postgresql" }
+}

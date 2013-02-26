@@ -1,0 +1,17 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<project name="antlrsandbox">
+    <target name="antlr">
+        <mkdir dir="${build.dir}/antlr/"/>
+        <delete>
+            <fileset dir="../../antlrsandbox/src/antlrsandbox" excludes="Test.g Test.java"/>
+        </delete>
+        <java classname="org.antlr.v4.Tool" classpath="lib/antlr.jar" failonerror="true">
+            <arg value="src/antlrsandbox/Test.g"/>
+            <arg value="-package"/>
+            <arg value="antlrsandbox"/>
+        </java>
+    </target>
+</project>

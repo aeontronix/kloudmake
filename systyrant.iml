@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/_build/antlr" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library" scope="PROVIDED">
+      <library name="build">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/_deps/build-jar" />
+          <root url="file://$MODULE_DIR$/_deps/build-jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/_deps/build-jar" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="runtime">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/_deps/default-jar" />
+          <root url="file://$MODULE_DIR$/_deps/default-jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/_deps/default-jar" />
+          <root url="file://$MODULE_DIR$/_deps/default-jar" />
+          <root url="file://$USER_HOME$/Downloads/jsch-0.1.48/src/main/java" />
+          <root url="file://$USER_HOME$/Downloads/hibernate-validator-4.3.0.Final/project/engine/src/main/java" />
+          <root url="jar://$USER_HOME$/Downloads/jboss-logging-3.1.1.GA-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/_deps/default-sources/logback-classic-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/_deps/default-sources/logback-core-sources.jar!/" />
+          <root url="file://$USER_HOME$/Downloads/jruby-1.7.0.preview2/src" />
+          <root url="jar://$MODULE_DIR$/_deps/default-sources/commons-exec-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/_deps/default-sources/commons-jexl-sources.jar!/" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/_deps/default-jar" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/_deps/default-jar" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library name="test">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/_deps/test-jar" />
+          <root url="file://$MODULE_DIR$/_deps/test-jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/_deps/test-jar" />
+          <root url="file://$MODULE_DIR$/_deps/test-jar" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/_deps/test-jar" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/_deps/test-jar" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
+  </component>
+</module>
+

@@ -1,0 +1,4 @@
+_build/*
+_deps/*
+_test/*
+vagrant/.vagrant

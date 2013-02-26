@@ -1,0 +1,67 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<project name="systyrant" xmlns:bm="antlib:com.kloudtek.buildmagic"
+         xmlns:bmt="antlib:com.kloudtek.buildmagic.tools">
+    <bm:init/>
+    <bm:template name="ivy"/>
+    <bm:template name="simple-java"/>
+
+    <target name="_deps" depends="deps"/>
+    <target name="_artifacts" depends="artifacts"/>
+    <target name="_dist" depends="dist"/>
+
+    <target name="systyrant-dist" extensionOf="dist">
+        <mkdir dir="${build.dir}/dist/lib"/>
+        <mkdir dir="${build.dir}/dist/bin"/>
+        <copy todir="${build.dir}/dist/lib">
+            <fileset dir="${artifacts.dir}" includes="*.jar"/>
+            <fileset dir="${deps.dir}/cli-jar"/>
+            <fileset dir="${deps.dir}/core-jar"/>
+        </copy>
+        <copy todir="${build.dir}/dist/bin">
+            <fileset dir="${basedir}/src/bin"/>
+        </copy>
+    </target>
+
+    <target name="install" depends="dist">
+        <copy todir="/usr/share/systyrant">
+            <fileset dir="${build.dir}/dist"/>
+        </copy>
+    </target>
+
+    <target name="deb" depends="systyrant-dist">
+        <bmt:deb destfile="${artifacts.dir}/systyrant.deb" name="systyrant" version="${version}" section="development"
+                 priority="extra" maintName="KloudTek Ltd" maintEmail="info@kloudtek.com" license="GPL-3">
+            <tarfileset prefix="/usr/share/systyrant" dir="${build.dir}/dist" excludes="bin/**"/>
+            <tarfileset prefix="/usr/share/systyrant" dir="${build.dir}/dist" includes="bin/**" filemode="755"
+                        dirmode="755"/>
+            <symlink path="/usr/bin/systyrant" target="/usr/share/systyrant/bin/systyrant.sh"/>
+            <description
+                    short="Next generation declarative configuration management tool">
+                <![CDATA[Powerful declarative configuration management tool that supports multiple languages and agent-less usage]]></description>
+        </bmt:deb>
+    </target>
+
+    <target name="antlr" extensionOf="pre-compile">
+        <mkdir dir="${build.dir}/antlr/"/>
+        <copy file="src/java/com/kloudtek/systyrant/dsl/SystyrantLang.g" todir="${build.dir}/antlr"/>
+        <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr.jar" failonerror="true">
+            <arg value="${build.dir}/antlr/SystyrantLang.g"/>
+            <arg value="-package"/>
+            <arg value="com.kloudtek.systyrant.dsl"/>
+            <arg value="-o"/>
+            <arg value="${build.dir}/antlr/com/kloudtek/systyrant/dsl"/>
+        </java>
+    </target>
+
+    <target name="classes-antlr" depends="antlr" extensionOf="pre-compile">
+        <mkdir dir="${build.dir}/classes-antlr"/>
+        <javac destdir="${build.dir}/classes-antlr" classpath="_deps/build-jar/antlr.jar"
+               srcdir="${build.dir}/antlr"/>
+        <augment id="buildmagic.classpath.compile">
+            <path location="${build.dir}/classes-antlr"/>
+        </augment>
+    </target>
+</project>

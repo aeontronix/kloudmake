@@ -1,0 +1,19 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Systyrant Test Suite" verbose="1">
+    <test name="Engine">
+        <packages>
+            <package name="com.kloudtek.systyrant"/>
+            <package name="com.kloudtek.systyrant.dsl"/>
+        </packages>
+    </test>
+    <test name="Core Modules">
+        <packages>
+            <package name="com.kloudtek.systyrant.core"/>
+        </packages>
+    </test>
+</suite>

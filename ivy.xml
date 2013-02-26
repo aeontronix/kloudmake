@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) KloudTek Ltd 2012.
+  -->
+
+<ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+    <info organisation="com.kloudtek" module="systyrant"/>
+    <configurations>
+        <conf name="default" extends="core,cli"/>
+        <conf name="core"/>
+        <conf name="cli"/>
+        <conf name="build" visibility="private"/>
+        <conf name="test" visibility="private"/>
+    </configurations>
+    <publications>
+        <artifact name="systyrant" conf="core"/>
+    </publications>
+    <dependencies>
+        <!-- Build -->
+        <dependency org="com.jetbrains" name="annotations" rev="latest.integration" conf="build->default"/>
+        <dependency org="org.antlr" name="antlr-ant" rev="1169924912745" conf="build->default"/>
+        <dependency org="org.antlr" name="antlr" rev="4.0-rc1" conf="build->default"/>
+        <!-- Test -->
+        <dependency org="org.testng" name="testng" rev="5.10" conf="test->default"/>
+        <dependency org="com.google.code" name="mockito" rev="1.9.0-rc1" conf="test->all"/>
+        <dependency org="org.sl4j" name="sl4j" rev="1.6.6" conf="test->jdk"/>
+        <dependency org="ch.qos" name="logback" rev="latest.release" conf="test->classic;cli->classic"/>
+        <!-- Core -->
+        <dependency name="ktutils" rev="latest.integration" conf="core->default"/>
+        <dependency name="credstore" rev="latest.integration" conf="core->core"/>
+        <dependency org="org.apache" name="commons-io" rev="latest.release" conf="core->default"/>
+        <dependency org="org.apache" name="commons-lang3" rev="3.1" conf="core->default"/>
+        <dependency org="org.apache" name="commons-exec" rev="latest.release" conf="core->default"/>
+        <dependency org="org.apache" name="commons-codec" rev="latest.release" conf="core->default"/>
+        <dependency org="org.apache" name="commons-beanutils" rev="latest.release" conf="core->default"/>
+        <dependency org="org.apache" name="commons-httpclient" rev="latest.release" conf="core->default"/>
+        <dependency org="org.apache" name="commons-jexl" rev="latest.release" conf="core->default"/>
+        <dependency org="net.sourceforge" name="jsch" rev="latest.release" conf="core->default,sources"/>
+        <dependency org="net.sourceforge" name="freemarker" rev="latest.release" conf="core->default"/>
+        <dependency org="com.sun" name="jaxb" rev="latest.release" conf="core->default,sources"/>
+        <dependency org="org.jboss" name="javassist" rev="latest.release" conf="core->default"/>
+        <dependency org="org.hibernate" name="hibernate-validator" rev="latest.release" conf="core->default"/>
+        <dependency org="org.sl4j" name="sl4j" rev="1.7.1" conf="core->api,ext"/>
+        <dependency org="org.jruby" name="jruby" rev="1.7.0preview2" conf="core->default"/>
+        <dependency org="com.google.code" name="reflections" rev="latest.release" conf="core->default"/>
+        <!-- CLI -->
+        <dependency org="net.sourceforge" name="jline" rev="0.9.5" conf="cli->default"/>
+        <dependency org="com.beust" name="jcommander" rev="1.29" conf="cli->default"/>
+        <!-- AWS Module -->
+        <!--<dependency org="com.amazon.aws" name="aws-java-sdk" rev="latest.release" conf="module-ec2->default"/>-->
+    </dependencies>
+</ivy-module>

@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="systyrant-enterprise:jar">
+    <output-path>$PROJECT_DIR$/../systyrant-enterprise/vagrant/systyrant/modules</output-path>
+    <root id="root">
+      <element id="archive" name="systyrant-enterprise.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/../systyrant-enterprise/src/java/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="systyrant-enterprise" />
+      </element>
+    </root>
+  </artifact>
+</component>
