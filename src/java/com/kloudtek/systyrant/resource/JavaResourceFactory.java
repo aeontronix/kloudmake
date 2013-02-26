@@ -22,10 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
@@ -51,6 +48,7 @@ public class JavaResourceFactory extends ResourceFactory {
             registerActions(method, Stage.EXECUTE, Execute.class);
             registerActions(method, Stage.CLEANUP, Cleanup.class);
         }
+        sort(actionMethods);
         for (Field field : clazz.getDeclaredFields()) {
             Attr attr = field.getAnnotation(Attr.class);
             if (attr != null) {
@@ -70,22 +68,46 @@ public class JavaResourceFactory extends ResourceFactory {
         }
     }
 
+    private void sort(HashMap<Stage, List<ActionMethod>> map) {
+        for (List<ActionMethod> methods : map.values()) {
+            Collections.sort(methods, new Comparator<ActionMethod>() {
+                @Override
+                public int compare(ActionMethod o1, ActionMethod o2) {
+                    return o1.order - o2.order;
+                }
+            });
+        }
+    }
+
     private void registerActions(Method method, Stage stage, Class<? extends Annotation> annotationClass) throws InvalidResourceDefinitionException {
         Annotation actionAnnotation = method.getAnnotation(annotationClass);
         if (actionAnnotation != null) {
             method.setAccessible(true);
             boolean postChildren = false;
-            if (actionAnnotation instanceof Execute) {
-                postChildren = ((Execute) actionAnnotation).postChildren();
+            int order;
+            if (actionAnnotation instanceof Prepare) {
+                order = ((Prepare) actionAnnotation).order();
             } else if (actionAnnotation instanceof Verify) {
-                postChildren = ((Verify) actionAnnotation).postChildren();
+                Verify anno = (Verify) actionAnnotation;
+                order = anno.order();
+                postChildren = anno.postChildren();
                 if (!Boolean.class.equals(method.getReturnType()) && !boolean.class.equals(method.getReturnType())) {
                     throw new InvalidResourceDefinitionException("@Verify method " + method.getDeclaringClass().getName() + "#" + method.getName() + " doesn't return a boolean");
                 }
             } else if (actionAnnotation instanceof Sync) {
-                postChildren = ((Sync) actionAnnotation).postChildren();
+                Sync anno = (Sync) actionAnnotation;
+                order = anno.order();
+                postChildren = anno.postChildren();
+            } else if (actionAnnotation instanceof Execute) {
+                Execute anno = (Execute) actionAnnotation;
+                order = anno.order();
+                postChildren = anno.postChildren();
+            } else if (actionAnnotation instanceof Cleanup) {
+                order = ((Cleanup) actionAnnotation).order();
+            } else {
+                throw new RuntimeException("Invalid annotation class: " + actionAnnotation.getClass());
             }
-            getActionMethods(stage, postChildren).add(new ActionMethod(method, actionAnnotation));
+            getActionMethods(stage, postChildren).add(new ActionMethod(method, actionAnnotation, order));
         }
     }
 
@@ -115,14 +137,19 @@ public class JavaResourceFactory extends ResourceFactory {
     public class ActionMethod {
         private Method method;
         private Annotation annotation;
+        private int order;
 
-        public ActionMethod(Method method, Annotation actionAnnotation) {
+        public ActionMethod(Method method, Annotation actionAnnotation, int order) {
             this.method = method;
             this.annotation = actionAnnotation;
         }
 
         public String getClassAndMethodName() {
             return method.getDeclaringClass().getName() + "#" + method.getName();
+        }
+
+        public int getOrder() {
+            return order;
         }
     }
 

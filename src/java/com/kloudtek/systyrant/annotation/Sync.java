@@ -15,5 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Sync {
     String value() default "";
 
+    int order() default 0;
+
     boolean postChildren() default false;
 }

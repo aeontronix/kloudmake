@@ -14,4 +14,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD})
 public @interface Execute {
     boolean postChildren() default false;
+
+    int order() default 0;
 }

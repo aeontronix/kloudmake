@@ -5,9 +5,7 @@
 package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.FileInfo;
-import com.kloudtek.systyrant.annotation.Attr;
-import com.kloudtek.systyrant.annotation.Execute;
-import com.kloudtek.systyrant.annotation.STResource;
+import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
@@ -74,6 +72,34 @@ public class FileResource {
 
     public FileResource(String path) {
         this.path = path;
+    }
+
+    @Verify(value = "content", order = -1)
+    public boolean checkContent() {
+        return false;
+    }
+
+    @Sync("content")
+    public void syncContent() {
+    }
+
+    @Verify(value = "permissions")
+    public boolean checkPermissions() {
+        return false;
+    }
+
+    @Sync("permissions")
+    public void syncPermissions() {
+    }
+
+    @Verify(value = "owner")
+    public boolean checkOwner() {
+        System.out.println();
+        return false;
+    }
+
+    @Sync("owner")
+    public void syncOwner() {
     }
 
     @Execute
