@@ -11,18 +11,22 @@ import org.testng.annotations.BeforeMethod;
 
 import static org.testng.Assert.assertEquals;
 
-public class AbstractContextTest {
+public class AbstractVagrantTest {
     public static final String TEST = "test:test";
     public static final String UNIQUETEST = "test:uniquetest";
     protected STContext ctx;
     protected ResourceManager resourceManager;
 
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException {
+    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException, ResourceCreationException {
         ctx = new STContext();
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, TEST);
         resourceManager.registerJavaResource(UniqueTestResource.class, UNIQUETEST);
+        Resource vagrant = resourceManager.createResource("virt:vagrant");
+        vagrant.set("dir", "_vagrant");
+        vagrant.set("box", "ubuntu-precise64");
+        ctx.setDefaultParent(vagrant);
     }
 
     public Resource createTestResource() throws ResourceCreationException {
@@ -61,12 +65,5 @@ public class AbstractContextTest {
 
     public void execute(boolean expected) throws STRuntimeException {
         assertEquals(ctx.execute(), expected);
-    }
-
-    public void enableVagrant() throws InvalidAttributeException, ResourceCreationException {
-        Resource vagrant = resourceManager.createResource("virt:vagrant");
-        vagrant.set("dir", "_vagrant");
-        vagrant.set("box", "ubuntu-precise64");
-        ctx.setDefaultParent(vagrant);
     }
 }

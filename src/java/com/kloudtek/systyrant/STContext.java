@@ -56,6 +56,7 @@ public class STContext implements AutoCloseable {
     private ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
     private final HashMap<String, ScriptEngine> scriptEnginesByExtCache = new HashMap<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private Resource defaultParent;
 
     public STContext(ResourceManager resourceManager, ServiceManager serviceManager) throws InvalidResourceDefinitionException, InvalidServiceException {
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
@@ -260,7 +261,9 @@ public class STContext implements AutoCloseable {
             buildIndexes();
 
             executeResources(VERIFY);
+
             executeResources(SYNC);
+
             executeResources(EXECUTE);
 
             cleanup();
@@ -541,6 +544,14 @@ public class STContext implements AutoCloseable {
 
     public void registerTempFile(File tempFile) {
         tempFiles.add(tempFile);
+    }
+
+    public synchronized Resource getDefaultParent() {
+        return defaultParent;
+    }
+
+    public synchronized void setDefaultParent(Resource defaultParent) {
+        this.defaultParent = defaultParent;
     }
 
     public class LibraryClassLoader extends URLClassLoader {

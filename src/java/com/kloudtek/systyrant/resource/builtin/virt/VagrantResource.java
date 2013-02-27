@@ -95,7 +95,7 @@ public class VagrantResource {
     private void changeStatus(Ensure newState) throws STRuntimeException {
         Ensure status;
         String statusStr = host.exec("cd " + dir + " && vagrant status");
-        if (statusStr.contains("The VM is powered off")) {
+        if (statusStr.contains("The VM is powered off") || statusStr.contains("To resume this VM")) {
             status = Ensure.HALTED;
         } else if (statusStr.contains("The VM is running.")) {
             status = Ensure.UP;

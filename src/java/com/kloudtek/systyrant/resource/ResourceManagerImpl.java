@@ -144,8 +144,11 @@ public class ResourceManagerImpl implements ResourceManager {
                 uniqueResourcesCreated.add(fqname);
             }
             Resource resource = factory.create(context);
+            Resource defaultParent = context.getDefaultParent();
             if (parent != null) {
                 resource.setParent(parent);
+            } else if (defaultParent != null) {
+                resource.setParent(defaultParent);
             }
             resources.add(resource);
             if (logger.isDebugEnabled()) {

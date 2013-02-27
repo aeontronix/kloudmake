@@ -74,7 +74,7 @@ public abstract class AbstractServiceManager implements ServiceManager {
             overrides.put(id, list);
         }
         list.addLast(overrideService);
-        logger.debug("added override {} for service {}" + overrideService.toString(), id);
+        logger.debug("added override {} for service {}", overrideService.toString(), id);
     }
 
     @Override
@@ -83,7 +83,7 @@ public abstract class AbstractServiceManager implements ServiceManager {
         if (list != null) {
             list.remove(overrideService);
         }
-        logger.debug("removed override {} for service {}" + overrideService.toString(), id);
+        logger.debug("removed override {} for service {}", overrideService.toString(), id);
     }
 
     protected abstract Object doGetService(@NotNull String id);
