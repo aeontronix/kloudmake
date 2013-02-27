@@ -196,11 +196,11 @@ public class FileResource {
                 logger.info("Created directory {}", path);
                 break;
             case FILE:
-                // TODO this is probably slightly insecure (might be readable by others), to fix later
                 MessageDigest digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
                 if (sha1Bytes == null) {
                     contentStream = new DigestInputStream(contentStream, digest);
                 }
+                // TODO this is probably slightly insecure (might be readable by others), to fix later
                 host.writeToFile(path, contentStream);
                 if (sha1Bytes == null) {
                     sha1Bytes = digest.digest();
