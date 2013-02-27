@@ -47,6 +47,7 @@ public class FileResourceTest {
     public static final byte[] DATA_SHA = CryptoUtils.sha1(DATA.getBytes());
     public static final byte[] OTHER_SHA = CryptoUtils.sha1("notthesamedata".getBytes());
     private Resource file;
+    private static String defaultPermission = "rwx";
 
     @BeforeMethod
     public void init() throws STRuntimeException, ResourceCreationException, InvalidResourceDefinitionException, InvalidServiceException {
@@ -78,7 +79,9 @@ public class FileResourceTest {
     }
 
     private void mockGetFileInfo(FileInfo.Type type, String path) throws STRuntimeException {
-        when(adminMock.getFileInfo(PATH)).thenReturn(new FileInfo(path, type));
+        FileInfo fileInfo = new FileInfo(path, type);
+        fileInfo.setPermissions(defaultPermission);
+        when(adminMock.getFileInfo(PATH)).thenReturn(fileInfo);
     }
 
     @Test
@@ -130,6 +133,8 @@ public class FileResourceTest {
     public void testCreateFileFromSource() throws STRuntimeException, IOException {
         file.set("source", PATH);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(DATA.getBytes());
+        fileDoesntExist();
+        fileExists();
         when(fileStoreMock.get(PATH)).thenReturn(new DataFile() {
             @Override
             public InputStream getStream() throws IOException {
