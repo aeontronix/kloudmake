@@ -226,11 +226,16 @@ public class FileResource {
 
     @Verify(value = "permissions")
     public boolean checkPermissions() {
-        return false;
+        if (permissions == null) {
+            permissions = "rwxr-xr-x";
+        }
+        return finfo != null && finfo.getPermissions().equals(permissions);
     }
 
     @Sync("permissions")
-    public void syncPermissions() {
+    public void syncPermissions() throws STRuntimeException {
+        host.setFilePerms(path, permissions);
+        logger.info("Changed permissions of {} from {} to {}", path, finfo.getPermissions(), permissions);
     }
 
     @Verify(value = "owner")
@@ -238,7 +243,7 @@ public class FileResource {
         if (owner == null) {
             owner = "root";
         }
-        return owner.equals(finfo.getOwner());
+        return finfo != null && owner.equals(finfo.getOwner());
     }
 
     @Sync("owner")

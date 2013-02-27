@@ -240,7 +240,7 @@ public class SshHost extends AbstractHost {
 
     @Override
     public void setFilePerms(String path, String perms) throws STRuntimeException {
-        exec("chmod :" + perms + " " + path);
+        exec("chmod " + perms + " " + path);
     }
 
     @Override
