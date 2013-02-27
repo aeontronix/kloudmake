@@ -65,6 +65,7 @@ public class FileResourceTest {
     public void testCreateMissingDir() throws STRuntimeException {
         file.set("ensure", FileResource.Ensure.DIRECTORY);
         fileDoesntExist();
+        fileExists();
         assertTrue(context.execute());
         verify(adminMock, times(1)).mkdir(PATH);
     }
@@ -120,6 +121,7 @@ public class FileResourceTest {
         file.set("ensure", SYMLINK);
         file.set("target", PATH2);
         fileDoesntExist();
+        fileExists();
         assertTrue(context.execute());
 
         InOrder inOrder = inOrder(adminMock);
@@ -135,6 +137,7 @@ public class FileResourceTest {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(DATA.getBytes());
         fileDoesntExist();
         fileExists();
+        mockGetFileInfo(FILE,PATH);
         when(fileStoreMock.get(PATH)).thenReturn(new DataFile() {
             @Override
             public InputStream getStream() throws IOException {
