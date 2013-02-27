@@ -7,6 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
+import com.kloudtek.systyrant.service.host.Host;
 import org.testng.annotations.BeforeMethod;
 
 import static org.testng.Assert.assertEquals;
@@ -14,17 +15,20 @@ import static org.testng.Assert.assertEquals;
 public class AbstractVagrantTest {
     public static final String TEST = "test:test";
     public static final String UNIQUETEST = "test:uniquetest";
+    public static final String VAGRANTDIR = "_vagrant";
     protected STContext ctx;
     protected ResourceManager resourceManager;
+    protected Host host;
 
     @BeforeMethod
     public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException, ResourceCreationException {
         ctx = new STContext();
+        host = (Host) ctx.getServiceManager().getService("host");
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, TEST);
         resourceManager.registerJavaResource(UniqueTestResource.class, UNIQUETEST);
         Resource vagrant = resourceManager.createResource("virt:vagrant");
-        vagrant.set("dir", "_vagrant");
+        vagrant.set("dir", VAGRANTDIR);
         vagrant.set("box", "ubuntu-precise64");
         ctx.setDefaultParent(vagrant);
     }

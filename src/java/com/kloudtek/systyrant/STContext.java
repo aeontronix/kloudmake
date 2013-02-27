@@ -29,7 +29,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.kloudtek.systyrant.Stage.*;
+import static com.kloudtek.systyrant.Stage.EXECUTE;
 import static com.kloudtek.systyrant.resource.Resource.State.FAILED;
 import static com.kloudtek.systyrant.resource.Resource.State.PREPARED;
 import static com.kloudtek.util.StringUtils.isEmpty;
@@ -259,10 +259,6 @@ public class STContext implements AutoCloseable {
             validateAndGenerateIdentifiers();
 
             buildIndexes();
-
-            executeResources(VERIFY);
-
-            executeResources(SYNC);
 
             executeResources(EXECUTE);
 

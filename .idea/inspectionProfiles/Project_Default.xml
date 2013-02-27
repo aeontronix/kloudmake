@@ -10,9 +10,10 @@
     <inspection_tool class="groupsTestNG" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="groups">
         <value>
-          <list size="2">
+          <list size="3">
             <item index="0" class="java.lang.String" itemvalue="ssh-ubuntu" />
             <item index="1" class="java.lang.String" itemvalue="ssh" />
+            <item index="2" class="java.lang.String" itemvalue="vagrant" />
           </list>
         </value>
       </option>

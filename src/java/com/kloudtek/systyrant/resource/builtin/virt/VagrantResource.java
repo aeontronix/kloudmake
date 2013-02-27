@@ -58,7 +58,13 @@ public class VagrantResource {
             host.writeToFile(vagrantFilePath, vagrantfile);
         }
         changeStatus(ensure);
-        String sshConfig = host.exec("cd " + dir + " && vagrant ssh-config");
+        sshHost = createSshHost(host, dir);
+        sshHost.start();
+        serviceManager.addOverride("host", sshHost);
+    }
+
+    public static SshHost createSshHost(Host h, String vagrantDir) throws STRuntimeException {
+        String sshConfig = h.exec("cd " + vagrantDir + " && vagrant ssh-config");
         int port = getPortFromConfig(sshConfig);
         logger.debug("Vagrant VM SSH port is {}", port);
         String pkeyPath = getPKeyFromConfig(sshConfig);
@@ -71,13 +77,12 @@ public class VagrantResource {
             } catch (IOException e) {
                 throw new STRuntimeException("Error loading vagrant keyfile " + pkeyPath + ": " + e.getMessage(), e);
             }
-            sshHost = new SshHost();
+            SshHost sshHost = new SshHost();
             sshHost.setAddress("127.0.0.1");
             sshHost.setPort(port);
             sshHost.setUsername("vagrant");
             sshHost.setPrivKey(privKey);
-            sshHost.start();
-            serviceManager.addOverride("host", sshHost);
+            return sshHost;
         } else {
             throw new STRuntimeException("Vagrant keyfile does not exist or is a directory: " + pkeyPath);
         }
@@ -127,7 +132,7 @@ public class VagrantResource {
         }
     }
 
-    private int getPortFromConfig(String sshConfig) throws STRuntimeException {
+    private static int getPortFromConfig(String sshConfig) throws STRuntimeException {
         Matcher sshPortMatcher = REGEX_PORT.matcher(sshConfig);
         if (sshPortMatcher.find()) {
             try {
@@ -140,7 +145,7 @@ public class VagrantResource {
         }
     }
 
-    private String getPKeyFromConfig(String sshConfig) throws STRuntimeException {
+    private static String getPKeyFromConfig(String sshConfig) throws STRuntimeException {
         Matcher sshPortMatcher = REGEX_PKEY.matcher(sshConfig);
         if (sshPortMatcher.find()) {
             return sshPortMatcher.group(1);

@@ -230,12 +230,12 @@ public class SshHost extends AbstractHost {
 
     @Override
     public void setFileOwner(String path, String owner) throws STRuntimeException {
-        exec("chown " + owner);
+        exec("chown " + owner + " " + path);
     }
 
     @Override
     public void setFileGroup(String path, String group) throws STRuntimeException {
-        exec("chown :" + group);
+        exec("chown :" + group + " " + path);
     }
 
     @Override

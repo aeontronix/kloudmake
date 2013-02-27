@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static com.kloudtek.systyrant.resource.JavaResourceFactory.AnnotationType.*;
 import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
@@ -43,8 +44,8 @@ public class JavaResourceFactory extends ResourceFactory {
         }
         for (Method method : clazz.getDeclaredMethods()) {
             registerActions(method, Stage.PREPARE, Prepare.class);
-            registerActions(method, Stage.VERIFY, Verify.class);
-            registerActions(method, Stage.SYNC, Sync.class);
+            registerActions(method, Stage.EXECUTE, Verify.class);
+            registerActions(method, Stage.EXECUTE, Sync.class);
             registerActions(method, Stage.EXECUTE, Execute.class);
             registerActions(method, Stage.CLEANUP, Cleanup.class);
         }
@@ -73,7 +74,13 @@ public class JavaResourceFactory extends ResourceFactory {
             Collections.sort(methods, new Comparator<ActionMethod>() {
                 @Override
                 public int compare(ActionMethod o1, ActionMethod o2) {
-                    return o1.order - o2.order;
+                    if (o1.type == VERIFY && o2.type == SYNC) {
+                        return -1;
+                    } else if (o1.type == SYNC && o2.type == VERIFY) {
+                        return 1;
+                    } else {
+                        return o1.order - o2.order;
+                    }
                 }
             });
         }
@@ -138,16 +145,30 @@ public class JavaResourceFactory extends ResourceFactory {
         private Method method;
         private Annotation annotation;
         private int order;
+        private AnnotationType type;
 
         public ActionMethod(Method method, Annotation actionAnnotation, int order) {
             this.method = method;
             this.annotation = actionAnnotation;
             this.order = order;
+            if (annotation instanceof Verify) {
+                type = VERIFY;
+            } else if (annotation instanceof Sync) {
+                type = SYNC;
+            } else if (annotation instanceof Execute) {
+                type = EXECUTE;
+            } else {
+                type = OTHER;
+            }
         }
 
         public String getClassAndMethodName() {
             return method.getDeclaringClass().getName() + "#" + method.getName();
         }
+    }
+
+    public enum AnnotationType {
+        VERIFY, SYNC, EXECUTE, OTHER
     }
 
     public class JavaImpl implements STAction {
