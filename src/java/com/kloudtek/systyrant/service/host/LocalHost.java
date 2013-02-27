@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.service.host;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.util.TempFile;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.FileUtils;
@@ -210,9 +211,9 @@ public class LocalHost extends AbstractHost {
     }
 
     @Override
-    public void setFilePerms(String path, String perms) throws STRuntimeException {
+    public void setFilePerms(String path, FilePermissions perms) throws STRuntimeException {
         try {
-            Files.setPosixFilePermissions(Paths.get(path), PosixFilePermissions.fromString(perms));
+            Files.setPosixFilePermissions(Paths.get(path), PosixFilePermissions.fromString(perms.toString()));
         } catch (IOException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }

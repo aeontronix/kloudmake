@@ -234,7 +234,7 @@ public class FileResource {
 
     @Sync("permissions")
     public void syncPermissions() throws STRuntimeException {
-        host.setFilePerms(path, permissions);
+        host.setFilePerms(path, new FilePermissions(permissions));
         logger.info("Changed permissions of {} from {} to {}", path, finfo.getPermissions(), permissions);
     }
 

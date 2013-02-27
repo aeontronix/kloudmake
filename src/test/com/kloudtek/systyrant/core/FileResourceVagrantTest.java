@@ -21,6 +21,6 @@ public class FileResourceVagrantTest extends AbstractVagrantTest {
         SshHost sshHost = execute();
         String stats = sshHost.exec("stat -c '%F:%s:%A:%U:%G' /root/testfile");
         sshHost.stop();
-        Assert.assertEquals(stats, "regular file:5:-rw-------:uucp:fuse\n");
+        Assert.assertEquals(stats, "regular file:5:-rwxr-xrw-:uucp:fuse\n");
     }
 }

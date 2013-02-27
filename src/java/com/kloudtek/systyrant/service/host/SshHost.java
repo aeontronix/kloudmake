@@ -8,6 +8,7 @@ import com.jcraft.jsch.*;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.exec.CommandLine;
@@ -239,8 +240,8 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public void setFilePerms(String path, String perms) throws STRuntimeException {
-        exec("chmod " + perms + " " + path);
+    public void setFilePerms(String path, FilePermissions perms) throws STRuntimeException {
+        exec("chmod " + perms.toChmodString() + " " + path);
     }
 
     @Override

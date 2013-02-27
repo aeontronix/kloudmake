@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.service.host;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.systyrant.service.Startable;
 import com.kloudtek.systyrant.service.Stoppable;
 import org.jetbrains.annotations.NotNull;
@@ -92,7 +93,7 @@ public interface Host extends Stoppable, Startable {
 
     void setFileGroup(String path, String group) throws STRuntimeException;
 
-    void setFilePerms(String path, String perms) throws STRuntimeException;
+    void setFilePerms(String path, FilePermissions perms) throws STRuntimeException;
 
     String getUsername();
 
