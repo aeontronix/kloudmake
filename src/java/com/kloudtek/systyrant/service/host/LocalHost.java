@@ -18,6 +18,7 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipalLookupService;
@@ -203,6 +204,15 @@ public class LocalHost extends AbstractHost {
             PosixFileAttributeView view = Files.getFileAttributeView(jpath, PosixFileAttributeView.class);
             UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
             view.setGroup(lookupService.lookupPrincipalByGroupName(group));
+        } catch (IOException e) {
+            throw new STRuntimeException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void setFilePerms(String path, String perms) throws STRuntimeException {
+        try {
+            Files.setPosixFilePermissions(Paths.get(path), PosixFilePermissions.fromString(perms));
         } catch (IOException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }

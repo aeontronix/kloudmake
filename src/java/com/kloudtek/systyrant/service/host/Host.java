@@ -92,6 +92,8 @@ public interface Host extends Stoppable, Startable {
 
     void setFileGroup(String path, String group) throws STRuntimeException;
 
+    void setFilePerms(String path, String perms) throws STRuntimeException;
+
     String getUsername();
 
     String createTempDir() throws STRuntimeException;

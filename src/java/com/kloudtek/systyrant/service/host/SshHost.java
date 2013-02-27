@@ -239,6 +239,11 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
+    public void setFilePerms(String path, String perms) throws STRuntimeException {
+        exec("chmod :" + perms + " " + path);
+    }
+
+    @Override
     public String createTempDir() throws STRuntimeException {
         String tempdir = exec("mktemp -d", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), false).getOutput().trim();
         tempDirs.add(tempdir);
