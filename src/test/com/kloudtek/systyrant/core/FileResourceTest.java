@@ -11,6 +11,7 @@ import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
+import com.kloudtek.systyrant.resource.builtin.core.FileResource;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
@@ -27,7 +28,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.kloudtek.systyrant.resource.builtin.core.FileResource.Ensure.*;
+import static com.kloudtek.systyrant.FileInfo.Type.DIRECTORY;
+import static com.kloudtek.systyrant.FileInfo.Type.FILE;
+import static com.kloudtek.systyrant.resource.builtin.core.FileResource.Ensure.ABSENT;
+import static com.kloudtek.systyrant.resource.builtin.core.FileResource.Ensure.SYMLINK;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 import static org.testng.Assert.assertEquals;
@@ -58,7 +62,7 @@ public class FileResourceTest {
 
     @Test
     public void testCreateMissingDir() throws STRuntimeException {
-        file.set("ensure", DIRECTORY);
+        file.set("ensure", FileResource.Ensure.DIRECTORY);
         fileDoesntExist();
         assertTrue(context.execute());
         verify(adminMock, times(1)).mkdir(PATH);
@@ -66,19 +70,23 @@ public class FileResourceTest {
 
     @Test
     public void testCreateExistingDir() throws STRuntimeException {
-        file.set("ensure", DIRECTORY);
-        when(adminMock.getFileInfo(PATH)).thenReturn(new FileInfo(PATH, FileInfo.Type.DIRECTORY));
+        file.set("ensure", FileResource.Ensure.DIRECTORY);
+        mockGetFileInfo(DIRECTORY, PATH);
         fileExists();
         assertTrue(context.execute());
         verify(adminMock, times(0)).mkdir(PATH);
     }
 
+    private void mockGetFileInfo(FileInfo.Type type, String path) throws STRuntimeException {
+        when(adminMock.getFileInfo(PATH)).thenReturn(new FileInfo(path, type));
+    }
+
     @Test
     public void testCreateExistingSameFile() throws STRuntimeException {
-        file.set("ensure", FILE);
+        file.set("ensure", FileResource.Ensure.FILE);
         file.set("content", DATA);
         fileExists();
-        when(adminMock.getFileInfo(PATH)).thenReturn(new FileInfo(PATH, FileInfo.Type.FILE));
+        mockGetFileInfo(FILE, PATH);
         when(adminMock.getFileSha1(PATH)).thenReturn(DATA_SHA);
 
         assertTrue(context.execute());
@@ -90,7 +98,7 @@ public class FileResourceTest {
     public void testDeleteExistingFile() throws STRuntimeException {
         file.set("ensure", ABSENT);
         fileExists();
-        when(adminMock.getFileInfo(PATH)).thenReturn(new FileInfo(PATH, FileInfo.Type.FILE));
+        mockGetFileInfo(FILE, PATH);
         assertTrue(context.execute());
 
         verify(adminMock).deleteFile(PATH, false);
