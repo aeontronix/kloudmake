@@ -9,6 +9,7 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
+import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
@@ -44,7 +45,7 @@ public class DSLResourceFactory extends ResourceFactory {
             try {
                 Parameter value = attrEntry.getValue();
                 resource.set(attrEntry.getKey(), value.eval(STContext.get(), resource));
-            } catch (InvalidAttributeException e) {
+            } catch (InvalidAttributeException | InvalidVariableException e) {
                 throw new ResourceCreationException(e.getMessage(), e);
             }
         }

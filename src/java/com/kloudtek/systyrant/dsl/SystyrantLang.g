@@ -12,7 +12,7 @@ statement: ( createResource | invokeMethod | resourceDefinition );
 
 importPkg: IMPORT ( packageName | fullyQualifiedId ) SC;
 
-includeFile: INCLUDE STRING SC;
+includeFile: INCLUDE string SC;
 
 // Define Resource
 
@@ -30,7 +30,7 @@ createResourceSingleInstance: createResourceInstanceId? createResourceInstanceEl
 
 createResourceMultipleInstance: createResourceInstanceId? createResourceInstanceElements* SC;
 
-createResourceInstanceId: staticValue '=>'?;
+createResourceInstanceId: staticOrDynamicValue '=>'?;
 
 createResourceInstanceElements: parameterAssignment | createResourceInstanceChild;
 
@@ -46,17 +46,21 @@ parameter: ( anyId EQ )? staticOrDynamicValue COMMA?;
 
 parameterAssignment: paramName=anyId EQ staticOrDynamicValue COMMA?;
 
-staticValue: STRING | UQSTRING | NB | anyId;
+staticValue: QSTRING | UQSTRING | NB | anyId;
 
-staticOrDynamicValue: staticValue | dynamicValue | invokeMethod ;
+staticOrDynamicValue: staticValue | dynamicValue | invokeMethod;
 
-dynamicValue: '@' anyId ;
+dynamicValue: ASTRING | variableLookupValue;
+
+variableLookupValue: '$' anyId;
 
 packageName: anyId ( '.' anyId )*;
 
 fullyQualifiedId: ( packageName ':' )? anyId ;
 
 anyId: ID | IMPORT | INCLUDE | IMPORT | NEW;
+
+string: ASTRING | QSTRING | UQSTRING | NB | anyId;
 
 // Lexer
 
@@ -77,10 +81,7 @@ WS: [ \r\t]+ -> skip;
 NB: ([0-9] | '.')+;
 ID: [a-zA-Z] [a-zA-Z0-9-_]*;
 UQSTRING: [a-zA-Z0-9-_/$%^&*!];
-STRING
-   : '"' ( ESCAPE | ~('"'|'\\') )* '"'
-   | '\'' ( ESCAPE | ~('\''|'\\') )* '\''
-   | UQSTRING
-   ;
+QSTRING: '\'' ( ESCAPE | ~('\''|'\\') )* '\'';
+ASTRING: '"' ( ESCAPE | ~('"'|'\\') )* '"';
 fragment
 ESCAPE : '\\' . ;

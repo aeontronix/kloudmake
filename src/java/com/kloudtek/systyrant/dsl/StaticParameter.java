@@ -26,6 +26,11 @@ public class StaticParameter extends Parameter {
     }
 
     @Override
+    public String getRawValue() {
+        return value;
+    }
+
+    @Override
     public String eval(STContext ctx, Resource resource) {
         return value;
     }

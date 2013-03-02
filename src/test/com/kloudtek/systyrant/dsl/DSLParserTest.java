@@ -128,6 +128,22 @@ public class DSLParserTest extends AbstractContextTest {
         assertEquals(service.a5, true);
     }
 
+    @Test()
+    public void testVariables() throws IOException, ScriptException, STRuntimeException {
+        ctx.runDSLScript("new test:test(id='parent',attr='val') { new test:test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
+        execute();
+        Resource parent = ctx.findResourceByUid("parent");
+        Resource child = ctx.findResourceByUid("parent.child");
+        assertEquals(parent.get("attr"), "val");
+        assertEquals(child.get("a"), "foo");
+        assertEquals(child.get("b"), "foo");
+        assertEquals(child.get("c"), "$a");
+        assertEquals(child.get("d"), "foo");
+        assertEquals(child.get("e"), "val");
+        assertEquals(child.get("f"), "valbar");
+        assertEquals(child.get("g"), "bla${a}b\\o");
+    }
+
     private static void validateResourcesAttrs(STContext ctx, String uid, String... attrs) {
         Resource resource = findResource(ctx, uid);
         assertNotNull(resource, "Unable to find resource " + uid);

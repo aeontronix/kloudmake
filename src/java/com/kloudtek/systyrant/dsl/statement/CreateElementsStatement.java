@@ -8,6 +8,7 @@ import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.*;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
+import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.resource.Resource;
 import org.slf4j.Logger;
@@ -25,7 +26,7 @@ public class CreateElementsStatement extends Statement {
     public CreateElementsStatement(STContext ctx, SystyrantLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
         this.ctx = ctx;
         elementName = new FQName(createElementsContext.elname.getText());
-        Map<String, Parameter> params = new HashMap<>();
+        Map<String, Parameter> params = new LinkedHashMap<>();
         SystyrantLangParser.CreateResourceParamsContext paramsCtx = createElementsContext.params;
         if (paramsCtx != null) {
             for (SystyrantLangParser.ParameterAssignmentContext pctx : AntlrDSLParser.nullToEmpty(paramsCtx.parameterAssignment())) {
@@ -49,7 +50,7 @@ public class CreateElementsStatement extends Statement {
 
     private void parseResource(SystyrantLangParser.CreateResourceInstanceIdContext resourceInstanceId,
                                List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
-        String id = AntlrDSLParser.toString(resourceInstanceId != null ? resourceInstanceId.staticValue() : null);
+        Parameter id = resourceInstanceId != null ? Parameter.create(resourceInstanceId.staticOrDynamicValue()) : null;
         instances.add(new Instance(id, resourceInstanceElements, params));
     }
 
@@ -62,8 +63,9 @@ public class CreateElementsStatement extends Statement {
         try {
             for (Instance instance : instances) {
                 Resource resource = ctx.getResourceManager().createResource(elementName, dslScript.getImports(), parent);
-                String id = instance.id;
-                resource.setId(id);
+                if (instance.id != null) {
+                    resource.setId(instance.id.eval(ctx, resource));
+                }
                 for (Map.Entry<String, Parameter> pe : instance.parameters.entrySet()) {
                     resource.set(pe.getKey(), pe.getValue().eval(ctx, resource));
                 }
@@ -71,7 +73,7 @@ public class CreateElementsStatement extends Statement {
                     children.execute(dslScript, resource);
                 }
             }
-        } catch (ResourceCreationException | InvalidAttributeException e) {
+        } catch (ResourceCreationException | InvalidAttributeException | InvalidVariableException e) {
             throw new ScriptException(e);
         }
     }
@@ -81,11 +83,11 @@ public class CreateElementsStatement extends Statement {
     }
 
     public class Instance {
-        private String id;
-        private Map<String, Parameter> parameters = new HashMap<>();
+        private Parameter id;
+        private Map<String, Parameter> parameters = new LinkedHashMap<>();
         private List<CreateElementsStatement> childrens = new ArrayList<>();
 
-        public Instance(String id, List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
+        public Instance(Parameter id, List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
             parameters.putAll(params);
             for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntlrDSLParser.nullToEmpty(resourceInstanceElements)) {
@@ -102,7 +104,7 @@ public class CreateElementsStatement extends Statement {
             }
         }
 
-        public String getId() {
+        public Parameter getId() {
             return id;
         }
 

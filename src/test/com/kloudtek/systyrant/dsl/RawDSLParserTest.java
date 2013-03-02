@@ -9,6 +9,7 @@ import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.dsl.statement.CreateElementsStatement;
 import com.kloudtek.systyrant.dsl.statement.InvokeMethodStatement;
 import com.kloudtek.systyrant.dsl.statement.Statement;
+import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.resource.ResourceMatcher;
 import org.testng.annotations.Test;
 
@@ -56,7 +57,7 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException {
+    public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("def test { new test2 { 'test'=> } }");
         assertEquals(script.getDefines().size(), 1);
         ResourceDefinition resourceDefinition = script.getDefines().get(0);
@@ -70,7 +71,7 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException {
+    public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("def test { new test2 { 'tval'=> attr1=\"test\", attr2=22 , attr = 'value' } }");
         assertEquals(script.getDefines().size(), 1);
         ResourceDefinition resourceDefinition = script.getDefines().get(0);
@@ -97,28 +98,28 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testSimpleCreateElement() throws InvalidScriptException {
+    public void testSimpleCreateElement() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("new package { 'dfsa' }");
         validateStatements(script, CreateElementsStatement.class);
         validateResourceInstance(script, null, "package", 0, 0, "dfsa");
     }
 
     @Test
-    public void testSimpleCreateElementWithFQName() throws InvalidScriptException {
+    public void testSimpleCreateElementWithFQName() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("new foo.bar:bla { 'dfsa' }");
         validateStatements(script, CreateElementsStatement.class);
         validateResourceInstance(script, "foo.bar", "bla", 0, 0, "dfsa");
     }
 
     @Test
-    public void testCreateElementWithFQNameImport() throws InvalidScriptException {
+    public void testCreateElementWithFQNameImport() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("new foo.bar:import { 'dfsa' }");
         validateStatements(script, CreateElementsStatement.class);
         validateResourceInstance(script, "foo.bar", "import", 0, 0, "dfsa");
     }
 
     @Test
-    public void testInvokeMethod() throws InvalidScriptException {
+    public void testInvokeMethod() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("invokemethod('bla',\"bazz\",'xx',foo='bar',baz=bla)");
         validateStatements(script, InvokeMethodStatement.class);
         InvokeMethodStatement statement = (InvokeMethodStatement) script.getStatements().get(0);
@@ -148,7 +149,7 @@ public class RawDSLParserTest {
         }
     }
 
-    private void validateParams(HashMap<String, Map<String, Parameter>> p, String id, String... params) {
+    private void validateParams(HashMap<String, Map<String, Parameter>> p, String id, String... params) throws InvalidVariableException {
         for (int i = 0; i < params.length; i += 2) {
             assertEquals(p.get(id).get(params[i]).eval(null, null), params[i + 1]);
         }
@@ -163,19 +164,19 @@ public class RawDSLParserTest {
         assertEquals(createEl.getInstances().size(), instanceCount);
     }
 
-    private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) {
+    private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) throws InvalidVariableException {
         CreateElementsStatement statement = (CreateElementsStatement) script.getStatements().get(idx);
         assertEquals(statement.getElementName().getPkg(), pkg);
         assertEquals(statement.getElementName().getName(), name);
         validateResourceInstance(statement, instanceNb, id, params);
     }
 
-    private void validateResourceInstance(CreateElementsStatement createEl, int instanceNb, String id, String... params) {
+    private void validateResourceInstance(CreateElementsStatement createEl, int instanceNb, String id, String... params) throws InvalidVariableException {
         CreateElementsStatement.Instance instance = createEl.getInstances().get(instanceNb);
         if (id == null) {
             assertNull(instance.getId());
         } else {
-            assertEquals(instance.getId(), id);
+            assertEquals(instance.getId().getRawValue(), id);
         }
         if (params != null) {
             for (int i = 0; i < params.length; i += 2) {

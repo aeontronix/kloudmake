@@ -74,18 +74,7 @@ public class AntlrDSLParser implements DSLParser {
         Parameters params = new Parameters();
         if (paramListContext != null) {
             for (SystyrantLangParser.ParameterContext paramContext : paramListContext) {
-                Parameter parameter;
-                SystyrantLangParser.StaticOrDynamicValueContext staticOrDynamicValueContext = paramContext.staticOrDynamicValue();
-                SystyrantLangParser.StaticValueContext staticValueContext = staticOrDynamicValueContext.staticValue();
-                SystyrantLangParser.InvokeMethodContext invokeMethodContext = staticOrDynamicValueContext.invokeMethod();
-                SystyrantLangParser.DynamicValueContext dynamicValueContext = staticOrDynamicValueContext.dynamicValue();
-                if (staticValueContext != null) {
-                    parameter = new StaticParameter(toString(staticValueContext));
-                } else if (invokeMethodContext != null) {
-                    throw new RuntimeException("Not implemented");
-                } else {
-                    throw new RuntimeException("Bug: no param found in " + paramContext.getText());
-                }
+                Parameter parameter = Parameter.create(paramContext.staticOrDynamicValue());
                 SystyrantLangParser.AnyIdContext idVal = paramContext.anyId();
                 if (idVal != null) {
                     params.addNamedParameter(idVal.getText(), parameter);
@@ -109,23 +98,18 @@ public class AntlrDSLParser implements DSLParser {
 //        return null;
 //    }
 
-    public static String unescapeStr(TerminalNode stringNode) {
-        return unescapeStr(stringNode.getText());
+    public static String escapeStr(TerminalNode stringNode) {
+        return escapeStr(stringNode.getText());
     }
 
-    public static String unescapeStr(Token token) {
-        return unescapeStr(token.getText());
+    public static String escapeStr(Token token) {
+        return escapeStr(token.getText());
     }
 
-    public static String unescapeStr(String txt) {
+    public static String escapeStr(String txt) {
         if (txt.length() == 0) {
             return null;
         }
-        char f = txt.charAt(0);
-        char l = txt.charAt(txt.length() - 1);
-        int b = (f == '\"' || f == '\'') ? 1 : 0;
-        int e = txt.length() - ((l == '\"' || l == '\'') ? 1 : 0);
-        txt = txt.substring(b, e);
         return txt.replace("\\\\", "\\").replace("\\'", "'").replace("\\\"", "\"");
     }
 
@@ -152,15 +136,45 @@ public class AntlrDSLParser implements DSLParser {
         if (nb != null) {
             return nb.getText();
         }
-        TerminalNode str = staticValueContext.STRING();
+        TerminalNode str = staticValueContext.QSTRING();
         if (str != null) {
-            return unescapeStr(str.getText());
+            String text = str.getText();
+            return escapeStr(text.substring(1, text.length() - 1));
         }
         TerminalNode ustr = staticValueContext.UQSTRING();
         if (ustr != null) {
             return ustr.getText();
         }
         SystyrantLangParser.AnyIdContext anyIdContext = staticValueContext.anyId();
+        if (anyIdContext != null) {
+            return anyIdContext.getText();
+        }
+        throw new RuntimeException("BUG: staticValue has no data");
+    }
+
+    public static String toString(SystyrantLangParser.StringContext stringContext) {
+        if (stringContext == null) {
+            return null;
+        }
+        TerminalNode nb = stringContext.NB();
+        if (nb != null) {
+            return nb.getText();
+        }
+        TerminalNode qstr = stringContext.QSTRING();
+        if (qstr != null) {
+            String text = qstr.getText();
+            return escapeStr(text.substring(0, text.length() - 1));
+        }
+        TerminalNode astr = stringContext.ASTRING();
+        if (astr != null) {
+            String text = astr.getText();
+            return escapeStr(text.substring(0, text.length() - 1));
+        }
+        TerminalNode ustr = stringContext.UQSTRING();
+        if (ustr != null) {
+            return ustr.getText();
+        }
+        SystyrantLangParser.AnyIdContext anyIdContext = stringContext.anyId();
         if (anyIdContext != null) {
             return anyIdContext.getText();
         }
