@@ -27,11 +27,11 @@ public interface Host extends Stoppable, Startable {
     String exec(String command, Map<String, String> env) throws STRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, long timeout, @Nullable Integer expectedRetCode, Logging logging,
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
                          boolean excludePreSuFix) throws STRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, long timeout, @Nullable Integer expectedRetCode, Logging logging,
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
                          boolean excludePreSuFix, Map<String, String> env) throws STRuntimeException;
 
     @NotNull

@@ -37,13 +37,16 @@ public class CreateElementsStatement extends Statement {
                 }
             }
         }
-        SystyrantLangParser.CreateResourceSingleInstanceContext singleResource = createElementsContext.createResourceSingleInstance();
-        if (singleResource != null) {
-            parseResource(singleResource.createResourceInstanceId(), singleResource.createResourceInstanceElements(), params);
-        } else {
-            List<SystyrantLangParser.CreateResourceMultipleInstanceContext> multipleInstances = AntlrDSLParser.nullToEmpty(createElementsContext.createResourceMultipleInstance());
-            for (SystyrantLangParser.CreateResourceMultipleInstanceContext instance : multipleInstances) {
-                parseResource(instance.createResourceInstanceId(), instance.createResourceInstanceElements(), params);
+        SystyrantLangParser.CreateResourceStatementsContext resourceStatements = createElementsContext.createResourceStatements();
+        if (resourceStatements != null) {
+            SystyrantLangParser.CreateResourceSingleInstanceContext singleResource = resourceStatements.createResourceSingleInstance();
+            if (singleResource != null) {
+                parseResource(singleResource.createResourceInstanceId(), singleResource.createResourceInstanceElements(), params);
+            } else {
+                List<SystyrantLangParser.CreateResourceMultipleInstanceContext> multipleInstances = AntlrDSLParser.nullToEmpty(resourceStatements.createResourceMultipleInstance());
+                for (SystyrantLangParser.CreateResourceMultipleInstanceContext instance : multipleInstances) {
+                    parseResource(instance.createResourceInstanceId(), instance.createResourceInstanceElements(), params);
+                }
             }
         }
     }

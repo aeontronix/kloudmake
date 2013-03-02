@@ -16,13 +16,17 @@ includeFile: INCLUDE string SC;
 
 // Define Resource
 
-resourceDefinition: DEF fullyQualifiedId resourceDefinitionParams? ( '{' statement* '}' )?;
+resourceDefinition: DEF fullyQualifiedId resourceDefinitionParams? ( resourceDefinitionStatements | SC );
 
 resourceDefinitionParams: '(' parameterAssignment* ')';
 
+resourceDefinitionStatements: '{' statement* '}';
+
 // Create Resource
 
-createResource: NEW elname=fullyQualifiedId params=createResourceParams? '{' ( createResourceSingleInstance | createResourceMultipleInstance* ) '}';
+createResource: NEW elname=fullyQualifiedId params=createResourceParams? ( createResourceStatements | SC );
+
+createResourceStatements: '{' ( createResourceSingleInstance | createResourceMultipleInstance* ) '}';
 
 createResourceParams: '(' parameterAssignment* ')';
 

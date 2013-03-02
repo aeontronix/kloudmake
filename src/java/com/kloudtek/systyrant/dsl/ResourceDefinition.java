@@ -35,10 +35,13 @@ public class ResourceDefinition {
         if (resourceDefinitionParamsContext != null) {
             defaultAttr.putAll(Parameters.assignmentToMap(resourceDefinitionParamsContext.parameterAssignment()));
         }
-        List<SystyrantLangParser.StatementContext> statements = defineElementContext.statement();
-        if (statements != null) {
-            for (SystyrantLangParser.StatementContext statement : statements) {
-                addStatement(Statement.create(ctx, statement), Stage.PREPARE);
+        SystyrantLangParser.ResourceDefinitionStatementsContext resourceDefinitionStatementsContext = defineElementContext.resourceDefinitionStatements();
+        if (resourceDefinitionStatementsContext != null) {
+            List<SystyrantLangParser.StatementContext> statements = resourceDefinitionStatementsContext.statement();
+            if (statements != null) {
+                for (SystyrantLangParser.StatementContext statement : statements) {
+                    addStatement(Statement.create(ctx, statement), Stage.PREPARE);
+                }
             }
         }
     }

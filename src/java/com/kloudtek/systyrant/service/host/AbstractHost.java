@@ -34,7 +34,7 @@ public abstract class AbstractHost implements Host {
     protected Executor executor = new DefaultExecutor();
     protected String execPrefix = "";
     protected String execSuffix = "";
-    protected int defaultTimeout = DEFAULT_TIMEOUT;
+    protected long defaultTimeout = DEFAULT_TIMEOUT;
     protected Logging defaultLogging = ON_ERROR;
     protected int defaultSuccessRetCode = 0;
     protected String username;
@@ -97,14 +97,14 @@ public abstract class AbstractHost implements Host {
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, long timeout, @Nullable Integer expectedRetCode, Logging logging,
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
                                 boolean includePreSuFix) throws STRuntimeException {
         return exec(command, timeout, expectedRetCode, logging, includePreSuFix, null);
     }
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, long timeout, @Nullable Integer expectedRetCode, Logging logging,
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
                                 boolean includePreSuFix, @Nullable Map<String, String> env) throws STRuntimeException {
         CommandLine cmdLine = generateCommandLine(command, includePreSuFix);
         final DelayedLogger delayedLogger = new DelayedLogger(logger);
@@ -117,14 +117,16 @@ public abstract class AbstractHost implements Host {
         ByteArrayOutputStream txtBuffer = new ByteArrayOutputStream();
         PumpStreamHandler streamHandler = new PumpStreamHandler(new TeeOutputStream(logOutputStream, txtBuffer));
         executor.setStreamHandler(streamHandler);
-        ExecuteWatchdog watchdog = new ExecuteWatchdog(timeout) {
-            @Override
-            public synchronized void timeoutOccured(Watchdog w) {
-                logger.error("Execution timed out");
-                super.timeoutOccured(w);
-            }
-        };
-        executor.setWatchdog(watchdog);
+        if (timeout != null) {
+            ExecuteWatchdog watchdog = new ExecuteWatchdog(timeout) {
+                @Override
+                public synchronized void timeoutOccured(Watchdog w) {
+                    logger.error("Execution timed out");
+                    super.timeoutOccured(w);
+                }
+            };
+            executor.setWatchdog(watchdog);
+        }
         final ExecutionResult result = new ExecutionResult();
         boolean failed;
         try {
@@ -183,7 +185,7 @@ public abstract class AbstractHost implements Host {
         writeToFile(path, data.getBytes());
     }
 
-    public int getDefaultTimeout() {
+    public long getDefaultTimeout() {
         return defaultTimeout;
     }
 

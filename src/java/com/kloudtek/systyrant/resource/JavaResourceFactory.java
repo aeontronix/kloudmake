@@ -126,7 +126,7 @@ public class JavaResourceFactory extends ResourceFactory {
             Object impl = clazz.newInstance();
             resource.addAction(new JavaImpl(impl));
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new ResourceCreationException(e.getMessage(), e);
+            throw new ResourceCreationException("Error while creating java resource: " + clazz.getName(), e);
         }
         return resource;
     }
