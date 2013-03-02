@@ -99,7 +99,7 @@ public class SshHost extends AbstractHost {
                 exec("rm -rf " + path, 0, NO);
             } else {
                 ExecutionResult res = exec("rm -f " + path, null, NO);
-                if (res.getErrCode() != 0) {
+                if (res.getRetCode() != 0) {
                     exec("rmdir " + path, 0, NO);
                 }
             }
@@ -125,7 +125,7 @@ public class SshHost extends AbstractHost {
     @Override
     public boolean fileExists(String path) throws STRuntimeException {
         ExecutionResult result = exec("test -e " + path, null, NO);
-        return result.getErrCode() == 0;
+        return result.getRetCode() == 0;
     }
 
     @Override

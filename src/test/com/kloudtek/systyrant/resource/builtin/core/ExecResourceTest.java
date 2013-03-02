@@ -93,4 +93,10 @@ public class ExecResourceTest extends AbstractContextTest {
             tempFile.delete();
         }
     }
+
+    @Test
+    public void simpleExecTimeout() throws IOException, ScriptException, STRuntimeException {
+        ctx.runDSLScript("new core:exec { command = 'sleep 3' timeout='1'}");
+        execute(false);
+    }
 }

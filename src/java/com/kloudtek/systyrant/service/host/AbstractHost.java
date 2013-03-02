@@ -104,7 +104,7 @@ public abstract class AbstractHost implements Host {
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
+    public ExecutionResult exec(final String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
                                 boolean includePreSuFix, @Nullable Map<String, String> env) throws STRuntimeException {
         CommandLine cmdLine = generateCommandLine(command, includePreSuFix);
         final DelayedLogger delayedLogger = new DelayedLogger(logger);
@@ -117,21 +117,19 @@ public abstract class AbstractHost implements Host {
         ByteArrayOutputStream txtBuffer = new ByteArrayOutputStream();
         PumpStreamHandler streamHandler = new PumpStreamHandler(new TeeOutputStream(logOutputStream, txtBuffer));
         executor.setStreamHandler(streamHandler);
-        if (timeout != null) {
-            ExecuteWatchdog watchdog = new ExecuteWatchdog(timeout) {
-                @Override
-                public synchronized void timeoutOccured(Watchdog w) {
-                    logger.error("Execution timed out");
-                    super.timeoutOccured(w);
-                }
-            };
-            executor.setWatchdog(watchdog);
-        }
+        ExecuteWatchdog watchdog = new ExecuteWatchdog(timeout == null ? DEFAULT_TIMEOUT : timeout) {
+            @Override
+            public synchronized void timeoutOccured(Watchdog w) {
+                logger.error("Execution timed out: " + command);
+                super.timeoutOccured(w);
+            }
+        };
+        executor.setWatchdog(watchdog);
         final ExecutionResult result = new ExecutionResult();
         boolean failed;
         try {
             if (expectedRetCode != null) {
-                result.setErrCode(executor.execute(cmdLine, env));
+                result.setRetCode(executor.execute(cmdLine, env));
             } else {
                 final DoNothingExecResultHandler doNothingExecResultHandler = new DoNothingExecResultHandler(result);
                 executor.execute(cmdLine, env, doNothingExecResultHandler);
@@ -146,7 +144,7 @@ public abstract class AbstractHost implements Host {
                     }
                 }
             }
-            failed = expectedRetCode != null && result.getErrCode() != expectedRetCode;
+            failed = expectedRetCode != null && result.getRetCode() != expectedRetCode;
         } catch (IOException e) {
             failed = true;
             logger.error("I/O Error occured while performing operation: " + e.getMessage());
@@ -231,14 +229,14 @@ public abstract class AbstractHost implements Host {
 
         @Override
         public synchronized void onProcessComplete(int i) {
-            result.setErrCode(i);
+            result.setRetCode(i);
             finished = true;
             notifyAll();
         }
 
         @Override
         public synchronized void onProcessFailed(ExecuteException e) {
-            result.setErrCode(e.getExitValue());
+            result.setRetCode(e.getExitValue());
             finished = true;
             notifyAll();
         }

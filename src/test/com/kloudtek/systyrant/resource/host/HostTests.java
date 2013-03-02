@@ -100,7 +100,7 @@ public class HostTests {
         TestFile file = new TestFile().writeTestData();
         ExecutionResult result = admin.exec("dir " + file.path, 0, YES);
         Assert.assertEquals(result.getOutput().trim(), file.path);
-        Assert.assertEquals(result.getErrCode(), 0);
+        Assert.assertEquals(result.getRetCode(), 0);
         file.assertNoOtherFiles();
     }
 
@@ -109,7 +109,7 @@ public class HostTests {
         TestFile file = new TestFile().writeTestData();
         ExecutionResult result = admin.exec("dir " + file.path, null, YES);
         Assert.assertEquals(result.getOutput().trim(), file.path);
-        Assert.assertEquals(result.getErrCode(), 0);
+        Assert.assertEquals(result.getRetCode(), 0);
         file.assertNoOtherFiles();
     }
 
@@ -121,7 +121,7 @@ public class HostTests {
     @Test()
     public void testExecUnsuccessfulWithRetCode() throws STRuntimeException {
         ExecutionResult result = admin.exec("dir asffdsa", null, YES);
-        assertTrue(result.getErrCode() != 0);
+        assertTrue(result.getRetCode() != 0);
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
@@ -131,7 +131,7 @@ public class HostTests {
         String script = "#!/bin/bash\ndir " + file1.path + "\ndir " + file2.path;
         ExecutionResult result = admin.execScript(script, Host.ScriptType.BASH, Host.DEFAULT_TIMEOUT, 0, YES, true);
         Assert.assertEquals(result.getOutput().trim(), file1.path + "\n" + file2.path);
-        Assert.assertEquals(result.getErrCode(), 0);
+        Assert.assertEquals(result.getRetCode(), 0);
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
@@ -275,7 +275,7 @@ public class HostTests {
         stdout = admin.exec("env", env);
         assertTrue(stdout.contains(keyvalue));
         ExecutionResult res = admin.exec("env", null, YES, env);
-        assertEquals(res.getErrCode(), 0);
+        assertEquals(res.getRetCode(), 0);
         assertTrue(res.getOutput().contains(keyvalue));
         assertTrue(stdout.contains(keyvalue));
         stdout = admin.exec("env");

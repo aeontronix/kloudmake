@@ -35,7 +35,7 @@ public class AptPackageProvider implements PackageProvider {
     public String checkCurrentlyInstalled(String name) throws STRuntimeException {
         ExecutionResult checkResult = exec("dpkg -s " + name, null, Host.Logging.ON_ERROR);
         String result = checkResult.getOutput();
-        if (checkResult.getErrCode() != 0) {
+        if (checkResult.getRetCode() != 0) {
             if (result != null && result.trim().toLowerCase().contains("is not installed")) {
                 return null;
             } else {
@@ -69,10 +69,10 @@ public class AptPackageProvider implements PackageProvider {
             return true;
         } else {
             ExecutionResult res = exec("dpkg --compare-versions " + proposed + " gt " + current, null, Host.Logging.NO);
-            if (res.getErrCode() != 0 && (res.getOutput() != null && !res.getOutput().trim().isEmpty())) {
+            if (res.getRetCode() != 0 && (res.getOutput() != null && !res.getOutput().trim().isEmpty())) {
                 throw new STRuntimeException("Unexpected error comparing apt versions: " + res.getOutput());
             }
-            return res.getErrCode() == 0;
+            return res.getRetCode() == 0;
         }
     }
 

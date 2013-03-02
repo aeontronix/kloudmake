@@ -35,6 +35,8 @@ public class ExecResource {
     private String logging;
     @Attr
     private Long timeout;
+    @Attr
+    private Long returns;
     private Host.Logging loggingEnum;
 
     public String getCommand() {
@@ -62,13 +64,13 @@ public class ExecResource {
         }
         if (unless != null) {
             ExecutionResult exec = host.exec(unless, null, loggingEnum);
-            if (exec.getErrCode() == 0) {
+            if (exec.getRetCode() == 0) {
                 return true;
             }
         }
         if (ifAttr != null) {
             ExecutionResult exec = host.exec(ifAttr, null, loggingEnum);
-            if (exec.getErrCode() != 0) {
+            if (exec.getRetCode() != 0) {
                 return true;
             }
         }
@@ -77,6 +79,9 @@ public class ExecResource {
 
     @Sync
     public void exec() throws STRuntimeException {
-        host.exec(command, timeout, null, loggingEnum, false);
+        ExecutionResult exec = host.exec(command, timeout != null ? timeout * 1000 : 60000, null, loggingEnum, false);
+        if (exec.getRetCode() != (returns != null ? returns : 0)) {
+            throw new STRuntimeException("Execution of " + command + " returned " + exec.getRetCode());
+        }
     }
 }

@@ -5,15 +5,15 @@
 package com.kloudtek.systyrant;
 
 public class ExecutionResult {
-    private int errCode;
+    private int retCode;
     private String output;
 
-    public int getErrCode() {
-        return errCode;
+    public int getRetCode() {
+        return retCode;
     }
 
-    public void setErrCode(int errCode) {
-        this.errCode = errCode;
+    public void setRetCode(int retCode) {
+        this.retCode = retCode;
     }
 
     public String getOutput() {
