@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
 
-import static com.kloudtek.util.StringUtils.isEmpty;
-
 @STResource
 public class ExecResource {
     private static Logger logger = LoggerFactory.getLogger(ExecResource.class);
@@ -31,11 +29,11 @@ public class ExecResource {
     private String ifAttr;
     @Attr
     private String unless;
-    @Attr
+    @Attr(def = "ON_ERROR")
     private String logging;
-    @Attr
+    @Attr(def = "60")
     private Long timeout;
-    @Attr
+    @Attr(def = "0")
     private Long returns;
     private Host.Logging loggingEnum;
 
@@ -58,7 +56,7 @@ public class ExecResource {
     @Verify
     public boolean testIfAndUnless() throws STRuntimeException {
         try {
-            loggingEnum = isEmpty(logging) ? Host.Logging.ON_ERROR : Host.Logging.valueOf(logging.toUpperCase());
+            loggingEnum = Host.Logging.valueOf(logging.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new STRuntimeException("Invalid logging attribute: " + logging);
         }
@@ -79,8 +77,8 @@ public class ExecResource {
 
     @Sync
     public void exec() throws STRuntimeException {
-        ExecutionResult exec = host.exec(command, timeout != null ? timeout * 1000 : 60000, null, loggingEnum, false);
-        if (exec.getRetCode() != (returns != null ? returns : 0)) {
+        ExecutionResult exec = host.exec(command, timeout * 1000, null, loggingEnum, false);
+        if (exec.getRetCode() != returns) {
             throw new STRuntimeException("Execution of " + command + " returned " + exec.getRetCode());
         }
     }

@@ -14,5 +14,7 @@ import java.lang.annotation.Target;
 public @interface Attr {
     String value() default "";
 
+    String def() default "";
+
     boolean required() default false;
 }

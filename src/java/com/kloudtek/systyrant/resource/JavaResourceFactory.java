@@ -35,6 +35,7 @@ public class JavaResourceFactory extends ResourceFactory {
     private HashMap<Stage, List<ActionMethod>> postChildrenActionMethods = new HashMap<>();
     private HashMap<Field, String> attrInject = new HashMap<>();
     private HashMap<Field, String> serviceInject = new HashMap<>();
+    private HashMap<String, String> defaultParamValues = new HashMap<>();
 
     public JavaResourceFactory(Class<?> clazz, FQName fqname, HashMap<String, String> packageMappings) throws InvalidResourceDefinitionException {
         super(findFQName(clazz, fqname, packageMappings));
@@ -54,7 +55,11 @@ public class JavaResourceFactory extends ResourceFactory {
             Attr attr = field.getAnnotation(Attr.class);
             if (attr != null) {
                 field.setAccessible(true);
-                attrInject.put(field, attr.value().isEmpty() ? field.getName() : attr.value());
+                String name = attr.value().isEmpty() ? field.getName() : attr.value();
+                attrInject.put(field, name);
+                if (isNotEmpty(attr.def())) {
+                    defaultParamValues.put(name, attr.def());
+                }
             }
             javax.annotation.Resource rs = field.getAnnotation(javax.annotation.Resource.class);
             if (rs != null) {
@@ -125,8 +130,13 @@ public class JavaResourceFactory extends ResourceFactory {
         try {
             Object impl = clazz.newInstance();
             resource.addAction(new JavaImpl(impl));
+            for (Map.Entry<String, String> entry : defaultParamValues.entrySet()) {
+                resource.set(entry.getKey(), entry.getValue());
+            }
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new ResourceCreationException("Error while creating java resource: " + clazz.getName(), e);
+            throw new ResourceCreationException("Java resource cannot be instantiated: " + clazz.getName(), e);
+        } catch (InvalidAttributeException e) {
+            throw new ResourceCreationException("Error while creating java resource " + clazz.getName() + ": " + e.getMessage(), e);
         }
         return resource;
     }
