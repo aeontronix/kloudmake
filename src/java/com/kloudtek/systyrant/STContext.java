@@ -6,6 +6,7 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.provider.ProvidersManagementService;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
@@ -16,6 +17,7 @@ import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.systyrant.service.host.Host;
 import com.kloudtek.systyrant.util.AutoCreateHashMap;
 import org.jetbrains.annotations.NotNull;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -45,6 +47,7 @@ public class STContext implements AutoCloseable {
     private ServiceManager serviceManager;
     private List<Library> libraries = new ArrayList<>();
     private LibraryClassLoader libraryClassloader = new LibraryClassLoader(new URL[0], STContext.class.getClassLoader());
+    private Reflections reflections = new Reflections();
     private static ThreadLocal<STContext> ctx = new ThreadLocal<>();
     private ThreadLocal<Resource> resourceScope = new ThreadLocal<>();
     private final Map<String, Resource> resourceUidIndexes = new HashMap<>();
@@ -57,23 +60,14 @@ public class STContext implements AutoCloseable {
     private final HashMap<String, ScriptEngine> scriptEnginesByExtCache = new HashMap<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private Resource defaultParent;
-
-    public STContext(ResourceManager resourceManager, ServiceManager serviceManager) throws InvalidResourceDefinitionException, InvalidServiceException {
-        scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
-        if (resourceManager == null) {
-            resourceManager = new ResourceManagerImpl();
-        }
-        this.resourceManager = resourceManager;
-        this.resourceManager.setContext(this);
-        if (serviceManager == null) {
-            serviceManager = new ServiceManagerImpl();
-        }
-        this.serviceManager = serviceManager;
-        registerLibrary(new Library());
-    }
+    private boolean newLibAdded;
+    private ProvidersManagementService providersManagementService = new ProvidersManagementService();
 
     public STContext() throws InvalidResourceDefinitionException, InvalidServiceException {
-        this(null, null);
+        scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
+        resourceManager = new ResourceManagerImpl(this);
+        serviceManager = new ServiceManagerImpl(reflections);
+        registerLibrary(new Library());
     }
 
     // ------------------------------------------------------------------------------------------
@@ -105,11 +99,18 @@ public class STContext implements AutoCloseable {
     }
 
     private void registerLibrary(Library library) throws InvalidResourceDefinitionException {
-        libraries.add(library);
-        logger.debug("Adding library {} to the module classloader", library.getLocationUrl());
-        libraryClassloader.addURL(library.getLocationUrl());
-        for (JavaResourceFactory javaResourceFactory : library.getJavaElFactories()) {
-            resourceManager.registerResources(javaResourceFactory);
+        lock.writeLock().lock();
+        try {
+            newLibAdded = true;
+            libraries.add(library);
+            logger.debug("Adding library {} to the module classloader", library.getLocationUrl());
+            libraryClassloader.addURL(library.getLocationUrl());
+            for (JavaResourceFactory javaResourceFactory : library.getJavaElFactories()) {
+                resourceManager.registerResources(javaResourceFactory);
+            }
+            reflections.merge(library.getReflections());
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -219,11 +220,11 @@ public class STContext implements AutoCloseable {
         return scriptEngine;
     }
 
-    public Host host() throws STRuntimeException {
+    public Host host() throws InvalidServiceException {
         return serviceManager.getService(Host.class);
     }
 
-    public FileStore files() throws STRuntimeException {
+    public FileStore files() throws InvalidServiceException {
         return serviceManager.getService(FileStore.class);
     }
 
@@ -241,47 +242,52 @@ public class STContext implements AutoCloseable {
         serviceManager.close();
     }
 
-    public synchronized boolean execute() throws STRuntimeException {
-        if (executed) {
-            throw new AlreadyExecutedException();
-        }
-
-        logger.info("Systyrant context execution started");
-        ctx.set(this);
-
+    public boolean execute() throws STRuntimeException {
+        lock.writeLock().lock();
         try {
-            boolean successful;
-
-            prepare();
-
-            resourceManager.prepareForExecution();
-
-            validateAndGenerateIdentifiers();
-
-            buildIndexes();
-
-            executeResources(EXECUTE);
-
-            cleanup();
-
-            successful = isSuccessful();
-
-            if (successful) {
-                logger.info("Systyrant context execution completed");
-            } else {
-                logger.warn("Systyrant context execution completed with some errors");
+            if (executed) {
+                throw new AlreadyExecutedException();
             }
-            executed = true;
-            return successful;
-        } finally {
-            for (File tempFile : tempFiles) {
-                if (!tempFile.delete()) {
-                    logger.warn("Failed to delete temporary file " + tempFile.getPath() + " will attempt to delete on process exit");
-                    tempFile.deleteOnExit();
+
+            logger.info("Systyrant context execution started");
+            ctx.set(this);
+
+            try {
+                boolean successful;
+
+                prepare();
+
+                resourceManager.prepareForExecution();
+
+                validateAndGenerateIdentifiers();
+
+                buildIndexes();
+
+                executeResources(EXECUTE);
+
+                cleanup();
+
+                successful = isSuccessful();
+
+                if (successful) {
+                    logger.info("Systyrant context execution completed");
+                } else {
+                    logger.warn("Systyrant context execution completed with some errors");
                 }
+                executed = true;
+                return successful;
+            } finally {
+                for (File tempFile : tempFiles) {
+                    if (!tempFile.delete()) {
+                        logger.warn("Failed to delete temporary file " + tempFile.getPath() + " will attempt to delete on process exit");
+                        tempFile.deleteOnExit();
+                    }
+                }
+                resourceManager.setCreateAllowed(true);
+                ctx.remove();
             }
-            resourceManager.setCreateAllowed(true);
-            ctx.remove();
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -357,6 +363,9 @@ public class STContext implements AutoCloseable {
     }
 
     private void prepare() throws STRuntimeException {
+        if (newLibAdded) {
+            providersManagementService.init(reflections);
+        }
         for (Resource resource : resourceManager) {
             resource.reset();
         }

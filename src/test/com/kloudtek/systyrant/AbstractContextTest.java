@@ -21,8 +21,6 @@ public class AbstractContextTest {
     public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException {
         ctx = new STContext();
         resourceManager = ctx.getResourceManager();
-        resourceManager.registerJavaResource(TestResource.class, TEST);
-        resourceManager.registerJavaResource(UniqueTestResource.class, UNIQUETEST);
     }
 
     public Resource createTestResource() throws ResourceCreationException {

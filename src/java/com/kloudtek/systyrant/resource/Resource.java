@@ -8,10 +8,7 @@ import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STAction;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidDependencyException;
-import com.kloudtek.systyrant.exception.InvalidRefException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.service.host.Host;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
@@ -318,7 +315,7 @@ public class Resource {
         return context;
     }
 
-    public Host host() throws STRuntimeException {
+    public Host host() throws InvalidServiceException {
         return context.host();
     }
 

@@ -9,9 +9,13 @@ import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.builtin.core.FileResource;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.XPathUtils;
 import org.reflections.Reflections;
+import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.xml.sax.InputSource;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,34 +68,25 @@ public class Library {
         } else {
             synchronized (Library.class) {
                 if (classpathReflections == null) {
+                    List<String> pkgs = new ArrayList<>();
                     try {
-                        ArrayList<String> packages = new ArrayList<>();
-                        classpathStPkgToJavaPkgMap = new HashMap<>();
-                        classpathJavaPkgToStPkgMap = new HashMap<>();
-                        Enumeration<URL> propsEnum = getClass().getClassLoader().getResources("META-INF/systyrant.properties");
-                        while (propsEnum.hasMoreElements()) {
-                            URL url = propsEnum.nextElement();
-                            Properties p = new Properties();
-                            try (InputStream propStream = url.openStream()) {
-                                p.load(propStream);
-                                for (Map.Entry<Object, Object> entry : p.entrySet()) {
-                                    String jpkg = (String) entry.getKey();
-                                    String spkg = (String) entry.getValue();
-                                    classpathStPkgToJavaPkgMap.put(spkg, jpkg);
-                                    classpathJavaPkgToStPkgMap.put(jpkg, spkg);
-                                    packages.add(jpkg);
-                                }
+                        Enumeration<URL> descriptors = getClass().getClassLoader().getResources("META-INF/systyrant.xml");
+                        while (descriptors.hasMoreElements()) {
+                            try (InputStream stream = descriptors.nextElement().openStream()) {
+                                pkgs.addAll(XPathUtils.evalXPathTextElements("systyrant/pkg/text()", new InputSource(stream)));
                             }
                         }
-                        classpathReflections = new Reflections(packages.toArray());
-                    } catch (IOException e) {
-                        throw new InvalidResourceDefinitionException(e.getMessage(), e);
+                    } catch (IOException | XPathExpressionException e) {
+                        throw new InvalidResourceDefinitionException(e);
                     }
+                    Set<URL> urls = new HashSet<>();
+                    for (String pkg : pkgs) {
+                        urls.addAll(ClasspathHelper.forPackage(pkg));
+                    }
+                    classpathReflections = new Reflections(configurationBuilder.setUrls(urls));
                 }
-                reflections = classpathReflections;
-                stPkgToJavaPkgMap.putAll(classpathStPkgToJavaPkgMap);
-                javaPkgToStPkgMap.putAll(classpathJavaPkgToStPkgMap);
             }
+            reflections = classpathReflections;
         }
         Set<Class<?>> javaElements = reflections.getTypesAnnotatedWith(STResource.class);
         for (Class<?> clazz : javaElements) {

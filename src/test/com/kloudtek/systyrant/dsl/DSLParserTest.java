@@ -105,7 +105,7 @@ public class DSLParserTest extends AbstractContextTest {
     @Test
     public void testInvokeMethod() throws InvalidServiceException, IOException, ScriptException, STRuntimeException {
         TestService service = new TestService();
-        ((ServiceManagerImpl) ctx.getServiceManager()).registerService("test", service);
+        ctx.getServiceManager().registerService("test", service);
         ctx.runDSLScript("dostuff('foo','bar',a4=ga,a5=true)");
         execute();
         assertEquals(service.a1, "foo");

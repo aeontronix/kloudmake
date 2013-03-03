@@ -6,12 +6,13 @@ package com.kloudtek.systyrant.service;
 
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.Parameters;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
 public interface ServiceManager {
-    Object getService(String id);
+    Object getService(String id) throws InvalidServiceException;
 
-    <X> X getService(Class<X> classtype) throws STRuntimeException;
+    <X> X getService(Class<X> classtype) throws InvalidServiceException;
 
     void addOverride(String id, Object overrideService);
 
@@ -26,4 +27,6 @@ public interface ServiceManager {
     void stop();
 
     Object invokeMethod(STContext ctx, String name, Parameters parameters) throws STRuntimeException;
+
+    void registerService(String name, Object service) throws InvalidServiceException;
 }

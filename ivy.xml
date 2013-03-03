@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) KloudTek Ltd 2012.
+  ~ Copyright (c) 2013 KloudTek Ltd
   -->
 
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -21,6 +21,7 @@
         <dependency org="com.jetbrains" name="annotations" rev="latest.integration" conf="build->default"/>
         <dependency org="org.antlr" name="antlr-ant" rev="1169924912745" conf="build->default"/>
         <dependency org="org.antlr" name="antlr" rev="4.0-rc1" conf="build->default"/>
+        <dependency org="org.apache" name="ant" rev="latest.release" conf="build->default"/>
         <!-- Test -->
         <dependency org="org.testng" name="testng" rev="5.10" conf="test->default"/>
         <dependency org="com.google.code" name="mockito" rev="1.9.0-rc1" conf="test->all"/>
@@ -36,6 +37,7 @@
         <dependency org="org.apache" name="commons-beanutils" rev="latest.release" conf="core->default"/>
         <dependency org="org.apache" name="commons-httpclient" rev="latest.release" conf="core->default"/>
         <dependency org="org.apache" name="commons-jexl" rev="latest.release" conf="core->default"/>
+        <dependency org="org.dom4j" name="dom4j" rev="latest.release" conf="core->default"/>
         <dependency org="net.sourceforge" name="jsch" rev="latest.release" conf="core->default,sources"/>
         <dependency org="net.sourceforge" name="freemarker" rev="latest.release" conf="core->default"/>
         <dependency org="com.sun" name="jaxb" rev="latest.release" conf="core->default,sources"/>

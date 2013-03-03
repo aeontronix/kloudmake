@@ -6,6 +6,7 @@ package com.kloudtek.systyrant.service.host;
 
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.systyrant.service.Startable;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.Map;
 
+@Service(def = LocalHost.class)
 public interface Host extends Stoppable, Startable {
     public static final int DEFAULT_TIMEOUT = 300000;
 

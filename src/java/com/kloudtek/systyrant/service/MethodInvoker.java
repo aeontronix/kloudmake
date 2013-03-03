@@ -69,13 +69,13 @@ public class MethodInvoker {
             Class<?> type = paramsMap.get(paramsOrder.get(idx)).type;
             plist[idx] = ConvertUtils.convert(paramValue, type);
         }
-        Object service = ctx.getServiceManager().getService(serviceName);
-        if (service == null) {
-            throw new STRuntimeException("BUG: Couldn't find service " + serviceName);
-        }
         try {
+            Object service = ctx.getServiceManager().getService(serviceName);
+            if (service == null) {
+                throw new STRuntimeException("BUG: Couldn't find service " + serviceName);
+            }
             return method.invoke(service, plist);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException | InvalidServiceException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }
     }

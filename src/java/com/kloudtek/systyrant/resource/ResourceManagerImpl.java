@@ -38,6 +38,10 @@ public class ResourceManagerImpl implements ResourceManager {
     private final Map<String, ResourceFactory> fqnResourceIndex = new HashMap<>();
     private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
 
+    public ResourceManagerImpl(STContext context) {
+        this.context = context;
+    }
+
     @Override
     public Iterator<Resource> iterator() {
         rlock();

@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.service.filestore;
 
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.host.Host;
 
@@ -28,7 +29,7 @@ public abstract class DataFile {
             String tempFile = host.createTempFile();
             host.writeToFile(tempFile, fileStream);
             return tempFile;
-        } catch (IOException e) {
+        } catch (IOException | InvalidServiceException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }
     }
@@ -46,7 +47,7 @@ public abstract class DataFile {
             }
             host.writeToFile(path, getStream());
             return true;
-        } catch (IOException e) {
+        } catch (IOException | InvalidServiceException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }
     }

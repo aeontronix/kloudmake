@@ -64,4 +64,12 @@
             <path location="${build.dir}/classes-antlr"/>
         </augment>
     </target>
+
+    <target name="reflections" depends="compile" extensionOf="post-compile">
+        <taskdef classpath="${build.dir}/classes" name="reflections"
+                 classname="com.kloudtek.systyrant.util.GenerateReflectionsTask">
+            <classpath refid="buildmagic.classpath.compile"/>
+        </taskdef>
+        <reflections classes="${build.dir}/classes" pkgs="com.kloudtek.systyrant"/>
+    </target>
 </project>

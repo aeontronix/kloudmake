@@ -1,0 +1,10 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<systyrant>
+    <pkg>com.kloudtek.systyrant.resource.builtin.core</pkg>
+    <pkg>com.kloudtek.systyrant.resource.builtin.db</pkg>
+    <pkg>com.kloudtek.systyrant.resource.builtin.virt</pkg>
+    <pkg>com.kloudtek.systyrant.service.host.metadata</pkg>
+</systyrant>

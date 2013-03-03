@@ -79,6 +79,7 @@ public class SshHost extends AbstractHost {
         } catch (JSchException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }
+        super.start();
     }
 
     @Override

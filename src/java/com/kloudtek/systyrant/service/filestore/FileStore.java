@@ -8,6 +8,7 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.TempFile;
@@ -41,6 +42,7 @@ import static com.kloudtek.util.StringUtils.isNotEmpty;
  * <dd>Used to retrieve a file in the classpath. ie: classpath:/com/test/file.txt</dd>
  * </dl>
  */
+@Service
 public class FileStore implements Closeable {
     private static final Logger logger = LoggerFactory.getLogger(FileStore.class);
     private LinkedHashSet<String> locations = new LinkedHashSet<>();

@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.core;
 
 import com.kloudtek.systyrant.AbstractSSHTest;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.AptPackageProvider;
 import com.kloudtek.systyrant.service.host.Host;
@@ -18,7 +19,7 @@ public class AptPackageProviderSSHTest extends AbstractSSHTest {
     private AptPackageProvider provider;
 
     @BeforeMethod(groups = "ssh")
-    public void init() throws STRuntimeException {
+    public void init() throws STRuntimeException, InvalidServiceException {
         provider = new AptPackageProvider(ctx.host());
     }
 

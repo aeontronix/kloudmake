@@ -257,25 +257,29 @@ public class JavaResourceFactory extends ResourceFactory {
                 }
             }
             for (Map.Entry<Field, String> entry : serviceInject.entrySet()) {
-                Field field = entry.getKey();
-                String rsName = entry.getValue();
-                Class<?> rsClass = field.getType();
-                Object resource;
-                if (rsClass.isInstance(STContext.class)) {
-                    resource = STContext.get();
-                } else if (rsClass.isAssignableFrom(Host.class)) {
-                    resource = STContext.get().host();
-                } else if (rsClass.isAssignableFrom(ResourceManagerImpl.class)) {
-                    resource = STContext.get().getResourceManager();
-                } else if (rsClass.isAssignableFrom(ServiceManager.class)) {
-                    resource = STContext.get().getServiceManager();
-                } else if (rsClass.equals(Resource.class)) {
-                    resource = element;
-                } else {
-                    ServiceManager sm = ctx.getServiceManager();
-                    resource = isEmpty(rsName) ? sm.getService(rsClass) : sm.getService(rsName);
+                try {
+                    Field field = entry.getKey();
+                    String rsName = entry.getValue();
+                    Class<?> rsClass = field.getType();
+                    Object resource;
+                    if (rsClass.isInstance(STContext.class)) {
+                        resource = STContext.get();
+                    } else if (rsClass.isAssignableFrom(Host.class)) {
+                        resource = STContext.get().host();
+                    } else if (rsClass.isAssignableFrom(ResourceManagerImpl.class)) {
+                        resource = STContext.get().getResourceManager();
+                    } else if (rsClass.isAssignableFrom(ServiceManager.class)) {
+                        resource = STContext.get().getServiceManager();
+                    } else if (rsClass.equals(Resource.class)) {
+                        resource = element;
+                    } else {
+                        ServiceManager sm = ctx.getServiceManager();
+                        resource = isEmpty(rsName) ? sm.getService(rsClass) : sm.getService(rsName);
+                    }
+                    field.set(impl, resource);
+                } catch (InvalidServiceException e) {
+                    throw new STRuntimeException(e.getMessage(), e);
                 }
-                field.set(impl, resource);
             }
         }
 

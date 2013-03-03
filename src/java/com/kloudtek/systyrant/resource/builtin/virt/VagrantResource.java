@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.resource.builtin.virt;
 import com.kloudtek.systyrant.annotation.Attr;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.host.Host;
@@ -90,10 +91,14 @@ public class VagrantResource {
 
     @Execute(postChildren = true)
     public void postChildrens() throws STRuntimeException {
-        serviceManager.removeOverride("host", sshHost);
-        host = (Host) serviceManager.getService("host");
-        if (after != null) {
-            changeStatus(after);
+        try {
+            serviceManager.removeOverride("host", sshHost);
+            host = (Host) serviceManager.getService("host");
+            if (after != null) {
+                changeStatus(after);
+            }
+        } catch (InvalidServiceException e) {
+            throw new STRuntimeException(e.getMessage(), e);
         }
     }
 
