@@ -3,4 +3,5 @@ import db;
 
 new vagrant {"vm1" => dir = '_vagrant', box = "ubuntu-precise64", after = "destroyed"
     new postgresql {"db" =>}
+    new test:vagrantvalidate {}
 }

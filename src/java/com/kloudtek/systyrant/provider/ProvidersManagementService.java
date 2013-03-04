@@ -12,6 +12,7 @@ import org.reflections.Reflections;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Set;
 
 public class ProvidersManagementService {
@@ -60,15 +61,33 @@ public class ProvidersManagementService {
             try {
                 Object provider = clazz.newInstance();
                 providerImplementations.get(clazz).add(provider);
-                for (Class<?> ifclass : clazz.getInterfaces()) {
-                    ProviderManager providerManager = providerManagers.get(ifclass);
+                LinkedList<Class> classList = new LinkedList<>();
+                classList.add(clazz);
+                while (!classList.isEmpty()) {
+                    Class c = classList.removeLast();
+                    ProviderManager providerManager = providerClasses.get(c);
                     if (providerManager != null) {
                         providerManager.registerProvider(provider);
+                    }
+                    Class superclass = c.getSuperclass();
+                    if (superclass != null) {
+                        classList.add(superclass);
+                    }
+                    Class[] interfaces = c.getInterfaces();
+                    if (interfaces != null) {
+                        for (Class iface : interfaces) {
+                            classList.add(iface);
+                        }
                     }
                 }
             } catch (InstantiationException | IllegalAccessException e) {
                 throw new STRuntimeException("Unable to instantiate provider " + clazz.getName());
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <X extends ProviderManager> X getProviderManager(Class<X> declaringClass) {
+        return (X) providerManagers.get(declaringClass);
     }
 }

@@ -11,6 +11,7 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.systyrant.service.Startable;
 import com.kloudtek.systyrant.service.Stoppable;
+import com.kloudtek.systyrant.service.host.metadata.HostMetadataProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -110,6 +111,8 @@ public interface Host extends Stoppable, Startable {
     Object getState(String id);
 
     Map<String, Object> getState();
+
+    HostMetadataProvider getMetadata();
 
     public enum Logging {
         NO, YES, ON_ERROR

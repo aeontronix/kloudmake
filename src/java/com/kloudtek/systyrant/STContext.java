@@ -66,7 +66,7 @@ public class STContext implements AutoCloseable {
     public STContext() throws InvalidResourceDefinitionException, InvalidServiceException {
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
         resourceManager = new ResourceManagerImpl(this);
-        serviceManager = new ServiceManagerImpl(reflections);
+        serviceManager = new ServiceManagerImpl(this, reflections);
         registerLibrary(new Library());
     }
 
@@ -120,6 +120,10 @@ public class STContext implements AutoCloseable {
 
     public ServiceManager getServiceManager() {
         return serviceManager;
+    }
+
+    public ProvidersManagementService getProvidersManagementService() {
+        return providersManagementService;
     }
 
     public List<Library> getLibraries() {

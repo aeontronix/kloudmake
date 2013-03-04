@@ -36,7 +36,7 @@ public class InvokeMethodStatement extends Statement {
     @Override
     public void execute(DSLScript dslScript, Resource resource) throws ScriptException {
         try {
-            ctx.getServiceManager().invokeMethod(ctx, methodName, parameters);
+            ctx.getServiceManager().invokeMethod(methodName, parameters);
         } catch (STRuntimeException e) {
             ScriptException scriptException = new ScriptException(e.getMessage(), null, token.getLine(), token.getCharPositionInLine());
             scriptException.initCause(e);

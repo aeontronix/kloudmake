@@ -60,8 +60,8 @@ public class VagrantResource {
         }
         changeStatus(ensure);
         sshHost = createSshHost(host, dir);
-        sshHost.start();
         serviceManager.addOverride("host", sshHost);
+        sshHost.start();
     }
 
     public static SshHost createSshHost(Host h, String vagrantDir) throws STRuntimeException {

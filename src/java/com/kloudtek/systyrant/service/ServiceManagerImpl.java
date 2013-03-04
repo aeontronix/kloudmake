@@ -6,15 +6,18 @@ package com.kloudtek.systyrant.service;
 
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.Parameters;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.provider.ProviderManager;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -30,27 +33,16 @@ public class ServiceManagerImpl implements ServiceManager {
     private Map<String, Object> services = new HashMap<>();
     protected HashMap<String, LinkedList<Object>> overrides = new HashMap<>();
     protected HashMap<String, MethodInvoker> methods = new HashMap<>();
+    private STContext ctx;
     private Reflections reflections;
 
-    public ServiceManagerImpl(Reflections reflections) {
+    public ServiceManagerImpl(STContext ctx, Reflections reflections) {
+        this.ctx = ctx;
         this.reflections = reflections;
     }
 
-    protected synchronized void scanForMethods(String serviceName, Class<?> clazz) throws InvalidServiceException {
-        for (java.lang.reflect.Method javaMethod : clazz.getDeclaredMethods()) {
-            Method methodAnno = javaMethod.getAnnotation(Method.class);
-            if (methodAnno != null) {
-                String name = (isEmpty(methodAnno.value()) ? javaMethod.getName() : methodAnno.value()).toLowerCase();
-                if (methods.containsKey(name)) {
-                    throw new InvalidServiceException("Service method already registered: " + name);
-                }
-                methods.put(name, new MethodInvoker(serviceName, name, javaMethod));
-            }
-        }
-    }
-
     @Override
-    public Object invokeMethod(STContext ctx, String name, Parameters parameters) throws STRuntimeException {
+    public Object invokeMethod(String name, Parameters parameters) throws STRuntimeException {
         MethodInvoker methodInvoker = methods.get(name.toLowerCase());
         if (methodInvoker == null) {
             throw new STRuntimeException("There is no method named " + name);
@@ -72,13 +64,13 @@ public class ServiceManagerImpl implements ServiceManager {
             Set<Class<?>> services = reflections.getTypesAnnotatedWith(Service.class);
             for (Class<?> clazz : services) {
                 Service annotation = clazz.getAnnotation(Service.class);
-                Class defaultImpl = annotation.def();
-                if (!defaultImpl.equals(ServiceManager.class)) {
-                    clazz = defaultImpl;
-                }
                 String name = annotation.value();
                 if (isEmpty(name)) {
                     name = clazz.getSimpleName().toLowerCase();
+                }
+                Class defaultImpl = annotation.def();
+                if (!defaultImpl.equals(ServiceManager.class)) {
+                    clazz = defaultImpl;
                 }
                 if (name.equalsIgnoreCase(id)) {
                     try {
@@ -100,13 +92,14 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public synchronized void addOverride(@NotNull String id, @NotNull Object overrideService) {
+    public synchronized void addOverride(@NotNull String id, @NotNull Object overrideService) throws InvalidServiceException {
         id = id.toLowerCase();
         LinkedList<Object> list = overrides.get(id);
         if (list == null) {
             list = new LinkedList<>();
             overrides.put(id, list);
         }
+        inject(overrideService, overrideService.getClass());
         list.addLast(overrideService);
         logger.debug("added override {} for service {}", overrideService.toString(), id);
     }
@@ -122,8 +115,41 @@ public class ServiceManagerImpl implements ServiceManager {
 
     @Override
     public void registerService(String name, Object service) throws InvalidServiceException {
-        scanForMethods(name, service.getClass());
+        synchronized (this) {
+            Class<?> clazz = service.getClass();
+            for (java.lang.reflect.Method javaMethod : clazz.getDeclaredMethods()) {
+                Method methodAnno = javaMethod.getAnnotation(Method.class);
+                if (methodAnno != null) {
+                    String name1 = (isEmpty(methodAnno.value()) ? javaMethod.getName() : methodAnno.value()).toLowerCase();
+                    if (methods.containsKey(name1)) {
+                        throw new InvalidServiceException("Service method already registered: " + name1);
+                    }
+                    methods.put(name1, new MethodInvoker(name, name1, javaMethod));
+                }
+            }
+            inject(service, clazz);
+        }
         services.put(name, service);
+    }
+
+    private void inject(Object service, Class<?> clazz) throws InvalidServiceException {
+        Class<?> cl = clazz;
+        while (cl != null) {
+            for (Field field : cl.getDeclaredFields()) {
+                Provider provider = field.getAnnotation(Provider.class);
+                if (provider != null) {
+                    ProviderManager pm = ctx.getProvidersManagementService()
+                            .getProviderManager(field.getType().asSubclass(ProviderManager.class));
+                    field.setAccessible(true);
+                    try {
+                        field.set(service, pm);
+                    } catch (IllegalAccessException e) {
+                        throw new InvalidServiceException("Cannot inject provider " + service.getClass().getName() + "#" + field.getName());
+                    }
+                }
+            }
+            cl = cl.getSuperclass();
+        }
     }
 
     @Override

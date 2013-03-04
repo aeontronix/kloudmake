@@ -13,7 +13,7 @@ import org.slf4j.Logger;
  * Time: 00:15
  * To change this template use File | Settings | File Templates.
  */
-public class InvalidServiceException extends STException {
+public class InvalidServiceException extends STRuntimeException {
     public InvalidServiceException() {
     }
 

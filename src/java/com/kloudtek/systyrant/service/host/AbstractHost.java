@@ -6,6 +6,7 @@ package com.kloudtek.systyrant.service.host;
 
 import com.kloudtek.systyrant.DelayedLogger;
 import com.kloudtek.systyrant.ExecutionResult;
+import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.host.metadata.HostMetadataProvider;
 import com.kloudtek.systyrant.service.host.metadata.HostMetadataProviderManager;
@@ -17,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -34,7 +34,7 @@ import static com.kloudtek.systyrant.service.host.Host.Logging.*;
  */
 public abstract class AbstractHost implements Host {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHost.class);
-    @Resource
+    @Provider
     protected HostMetadataProviderManager metadataProviderManager;
     protected HostMetadataProvider metadataProvider;
     protected Executor executor = new DefaultExecutor();
@@ -47,10 +47,10 @@ public abstract class AbstractHost implements Host {
     protected ArrayList<String> tempFiles = new ArrayList<>();
     protected ArrayList<String> tempDirs = new ArrayList<>();
     protected HashMap<String, Object> state = new HashMap<>();
-    protected HashMap<String, Object> metadata = new HashMap<>();
 
     @Override
     public void start() throws STRuntimeException {
+        metadataProvider = metadataProviderManager.find(this);
     }
 
     @Override
@@ -73,6 +73,11 @@ public abstract class AbstractHost implements Host {
     }
 
     public void doStop() {
+    }
+
+    @Override
+    public HostMetadataProvider getMetadata() {
+        return metadataProvider;
     }
 
     @Override

@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.provider;
 
-public interface ProviderManager {
-    Class<?> getProviderInterface();
+public interface ProviderManager<X> {
+    Class<X> getProviderInterface();
 
-    void registerProvider(Object providerClass);
+    void registerProvider(X providerClass);
 }
