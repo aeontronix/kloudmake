@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.resource.host;
 import com.jcraft.jsch.JSchException;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
+import com.kloudtek.systyrant.TestVagrantRuntime;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.host.Host;
 import com.kloudtek.systyrant.service.host.LocalHost;
@@ -38,7 +39,8 @@ import static org.testng.Assert.*;
 public class HostTests {
     private final Type type;
     private String fileUser;
-    private Host admin;
+    private String fileGroup;
+    private Host host;
     private File realTestDir;
     private String testPath;
     private byte[] testData1 = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -46,7 +48,7 @@ public class HostTests {
     private byte[] testData2 = new byte[]{1, 2, 3, 4, 5, 6};
 
     public HostTests() {
-        this(Type.LOCAL);
+        this(Type.SSH_SUDO);
     }
 
     public HostTests(Type type) {
@@ -55,22 +57,25 @@ public class HostTests {
 
     @BeforeClass
     public void setup() throws IOException, JSchException {
-        switch (type) {
-            case LOCAL:
-                setup(new LocalHost(), System.clearProperty("user.name"));
-                break;
-            case SSH_SUDO:
-                setup(SshHost.createSSHAdminForVagrantInstance("localhost", 2222, "vagrant"), "vagrant");
-                break;
-            case SSH_ROOT:
-                setup(SshHost.createSSHAdminForVagrantInstance("localhost", 2222, "root"), "vagrant");
-                break;
+        if (type == Type.LOCAL) {
+            setup(LocalHost.createStandalone(), System.clearProperty("user.name"));
+        } else {
+            TestVagrantRuntime testVagrantRuntime = new TestVagrantRuntime();
+            setup(testVagrantRuntime.getSshHost(), type == Type.SSH_ROOT ? "root" : "vagrant");
         }
     }
 
     private void setup(Host admin, String fileUser) throws IOException {
-        this.admin = admin;
+        this.host = admin;
         this.fileUser = fileUser;
+        String os = System.getProperty("os.name");
+        switch (os) {
+            case "Mac OS X":
+                fileGroup = "staff";
+                break;
+            default:
+                fileGroup = fileUser;
+        }
         realTestDir = new File("_test");
         if (!realTestDir.exists()) {
             if (!realTestDir.mkdirs()) {
@@ -81,7 +86,7 @@ public class HostTests {
         if (admin instanceof LocalHost) {
             testPath = realTestDir.getAbsolutePath();
         } else {
-            testPath = "/test";
+            testPath = "/tmp";
         }
     }
 
@@ -98,8 +103,8 @@ public class HostTests {
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
     public void testExecSuccessfulWithLogging() throws STRuntimeException {
         TestFile file = new TestFile().writeTestData();
-        ExecutionResult result = admin.exec("dir " + file.path, 0, YES);
-        Assert.assertEquals(result.getOutput().trim(), file.path);
+        ExecutionResult result = host.exec("ls " + file.path, 0, YES);
+        Assert.assertEquals(normalize(result.getOutput().trim()), file.path);
         Assert.assertEquals(result.getRetCode(), 0);
         file.assertNoOtherFiles();
     }
@@ -107,20 +112,20 @@ public class HostTests {
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
     public void testExecSuccessfulWithoutException() throws STRuntimeException {
         TestFile file = new TestFile().writeTestData();
-        ExecutionResult result = admin.exec("dir " + file.path, null, YES);
-        Assert.assertEquals(result.getOutput().trim(), file.path);
+        ExecutionResult result = host.exec("ls " + file.path, null, YES);
+        Assert.assertEquals(normalize(result.getOutput().trim()), file.path);
         Assert.assertEquals(result.getRetCode(), 0);
         file.assertNoOtherFiles();
     }
 
     @Test(expectedExceptions = STRuntimeException.class)
     public void testExecUnsuccessfulWithException() throws STRuntimeException {
-        admin.exec("dir sfdafadsfsda");
+        host.exec("ls sfdafadsfsda");
     }
 
     @Test()
     public void testExecUnsuccessfulWithRetCode() throws STRuntimeException {
-        ExecutionResult result = admin.exec("dir asffdsa", null, YES);
+        ExecutionResult result = host.exec("ls asffdsa", null, YES);
         assertTrue(result.getRetCode() != 0);
     }
 
@@ -128,49 +133,59 @@ public class HostTests {
     public void testExecScript() throws IOException, STRuntimeException {
         TestFile file1 = new TestFile().writeTestData();
         TestFile file2 = new TestFile().writeTestData();
-        String script = "#!/bin/bash\ndir " + file1.path + "\ndir " + file2.path;
-        ExecutionResult result = admin.execScript(script, Host.ScriptType.BASH, Host.DEFAULT_TIMEOUT, 0, YES, true);
-        Assert.assertEquals(result.getOutput().trim(), file1.path + "\n" + file2.path);
+        String script = "#!/bin/bash\nls " + file1.path + "\nls  " + file2.path;
+        ExecutionResult result = host.execScript(script, Host.ScriptType.BASH, Host.DEFAULT_TIMEOUT, 0, YES, null);
+        Assert.assertEquals(normalize(result.getOutput().trim()), file1.path.toString() + file2.path.toString());
         Assert.assertEquals(result.getRetCode(), 0);
+    }
+
+    private String normalize(String str) {
+        StringBuilder txt = new StringBuilder();
+        for (char c : str.toCharArray()) {
+            if (!Character.isWhitespace(c)) {
+                txt.append(c);
+            }
+        }
+        return txt.toString();
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
     public void testFileEmptyExistExpectSuccess() throws STRuntimeException {
         TestFile file = new TestFile().writeEmpty();
-        assertTrue(admin.fileExists(file.path));
+        assertTrue(host.fileExists(file.path));
         file.assertNoOtherFiles();
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
     public void testNonEmptyFileExistExpectSuccess() throws STRuntimeException {
         TestFile file = new TestFile().writeTestData();
-        assertTrue(admin.fileExists(file.path));
+        assertTrue(host.fileExists(file.path));
         file.assertNoOtherFiles();
     }
 
     @Test
     public void testFileExistExpectFailure() throws STRuntimeException {
-        assertFalse(admin.fileExists("/afdsfasfasfsadfsafasafs"));
+        assertFalse(host.fileExists("/afdsfasfasfsadfsafasafs"));
     }
 
     @Test
     public void testMkdirSuccessful() throws STRuntimeException {
         TestFile dir = new TestFile();
-        admin.mkdir(dir.path);
+        host.mkdir(dir.path);
         dir.assertIsDir();
         dir.assertNoOtherFiles();
     }
 
     @Test(expectedExceptions = STRuntimeException.class)
     public void testMkdirFails() throws STRuntimeException {
-        admin.mkdir(testPath + "/does/not/exist");
+        host.mkdir(testPath + "/does/not/exist");
         assertNoFilesExist();
     }
 
     @Test()
     public void testWriteFileByteArraySuccessful() throws STRuntimeException, IOException {
         TestFile file = new TestFile();
-        admin.writeToFile(file.path, testData2);
+        host.writeToFile(file.path, testData2);
         assertEquals(FileUtils.readFileToByteArray(file.realFile), testData2);
         file.assertNoOtherFiles();
     }
@@ -178,52 +193,52 @@ public class HostTests {
     @Test
     public void testWriteFileStreamSuccessful() throws STRuntimeException, IOException {
         TestFile file = new TestFile();
-        admin.writeToFile(file.path, new ByteArrayInputStream(testData2));
+        host.writeToFile(file.path, new ByteArrayInputStream(testData2));
         assertEquals(FileUtils.readFileToByteArray(file.realFile), testData2);
         file.assertNoOtherFiles();
     }
 
     @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = {"testWriteFileByteArraySuccessful"})
     public void testWriteFileFails() throws STRuntimeException {
-        admin.writeToFile(testPath + "/does/not/exist", new ByteArrayInputStream(testData2));
+        host.writeToFile(testPath + "/does/not/exist", new ByteArrayInputStream(testData2));
         assertNoFilesExist();
     }
 
     @Test
     public void testGetShaOnExistingFile() throws STRuntimeException {
         TestFile file = new TestFile().writeTestData();
-        assertEquals(admin.getFileSha1(file.path), testData1Sha);
+        assertEquals(host.getFileSha1(file.path), testData1Sha);
     }
 
     @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = "testGetShaOnExistingFile")
     public void testGetShaOnNonExistingFile() throws STRuntimeException {
-        admin.getFileSha1("/afsdfasdfsda/fsdafdsafdsa");
+        host.getFileSha1("/afsdfasdfsda/fsdafdsafdsa");
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
     public void testDeleteExistingFile() throws IOException, STRuntimeException {
         TestFile file = new TestFile().writeTestData();
-        admin.deleteFile(file.path, false);
+        host.deleteFile(file.path, false);
         assertNoFilesExist();
     }
 
     @Test(dependsOnMethods = "testMkdirSuccessful")
     public void testDeleteEmptyDir() throws IOException, STRuntimeException {
         TestFile file = new TestFile().mkdir().assertExists();
-        admin.deleteFile(file.path, false);
+        host.deleteFile(file.path, false);
         file.assertAbsent();
     }
 
     @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = {"testDeleteEmptyDir", "testMkdirSuccessful", "testWriteFileByteArraySuccessful"})
     public void testDeleteNonEmptyDir() throws IOException, STRuntimeException {
         TestFile dir = new TestFile().mkdir().createChild();
-        admin.deleteFile(dir.path, false);
+        host.deleteFile(dir.path, false);
     }
 
     @Test(dependsOnMethods = {"testDeleteEmptyDir", "testMkdirSuccessful", "testWriteFileByteArraySuccessful"})
     public void testDeleteNonEmptyDirRecursive() throws IOException, STRuntimeException {
         TestFile dir = new TestFile().mkdir().createChild();
-        admin.deleteFile(dir.path, true);
+        host.deleteFile(dir.path, true);
         dir.assertAbsent();
     }
 
@@ -235,7 +250,7 @@ public class HostTests {
 
     @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = "testFileInfoOnExistingFile")
     public void testFileInfoOnNonExistingFile() throws STRuntimeException {
-        admin.getFileInfo("/dfsafdsafdasfadsfdsa");
+        host.getFileInfo("/dfsafdsafdasfadsfdsa");
     }
 
     @Test(dependsOnMethods = "testMkdirSuccessful")
@@ -250,16 +265,16 @@ public class HostTests {
         String path = createAltTestDir();
         TestFile target = new TestFile().writeTestData();
         String name = path + "/" + rndName();
-        admin.createSymlink(name, target.path);
-        assertTrue(admin.fileExists(name));
-        assertEquals(admin.exec("readlink " + name).trim(), target.path);
+        host.createSymlink(name, target.path);
+        assertTrue(host.fileExists(name));
+        assertEquals(host.exec("readlink " + name).trim(), target.path);
     }
 
     @Test(dependsOnMethods = "testExecSuccessfulWithoutException")
     public void testFileInfoOnSymlink() throws STRuntimeException, IOException {
         String path = createAltTestDir();
-        admin.exec("ln -s /test " + path + "/testsymlink");
-        FileInfo fileInfo = admin.getFileInfo(path + "/testsymlink");
+        host.exec("ln -s /test " + path + "/testsymlink");
+        FileInfo fileInfo = host.getFileInfo(path + "/testsymlink");
         assertEquals(fileInfo.getType(), SYMLINK);
         assertEquals(fileInfo.getLinkTarget(), "/test");
     }
@@ -272,24 +287,24 @@ public class HostTests {
         String stdout;
         HashMap<String, String> env = new HashMap<>();
         env.put(key, value);
-        stdout = admin.exec("env", env);
+        stdout = host.exec("env", env);
         assertTrue(stdout.contains(keyvalue));
-        ExecutionResult res = admin.exec("env", null, YES, env);
+        ExecutionResult res = host.exec("env", null, YES, env);
         assertEquals(res.getRetCode(), 0);
         assertTrue(res.getOutput().contains(keyvalue));
         assertTrue(stdout.contains(keyvalue));
-        stdout = admin.exec("env");
+        stdout = host.exec("env");
         assertFalse(stdout.contains(keyvalue));
     }
 
     private void compare(TestFile file) throws STRuntimeException, IOException {
         String path = file.path;
         Path realPath = file.realPath;
-        FileInfo fileInfo = admin.getFileInfo(path);
+        FileInfo fileInfo = host.getFileInfo(path);
         Map<String, Object> attrs = Files.readAttributes(realPath, "*", NOFOLLOW_LINKS);
         assertNotNull(fileInfo);
         assertEquals(fileInfo.getPath(), path);
-        assertEquals(fileInfo.getGroup(), fileUser);
+        assertEquals(fileInfo.getGroup(), fileGroup);
         assertEquals(fileInfo.getOwner(), fileUser);
         if (Files.isDirectory(realPath, NOFOLLOW_LINKS)) {
             assertEquals(fileInfo.getType(), DIRECTORY);
@@ -306,7 +321,7 @@ public class HostTests {
             assertNull(fileInfo.getLinkTarget());
         }
         String expectedPerms = PosixFilePermissions.toString(Files.getPosixFilePermissions(realPath, NOFOLLOW_LINKS));
-        if (admin instanceof SshHost) {
+        if (host instanceof SshHost) {
             expectedPerms = (fileInfo.getType() == DIRECTORY ? "d" : "-") + expectedPerms;
         }
         assertEquals(fileInfo.getPermissions(), expectedPerms);
@@ -323,11 +338,11 @@ public class HostTests {
     }
 
     private String createAltTestDir() throws STRuntimeException {
-        if (admin instanceof SshHost) {
-            if (!admin.fileExists("/test2")) {
-                admin.mkdir("/test2");
+        if (host instanceof SshHost) {
+            if (!host.fileExists("/test2")) {
+                host.mkdir("/test2");
             }
-            admin.exec("rm -rf /test2/*");
+            host.exec("rm -rf /test2/*");
             return "/test2";
         } else {
             return realTestDir.getAbsolutePath();
@@ -380,17 +395,17 @@ public class HostTests {
         }
 
         public TestFile mkdir() throws STRuntimeException {
-            admin.mkdir(path);
+            host.mkdir(path);
             return this;
         }
 
         public TestFile writeTestData() throws STRuntimeException {
-            admin.writeToFile(path, testData1);
+            host.writeToFile(path, testData1);
             return this;
         }
 
         public TestFile writeEmpty() throws STRuntimeException {
-            admin.writeToFile(path, new byte[0]);
+            host.writeToFile(path, new byte[0]);
             return this;
         }
 
@@ -411,7 +426,7 @@ public class HostTests {
         }
 
         public TestFile mksymlink(TestFile target) throws STRuntimeException {
-            admin.createSymlink(path, target.name);
+            host.createSymlink(path, target.name);
             this.target = target.name;
             return this;
         }

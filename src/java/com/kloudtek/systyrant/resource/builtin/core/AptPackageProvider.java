@@ -112,6 +112,6 @@ public class AptPackageProvider implements PackageProvider {
 
     private ExecutionResult exec(String cmd, @Nullable Integer expectedRetCode, Host.Logging logging) throws STRuntimeException {
         logger.debug("Executing: {} expecting {} logging {}", cmd, expectedRetCode, logging);
-        return host.exec(cmd, 30L * 60000L, expectedRetCode, logging, false);
+        return host.exec(cmd, 30L * 60000L, expectedRetCode, logging, null);
     }
 }

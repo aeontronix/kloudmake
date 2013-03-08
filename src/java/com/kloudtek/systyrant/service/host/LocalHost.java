@@ -9,13 +9,13 @@ import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.util.TempFile;
-import org.apache.commons.exec.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,20 +29,21 @@ import static com.kloudtek.util.CryptoUtils.sha1;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
 public class LocalHost extends AbstractHost {
+    private String currentUser = System.getProperty("user.name");
+
     public LocalHost() {
-        username = System.getProperty("user.name");
         execPrefix = "bash -c '";
         execSuffix = "'";
     }
 
     @Override
-    public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, boolean includePreSuFix) throws STRuntimeException {
+    public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
         try {
             try (TempFile temp = new TempFile("sts")) {
                 FileUtils.write(temp, script);
                 switch (type) {
                     case BASH:
-                        return exec("bash " + temp.getAbsolutePath(), timeout, expectedRetCode, logging, includePreSuFix);
+                        return exec("bash " + temp.getAbsolutePath(), timeout, expectedRetCode, logging, null);
                     default:
                         throw new STRuntimeException("Unsupported script type: " + type.toString());
                 }
@@ -249,10 +250,60 @@ public class LocalHost extends AbstractHost {
     }
 
     @Override
-    protected CommandLine generateCommandLine(String command, boolean includePreSuFix) {
-        CommandLine cmdLine = new CommandLine("/bin/bash");
-        cmdLine.addArgument("-c");
-        cmdLine.addArgument(command, false);
-        return cmdLine;
+    public String getUser() {
+        return System.getProperty("user.name");
     }
+
+    @Override
+    public String getCurrentUser() {
+        return currentUser;
+    }
+
+    public static LocalHost createStandalone() {
+        LocalHost host = new LocalHost();
+        HostProvider hostProvider;
+        switch (OperatingSystem.getSystemOS()) {
+            case OSX:
+                hostProvider = new OSXMetadataProvider();
+                break;
+            default:
+                hostProvider = new LinuxMetadataProvider();
+                break;
+        }
+        forceSet(host, "hostProvider", hostProvider);
+        return host;
+    }
+
+    // TODO use latest ktutils instead
+
+    public static void forceSet(Object obj, String name, Object value) {
+        try {
+            Field field = findField(obj, name);
+            field.setAccessible(true);
+            field.set(obj, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void set(Object obj, String name, Object value) {
+        try {
+            findField(obj, name).set(obj, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Field findField(Object obj, String name) {
+        Class<?> cl = obj.getClass();
+        while (cl != null) {
+            try {
+                return cl.getDeclaredField(name);
+            } catch (NoSuchFieldException e) {
+                cl = cl.getSuperclass();
+            }
+        }
+        throw new IllegalArgumentException("Field " + name + " not found in " + obj.getClass().getName());
+    }
+
 }

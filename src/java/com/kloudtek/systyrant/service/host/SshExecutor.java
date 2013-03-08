@@ -194,10 +194,6 @@ public class SshExecutor implements Executor {
 
     private String toString(CommandLine commandLine, Map<String, String> env) {
         StringBuilder cmd = new StringBuilder();
-        boolean ext = commandLine instanceof ExtendedCommandLine;
-        if (ext) {
-            cmd.append(((ExtendedCommandLine) commandLine).getPrefix());
-        }
         if (env != null && !env.isEmpty()) {
             cmd.append("env ");
             for (Map.Entry entry : env.entrySet()) {
@@ -205,9 +201,6 @@ public class SshExecutor implements Executor {
             }
         }
         cmd.append(commandLine.toString());
-        if (ext) {
-            cmd.append(((ExtendedCommandLine) commandLine).getSuffix());
-        }
         return cmd.toString();
     }
 }

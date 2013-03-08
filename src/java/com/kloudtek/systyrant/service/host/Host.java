@@ -11,7 +11,6 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.systyrant.service.Startable;
 import com.kloudtek.systyrant.service.Stoppable;
-import com.kloudtek.systyrant.service.host.metadata.HostMetadataProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,26 +21,23 @@ import java.util.Map;
 public interface Host extends Stoppable, Startable {
     public static final int DEFAULT_TIMEOUT = 300000;
 
-    ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode,
-                               Logging logging, boolean includePreSuFix) throws STRuntimeException;
+    ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
 
     String exec(String command) throws STRuntimeException;
 
     String exec(String command, Map<String, String> env) throws STRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
-                         boolean excludePreSuFix) throws STRuntimeException;
-
-    @NotNull
-    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
-                         boolean excludePreSuFix, Map<String, String> env) throws STRuntimeException;
-
-    @NotNull
     ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws STRuntimeException;
 
     @NotNull
     ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws STRuntimeException;
+
+    @NotNull
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
+
+    @NotNull
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, Map<String, String> env) throws STRuntimeException;
 
     boolean fileExists(String path) throws STRuntimeException;
 
@@ -53,9 +49,8 @@ public interface Host extends Stoppable, Startable {
      * please use {@link #fileExists(String)} first.
      *
      * @param path DataFile path
-     * @return {@link com.kloudtek.systyrant.FileInfo} object.
-     * @throws com.kloudtek.systyrant.exception.STRuntimeException
-     *          If an error occured while retrieving file details, or if the file doesn't exist.
+     * @return {@link FileInfo} object.
+     * @throws STRuntimeException If an error occured while retrieving file details, or if the file doesn't exist.
      */
     @NotNull
     FileInfo getFileInfo(String path) throws STRuntimeException;
@@ -69,8 +64,7 @@ public interface Host extends Stoppable, Startable {
      *
      * @param path file to calculate checksum from.
      * @return SHA1 digest
-     * @throws com.kloudtek.systyrant.exception.STRuntimeException
-     *          If an error occurs calculating SHA1 checksum.
+     * @throws STRuntimeException If an error occurs calculating SHA1 checksum.
      */
     byte[] getFileSha1(String path) throws STRuntimeException;
 
@@ -98,8 +92,6 @@ public interface Host extends Stoppable, Startable {
 
     void setFilePerms(String path, FilePermissions perms) throws STRuntimeException;
 
-    String getUsername();
-
     String createTempDir() throws STRuntimeException;
 
     String createTempFile() throws STRuntimeException;
@@ -112,7 +104,7 @@ public interface Host extends Stoppable, Startable {
 
     Map<String, Object> getState();
 
-    HostMetadataProvider getMetadata();
+    HostProvider getMetadata();
 
     public enum Logging {
         NO, YES, ON_ERROR

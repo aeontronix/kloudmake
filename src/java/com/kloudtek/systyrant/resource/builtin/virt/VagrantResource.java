@@ -26,8 +26,6 @@ import java.util.regex.Pattern;
 @STResource()
 public class VagrantResource {
     private static final Logger logger = LoggerFactory.getLogger(VagrantResource.class);
-    private static final Pattern REGEX_PORT = Pattern.compile("Port (\\d*)");
-    private static final Pattern REGEX_PKEY = Pattern.compile("IdentityFile (.*)");
     @Attr
     @NotEmpty
     private String box;
@@ -43,6 +41,18 @@ public class VagrantResource {
     @Resource
     private ServiceManager serviceManager;
     private SshHost sshHost;
+
+    public VagrantResource() {
+    }
+
+    public VagrantResource(String box, String dir, Ensure ensure, Ensure after, Host host, ServiceManager serviceManager) {
+        this.box = box;
+        this.dir = dir;
+        this.ensure = ensure;
+        this.after = after;
+        this.host = host;
+        this.serviceManager = serviceManager;
+    }
 
     @Execute
     public void exec() throws STRuntimeException {
@@ -65,27 +75,24 @@ public class VagrantResource {
     }
 
     public static SshHost createSshHost(Host h, String vagrantDir) throws STRuntimeException {
-        String sshConfig = h.exec("cd " + vagrantDir + " && vagrant ssh-config");
-        int port = getPortFromConfig(sshConfig);
-        logger.debug("Vagrant VM SSH port is {}", port);
-        String pkeyPath = getPKeyFromConfig(sshConfig);
-        logger.debug("Vagrant VM keyfile is {}", pkeyPath);
-        File pkeyFile = new File(pkeyPath);
+        SshConfig sshConfig = new SshConfig(h.exec("cd " + vagrantDir + " && vagrant ssh-config"));
+        logger.debug("Vagrant VM SSH config: {}", sshConfig);
+        File pkeyFile = new File(sshConfig.getPkey());
         if (pkeyFile.exists() || pkeyFile.isFile()) {
             final byte[] privKey;
             try {
                 privKey = FileUtils.readFileToByteArray(pkeyFile);
             } catch (IOException e) {
-                throw new STRuntimeException("Error loading vagrant keyfile " + pkeyPath + ": " + e.getMessage(), e);
+                throw new STRuntimeException("Error loading vagrant keyfile " + sshConfig.getPkey() + ": " + e.getMessage(), e);
             }
             SshHost sshHost = new SshHost();
-            sshHost.setAddress("127.0.0.1");
-            sshHost.setPort(port);
-            sshHost.setUsername("vagrant");
+            sshHost.setAddress(sshConfig.getHostname());
+            sshHost.setPort(sshConfig.getPort());
+            sshHost.setLoginUser(sshConfig.getUser());
             sshHost.setPrivKey(privKey);
             return sshHost;
         } else {
-            throw new STRuntimeException("Vagrant keyfile does not exist or is a directory: " + pkeyPath);
+            throw new STRuntimeException("Vagrant keyfile does not exist or is a directory: " + sshConfig.getPkey());
         }
     }
 
@@ -137,31 +144,76 @@ public class VagrantResource {
         }
     }
 
-    private static int getPortFromConfig(String sshConfig) throws STRuntimeException {
-        Matcher sshPortMatcher = REGEX_PORT.matcher(sshConfig);
-        if (sshPortMatcher.find()) {
-            try {
-                return Integer.parseInt(sshPortMatcher.group(1));
-            } catch (NumberFormatException e) {
-                throw new STRuntimeException("Invalid vagrant ssh-config: " + sshConfig);
-            }
-        } else {
-            throw new STRuntimeException("Invalid vagrant ssh-config: " + sshConfig);
-        }
-    }
-
-    private static String getPKeyFromConfig(String sshConfig) throws STRuntimeException {
-        Matcher sshPortMatcher = REGEX_PKEY.matcher(sshConfig);
-        if (sshPortMatcher.find()) {
-            return sshPortMatcher.group(1);
-        } else {
-            throw new STRuntimeException("Invalid vagrant ssh-config: " + sshConfig);
-        }
+    public SshHost getSshHost() {
+        return sshHost;
     }
 
     @STResource
     public class SharedFolder {
 
+    }
+
+    public static class SshConfig {
+        private static final Pattern REGEX_PORT = Pattern.compile("Port (\\d*)");
+        private static final Pattern REGEX_PKEY = Pattern.compile("IdentityFile (.*)");
+        private static final Pattern REGEX_USER = Pattern.compile("User (.*)");
+        private static final Pattern REGEX_HOSTNAME = Pattern.compile("HostName (.*)");
+        private String config;
+        private String hostname;
+        private int port;
+        private String user;
+        private String pkey;
+
+        public SshConfig(String config) throws STRuntimeException {
+            this.config = config;
+            hostname = parse(REGEX_HOSTNAME);
+            port = parseInt(REGEX_PORT);
+            pkey = parse(REGEX_PKEY);
+            user = parse(REGEX_USER);
+        }
+
+        public String getHostname() {
+            return hostname;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public String getPkey() {
+            return pkey;
+        }
+
+        @Override
+        public String toString() {
+            return "SshConfig{" +
+                    "hostname='" + hostname + '\'' +
+                    ", port=" + port +
+                    ", user='" + user + '\'' +
+                    ", pkey='" + pkey + '\'' +
+                    '}';
+        }
+
+        private String parse(Pattern pattern) throws STRuntimeException {
+            Matcher matcher = pattern.matcher(config);
+            if (matcher.find()) {
+                return matcher.group(1);
+            } else {
+                throw new STRuntimeException("Invalid vagrant ssh-config: " + config);
+            }
+        }
+
+        private int parseInt(Pattern pattern) throws STRuntimeException {
+            try {
+                return Integer.parseInt(parse(pattern));
+            } catch (NumberFormatException e) {
+                throw new STRuntimeException("Invalid vagrant ssh-config: " + config);
+            }
+        }
     }
 
     public enum Ensure {

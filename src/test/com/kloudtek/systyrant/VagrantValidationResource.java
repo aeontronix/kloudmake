@@ -8,7 +8,7 @@ import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.service.host.Host;
-import com.kloudtek.systyrant.service.host.metadata.OperatingSystem;
+import com.kloudtek.systyrant.service.host.OperatingSystem;
 
 import javax.annotation.Resource;
 

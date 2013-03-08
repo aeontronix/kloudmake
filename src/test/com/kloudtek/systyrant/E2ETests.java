@@ -20,6 +20,7 @@ public class E2ETests {
         STContext ctx = new STContext();
         ctx.runScript(getClass().getResource("vagrant.stl"));
         VagrantValidationResource vvr = VagrantValidationResource.find(ctx);
+        assertTrue(ctx.execute());
         assertTrue(vvr.isValidated());
     }
 }

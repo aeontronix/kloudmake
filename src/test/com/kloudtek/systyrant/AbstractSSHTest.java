@@ -22,7 +22,7 @@ public abstract class AbstractSSHTest {
 
     @BeforeMethod(groups = "ssh")
     public void setup() throws JSchException, InvalidResourceDefinitionException, InvalidServiceException {
-        host = SshHost.createSSHAdminForVagrantInstance("localhost", 2222, "vagrant");
+//        host = SshHost.createSSHAdminForVagrantInstance("localhost", 2222, "vagrant");
         ctx = new STContext();
         ctx.getServiceManager().addOverride("host", host);
     }

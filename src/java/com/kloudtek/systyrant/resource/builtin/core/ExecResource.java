@@ -77,7 +77,7 @@ public class ExecResource {
 
     @Sync
     public void exec() throws STRuntimeException {
-        ExecutionResult exec = host.exec(command, timeout * 1000, null, loggingEnum, false);
+        ExecutionResult exec = host.exec(command, timeout * 1000, null, loggingEnum, null);
         if (exec.getRetCode() != returns) {
             throw new STRuntimeException("Execution of " + command + " returned " + exec.getRetCode());
         }
