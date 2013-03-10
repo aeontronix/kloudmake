@@ -32,9 +32,7 @@ import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.kloudtek.systyrant.Stage.EXECUTE;
-import static com.kloudtek.systyrant.resource.Resource.State.FAILED;
-import static com.kloudtek.systyrant.resource.Resource.State.NEW;
-import static com.kloudtek.systyrant.resource.Resource.State.PREPARED;
+import static com.kloudtek.systyrant.resource.Resource.State.*;
 import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
@@ -42,7 +40,7 @@ import static javax.script.ScriptContext.ENGINE_SCOPE;
 /** This is the "brains" of SysTyrant, which contains the application's state */
 public class STContext implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(STContext.class);
-    private static List<Resource.State> failurePropagationStates = Arrays.asList(NEW,PREPARED);
+    private static List<Resource.State> failurePropagationStates = Arrays.asList(NEW, PREPARED);
     private ResourceManager resourceManager;
     private ServiceManager serviceManager;
     private List<Library> libraries = new ArrayList<>();
@@ -62,6 +60,7 @@ public class STContext implements AutoCloseable {
     private Resource defaultParent;
     private boolean newLibAdded;
     private ProvidersManagementService providersManagementService = new ProvidersManagementService();
+    private List<Class<? extends Exception>> fatalExceptions;
 
     public STContext() throws InvalidResourceDefinitionException, InvalidServiceException {
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
@@ -295,7 +294,7 @@ public class STContext implements AutoCloseable {
         }
     }
 
-    private void executeResources(Stage stage) {
+    private void executeResources(Stage stage) throws STRuntimeException {
         Map<Resource, List<Resource>> parentchildrens = new HashMap<>();
         for (Map.Entry<Resource, List<Resource>> entry : parentToPendingChildrenMap.entrySet()) {
             parentchildrens.put(entry.getKey(), new ArrayList<>(entry.getValue()));
@@ -320,7 +319,7 @@ public class STContext implements AutoCloseable {
         }
     }
 
-    private void executeResourceActions(Resource resource, Stage stage, boolean postChildren) {
+    private void executeResourceActions(Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
         switch (resource.getState()) {
             case FAILED:
                 logger.warn("Skipping {} due to a previous error", resource);
@@ -337,6 +336,7 @@ public class STContext implements AutoCloseable {
                         logger.debug(e.getMessage(), e);
                         logger.error(e.getMessage());
                     }
+                    fatalFatalException(e);
                     handleResourceFailure(resource);
                 }
                 break;
@@ -383,6 +383,7 @@ public class STContext implements AutoCloseable {
                 if (!e.isLogged()) {
                     logger.error(e.getLocalizedMessage());
                 }
+                fatalFatalException(e);
                 handleResourceFailure(res);
             }
             res.resolveDepencies(false);
@@ -390,6 +391,19 @@ public class STContext implements AutoCloseable {
         }
         resourceManager.resolve(false);
         resourceManager.setCreateAllowed(false);
+    }
+
+    private void fatalFatalException(Throwable e) throws STRuntimeException {
+        if( e instanceof STRuntimeException && e.getCause() != null ) {
+            e = e.getCause();
+        }
+        if (fatalExceptions != null && !fatalExceptions.isEmpty() ) {
+            for (Class<? extends Exception> fatalException : fatalExceptions) {
+                if (fatalException.isAssignableFrom(e.getClass())) {
+                    throw new STRuntimeException("Fatal exception caught: " + e.getLocalizedMessage(), e);
+                }
+            }
+        }
     }
 
     private void cleanup() {
@@ -414,6 +428,7 @@ public class STContext implements AutoCloseable {
         resourceUidIndexes.clear();
 
         HashSet<String> uids = new HashSet<>();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         AutoCreateHashMap<Resource, HashSet<String>> parentToChildIdsMap = new AutoCreateHashMap<Resource, HashSet<String>>() {
             @Override
             protected HashSet<String> create() {
@@ -428,13 +443,12 @@ public class STContext implements AutoCloseable {
             HashSet<String> idsForParent = parentToChildIdsMap.get(resource.getParent());
             if (isEmpty(id)) {
                 int i = 1;
-                HashSet<String> ids = idsForParent;
-                if (isNotEmpty(uid) && !ids.contains(uid)) {
+                if (isNotEmpty(uid) && !idsForParent.contains(uid)) {
                     id = uid;
                 } else {
                     while (id == null) {
                         String proposedId = fqName.toString() + i++;
-                        if (!ids.contains(proposedId)) {
+                        if (!idsForParent.contains(proposedId)) {
                             id = proposedId;
                         }
                     }
@@ -473,7 +487,7 @@ public class STContext implements AutoCloseable {
             Resource el = list.removeFirst();
             el.setState(FAILED);
             for (Resource dep : getDependentOn(el)) {
-                if( failurePropagationStates.contains(dep.getState()) ) {
+                if (failurePropagationStates.contains(dep.getState())) {
                     list.addLast(dep);
                 }
             }
@@ -565,6 +579,22 @@ public class STContext implements AutoCloseable {
 
     public synchronized void setDefaultParent(Resource defaultParent) {
         this.defaultParent = defaultParent;
+    }
+
+    public List<Class<? extends Exception>> getFatalExceptions() {
+        return fatalExceptions;
+    }
+
+    public void setFatalExceptions(List<Class<? extends Exception>> fatalExceptions) {
+        this.fatalExceptions = fatalExceptions;
+    }
+
+    public void setFatalExceptions(Class<? extends Exception>... fatalExceptions) {
+        this.fatalExceptions = Arrays.asList(fatalExceptions);
+    }
+
+    public void clearFatalException() {
+        fatalExceptions = null;
     }
 
     public class LibraryClassLoader extends URLClassLoader {

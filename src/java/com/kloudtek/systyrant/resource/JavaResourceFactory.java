@@ -34,7 +34,6 @@ public class JavaResourceFactory extends ResourceFactory {
     private HashMap<Stage, List<ActionMethod>> actionMethods = new HashMap<>();
     private HashMap<Stage, List<ActionMethod>> postChildrenActionMethods = new HashMap<>();
     private HashMap<Field, String> attrInject = new HashMap<>();
-    private HashMap<Field, String> serviceInject = new HashMap<>();
 
     public JavaResourceFactory(Class<?> clazz, FQName fqname, HashMap<String, String> packageMappings) throws InvalidResourceDefinitionException {
         super(findFQName(clazz, fqname, packageMappings));

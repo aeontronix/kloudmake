@@ -17,7 +17,7 @@ import static org.testng.Assert.assertEquals;
 
 public class ExecResourceTest extends AbstractContextTest {
     @Test
-    public void simpleExecTest() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTest() throws Throwable {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
@@ -30,7 +30,7 @@ public class ExecResourceTest extends AbstractContextTest {
     }
 
     @Test
-    public void simpleExecTestIfFailed() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTestIfFailed() throws Throwable {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
@@ -43,7 +43,7 @@ public class ExecResourceTest extends AbstractContextTest {
     }
 
     @Test
-    public void simpleExecTestIfSuccess() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTestIfSuccess() throws Throwable {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
@@ -56,7 +56,7 @@ public class ExecResourceTest extends AbstractContextTest {
     }
 
     @Test
-    public void simpleExecTestUnlessFailed() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTestUnlessFailed() throws Throwable {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
@@ -69,7 +69,7 @@ public class ExecResourceTest extends AbstractContextTest {
     }
 
     @Test
-    public void simpleExecTestUnlessSuccess() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTestUnlessSuccess() throws Throwable {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
@@ -82,7 +82,7 @@ public class ExecResourceTest extends AbstractContextTest {
     }
 
     @Test
-    public void simpleExecTestIfNegatedByUnless() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTestIfNegatedByUnless() throws Throwable {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
@@ -95,7 +95,7 @@ public class ExecResourceTest extends AbstractContextTest {
     }
 
     @Test
-    public void simpleExecTimeout() throws IOException, ScriptException, STRuntimeException {
+    public void simpleExecTimeout() throws Throwable {
         ctx.runDSLScript("new core:exec { command = 'sleep 3' timeout='1'}");
         execute(false);
     }

@@ -10,7 +10,6 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceRef;
-import com.kloudtek.systyrant.service.filestore.FileStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -22,7 +21,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.testng.Assert.*;
 
-@STResource("test:test")
 public class TestResource {
     private static final Logger logger = LoggerFactory.getLogger(TestResource.class);
     private static AtomicInteger prepareOrderCounter = new AtomicInteger(0);
@@ -43,9 +41,6 @@ public class TestResource {
     private boolean createElementDuringExecute;
     private String unique = UUID.randomUUID().toString();
     private ResourceRef ref;
-    @Service
-    private FileStore fileStore;
-    @Inject
     private Resource resource;
     @Attr
     private String id;
@@ -55,10 +50,6 @@ public class TestResource {
     private Date cleanedUp;
     private boolean verifyGlobal;
     private boolean verifySpecific;
-
-    static {
-    }
-
     private Date verifyGlobalTS;
     private Date syncGlobalTS;
     private Date verifySpecificTS;
@@ -66,10 +57,11 @@ public class TestResource {
 
     @Prepare
     public void prepare() throws STRuntimeException {
+        STContext ctx = STContext.get();
+        assertNotNull(ctx);
+        resource = findResource(ctx);
         prepared = new Date();
         logger.info("{} : PREPARING", id);
-        Assert.assertNotNull(resource, "resource is missing");
-        Assert.assertNotNull(fileStore, "fileStore is missing");
         if (prepareOrder > 0) {
             Assert.fail("Compilation happening twice");
         }
@@ -77,10 +69,10 @@ public class TestResource {
         if (childs != null) {
             for (String id : childs) {
                 try {
-                    Resource child = STHelper.createElement(TestResource.class, id);
+                    Resource child = STHelper.createElement("test","test", id);
                     child.setParent(resource);
                 } catch (ResourceCreationException e) {
-                    throw new STRuntimeException(e.getMessage());
+                    throw new STRuntimeException(e.getMessage(),e);
                 }
             }
         }
@@ -118,7 +110,7 @@ public class TestResource {
     }
 
     @Execute
-    public void execute() throws STRuntimeException {
+    public void execute() throws STRuntimeException, ResourceCreationException {
         executed = new Date();
         executeOrder = executeCounter.incrementAndGet();
         logger.info("{} : EXECUTING (O={})", id, executeOrder);
@@ -126,11 +118,7 @@ public class TestResource {
             throw new STRuntimeException("Failed execution as requested");
         }
         if (createElementDuringExecute) {
-            try {
-                STHelper.createElement(TestResource.class, id + "-exechildren");
-            } catch (ResourceCreationException e) {
-                throw new STRuntimeException(e);
-            }
+            STHelper.createElement("test","test", id + "-exechildren");
         }
     }
 
@@ -253,10 +241,6 @@ public class TestResource {
         return postChildrenOrder;
     }
 
-    public void valFileResourceManagerInjected() {
-        assertNotNull(fileStore);
-    }
-
     public Date getSyncSpecificTS() {
         return syncSpecificTS;
     }
@@ -328,5 +312,16 @@ public class TestResource {
         if (childrens != null && childrens.length > 0) {
             testResource.hasChildrens = true;
         }
+    }
+
+    public Resource findResource(STContext context) throws STRuntimeException {
+        for (Resource resource : context.getResourceManager()) {
+            for (STAction action : resource.getActions()) {
+                if (action instanceof JavaResourceFactory.JavaImpl && ((JavaResourceFactory.JavaImpl) action).getImpl() == this) {
+                    return resource;
+                }
+            }
+        }
+        throw new STRuntimeException("Unable to find resource");
     }
 }

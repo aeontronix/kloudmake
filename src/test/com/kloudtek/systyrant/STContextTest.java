@@ -4,10 +4,14 @@
 
 package com.kloudtek.systyrant;
 
+import com.kloudtek.systyrant.annotation.Inject;
+import com.kloudtek.systyrant.annotation.Prepare;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
+import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -18,6 +22,20 @@ import static com.kloudtek.systyrant.resource.Resource.State.FAILED;
 import static org.testng.Assert.*;
 
 public class STContextTest extends AbstractContextTest {
+    @Test
+    public void testSimpleElementCreation() throws Throwable {
+        createTestResource("test1");
+        execute();
+    }
+
+
+    @Test(dependsOnMethods = "testSimpleElementCreation",expectedExceptions = ResourceCreationException.class)
+    public void testCreateElementDuringExecutionStage() throws Throwable {
+        Resource test1 = createTestResource("test1");
+        test1.set("createElementDuringExecute", true);
+        execute();
+    }
+
     @Test
     public void testLifecycle() throws ResourceCreationException, STRuntimeException {
         Resource test1 = createTestResource("test1");
@@ -42,13 +60,6 @@ public class STContextTest extends AbstractContextTest {
         TestResource.valDeps(test4, test3, test3_child1);
     }
 
-    @Test()
-    public void testCreateElementDuringExecutionStage() throws STRuntimeException, ResourceCreationException {
-        Resource test1 = createTestResource("test1");
-        test1.set("createElementDuringExecute", true);
-        assertFalse(ctx.execute());
-        assertEquals(test1.getState(), FAILED);
-    }
 
     @Test()
     public void testCreateSingleUniqueElements() throws STRuntimeException, ResourceCreationException {
@@ -76,6 +87,7 @@ public class STContextTest extends AbstractContextTest {
 
     @Test
     public void testFailurePropagation() throws InvalidAttributeException, STRuntimeException, ResourceCreationException {
+        ctx.clearFatalException();
         Resource el1 = createTestResource("1");
         el1.set("failExecution", true);
         Resource el2 = createTestResource("2", el1);
@@ -100,13 +112,13 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test
-    public void testPostChildrenExecution() throws ResourceCreationException, STRuntimeException {
+    public void testPostChildrenExecution() throws Throwable {
         Resource rs1 = createTestResource("1");
         Resource rs2 = createChildTestResource("2", rs1);
         Resource rs3 = createChildTestResource("3", rs2);
         Resource rs4 = createChildTestResource("4", rs3);
         Resource rs5 = createTestResource("5", rs4);
-        execute(true);
+        execute();
         Integer rs1ts = TestResource.get(rs1).getPostChildrenOrder();
         Integer rs2ts = TestResource.get(rs2).getPostChildrenOrder();
         Integer rs3ts = TestResource.get(rs3).getPostChildrenOrder();
@@ -123,7 +135,7 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test(expectedExceptions = InvalidAttributeException.class)
-    public void testConflictingUid() throws ResourceCreationException, STRuntimeException {
+    public void testConflictingUid() throws Throwable {
         Resource rs1 = createTestResource();
         rs1.setUid("myuid");
         Resource rs2 = createTestResource();
@@ -132,14 +144,14 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test(expectedExceptions = InvalidAttributeException.class)
-    public void testConflictingId() throws ResourceCreationException, STRuntimeException {
-        Resource rs1 = createTestResource("id1");
-        Resource rs2 = createTestResource("id1");
+    public void testConflictingId() throws Throwable {
+        createTestResource("id1");
+        createTestResource("id1");
         execute();
     }
 
     @Test
-    public void testVerifyGobalNoChange() throws ResourceCreationException, STRuntimeException {
+    public void testVerifyGobalNoChange() throws Throwable {
         Resource res = createTestResource("x");
         TestResource testResource = TestResource.get(res);
         testResource.setVerifyGlobal(true);
@@ -149,7 +161,7 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test
-    public void testVerifyGlobalChange() throws ResourceCreationException, STRuntimeException {
+    public void testVerifyGlobalChange() throws Throwable {
         Resource res = createTestResource("x");
         TestResource testResource = TestResource.get(res);
         execute();
@@ -158,7 +170,7 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test
-    public void testVerifyGlobalAndSpecifyChange() throws ResourceCreationException, STRuntimeException {
+    public void testVerifyGlobalAndSpecifyChange() throws Throwable {
         Resource res = createTestResource("x");
         TestResource testResource = TestResource.get(res);
         testResource.setVerifySpecific(true);

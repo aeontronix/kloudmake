@@ -31,6 +31,7 @@ public class GenericInjector extends Injector {
                 if( service == null ) {
                     throw new FieldInjectionException(field, "No service of type " + field.getType() + " found");
                 }
+                inject(obj,service);
             } catch (InvalidServiceException e) {
                 throw new FieldInjectionException(field, e);
             }
