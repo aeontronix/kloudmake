@@ -2,6 +2,6 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-@STResource("virt") package com.kloudtek.systyrant.resource.builtin.virt;
+@STResource("vagrant") package com.kloudtek.systyrant.resource.builtin.vagrant;
 
 import com.kloudtek.systyrant.annotation.STResource;

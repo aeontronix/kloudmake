@@ -6,7 +6,8 @@ package com.kloudtek.systyrant;
 
 import com.google.common.reflect.AbstractInvocationHandler;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.builtin.virt.VagrantResource;
+import com.kloudtek.systyrant.resource.builtin.vagrant.SharedFolder;
+import com.kloudtek.systyrant.resource.builtin.vagrant.VagrantResource;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.service.host.LocalHost;
@@ -14,6 +15,7 @@ import com.kloudtek.systyrant.service.host.SshHost;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
 import static com.kloudtek.systyrant.service.host.LocalHost.forceSet;
 
@@ -36,7 +38,7 @@ public class TestVagrantRuntime {
                 }
             });
             vagrantResource = new VagrantResource("ubuntu-precise64", "_vagrant", VagrantResource.Ensure.UP, after,
-                    LocalHost.createStandalone(), serviceManager);
+                    LocalHost.createStandalone(), serviceManager, Arrays.asList(new SharedFolder(true, true, "test", "_vagrant/test", "/test")));
             vagrantResource.exec();
             sshHost = vagrantResource.getSshHost();
             if (user != null) {

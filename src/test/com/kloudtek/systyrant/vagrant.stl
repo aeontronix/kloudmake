@@ -1,4 +1,4 @@
-import virt;
+import vagrant;
 import db;
 
 new vagrant {"vm1" => dir = '_vagrant', box = "ubuntu-precise64", after = "destroyed"

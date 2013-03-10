@@ -9,9 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
 
-/**
- * Represents a fully qualified resource name.
- */
+/** Represents a fully qualified resource name. */
 public class FQName {
     private String pkg;
     private String name;

@@ -6,9 +6,7 @@ package com.kloudtek.systyrant.exception;
 
 import org.slf4j.Logger;
 
-/**
- * Base class for all systyrant exceptions.
- */
+/** Base class for all systyrant exceptions. */
 public class STException extends Exception {
     private boolean logged;
 

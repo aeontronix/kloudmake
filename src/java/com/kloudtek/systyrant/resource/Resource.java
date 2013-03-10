@@ -334,6 +334,6 @@ public class Resource {
     }
 
     public enum State {
-        NEW, PREPARED, VERIFIED, SYNCED, EXECUTED, CLEANEDUP, SKIP, FAILED
+        NEW, PREPARED, EXECUTED, CLEANEDUP, SKIP, FAILED
     }
 }

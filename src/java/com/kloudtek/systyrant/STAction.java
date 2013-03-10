@@ -7,9 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
 
-/**
- * Used to invoke actionsByStage during lifecycle stage processing.
- */
+/** Used to invoke actionsByStage during lifecycle stage processing. */
 public interface STAction {
     /**
      * Execute this action

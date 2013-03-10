@@ -10,10 +10,7 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.util.ListHashMap;
 import org.reflections.Reflections;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
 public class ProvidersManagementService {
     protected HashMap<Class<? extends ProviderManager>, ProviderManager> providerManagers = new HashMap<>();
@@ -37,6 +34,7 @@ public class ProvidersManagementService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void init(Reflections libraries) throws STRuntimeException {
         Set<Class<?>> classes = libraries.getTypesAnnotatedWith(Provider.class);
         ArrayList<Class<? extends ProviderManager>> pmlist = new ArrayList<>();
@@ -75,9 +73,7 @@ public class ProvidersManagementService {
                     }
                     Class[] interfaces = c.getInterfaces();
                     if (interfaces != null) {
-                        for (Class iface : interfaces) {
-                            classList.add(iface);
-                        }
+                        Collections.addAll(classList, interfaces);
                     }
                 }
             } catch (InstantiationException | IllegalAccessException e) {

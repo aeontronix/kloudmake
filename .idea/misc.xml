@@ -2,16 +2,19 @@
 <project version="4">
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
-    <list size="9">
+    <list size="12">
       <item index="0" class="java.lang.String" itemvalue="com.beust.jcommander.Parameter" />
-      <item index="1" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Method" />
-      <item index="2" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Sync" />
-      <item index="3" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Verify" />
-      <item index="4" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.HandleCompileStage" />
-      <item index="5" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.HandleExecStage" />
-      <item index="6" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.HandleStage" />
-      <item index="7" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.java.JavaElement" />
-      <item index="8" class="java.lang.String" itemvalue="com.kloudtek.systyrant.lang.java.annotation.Action" />
+      <item index="1" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Attr" />
+      <item index="2" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Inject" />
+      <item index="3" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Method" />
+      <item index="4" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Service" />
+      <item index="5" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Sync" />
+      <item index="6" class="java.lang.String" itemvalue="com.kloudtek.systyrant.annotation.Verify" />
+      <item index="7" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.HandleCompileStage" />
+      <item index="8" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.HandleExecStage" />
+      <item index="9" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.HandleStage" />
+      <item index="10" class="java.lang.String" itemvalue="com.kloudtek.systyrant.engine.java.JavaElement" />
+      <item index="11" class="java.lang.String" itemvalue="com.kloudtek.systyrant.lang.java.annotation.Action" />
     </list>
   </component>
   <component name="IdProvider" IDEtalkID="A8A0659E9DF9742EFF528A31B713536A" />

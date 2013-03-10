@@ -4,9 +4,7 @@
 
 package com.kloudtek.systyrant.exception;
 
-/**
- * Thrown when invalid dependencies are found (not existent references or circular dependencies)
- */
+/** Thrown when invalid dependencies are found (not existent references or circular dependencies) */
 public class InvalidDependencyException extends STRuntimeException {
     public InvalidDependencyException() {
     }

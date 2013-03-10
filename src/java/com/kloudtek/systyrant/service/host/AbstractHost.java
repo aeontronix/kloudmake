@@ -27,9 +27,7 @@ import java.util.Map;
 import static com.kloudtek.systyrant.DelayedLogger.Severity.*;
 import static com.kloudtek.systyrant.service.host.Host.Logging.*;
 
-/**
- * Abstract implementation of Host
- */
+/** Abstract implementation of Host */
 public abstract class AbstractHost implements Host {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHost.class);
     @Provider
@@ -44,6 +42,7 @@ public abstract class AbstractHost implements Host {
     protected ArrayList<String> tempFiles = new ArrayList<>();
     protected ArrayList<String> tempDirs = new ArrayList<>();
     protected HashMap<String, Object> state = new HashMap<>();
+    protected boolean handleQuoting = false;
 
     @Override
     public void start() throws STRuntimeException {
@@ -116,7 +115,7 @@ public abstract class AbstractHost implements Host {
     @Override
     public ExecutionResult exec(final String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
                                 String user, @Nullable Map<String, String> env) throws STRuntimeException {
-        CommandLine cmdLine = hostProvider.generateCommandLine(command, getCurrentUser(), user);
+        CommandLine cmdLine = hostProvider.generateCommandLine(command, getCurrentUser(), user, handleQuoting);
         final DelayedLogger delayedLogger = new DelayedLogger(logger);
         LogOutputStream logOutputStream = new LogOutputStream() {
             @Override

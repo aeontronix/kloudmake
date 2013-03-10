@@ -27,9 +27,7 @@ import java.util.regex.Pattern;
 
 import static ch.qos.logback.classic.Level.*;
 
-/**
- * Used to launch SysTyrant through command line
- */
+/** Used to launch SysTyrant through command line */
 public class Cli {
     public static final Pattern RGXSSH = Pattern.compile("(\\w*@)?(.*?)(:\\d*)");
     private static final Logger logger = LoggerFactory.getLogger(Cli.class);

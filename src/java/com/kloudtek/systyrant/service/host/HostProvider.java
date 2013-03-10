@@ -18,5 +18,5 @@ public interface HostProvider {
 
     String getExecutionSuffix(String currentUser, String user);
 
-    CommandLine generateCommandLine(String command, String currentUser, String user);
+    CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting);
 }

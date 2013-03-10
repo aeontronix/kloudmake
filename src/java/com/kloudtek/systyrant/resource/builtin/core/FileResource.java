@@ -5,10 +5,7 @@
 package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.FileInfo;
-import com.kloudtek.systyrant.annotation.Attr;
-import com.kloudtek.systyrant.annotation.STResource;
-import com.kloudtek.systyrant.annotation.Sync;
-import com.kloudtek.systyrant.annotation.Verify;
+import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
@@ -21,7 +18,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +35,9 @@ public class FileResource {
     private static final byte[] EMPTYSTRSHA1 = CryptoUtils.sha1(new byte[0]);
     @Attr
     protected String id;
-    @Resource
+    @Service
     protected FileStore fileStore;
-    @Resource
+    @Service
     protected Host host;
     @Attr
     protected Ensure ensure = Ensure.FILE;

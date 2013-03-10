@@ -6,9 +6,7 @@ package com.kloudtek.systyrant.dsl;
 
 import com.kloudtek.systyrant.STContext;
 
-/**
- * Interface for DSL parsers
- */
+/** Interface for DSL parsers */
 public interface DSLParser {
     DSLScript parse(STContext ctx, String script) throws InvalidScriptException;
 

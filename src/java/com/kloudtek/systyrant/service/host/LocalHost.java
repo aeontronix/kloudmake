@@ -63,9 +63,7 @@ public class LocalHost extends AbstractHost {
         return File.separator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public FileInfo getFileInfo(String path) throws STRuntimeException {

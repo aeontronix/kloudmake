@@ -13,9 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-/**
- * Helper class for use by elements.
- */
+/** Helper class for use by elements. */
 public class STHelper {
     public static Resource createElement(@NotNull FQName fqname) throws ResourceCreationException {
         return STContext.get().getResourceManager().createResource(fqname, null, null);

@@ -8,9 +8,7 @@ import com.kloudtek.systyrant.resource.Resource;
 
 import static com.kloudtek.systyrant.resource.Resource.State.*;
 
-/**
- * enum of all context execution lifecycle stages
- */
+/** enum of all context execution lifecycle stages */
 public enum Stage {
     PREPARE(PREPARED), EXECUTE(EXECUTED), CLEANUP(CLEANEDUP);
     private final Resource.State state;

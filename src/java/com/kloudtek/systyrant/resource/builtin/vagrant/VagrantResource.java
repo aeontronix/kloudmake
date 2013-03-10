@@ -2,11 +2,9 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource.builtin.virt;
+package com.kloudtek.systyrant.resource.builtin.vagrant;
 
-import com.kloudtek.systyrant.annotation.Attr;
-import com.kloudtek.systyrant.annotation.Execute;
-import com.kloudtek.systyrant.annotation.STResource;
+import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.ServiceManager;
@@ -17,13 +15,13 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@STResource()
+@STResource
 public class VagrantResource {
     private static final Logger logger = LoggerFactory.getLogger(VagrantResource.class);
     @Attr
@@ -36,22 +34,26 @@ public class VagrantResource {
     private Ensure ensure = Ensure.UP;
     @Attr
     private Ensure after;
-    @Resource
+    @Service
     private Host host;
-    @Resource
+    @Service
     private ServiceManager serviceManager;
+    @Resources
+    private Collection<SharedFolder> sharedFolders;
     private SshHost sshHost;
 
     public VagrantResource() {
     }
 
-    public VagrantResource(String box, String dir, Ensure ensure, Ensure after, Host host, ServiceManager serviceManager) {
+    public VagrantResource(String box, String dir, Ensure ensure, Ensure after, Host host, ServiceManager serviceManager,
+                           Collection<SharedFolder> sharedFolders) {
         this.box = box;
         this.dir = dir;
         this.ensure = ensure;
         this.after = after;
         this.host = host;
         this.serviceManager = serviceManager;
+        this.sharedFolders = sharedFolders;
     }
 
     @Execute
@@ -146,11 +148,6 @@ public class VagrantResource {
 
     public SshHost getSshHost() {
         return sshHost;
-    }
-
-    @STResource
-    public class SharedFolder {
-
     }
 
     public static class SshConfig {

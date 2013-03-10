@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-/**
- * Provides access to a file in the {@link FileStore}
- */
+/** Provides access to a file in the {@link FileStore} */
 public abstract class DataFile {
     public abstract InputStream getStream() throws IOException;
 

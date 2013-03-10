@@ -19,9 +19,7 @@ import java.io.PipedInputStream;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-/**
- * Implementation of Executor that uses JSch to run commands on a remote server via SSH.
- */
+/** Implementation of Executor that uses JSch to run commands on a remote server via SSH. */
 public class SshExecutor implements Executor {
     private static final Logger logger = LoggerFactory.getLogger(SshExecutor.class);
     private Session session;
@@ -93,89 +91,67 @@ public class SshExecutor implements Executor {
         }
     }
 
-    /**
-     * @see Executor#getStreamHandler()
-     */
+    /** @see Executor#getStreamHandler() */
     @Override
     public ExecuteStreamHandler getStreamHandler() {
         return streamHandler;
     }
 
-    /**
-     * @see Executor#setStreamHandler(ExecuteStreamHandler)
-     */
+    /** @see Executor#setStreamHandler(ExecuteStreamHandler) */
     @Override
     public void setStreamHandler(ExecuteStreamHandler streamHandler) {
         this.streamHandler = streamHandler;
     }
 
-    /**
-     * @see Executor#getWatchdog()
-     */
+    /** @see Executor#getWatchdog() */
     @Override
     public ExecuteWatchdog getWatchdog() {
         return watchdog;
     }
 
-    /**
-     * @see Executor#setWatchdog(ExecuteWatchdog)
-     */
+    /** @see Executor#setWatchdog(ExecuteWatchdog) */
     @Override
     public void setWatchdog(ExecuteWatchdog watchDog) {
         this.watchdog = watchDog;
     }
 
-    /**
-     * @see Executor#getProcessDestroyer()
-     */
+    /** @see Executor#getProcessDestroyer() */
     @Override
     public ProcessDestroyer getProcessDestroyer() {
         return this.processDestroyer;
     }
 
-    /**
-     * @see Executor#setProcessDestroyer(ProcessDestroyer)
-     */
+    /** @see Executor#setProcessDestroyer(ProcessDestroyer) */
     @Override
     public void setProcessDestroyer(ProcessDestroyer processDestroyer) {
         this.processDestroyer = processDestroyer;
     }
 
-    /**
-     * @see Executor#getWorkingDirectory()
-     */
+    /** @see Executor#getWorkingDirectory() */
     @Override
     public File getWorkingDirectory() {
         return workingDirectory;
     }
 
-    /**
-     * @see Executor#setWorkingDirectory(java.io.File)
-     */
+    /** @see Executor#setWorkingDirectory(java.io.File) */
     @Override
     public void setWorkingDirectory(File dir) {
         this.workingDirectory = dir;
     }
 
-    /**
-     * @see Executor#setExitValue(int)
-     */
+    /** @see Executor#setExitValue(int) */
     @Override
     public void setExitValue(final int value) {
         this.setExitValues(new int[]{value});
     }
 
-    /**
-     * @see Executor#setExitValues(int[])
-     */
+    /** @see Executor#setExitValues(int[]) */
     @Override
     public void setExitValues(final int[] values) {
         this.exitValues = (values == null ? null : values.clone());
     }
 
-    /**
-     * @see Executor#isFailure(int)
-     */
+    /** @see Executor#isFailure(int) */
     @Override
     public boolean isFailure(final int exitValue) {
         if (this.exitValues == null) {

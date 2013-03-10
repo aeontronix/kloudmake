@@ -5,21 +5,16 @@
 package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.ExecutionResult;
-import com.kloudtek.systyrant.annotation.Attr;
-import com.kloudtek.systyrant.annotation.STResource;
-import com.kloudtek.systyrant.annotation.Sync;
-import com.kloudtek.systyrant.annotation.Verify;
+import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.host.Host;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Resource;
-
 @STResource
 public class ExecResource {
     private static Logger logger = LoggerFactory.getLogger(ExecResource.class);
-    @Resource
+    @Service
     private Host host;
     @Attr
     private String command;

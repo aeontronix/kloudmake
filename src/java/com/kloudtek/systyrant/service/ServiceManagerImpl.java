@@ -5,9 +5,9 @@
 package com.kloudtek.systyrant.service;
 
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Provider;
-import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.Parameters;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
@@ -25,9 +25,7 @@ import java.util.Set;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
 
-/**
- * Simple implementation of the {@link ServiceManager} interface.
- */
+/** Simple implementation of the {@link ServiceManager} interface. */
 public class ServiceManagerImpl implements ServiceManager {
     private static final Logger logger = LoggerFactory.getLogger(ServiceManagerImpl.class);
     private Map<String, Object> services = new HashMap<>();

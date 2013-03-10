@@ -137,7 +137,7 @@ public class FileResourceTest {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(DATA.getBytes());
         fileDoesntExist();
         fileExists();
-        mockGetFileInfo(FILE,PATH);
+        mockGetFileInfo(FILE, PATH);
         when(fileStoreMock.get(PATH)).thenReturn(new DataFile() {
             @Override
             public InputStream getStream() throws IOException {

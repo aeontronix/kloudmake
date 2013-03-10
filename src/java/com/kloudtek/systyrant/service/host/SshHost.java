@@ -25,9 +25,7 @@ import java.util.regex.Pattern;
 
 import static com.kloudtek.systyrant.service.host.Host.Logging.NO;
 
-/**
- * {@link com.kloudtek.systyrant.service.host.Host} implementation that uses SSH to remotely administer a server.
- */
+/** {@link com.kloudtek.systyrant.service.host.Host} implementation that uses SSH to remotely administer a server. */
 public class SshHost extends AbstractHost {
     private static final Logger logger = LoggerFactory.getLogger(SshHost.class);
     private JSch jsch;
@@ -44,9 +42,11 @@ public class SshHost extends AbstractHost {
     private String user = "root";
 
     public SshHost() {
+        handleQuoting = true;
     }
 
     public SshHost(String keyName, byte[] privKey, byte[] pubKey, byte[] passphrase, String loginUser, String address, int port) throws JSchException {
+        handleQuoting = true;
         this.loginUser = loginUser;
         this.address = address;
         this.port = port;

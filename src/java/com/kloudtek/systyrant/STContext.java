@@ -33,16 +33,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.kloudtek.systyrant.Stage.EXECUTE;
 import static com.kloudtek.systyrant.resource.Resource.State.FAILED;
+import static com.kloudtek.systyrant.resource.Resource.State.NEW;
 import static com.kloudtek.systyrant.resource.Resource.State.PREPARED;
 import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 
-/**
- * This is the "brains" of SysTyrant, which contains the application's state
- */
+/** This is the "brains" of SysTyrant, which contains the application's state */
 public class STContext implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(STContext.class);
+    private static List<Resource.State> failurePropagationStates = Arrays.asList(NEW,PREPARED);
     private ResourceManager resourceManager;
     private ServiceManager serviceManager;
     private List<Library> libraries = new ArrayList<>();
@@ -472,7 +472,11 @@ public class STContext implements AutoCloseable {
         while (!list.isEmpty()) {
             Resource el = list.removeFirst();
             el.setState(FAILED);
-            list.addAll(getDependentOn(el));
+            for (Resource dep : getDependentOn(el)) {
+                if( failurePropagationStates.contains(dep.getState()) ) {
+                    list.addLast(dep);
+                }
+            }
         }
     }
 

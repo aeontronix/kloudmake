@@ -58,8 +58,8 @@ public class HostProviderManager implements ProviderManager<HostProvider> {
         }
 
         @Override
-        public CommandLine generateCommandLine(String command, String currentUser, String user) {
-            return new CommandLine("bash").addArgument("-c").addArgument(command, false);
+        public CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting) {
+            return new CommandLine("bash").addArgument("-c").addArgument(command, handleQuoting);
         }
     }
 }

@@ -6,17 +6,16 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.service.host.Host;
 import com.kloudtek.systyrant.service.host.OperatingSystem;
-
-import javax.annotation.Resource;
 
 import static org.testng.Assert.assertEquals;
 
 @STResource("test:vagrantvalidate")
 public class VagrantValidationResource {
-    @Resource
+    @Service
     private Host host;
     private boolean validated;
 

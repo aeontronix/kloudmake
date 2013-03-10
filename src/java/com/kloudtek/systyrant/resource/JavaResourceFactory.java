@@ -10,8 +10,6 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.service.ServiceManager;
-import com.kloudtek.systyrant.service.host.Host;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,11 +29,12 @@ import static com.kloudtek.util.StringUtils.isNotEmpty;
 public class JavaResourceFactory extends ResourceFactory {
     private static final Logger logger = LoggerFactory.getLogger(JavaResourceFactory.class);
     private final Class<?> clazz;
+    private HashMap<String, String> defaultAttrs = new HashMap<>();
+    private Injector[] injectors;
     private HashMap<Stage, List<ActionMethod>> actionMethods = new HashMap<>();
     private HashMap<Stage, List<ActionMethod>> postChildrenActionMethods = new HashMap<>();
     private HashMap<Field, String> attrInject = new HashMap<>();
     private HashMap<Field, String> serviceInject = new HashMap<>();
-    private HashMap<String, String> defaultParamValues = new HashMap<>();
 
     public JavaResourceFactory(Class<?> clazz, FQName fqname, HashMap<String, String> packageMappings) throws InvalidResourceDefinitionException {
         super(findFQName(clazz, fqname, packageMappings));
@@ -51,26 +50,27 @@ public class JavaResourceFactory extends ResourceFactory {
             registerActions(method, Stage.CLEANUP, Cleanup.class);
         }
         sort(actionMethods);
+        ArrayList<Injector> injectorsList = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
-            Attr attr = field.getAnnotation(Attr.class);
-            if (attr != null) {
-                field.setAccessible(true);
-                String name = attr.value().isEmpty() ? field.getName() : attr.value();
-                attrInject.put(field, name);
-                if (isNotEmpty(attr.def())) {
-                    defaultParamValues.put(name, attr.def());
-                }
+            for (Annotation annotation : field.getAnnotations()) {
+                registerFieldInjection(injectorsList, field, annotation);
             }
-            javax.annotation.Resource rs = field.getAnnotation(javax.annotation.Resource.class);
-            if (rs != null) {
-                field.setAccessible(true);
-                serviceInject.put(field, rs.name());
+        }
+        injectors = injectorsList.toArray(new Injector[injectorsList.size()]);
+    }
+
+    private void registerFieldInjection(ArrayList<Injector> injectorsList, Field field, Annotation annotation) {
+        if (annotation instanceof Attr) {
+            Attr attr = (Attr) annotation;
+            String name = attr.value().isEmpty() ? field.getName() : attr.value();
+            injectorsList.add(new AttrInjector(name, field));
+            if (isNotEmpty(attr.def())) {
+                defaultAttrs.put(name, attr.def());
             }
-            Service s = field.getAnnotation(Service.class);
-            if (s != null) {
-                field.setAccessible(true);
-                serviceInject.put(field, s.value());
-            }
+        } else if (annotation instanceof Service) {
+            injectorsList.add(new ServiceInjector(field, (Service) annotation));
+        } else if (annotation instanceof Inject) {
+            injectorsList.add(new GenericInjector(field));
         }
     }
 
@@ -89,6 +89,24 @@ public class JavaResourceFactory extends ResourceFactory {
                 }
             });
         }
+    }
+
+    @NotNull
+    @Override
+    public Resource create(STContext context) throws ResourceCreationException {
+        Resource resource = new Resource(context, this);
+        try {
+            Object impl = clazz.newInstance();
+            resource.addAction(new JavaImpl(impl));
+            for (Map.Entry<String, String> entry : defaultAttrs.entrySet()) {
+                resource.set(entry.getKey(), entry.getValue());
+            }
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new ResourceCreationException("Java resource cannot be instantiated: " + clazz.getName(), e);
+        } catch (InvalidAttributeException e) {
+            throw new ResourceCreationException("Error while creating java resource " + clazz.getName() + ": " + e.getMessage(), e);
+        }
+        return resource;
     }
 
     private void registerActions(Method method, Stage stage, Class<? extends Annotation> annotationClass) throws InvalidResourceDefinitionException {
@@ -121,24 +139,6 @@ public class JavaResourceFactory extends ResourceFactory {
             }
             getActionMethods(stage, postChildren).add(new ActionMethod(method, actionAnnotation, order));
         }
-    }
-
-    @NotNull
-    @Override
-    public Resource create(STContext context) throws ResourceCreationException {
-        Resource resource = new Resource(context, this);
-        try {
-            Object impl = clazz.newInstance();
-            resource.addAction(new JavaImpl(impl));
-            for (Map.Entry<String, String> entry : defaultParamValues.entrySet()) {
-                resource.set(entry.getKey(), entry.getValue());
-            }
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new ResourceCreationException("Java resource cannot be instantiated: " + clazz.getName(), e);
-        } catch (InvalidAttributeException e) {
-            throw new ResourceCreationException("Error while creating java resource " + clazz.getName() + ": " + e.getMessage(), e);
-        }
-        return resource;
     }
 
     public List<ActionMethod> getActionMethods(Stage stage, boolean postChildren) {
@@ -194,6 +194,7 @@ public class JavaResourceFactory extends ResourceFactory {
 
         @Override
         public void execute(Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+            STContext ctx = STContext.get();
             for (ActionMethod actionMethod : getActionMethods(stage, postChildren)) {
                 try {
                     if (actionMethod.annotation instanceof Sync) {
@@ -203,7 +204,9 @@ public class JavaResourceFactory extends ResourceFactory {
                             continue;
                         }
                     }
-                    inject(resource);
+                    for (Injector injector : injectors) {
+                        injector.inject(resource, impl, ctx);
+                    }
                     try {
                         ValidationUtils.validate(impl, ResourceValidationException.class);
                     } catch (ResourceValidationException e) {
@@ -222,63 +225,6 @@ public class JavaResourceFactory extends ResourceFactory {
                     throw new STRuntimeException(e.getMessage(), e);
                 } catch (InvocationTargetException e) {
                     throw new STRuntimeException(e.getTargetException().getMessage(), e.getTargetException());
-                }
-            }
-        }
-
-        @SuppressWarnings("unchecked")
-        private void inject(Resource element) throws STRuntimeException, IllegalAccessException {
-            STContext ctx = STContext.get();
-            for (Map.Entry<Field, String> entry : attrInject.entrySet()) {
-                Field field = entry.getKey();
-                Class<?> fieldType = field.getType();
-                String attrName = entry.getValue();
-                String attrVal = element.get(attrName);
-                if (attrVal != null) {
-                    Object value;
-                    if (isEmpty(attrVal)) {
-                        if (fieldType.isPrimitive()) {
-                            value = ConvertUtils.convert(0, fieldType);
-                        } else {
-                            value = null;
-                        }
-                    } else {
-                        if (fieldType.isEnum()) {
-                            try {
-                                value = Enum.valueOf((Class<? extends Enum>) fieldType, attrVal.toUpperCase());
-                            } catch (IllegalArgumentException e) {
-                                throw new STRuntimeException("Unable to bind attribute '" + attrName + "' of resource " + element.toString() + " to java field " + clazz.getName() + "#" + field.getName());
-                            }
-                        } else {
-                            value = ConvertUtils.convert(attrVal, fieldType);
-                        }
-                    }
-                    field.set(impl, value);
-                }
-            }
-            for (Map.Entry<Field, String> entry : serviceInject.entrySet()) {
-                try {
-                    Field field = entry.getKey();
-                    String rsName = entry.getValue();
-                    Class<?> rsClass = field.getType();
-                    Object resource;
-                    if (rsClass.isInstance(STContext.class)) {
-                        resource = STContext.get();
-                    } else if (rsClass.isAssignableFrom(Host.class)) {
-                        resource = STContext.get().host();
-                    } else if (rsClass.isAssignableFrom(ResourceManagerImpl.class)) {
-                        resource = STContext.get().getResourceManager();
-                    } else if (rsClass.isAssignableFrom(ServiceManager.class)) {
-                        resource = STContext.get().getServiceManager();
-                    } else if (rsClass.equals(Resource.class)) {
-                        resource = element;
-                    } else {
-                        ServiceManager sm = ctx.getServiceManager();
-                        resource = isEmpty(rsName) ? sm.getService(rsClass) : sm.getService(rsName);
-                    }
-                    field.set(impl, resource);
-                } catch (InvalidServiceException e) {
-                    throw new STRuntimeException(e.getMessage(), e);
                 }
             }
         }

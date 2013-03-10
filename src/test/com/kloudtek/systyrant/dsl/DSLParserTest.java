@@ -25,9 +25,7 @@ import java.util.List;
 
 import static org.testng.Assert.*;
 
-/**
- * Those tests check {@link com.kloudtek.systyrant.dsl.DSLScript} objects produced by DSL code snippets.
- */
+/** Those tests check {@link com.kloudtek.systyrant.dsl.DSLScript} objects produced by DSL code snippets. */
 public class DSLParserTest extends AbstractContextTest {
     @Test(expectedExceptions = ScriptException.class, expectedExceptionsMessageRegExp = ".*Unable to find resource.*")
     public void testCreateElementMissingImport() throws InvalidScriptException, InvalidResourceDefinitionException, URISyntaxException, STRuntimeException, IOException, ScriptException {

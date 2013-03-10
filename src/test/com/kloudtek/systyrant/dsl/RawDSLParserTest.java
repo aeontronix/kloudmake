@@ -19,9 +19,7 @@ import java.util.Map;
 
 import static org.testng.Assert.*;
 
-/**
- * Those tests check {@link DSLScript} objects produced by DSL code snippets.
- */
+/** Those tests check {@link DSLScript} objects produced by DSL code snippets. */
 public class RawDSLParserTest {
     private DSLParser parser = new AntlrDSLParser();
 

@@ -6,9 +6,7 @@ package com.kloudtek.systyrant.service.filestore;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
- * A {@link FileStore} file definition.
- */
+/** A {@link FileStore} file definition. */
 public class FileDefinition {
     private String path;
     private String url;

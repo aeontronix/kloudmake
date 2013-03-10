@@ -43,9 +43,9 @@ public class TestResource {
     private boolean createElementDuringExecute;
     private String unique = UUID.randomUUID().toString();
     private ResourceRef ref;
-    @javax.annotation.Resource
+    @Service
     private FileStore fileStore;
-    @javax.annotation.Resource
+    @Inject
     private Resource resource;
     @Attr
     private String id;

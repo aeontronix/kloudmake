@@ -62,7 +62,7 @@ public class AbstractContextTest {
     }
 
     public void enableVagrant() throws InvalidAttributeException, ResourceCreationException {
-        Resource vagrant = resourceManager.createResource("virt:vagrant");
+        Resource vagrant = resourceManager.createResource("vagrant:vagrant");
         vagrant.set("dir", "_vagrant");
         vagrant.set("box", "ubuntu-precise64");
         ctx.setDefaultParent(vagrant);
