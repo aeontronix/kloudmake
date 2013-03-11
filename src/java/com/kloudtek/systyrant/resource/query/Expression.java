@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.resource.Resource;
@@ -22,16 +23,18 @@ import java.util.List;
 public abstract class Expression {
     private static final Logger logger = LoggerFactory.getLogger(Expression.class);
 
-    public static Expression create(SystyrantLangParser.QueryExpressionContext expr, String query) throws InvalidQueryException {
-        if( expr.attrMatch != null ) {
-            return new AttrMatchExpression(expr.attrMatch,query);
-        } else if( expr.bOp != null ) {
+    public static Expression create(SystyrantLangParser.QueryExpressionContext expr, String query, STContext context) throws InvalidQueryException {
+        if (expr.attrMatch != null) {
+            return new AttrMatchExpression(expr.attrMatch, query, context);
+        } else if (expr.bOp != null) {
             List<SystyrantLangParser.QueryExpressionContext> exprs = expr.queryExpression();
             assert exprs.size() == 2;
-            return new BinaryExpression(expr.bOp,exprs.get(0),exprs.get(1),query);
+            return new BinaryExpression(expr.bOp, exprs.get(0), exprs.get(1), query, context);
+        } else if (expr.co != null) {
+            return new ChildOfExpression(expr.co, query, context);
         }
-        throw new InvalidQueryException(expr.getStart().getLine(),expr.getStart().getCharPositionInLine(),query);
+        throw new InvalidQueryException(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), query);
     }
 
-    public abstract boolean matches(Resource resource);
+    public abstract boolean matches(STContext context, Resource resource);
 }

@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.AntLRUtils;
 import com.kloudtek.systyrant.dsl.LogOp;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
@@ -12,9 +13,7 @@ import com.kloudtek.systyrant.resource.Resource;
 
 import java.util.regex.Pattern;
 
-import static com.kloudtek.systyrant.dsl.LogOp.EMPTY;
-import static com.kloudtek.systyrant.dsl.LogOp.ISNULL;
-import static com.kloudtek.systyrant.dsl.LogOp.REGEX;
+import static com.kloudtek.systyrant.dsl.LogOp.*;
 import static com.kloudtek.util.StringUtils.isEmpty;
 
 /**
@@ -27,32 +26,32 @@ public class AttrMatchExpression extends Expression {
     private final String attr;
     private boolean not;
 
-    public AttrMatchExpression(SystyrantLangParser.QueryAttrMatchContext attrMatch, String query) throws InvalidQueryException {
+    public AttrMatchExpression(SystyrantLangParser.QueryAttrMatchContext attrMatch, String query, STContext context) throws InvalidQueryException {
         attr = attrMatch.attr.getText();
         if (isEmpty(attr)) {
             throw new InvalidQueryException(attrMatch.attr.getStart(), query);
         }
-        if( attrMatch.nul != null ) {
+        if (attrMatch.nul != null) {
             not = attrMatch.nul.n != null;
-            if( attrMatch.nul.nul != null ) {
+            if (attrMatch.nul.nul != null) {
                 logOp = ISNULL;
-            } else if( attrMatch.nul.empty != null ) {
+            } else if (attrMatch.nul.empty != null) {
                 logOp = EMPTY;
             } else {
-                throw new RuntimeException("BUG! couldn't match "+attrMatch.nul.getText());
+                throw new RuntimeException("BUG! couldn't match " + attrMatch.nul.getText());
             }
         } else {
             not = attrMatch.nnul.n != null;
             logOp = LogOp.valueOf(attrMatch.nnul.op, query);
             val = AntLRUtils.toString(attrMatch.nnul.val);
-            if( logOp == REGEX ) {
+            if (logOp == REGEX) {
                 valPattern = Pattern.compile(val);
             }
         }
     }
 
     @Override
-    public boolean matches(Resource resource) {
+    public boolean matches(STContext context, Resource resource) {
         String attrVal = resource.get(attr);
         boolean result = eval(attrVal);
         return not ? !result : result;

@@ -27,10 +27,14 @@ public class ResourceManagerImpl implements ResourceManager {
     private List<ResourceFactory> resourceFactories = new ArrayList<>();
     private List<Resource> resources = new ArrayList<>();
     private HashMap<Resource, List<Resource>> parentChildIndex;
-    /** Concurrency lock */
+    /**
+     * Concurrency lock
+     */
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private boolean closed;
-    /** Flag indicating if element creation is allowed */
+    /**
+     * Flag indicating if element creation is allowed
+     */
     private boolean createAllowed = true;
     private final Map<String, ResourceFactory> fqnResourceIndex = new HashMap<>();
     private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
@@ -168,7 +172,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public List<Resource> findResources(String query) throws InvalidQueryException {
-        return new ResourceQuery(query).find(resources);
+        return new ResourceQuery(context, query).find(resources);
     }
 
     @Override
@@ -337,7 +341,9 @@ public class ResourceManagerImpl implements ResourceManager {
         }
     }
 
-    /** Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies */
+    /**
+     * Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies
+     */
     @Override
     public void prepareForExecution() throws InvalidDependencyException {
         wlock();

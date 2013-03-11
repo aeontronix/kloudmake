@@ -5,6 +5,9 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.AbstractContextTest;
+import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.annotation.Execute;
+import com.kloudtek.systyrant.exception.InvalidQueryException;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -158,5 +161,39 @@ public class ResourceQueryTest extends AbstractContextTest {
         createTestResource().set("uid", "uid3");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2' and @attr3 eq 'val3'");
         assertContainsSame(result, rs2);
+    }
+
+    @Test
+    public void testChildOfScope() throws Throwable {
+        register(ChildOfScope.class, "childofscope");
+        Resource parent = resourceManager.createResource("test:childofscope", null, null);
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        createTestResource();
+        execute();
+        ChildOfScope impl = findJavaAction(ChildOfScope.class, parent);
+        assertContainsSame(impl.found, child1, child2);
+    }
+
+    public static class ChildOfScope {
+        private List<Resource> found;
+
+        @Execute
+        public void query() throws InvalidQueryException {
+            STContext ctx = STContext.get();
+            found = ctx.findResources("childof");
+        }
+    }
+
+    @Test
+    public void testChildOfParam() throws Throwable {
+        createTestResource();
+        Resource parent = createTestResource("id");
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("childof @id eq 'id'");
+        assertContainsSame(childs, child1, child2);
     }
 }

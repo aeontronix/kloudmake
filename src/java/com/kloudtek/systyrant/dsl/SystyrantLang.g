@@ -48,9 +48,11 @@ invokeMethod: methodName=anyId '(' parameter* ')';
 
 query : queryExpression EOF;
 
-queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch;
+queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOf;
 
 queryAttrMatch : AT attr=anyId ( nnul=queryAttrMatchNonNull | nul=queryAttrMatchNullOrEmpty );
+
+queryChildOf : CHILDOF exp=queryExpression?;
 
 queryAttrMatchNonNull : n=NOT? op=queryAttrMatchOp val=string;
 
@@ -80,7 +82,7 @@ packageName: anyId ( '.' anyId )*;
 
 fullyQualifiedId: ( packageName ':' )? anyId ;
 
-anyId: ID | IMPORT | INCLUDE | IMPORT | NEW | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY;
+anyId: ID | IMPORT | INCLUDE | IMPORT | NEW | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF;
 
 string: astr=ASTRING | sval=staticValue;
 
@@ -91,6 +93,7 @@ OR: 'or';
 NOT: 'not';
 REGEX: 'regex';
 EMPTY: 'empty';
+CHILDOF: 'childof';
 IS: 'is';
 NULL: 'null';
 EQS: 'eq';
