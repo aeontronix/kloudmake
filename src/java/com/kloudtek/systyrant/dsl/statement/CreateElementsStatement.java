@@ -29,7 +29,7 @@ public class CreateElementsStatement extends Statement {
         Map<String, Parameter> params = new LinkedHashMap<>();
         SystyrantLangParser.CreateResourceParamsContext paramsCtx = createElementsContext.params;
         if (paramsCtx != null) {
-            for (SystyrantLangParser.ParameterAssignmentContext pctx : AntlrDSLParser.nullToEmpty(paramsCtx.parameterAssignment())) {
+            for (SystyrantLangParser.ParameterAssignmentContext pctx : AntLRUtils.nullToEmpty(paramsCtx.parameterAssignment())) {
                 if (pctx != null) {
                     String paramName = pctx.paramName.getText();
                     Parameter parameter = Parameter.create(pctx.staticOrDynamicValue());
@@ -43,7 +43,7 @@ public class CreateElementsStatement extends Statement {
             if (singleResource != null) {
                 parseResource(singleResource.createResourceInstanceId(), singleResource.createResourceInstanceElements(), params);
             } else {
-                List<SystyrantLangParser.CreateResourceMultipleInstanceContext> multipleInstances = AntlrDSLParser.nullToEmpty(resourceStatements.createResourceMultipleInstance());
+                List<SystyrantLangParser.CreateResourceMultipleInstanceContext> multipleInstances = AntLRUtils.nullToEmpty(resourceStatements.createResourceMultipleInstance());
                 for (SystyrantLangParser.CreateResourceMultipleInstanceContext instance : multipleInstances) {
                     parseResource(instance.createResourceInstanceId(), instance.createResourceInstanceElements(), params);
                 }
@@ -93,7 +93,7 @@ public class CreateElementsStatement extends Statement {
         public Instance(Parameter id, List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
             parameters.putAll(params);
-            for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntlrDSLParser.nullToEmpty(resourceInstanceElements)) {
+            for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntLRUtils.nullToEmpty(resourceInstanceElements)) {
                 SystyrantLangParser.ParameterAssignmentContext param = elCtx.parameterAssignment();
                 if (param != null) {
                     String paramName = param.paramName.getText();

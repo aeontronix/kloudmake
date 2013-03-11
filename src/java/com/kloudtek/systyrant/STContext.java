@@ -472,14 +472,6 @@ public class STContext implements AutoCloseable {
         }
     }
 
-    private void addUid(Resource resource) throws InvalidAttributeException {
-        Resource existing = resourceUidIndexes.get(resource.getUid());
-        if (existing != null) {
-            throw new InvalidAttributeException("Multiple elements with the same uid found: " + existing + " and " + resource);
-        }
-        resourceUidIndexes.put(resource.getUid(), resource);
-    }
-
     private void handleResourceFailure(Resource resource) {
         LinkedList<Resource> list = new LinkedList<>();
         list.add(resource);
@@ -545,19 +537,15 @@ public class STContext implements AutoCloseable {
     }
 
     // ------------------------------------------------------------------------------------------
-    // Other
+    // Resources lookup
     // ------------------------------------------------------------------------------------------
-
-    public ClassLoader getLibraryClassloader() {
-        if (libraryClassloader != null) {
-            return libraryClassloader;
-        } else {
-            return getClass().getClassLoader();
-        }
-    }
 
     public List<Resource> getResources() {
         return resourceManager.getResources();
+    }
+
+    public List<Resource> findResources( String query ) throws InvalidQueryException {
+        return resourceManager.findResources(query);
     }
 
     public Resource findResourceByUid(String uid) {
@@ -567,6 +555,18 @@ public class STContext implements AutoCloseable {
             }
         }
         return null;
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Other
+    // ------------------------------------------------------------------------------------------
+
+    public ClassLoader getLibraryClassloader() {
+        if (libraryClassloader != null) {
+            return libraryClassloader;
+        } else {
+            return getClass().getClassLoader();
+        }
     }
 
     public void registerTempFile(File tempFile) {

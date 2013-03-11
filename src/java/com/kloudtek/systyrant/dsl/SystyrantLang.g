@@ -2,7 +2,7 @@ grammar SystyrantLang;
 
 // Gramar
 
-start: topLvlFunctions*;
+start: topLvlFunctions* EOF;
 
 topLvlFunctions: importPkg | includeFile | statement;
 
@@ -44,13 +44,31 @@ createResourceInstanceChild: createResource COMMA?;
 
 invokeMethod: methodName=anyId '(' parameter* ')';
 
+// Query language
+
+query : queryExpression EOF;
+
+queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch;
+
+queryAttrMatch : AT attr=anyId ( nnul=queryAttrMatchNonNull | nul=queryAttrMatchNullOrEmpty );
+
+queryAttrMatchNonNull : n=NOT? op=queryAttrMatchOp val=string;
+
+queryAttrMatchNullOrEmpty : IS n=NOT? (nul=NULL | empty=EMPTY);
+
+queryAttrMatchOp : eq=EQS | lk=LIKE | rgx=REGEX;
+
 // Common
+
+logOp : EQ | NEQ;
+
+binaryOp : a=AND | o=OR;
 
 parameter: ( anyId EQ )? staticOrDynamicValue COMMA?;
 
 parameterAssignment: paramName=anyId EQ staticOrDynamicValue COMMA?;
 
-staticValue: QSTRING | UQSTRING | NB | anyId;
+staticValue: qstr=QSTRING | uqstr=UQSTRING | nb=NB | id=anyId;
 
 staticOrDynamicValue: staticValue | dynamicValue | invokeMethod;
 
@@ -62,13 +80,23 @@ packageName: anyId ( '.' anyId )*;
 
 fullyQualifiedId: ( packageName ':' )? anyId ;
 
-anyId: ID | IMPORT | INCLUDE | IMPORT | NEW;
+anyId: ID | IMPORT | INCLUDE | IMPORT | NEW | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY;
 
-string: ASTRING | QSTRING | UQSTRING | NB | anyId;
+string: astr=ASTRING | sval=staticValue;
 
 // Lexer
 
+AND: 'and';
+OR: 'or';
+NOT: 'not';
+REGEX: 'regex';
+EMPTY: 'empty';
+IS: 'is';
+NULL: 'null';
+EQS: 'eq';
+LIKE: 'like';
 EQ: '=';
+AT: '@';
 LB: '{';
 RB: '}';
 LSB: '[';

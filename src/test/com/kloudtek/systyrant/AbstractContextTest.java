@@ -8,12 +8,15 @@ import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
@@ -158,5 +161,29 @@ public class AbstractContextTest {
         X service = clazz.newInstance();
         ctx.getServiceManager().registerService(name, service);
         return service;
+    }
+
+    protected void assertContainsSame(List<Resource> actual, Resource... expected) {
+        assertEquals(actual.size(), expected.length);
+        ArrayList<Resource> list = new ArrayList<>(actual);
+        for (Resource resource : expected) {
+            boolean found = false;
+            for (Resource rs : list) {
+                if( rs == resource ) {
+                    list.remove(rs);
+                    found = true;
+                    break;
+                }
+            }
+            if( ! found ) {
+                fail("Failed to find "+resource);
+            }
+        }
+        if( ! list.isEmpty() ) {
+            fail("Unexpected resources "+list);
+        }
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(actual.get(i), expected[i]);
+        }
     }
 }

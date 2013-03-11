@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.Token;
 
 import java.util.*;
 
-import static com.kloudtek.systyrant.dsl.AntlrDSLParser.nullToEmpty;
+import static com.kloudtek.systyrant.dsl.AntLRUtils.nullToEmpty;
 
 public class Parameters {
     private ArrayList<Parameter> parameters = new ArrayList<>();

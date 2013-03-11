@@ -6,6 +6,7 @@ package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.*;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.resource.query.ResourceQuery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -163,6 +164,11 @@ public class ResourceManagerImpl implements ResourceManager {
     @Override
     public Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException {
         return createResource(new FQName(fqname), importPaths, parent);
+    }
+
+    @Override
+    public List<Resource> findResources(String query) throws InvalidQueryException {
+        return new ResourceQuery(query).find(resources);
     }
 
     @Override

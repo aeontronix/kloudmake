@@ -70,7 +70,7 @@ public class RawDSLParserTest {
 
     @Test
     public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, InvalidVariableException {
-        DSLScript script = parser.parse("def test { new test2 { 'tval'=> attr1=\"test\", attr2=22 , attr = 'value' } }");
+        DSLScript script = parser.parse("def test { new test2 { 'tval'=> attr1=\"test\", attr2=22 , attr = 'value', attr3 = uid } }");
         assertEquals(script.getDefines().size(), 1);
         ResourceDefinition resourceDefinition = script.getDefines().get(0);
         List<Statement> pst = resourceDefinition.getStatementsForStage(Stage.PREPARE);
@@ -79,7 +79,7 @@ public class RawDSLParserTest {
         assertTrue(st instanceof CreateElementsStatement);
         CreateElementsStatement createEl = (CreateElementsStatement) st;
         validateResource(createEl, "test2", 1);
-        validateResourceInstance(createEl, 0, "tval", "attr1", "test", "attr2", "22", "attr", "value");
+        validateResourceInstance(createEl, 0, "tval", "attr1", "test", "attr2", "22", "attr", "value","attr3","uid");
     }
 
     @Test
@@ -110,10 +110,42 @@ public class RawDSLParserTest {
     }
 
     @Test
+    public void testAttrValueEscapeAttr() throws InvalidScriptException, InvalidVariableException {
+        DSLScript script = parser.parse("new foo.bar:bla { 'df\\'s\\\\a' }");
+        validateStatements(script, CreateElementsStatement.class);
+        validateResourceInstance(script, "foo.bar", "bla", 0, 0, "df's\\a");
+    }
+
+    @Test
     public void testCreateElementWithFQNameImport() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("new foo.bar:import { 'dfsa' }");
         validateStatements(script, CreateElementsStatement.class);
         validateResourceInstance(script, "foo.bar", "import", 0, 0, "dfsa");
+    }
+
+    @Test(expectedExceptions = InvalidScriptException.class)
+    public void testBrokenDSL1() throws InvalidScriptException, InvalidVariableException {
+        parser.parse("new package { 'dfsa'");
+    }
+
+    @Test(expectedExceptions = InvalidScriptException.class)
+    public void testBrokenDSL2() throws InvalidScriptException, InvalidVariableException {
+        parser.parse("new pack {'asd' => 'adfs'}");
+    }
+
+    @Test(expectedExceptions = InvalidScriptException.class)
+    public void testBrokenDSL3() throws InvalidScriptException, InvalidVariableException {
+        parser.parse("new package { 'dfsa' } new pack {'asd' => 'adfs'}");
+    }
+
+    @Test(expectedExceptions = InvalidScriptException.class)
+    public void testBrokenDSL4() throws InvalidScriptException, InvalidVariableException {
+        parser.parse("new package { 'dfsa'} ; new pack {'asd' => 'adfs'}");
+    }
+
+    @Test(expectedExceptions = InvalidScriptException.class)
+    public void testBrokenDSL5() throws InvalidScriptException, InvalidVariableException {
+        parser.parse("new packa:adsf:ge { 'dfsa'}");
     }
 
     @Test
@@ -191,34 +223,4 @@ public class RawDSLParserTest {
             assertTrue(createElementsStatementClass[i].isInstance(statements.get(i)));
         }
     }
-
-
-    //    }
-//        validateResource(statement.getChildrens().get("test1").get(0), "foo.bar:test", 0, "test2");
-//        assertEquals(statement.getChildrens().size(), 1);
-//        CreateElementsStatement statement = validateResource(script, 0, 0, "foo.bar:test", "test1", "attr", "val");
-//        validateTotalStatements(script, 1);
-//        DSLScript script = parser.parse("foo.bar:test { 'test1': attr = 'val' { foo.bar:test {'test2'} } }");
-//    public void testSimpleCreateElementWithChildren() throws InvalidScriptException {
-//    }
-//        validateResource(script, 0, 0, "foo.bar:test", "test", "attr1", "val", "attr2", "15");
-//        validateTotalStatements(script, 1);
-//        DSLScript script = parser.parse("foo.bar:test { 'test': attr1 = 'val', attr2 = 15 }");
-//    public void testSimpleCreateElementWithAttr() throws InvalidScriptException {
-//    @Test
-//
-//    }
-//        validateResource(script, 0, 1, "foo.bar:test", "test2");
-//        validateResource(script, 0, 0, "foo.bar:test", "test1");
-//        validateTotalStatements(script, 1);
-//        DSLScript script = parser.parse("foo.bar:test { 'test1': ; 'test2': ;}");
-//    public void testSimpleCreateTwoElementInlineDeclarations() throws InvalidScriptException {
-//    @Test
-//
-//    }
-//        validateResource(script, 1, 0, "foo.bar:test", "test2");
-//        validateResource(script, 0, 0, "foo.bar:test", "test1");
-//        validateTotalStatements(script, 2);
-//        DSLScript script = parser.parse("foo.bar:test { 'test1' }\nfoo.bar:test { 'test2' }");
-//    public void testSimpleCreateTwoElementMultipleDeclarations() throws InvalidScriptException {
 }

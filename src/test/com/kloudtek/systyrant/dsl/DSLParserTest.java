@@ -13,6 +13,9 @@ import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.annotations.Test;
 
 import javax.script.ScriptException;
@@ -41,7 +44,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElement() throws Throwable {
-        ctx.runDSLScript("import test; new test { \"myid\"=> attr = 'val', attr2=val2 }");
+        ctx.runDSLScript("import test; new test { \"myid\" => attr = 'val', attr2=val2; }");
         execute();
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);

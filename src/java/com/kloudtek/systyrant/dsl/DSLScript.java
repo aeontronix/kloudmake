@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.kloudtek.systyrant.dsl.AntlrDSLParser.nullToEmpty;
+import static com.kloudtek.systyrant.dsl.AntLRUtils.nullToEmpty;
 
 public class DSLScript {
     private STContext ctx;

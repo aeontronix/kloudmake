@@ -6,10 +6,7 @@ package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.exception.InvalidDependencyException;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,4 +58,6 @@ public interface ResourceManager extends Iterable<Resource> {
     boolean hasResources();
 
     Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
+
+    List<Resource> findResources(String query) throws InvalidQueryException;
 }

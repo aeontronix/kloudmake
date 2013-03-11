@@ -13,7 +13,7 @@ public abstract class Parameter {
     public static Parameter create(SystyrantLangParser.StaticOrDynamicValueContext assignmentValueContext) {
         SystyrantLangParser.StaticValueContext staticValueContext = assignmentValueContext.staticValue();
         if (staticValueContext != null) {
-            return new StaticParameter(AntlrDSLParser.toString(staticValueContext));
+            return new StaticParameter(AntLRUtils.toString(staticValueContext));
         }
         SystyrantLangParser.DynamicValueContext dynamicValueContext = assignmentValueContext.dynamicValue();
         if (dynamicValueContext != null) {

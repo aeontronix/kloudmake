@@ -22,7 +22,7 @@ public class InvokeMethodStatement extends Statement {
         this.ctx = ctx;
         token = invokeMethodContext.getStart();
         methodName = invokeMethodContext.methodName.getText();
-        parameters = AntlrDSLParser.toParams(invokeMethodContext.parameter());
+        parameters = AntLRUtils.toParams(invokeMethodContext.parameter());
     }
 
     public String getMethodName() {
