@@ -58,7 +58,7 @@ queryAttrMatchNullOrEmpty : IS n=NOT? (nul=NULL | empty=EMPTY);
 
 queryAttrMatchOp : eq=EQS | lk=LIKE | rgx=REGEX;
 
-queryChildOfMatch : CHILDOF exp=queryExpression?;
+queryChildOfMatch : CHILDOF s=STAR? exp=queryExpression?;
 
 queryTypeMatch : TYPE t=fullyQualifiedIdWithPkg;
 
@@ -105,6 +105,7 @@ EQS: 'eq';
 LIKE: 'like';
 EQ: '=';
 NEQ: '!=';
+STAR: '*';
 AT: '@';
 LB: '{';
 RB: '}';

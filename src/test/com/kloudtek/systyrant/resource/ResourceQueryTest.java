@@ -192,10 +192,24 @@ public class ResourceQueryTest extends AbstractContextTest {
         Resource parent = createTestResource("id");
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
+        createChildTestResource(null, child2);
         createTestResource();
         execute();
         List<Resource> childs = ctx.findResources("childof @id eq 'id'");
         assertContainsSame(childs, child1, child2);
+    }
+
+    @Test
+    public void testChildOfRecursiveParam() throws Throwable {
+        createTestResource();
+        Resource parent = createTestResource("id");
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        Resource child3 = createChildTestResource(null, child2);
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("childof* @id eq 'id'");
+        assertContainsSame(childs, child1, child2, child3);
     }
 
     @Test

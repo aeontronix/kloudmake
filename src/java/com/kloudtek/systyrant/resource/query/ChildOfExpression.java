@@ -19,6 +19,7 @@ import java.util.ArrayList;
  * To change this template use File | Settings | File Templates.
  */
 public class ChildOfExpression extends Expression {
+    boolean recurse;
     private ArrayList<Resource> parents = new ArrayList<>();
 
     public ChildOfExpression(SystyrantLangParser.QueryChildOfMatchContext childOfContext, String query, STContext context) throws InvalidQueryException {
@@ -36,10 +37,27 @@ public class ChildOfExpression extends Expression {
             }
             parents.add(resource);
         }
+        recurse = childOfContext.s != null;
     }
 
     @Override
     public boolean matches(STContext context, Resource resource) {
+        if( recurse ) {
+            while( resource != null ) {
+                boolean match = match(resource);
+                if(!match) {
+                    resource = resource.getParent();
+                } else {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return match(resource);
+        }
+    }
+
+    private boolean match(Resource resource) {
         Resource pres = resource.getParent();
         if (pres != null) {
             return parents.contains(pres);
