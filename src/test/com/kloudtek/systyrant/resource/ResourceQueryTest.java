@@ -153,10 +153,30 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test
     public void testAnd2() throws Throwable {
-        createTestResource().setUid("uid1");
+        createTestResource().set("attr1", "val1");
         Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2").set("attr3", "val3");
-        createTestResource().set("uid", "uid3");
+        createTestResource().set("attr2", "val2");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2' and @attr3 eq 'val3'");
         assertContainsSame(result, rs2);
+    }
+
+    @Test
+    public void testAndOr1() throws Throwable {
+        createTestResource("id1").set("attr1", "val1");
+        Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2");
+        Resource rs3 = createTestResource("id3");
+        createTestResource("id4");
+        List<Resource> result = resourceManager.findResources("( @attr1 eq 'val1' and @attr2 eq 'val2' ) or @id eq 'id3'");
+        assertContainsSame(result, rs2, rs3);
+    }
+
+    @Test
+    public void testAndOr2() throws Throwable {
+        createTestResource("id1").set("attr1", "val1");
+        Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2");
+        Resource rs3 = createTestResource("id3").set("attr1", "val1");
+        createTestResource("id4").set("attr2", "val2");
+        List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and ( @attr2 eq 'val2' or @id eq 'id3')");
+        assertContainsSame(result, rs2, rs3);
     }
 }

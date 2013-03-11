@@ -29,6 +29,8 @@ public abstract class Expression {
             List<SystyrantLangParser.QueryExpressionContext> exprs = expr.queryExpression();
             assert exprs.size() == 2;
             return new BinaryExpression(expr.bOp,exprs.get(0),exprs.get(1),query);
+        } else if ( expr.bracketExpr != null ) {
+            return create(expr.bracketExpr,query);
         }
         throw new InvalidQueryException(expr.getStart().getLine(),expr.getStart().getCharPositionInLine(),query);
     }

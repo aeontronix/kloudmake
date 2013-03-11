@@ -18,7 +18,6 @@ import javax.script.ScriptException;
 import java.util.*;
 
 public class CreateElementsStatement extends Statement {
-    private static final Logger logger = LoggerFactory.getLogger(CreateElementsStatement.class);
     private FQName elementName;
     private List<Instance> instances = new ArrayList<>();
     private STContext ctx;
