@@ -35,28 +35,28 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
         test2.setId("test2");
         Resource test3 = resourceManager.createResource(TEST);
         test3.setId("test3");
-        test2.addDependency("id:test1");
-        test3.addDependency("type:test:test");
+        test2.addDependency("@id eq test1");
+        test3.addDependency("type test:test");
         assertTrue(ctx.execute());
-        assertEquals(test2.getResolvedDeps().size(), 1);
-        assertEquals(test2.getResolvedDeps().get(0), test1);
-        assertEquals(test3.getResolvedDeps().size(), 2);
-        assertTrue(test3.getResolvedDeps().contains(test1));
-        assertTrue(test3.getResolvedDeps().contains(test2));
+        assertEquals(test2.getDependencies().size(), 1);
+        assertEquals(test2.getDependencies().iterator().next(), test1);
+        assertEquals(test3.getDependencies().size(), 2);
+        assertTrue(test3.getDependencies().contains(test1));
+        assertTrue(test3.getDependencies().contains(test2));
     }
 
-    @Test(expectedExceptions = InvalidDependencyException.class, expectedExceptionsMessageRegExp = "Unable to find.*")
+    @Test(expectedExceptions = InvalidDependencyException.class, expectedExceptionsMessageRegExp = "Mandatory dependency missing origins/targets.*")
     public void testNoMatchesMandatoryDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
         Resource resource = resourceManager.createResource("test");
-        resource.addDependency("type:tes");
+        resource.addDependency("type te:tes");
         assertTrue(ctx.execute());
     }
 
     @Test
     public void testNoMatchesOptionalDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
         Resource resource = resourceManager.createResource("test");
-        resource.addDependency("type:tes", true);
+        resource.addDependency("type t:tes", true);
         assertTrue(ctx.execute());
-        assertTrue(resource.getResolvedDeps().isEmpty());
+        assertTrue(resource.getDependencies().isEmpty());
     }
 }

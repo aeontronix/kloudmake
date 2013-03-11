@@ -11,7 +11,9 @@ import com.kloudtek.systyrant.resource.ResourceManager;
 import org.testng.annotations.BeforeMethod;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import static org.testng.Assert.*;
 
@@ -192,6 +194,17 @@ public class AbstractContextTest {
         }
         if (!list.isEmpty()) {
             fail("Unexpected resources " + list);
+        }
+    }
+
+    protected void assertBefore(Resource before, Resource... after) {
+        List<Resource> aftRes = Arrays.asList(after);
+        for (Resource r : ctx.getResourceManager()) {
+            if( r == before ) {
+                return;
+            } else if( aftRes.contains(r) ) {
+                fail("Resource "+r+" is before "+before);
+            }
         }
     }
 }

@@ -2,8 +2,9 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant;
+package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
@@ -29,16 +30,16 @@ public class ResourceSorterTest {
         Resource two = new Resource(null, null);
         Resource nine = new Resource(null, null);
         Resource ten = new Resource(null, null);
-        seven.addDependency(eleven);
-        seven.addDependency(eight);
-        five.addDependency(eleven);
-        three.addDependency(eight);
-        three.addDependency(ten);
-        eleven.addDependency(two);
-        eleven.addDependency(nine);
-        eleven.addDependency(ten);
-        eight.addDependency(nine);
-        eight.addDependency(ten);
+        seven.dependencies.add(eleven);
+        seven.dependencies.add(eight);
+        five.dependencies.add(eleven);
+        three.dependencies.add(eight);
+        three.dependencies.add(ten);
+        eleven.dependencies.add(two);
+        eleven.dependencies.add(nine);
+        eleven.dependencies.add(ten);
+        eight.dependencies.add(nine);
+        eight.dependencies.add(ten);
         List<Resource> list = new ArrayList<>(Arrays.asList(seven, five, three, eleven, eight, two, nine, ten));
         genIds(list);
         ResourceSorter.sort(list);
@@ -64,19 +65,19 @@ public class ResourceSorterTest {
         Resource two = new Resource(ctx, rf);
         Resource nine = new Resource(ctx, rf);
         Resource ten = new Resource(ctx, rf);
-        seven.addDependency(eleven);
-        seven.addDependency(eight);
-        five.addDependency(eleven);
-        three.addDependency(eight);
-        three.addDependency(ten);
-        eleven.addDependency(two);
-        eleven.addDependency(nine);
-        eleven.addDependency(ten);
-        eleven.addDependency(two);
-        eight.addDependency(nine);
-        eight.addDependency(ten);
-        two.addDependency(seven);
-        five.addDependency(seven);
+        seven.dependencies.add(eleven);
+        seven.dependencies.add(eight);
+        five.dependencies.add(eleven);
+        three.dependencies.add(eight);
+        three.dependencies.add(ten);
+        eleven.dependencies.add(two);
+        eleven.dependencies.add(nine);
+        eleven.dependencies.add(ten);
+        eleven.dependencies.add(two);
+        eight.dependencies.add(nine);
+        eight.dependencies.add(ten);
+        two.dependencies.add(seven);
+        five.dependencies.add(seven);
         List<Resource> list = new ArrayList<>(Arrays.asList(seven, five, three, eleven, eight, two, nine, ten));
         genIds(list);
         ResourceSorter.sort(list);

@@ -38,6 +38,7 @@ public class ResourceManagerImpl implements ResourceManager {
     private boolean createAllowed = true;
     private final Map<String, ResourceFactory> fqnResourceIndex = new HashMap<>();
     private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
+    private HashSet<ResourceDependency> dependencies = new HashSet<>();
 
     public ResourceManagerImpl(STContext context) {
         this.context = context;
@@ -351,12 +352,12 @@ public class ResourceManagerImpl implements ResourceManager {
             // add dependency on parent if missing
             for (Resource resource : resources) {
                 Resource parent = resource.getParent();
-                if (parent != null && !resource.getResolvedDeps().contains(parent)) {
+                if (parent != null && !resource.getDependencies().contains(parent)) {
                     resource.addDependency(parent);
                 }
             }
             // mandatory children resolution
-            resolve(true);
+            resolveDependencies(true);
             // build parent/child map
             parentChildIndex = new HashMap<>();
             for (Resource resource : resources) {
@@ -366,7 +367,7 @@ public class ResourceManagerImpl implements ResourceManager {
             }
             // make dependent on resource if dependent on parent (childrens excluded from this rule)
             for (Resource resource : resources) {
-                for (Resource dep : resource.getResolvedDeps()) {
+                for (Resource dep : resource.getDependencies()) {
                     if (resource.getParent() == null || !resource.getParent().equals(dep)) {
                         makeDependentOnChildren(resource, dep);
                     }
@@ -380,14 +381,52 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public void resolve(boolean strict) throws InvalidDependencyException {
+    public void resolveDependencies(boolean strict) throws InvalidDependencyException {
         wlock();
         try {
             for (Resource resource : resources) {
-                resource.resolveDepencies(strict);
+                resource.dependencies.clear();
+                resource.dependents.clear();
+            }
+            for (ResourceDependency dependency : dependencies) {
+                dependency.resolve(context);
+                for (Resource origin : dependency.getOrigins()) {
+                    for (Resource target : dependency.getTargets()) {
+                        if( target.getState() == Resource.State.FAILED ) {
+                            origin.setState(Resource.State.FAILED);
+                        }
+                        origin.dependencies.add(target);
+                        target.dependents.add(origin);
+                    }
+                }
+            }
+            for (Resource resource : resources) {
+                resource.dependencies.remove(resource);
+                resource.dependents.remove(resource);
             }
         } finally {
             wulock();
+        }
+    }
+
+    @Override
+    public Set<ResourceDependency> getDependencies() {
+        synchronized (dependencies) {
+            return Collections.unmodifiableSet(dependencies);
+        }
+    }
+
+    @Override
+    public void addDependency(ResourceDependency dependency) {
+        synchronized (dependencies) {
+            dependencies.add(dependency);
+        }
+    }
+
+    @Override
+    public void removeDependency(ResourceDependency dependency) {
+        synchronized (dependencies) {
+            dependencies.remove(dependency);
         }
     }
 

@@ -212,6 +212,56 @@ public class ResourceQueryTest extends AbstractContextTest {
         assertContainsSame(childs, child1, child2, child3);
     }
 
+//    @Test
+//    public void testDepOfScope() throws Throwable {
+//        register(ChildOfScope.class, "depsofscope");
+//        Resource parent = resourceManager.createResource("test:depsofscope", null, null);
+//        Resource child1 = createChildTestResource(null, parent);
+//        Resource child2 = createChildTestResource(null, parent);
+//        createChildTestResource(null, child2);
+//        createTestResource();
+//        execute();
+//        ChildOfScope impl = findJavaAction(ChildOfScope.class, parent);
+//        assertContainsSame(impl.found, child1, child2);
+//    }
+//
+//    public static class DepOfScope {
+//        private List<Resource> found;
+//
+//        @Execute
+//        public void query() throws InvalidQueryException {
+//            STContext ctx = STContext.get();
+//            found = ctx.findResources("depends");
+//        }
+//    }
+//
+//    @Test
+//    public void testDepOfParam() throws Throwable {
+//        createTestResource();
+//        Resource res1 = createTestResource("id");
+//        Resource res2 = createTestResource();
+//        res2.addDependency(res1);
+//        Resource res3 = createTestResource();
+//        res3.addDependency(res3);
+//        createTestResource();
+//        execute();
+//        List<Resource> childs = ctx.findResources("depends @id eq 'id'");
+//        assertContainsSame(childs, res2, res3);
+//    }
+//
+//    @Test
+//    public void testDepOfRecursiveParam() throws Throwable {
+//        createTestResource();
+//        Resource parent = createTestResource("id");
+//        Resource child1 = createChildTestResource(null, parent);
+//        Resource child2 = createChildTestResource(null, parent);
+//        Resource child3 = createChildTestResource(null, child2);
+//        createTestResource();
+//        execute();
+//        List<Resource> childs = ctx.findResources("depends* @id eq 'id'");
+//        assertContainsSame(childs, child1, child2, child3);
+//    }
+
     @Test
     public void testFindByType() throws Throwable {
         register(FindByType.class, "findbytype");

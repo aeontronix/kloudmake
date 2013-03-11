@@ -290,7 +290,7 @@ public class TestResource {
     }
 
     public static void valDeps(Resource resource, Resource... expectedDeps) {
-        ArrayList<Resource> deps = new ArrayList<>(resource.getResolvedDeps());
+        ArrayList<Resource> deps = new ArrayList<>(resource.getDependencies());
         for (Resource el : expectedDeps) {
             assertNotNull(deps.remove(el));
         }
