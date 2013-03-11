@@ -387,6 +387,15 @@ public class ResourceManagerImpl implements ResourceManager {
             for (Resource resource : resources) {
                 resource.dependencies.clear();
                 resource.dependents.clear();
+                String depsRef = resource.get("depends");
+                if( isNotEmpty(depsRef) ) {
+                    try {
+                        List<Resource> deps = context.findResources(depsRef);
+                        context.getResourceManager().addDependency(new ResourceDependency(resource,deps));
+                    } catch (InvalidQueryException e) {
+                        throw new InvalidDependencyException("Resource "+resource+" has an invalid depends attribute: "+depsRef);
+                    }
+                }
             }
             for (ResourceDependency dependency : dependencies) {
                 dependency.resolve(context);

@@ -8,7 +8,9 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -39,6 +41,11 @@ public class ResourceDependency {
         origins.add(origin);
         targetRef = target;
         this.optional = optional;
+    }
+
+    public ResourceDependency(Resource origin, Collection<Resource> targets) {
+        origins.add(origin);
+        this.targets.addAll(targets);
     }
 
     public Set<Resource> getOrigins() {
