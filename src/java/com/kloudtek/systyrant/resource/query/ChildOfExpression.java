@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class ChildOfExpression extends Expression {
     private ArrayList<Resource> parents = new ArrayList<>();
 
-    public ChildOfExpression(SystyrantLangParser.QueryChildOfContext childOfContext, String query, STContext context) throws InvalidQueryException {
+    public ChildOfExpression(SystyrantLangParser.QueryChildOfMatchContext childOfContext, String query, STContext context) throws InvalidQueryException {
         if (childOfContext.exp != null) {
             Expression expression = Expression.create(childOfContext.exp, query, context);
             for (Resource resource : context.getResourceManager()) {

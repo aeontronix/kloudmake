@@ -32,8 +32,11 @@ public abstract class Expression {
             return new BinaryExpression(expr.bOp, exprs.get(0), exprs.get(1), query, context);
         } else if (expr.co != null) {
             return new ChildOfExpression(expr.co, query, context);
+        } else if (expr.tm != null) {
+            return new TypeExpression(expr.tm, query, context);
+        } else {
+            throw new InvalidQueryException(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), query);
         }
-        throw new InvalidQueryException(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), query);
     }
 
     public abstract boolean matches(STContext context, Resource resource);

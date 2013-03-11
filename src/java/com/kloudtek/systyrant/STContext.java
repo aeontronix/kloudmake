@@ -439,7 +439,7 @@ public class STContext implements AutoCloseable {
         for (Resource resource : resourceManager) {
             String id = resource.getId();
             String uid = resource.getUid();
-            FQName fqName = resource.getFQName();
+            FQName fqName = resource.getType();
             HashSet<String> idsForParent = parentToChildIdsMap.get(resource.getParent());
             if (isEmpty(id)) {
                 int i = 1;

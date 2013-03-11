@@ -70,6 +70,8 @@ public class JavaResourceFactory extends ResourceFactory {
             injectorsList.add(new ServiceInjector(field, (Service) annotation));
         } else if (annotation instanceof Inject) {
             injectorsList.add(new GenericInjector(field));
+        } else if (annotation instanceof Resources) {
+            injectorsList.add(new ResourcesInjector(field, ((Resources) annotation).value()));
         }
     }
 

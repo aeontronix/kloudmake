@@ -169,6 +169,7 @@ public class ResourceQueryTest extends AbstractContextTest {
         Resource parent = resourceManager.createResource("test:childofscope", null, null);
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
+        createChildTestResource(null, child2);
         createTestResource();
         execute();
         ChildOfScope impl = findJavaAction(ChildOfScope.class, parent);
@@ -195,5 +196,20 @@ public class ResourceQueryTest extends AbstractContextTest {
         execute();
         List<Resource> childs = ctx.findResources("childof @id eq 'id'");
         assertContainsSame(childs, child1, child2);
+    }
+
+    @Test
+    public void testFindByType() throws Throwable {
+        register(FindByType.class, "findbytype");
+        createTestResource();
+        Resource r1 = resourceManager.createResource("test:findbytype");
+        Resource r2 = resourceManager.createResource("test:findbytype");
+        createTestResource();
+        execute();
+        List<Resource> resources = ctx.findResources("type test:findbytype");
+        assertContainsSame(resources, r1, r2);
+    }
+
+    public static class FindByType {
     }
 }

@@ -9,17 +9,10 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
-import com.kloudtek.systyrant.exception.InvalidServiceException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.service.ServiceManagerImpl;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.BailErrorStrategy;
-import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.annotations.Test;
 
 import javax.script.ScriptException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +41,8 @@ public class DSLParserTest extends AbstractContextTest {
         execute();
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
-        assertEquals(resource.getFQName().getName(), "test");
-        assertEquals(resource.getFQName().getPkg(), "test");
+        assertEquals(resource.getType().getName(), "test");
+        assertEquals(resource.getType().getPkg(), "test");
         assertEquals(resource.get("attr"), "val");
         assertEquals(resource.get("attr2"), "val2");
         assertEquals(resource.getId(), "myid");
@@ -61,8 +54,8 @@ public class DSLParserTest extends AbstractContextTest {
         assertTrue(ctx.execute());
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
-        assertEquals(resource.getFQName().getName(), "test");
-        assertEquals(resource.getFQName().getPkg(), "test");
+        assertEquals(resource.getType().getName(), "test");
+        assertEquals(resource.getType().getPkg(), "test");
         assertEquals(resource.get("attr"), "val");
         assertEquals(resource.getId(), "myid");
     }

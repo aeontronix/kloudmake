@@ -319,7 +319,7 @@ public class Resource {
         return context.host();
     }
 
-    public FQName getFQName() {
+    public FQName getType() {
         return factory.getFQName();
     }
 

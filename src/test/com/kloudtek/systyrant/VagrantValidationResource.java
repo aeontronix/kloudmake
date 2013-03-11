@@ -31,7 +31,7 @@ public class VagrantValidationResource {
 
     public static VagrantValidationResource find(STContext ctx) {
         for (com.kloudtek.systyrant.resource.Resource resource : ctx.getResourceManager()) {
-            if (resource.getFQName().equals(new FQName("test", "vagrantvalidate"))) {
+            if (resource.getType().equals(new FQName("test", "vagrantvalidate"))) {
                 for (STAction action : resource.getActions()) {
                     if (action instanceof JavaResourceFactory.JavaImpl) {
                         return (VagrantValidationResource) ((JavaResourceFactory.JavaImpl) action).getImpl();

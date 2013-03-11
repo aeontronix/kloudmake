@@ -11,7 +11,7 @@ import com.kloudtek.systyrant.resource.ResourceManager;
 import org.testng.annotations.BeforeMethod;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import static org.testng.Assert.*;
 
@@ -173,7 +173,8 @@ public class AbstractContextTest {
         return service;
     }
 
-    protected void assertContainsSame(List<Resource> actual, Resource... expected) {
+    protected void assertContainsSame(Collection<Resource> actual, Resource... expected) {
+        assertNotNull(actual);
         assertEquals(actual.size(), expected.length);
         ArrayList<Resource> list = new ArrayList<>(actual);
         for (Resource resource : expected) {

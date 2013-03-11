@@ -48,17 +48,19 @@ invokeMethod: methodName=anyId '(' parameter* ')';
 
 query : queryExpression EOF;
 
-queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOf;
+queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch;
 
 queryAttrMatch : AT attr=anyId ( nnul=queryAttrMatchNonNull | nul=queryAttrMatchNullOrEmpty );
-
-queryChildOf : CHILDOF exp=queryExpression?;
 
 queryAttrMatchNonNull : n=NOT? op=queryAttrMatchOp val=string;
 
 queryAttrMatchNullOrEmpty : IS n=NOT? (nul=NULL | empty=EMPTY);
 
 queryAttrMatchOp : eq=EQS | lk=LIKE | rgx=REGEX;
+
+queryChildOfMatch : CHILDOF exp=queryExpression?;
+
+queryTypeMatch : TYPE t=fullyQualifiedIdWithPkg;
 
 // Common
 
@@ -82,7 +84,9 @@ packageName: anyId ( '.' anyId )*;
 
 fullyQualifiedId: ( packageName ':' )? anyId ;
 
-anyId: ID | IMPORT | INCLUDE | IMPORT | NEW | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF;
+fullyQualifiedIdWithPkg: packageName ':' anyId ;
+
+anyId: ID | IMPORT | INCLUDE | IMPORT | NEW | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF | TYPE;
 
 string: astr=ASTRING | sval=staticValue;
 
@@ -92,6 +96,7 @@ AND: 'and';
 OR: 'or';
 NOT: 'not';
 REGEX: 'regex';
+TYPE: 'type';
 EMPTY: 'empty';
 CHILDOF: 'childof';
 IS: 'is';
@@ -99,6 +104,7 @@ NULL: 'null';
 EQS: 'eq';
 LIKE: 'like';
 EQ: '=';
+NEQ: '!=';
 AT: '@';
 LB: '{';
 RB: '}';
