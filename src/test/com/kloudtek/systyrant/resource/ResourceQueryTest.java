@@ -212,28 +212,30 @@ public class ResourceQueryTest extends AbstractContextTest {
         assertContainsSame(childs, child1, child2, child3);
     }
 
-//    @Test
-//    public void testDepOfScope() throws Throwable {
-//        register(ChildOfScope.class, "depsofscope");
-//        Resource parent = resourceManager.createResource("test:depsofscope", null, null);
-//        Resource child1 = createChildTestResource(null, parent);
-//        Resource child2 = createChildTestResource(null, parent);
-//        createChildTestResource(null, child2);
-//        createTestResource();
-//        execute();
-//        ChildOfScope impl = findJavaAction(ChildOfScope.class, parent);
-//        assertContainsSame(impl.found, child1, child2);
-//    }
-//
-//    public static class DepOfScope {
-//        private List<Resource> found;
-//
-//        @Execute
-//        public void query() throws InvalidQueryException {
-//            STContext ctx = STContext.get();
-//            found = ctx.findResources("depends");
-//        }
-//    }
+    @Test
+    public void testDepOfScope() throws Throwable {
+        register(DepOfScope.class, "depsofscope");
+        Resource r1 = resourceManager.createResource("test:depsofscope", null, null);
+        Resource r2 = createTestResource();
+        r2.addDependency(r1);
+        Resource r3 = createTestResource();
+        r3.addDependency(r1);
+        createTestResource().addDependency(r3);
+        createTestResource();
+        execute();
+        ChildOfScope impl = findJavaAction(DepOfScope.class, r1);
+        assertContainsSame(impl.found, r2, r3);
+    }
+
+    public static class DepOfScope {
+        private List<Resource> found;
+
+        @Execute
+        public void query() throws InvalidQueryException {
+            STContext ctx = STContext.get();
+            found = ctx.findResources("depends");
+        }
+    }
 //
 //    @Test
 //    public void testDepOfParam() throws Throwable {

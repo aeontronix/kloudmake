@@ -45,7 +45,7 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
         assertTrue(test3.getDependencies().contains(test2));
     }
 
-    @Test(expectedExceptions = InvalidDependencyException.class, expectedExceptionsMessageRegExp = "Mandatory dependency missing origins/targets.*")
+    @Test(expectedExceptions = InvalidDependencyException.class, expectedExceptionsMessageRegExp = "Mandatory dependency has not valid targets.*")
     public void testNoMatchesMandatoryDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
         Resource resource = resourceManager.createResource("test");
         resource.addDependency("type te:tes");

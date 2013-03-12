@@ -38,7 +38,8 @@ public class ResourceManagerImpl implements ResourceManager {
     private boolean createAllowed = true;
     private final Map<String, ResourceFactory> fqnResourceIndex = new HashMap<>();
     private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
-    private HashSet<ResourceDependency> dependencies = new HashSet<>();
+    private HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
+    private HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
 
     public ResourceManagerImpl(STContext context) {
         this.context = context;
@@ -388,30 +389,29 @@ public class ResourceManagerImpl implements ResourceManager {
                 resource.dependencies.clear();
                 resource.dependents.clear();
                 String depsRef = resource.get("depends");
-                if( isNotEmpty(depsRef) ) {
+                if (isNotEmpty(depsRef)) {
                     try {
                         List<Resource> deps = context.findResources(depsRef);
-                        context.getResourceManager().addDependency(new ResourceDependency(resource,deps));
+                        context.getResourceManager().addDependency(new ManyToManyResourceDependency(resource, deps));
                     } catch (InvalidQueryException e) {
-                        throw new InvalidDependencyException("Resource "+resource+" has an invalid depends attribute: "+depsRef);
+                        throw new InvalidDependencyException("Resource " + resource + " has an invalid depends attribute: " + depsRef);
                     }
                 }
             }
-            for (ResourceDependency dependency : dependencies) {
+            for (ManyToManyResourceDependency m2mDependency : m2mDependencies) {
+                o2mDependencies.addAll(m2mDependency.resolve(context));
+            }
+            m2mDependencies.clear();
+            for (OneToManyResourceDependency dependency : o2mDependencies) {
                 dependency.resolve(context);
-                for (Resource origin : dependency.getOrigins()) {
-                    for (Resource target : dependency.getTargets()) {
-                        if( target.getState() == Resource.State.FAILED ) {
-                            origin.setState(Resource.State.FAILED);
-                        }
-                        origin.dependencies.add(target);
-                        target.dependents.add(origin);
+                Resource origin = dependency.getOrigin();
+                for (Resource target : dependency.getTargets()) {
+                    if (target.getState() == Resource.State.FAILED) {
+                        origin.setState(Resource.State.FAILED);
                     }
+                    origin.dependencies.add(target);
+                    target.dependents.add(origin);
                 }
-            }
-            for (Resource resource : resources) {
-                resource.dependencies.remove(resource);
-                resource.dependents.remove(resource);
             }
         } finally {
             wulock();
@@ -420,22 +420,33 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public Set<ResourceDependency> getDependencies() {
-        synchronized (dependencies) {
-            return Collections.unmodifiableSet(dependencies);
+        synchronized (m2mDependencies) {
+            HashSet<ResourceDependency> set = new HashSet<>();
+            set.addAll(o2mDependencies);
+            set.addAll(m2mDependencies);
+            return Collections.unmodifiableSet(set);
         }
     }
 
     @Override
     public void addDependency(ResourceDependency dependency) {
-        synchronized (dependencies) {
-            dependencies.add(dependency);
+        synchronized (m2mDependencies) {
+            if( dependency instanceof ManyToManyResourceDependency ) {
+                m2mDependencies.add((ManyToManyResourceDependency) dependency);
+            } else {
+                o2mDependencies.add((OneToManyResourceDependency) dependency);
+            }
         }
     }
 
     @Override
     public void removeDependency(ResourceDependency dependency) {
-        synchronized (dependencies) {
-            dependencies.remove(dependency);
+        synchronized (m2mDependencies) {
+            if( dependency instanceof ManyToManyResourceDependency ) {
+                m2mDependencies.remove(dependency);
+            } else {
+                o2mDependencies.remove(dependency);
+            }
         }
     }
 

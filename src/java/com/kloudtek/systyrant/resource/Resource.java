@@ -16,10 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.StringWriter;
 import java.util.*;
-
-import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class Resource {
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
@@ -36,6 +33,7 @@ public class Resource {
      */
     private final HashSet<String> verification = new HashSet<>();
     final HashSet<Resource> dependencies = new HashSet<>();
+    final HashSet<Resource> indirectDependencies = new HashSet<>();
     final HashSet<Resource> dependents = new HashSet<>();
 
     public Resource(STContext context, ResourceFactory factory) {
@@ -69,13 +67,13 @@ public class Resource {
         if (resource.equals(this)) {
             throw new IllegalArgumentException("Added dependency on self: " + resource);
         }
-        ResourceDependency depRef = new ResourceDependency(this, resource, optional);
+        ResourceDependency depRef = new OneToManyResourceDependency(this, resource, optional);
         context.getResourceManager().addDependency(depRef);
         return depRef;
     }
 
     public ResourceDependency addDependency(String ref, boolean optional) throws InvalidRefException {
-        ResourceDependency dep = new ResourceDependency(this, ref, optional);
+        ResourceDependency dep = new OneToManyResourceDependency(this, ref, optional);
         context.getResourceManager().addDependency(dep);
         return dep;
     }

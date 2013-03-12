@@ -32,6 +32,8 @@ public abstract class Expression {
             return new BinaryExpression(expr.bOp, exprs.get(0), exprs.get(1), query, context);
         } else if (expr.co != null) {
             return new ChildOfExpression(expr.co, query, context);
+        } else if (expr.dep != null) {
+            return new DependsExpression(expr.dep, query, context);
         } else if (expr.tm != null) {
             return new TypeExpression(expr.tm, query, context);
         } else {
