@@ -16,19 +16,14 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.StringWriter;
 import java.util.*;
 
-import static com.kloudtek.util.StringUtils.isNotEmpty;
-
 public class Resource {
-    public static final List<String> CATTRS = Arrays.asList("id", "uid", "depends");
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
     private Map<String, String> attributes = new HashMap<>();
     private transient STContext context;
     private ResourceFactory factory;
-    private ResourceDependencyRef parent;
-    private final List<ResourceDependencyRef> deps = new ArrayList<>();
+    private Resource parent;
     private boolean executable;
     private HashSet<STAction> actions = new HashSet<>();
     private State state;
@@ -37,6 +32,9 @@ public class Resource {
      * will be stored as an empty string, and a specific verification will be stored as it's name.
      */
     private final HashSet<String> verification = new HashSet<>();
+    final HashSet<Resource> dependencies = new HashSet<>();
+    final HashSet<Resource> indirectDependencies = new HashSet<>();
+    final HashSet<Resource> dependents = new HashSet<>();
 
     public Resource(STContext context, ResourceFactory factory) {
         this.context = context;
@@ -53,88 +51,39 @@ public class Resource {
     // Dependency Management
     // ----------------------------------------------------------------------
 
-    public List<Resource> getResolvedDeps() {
-        ArrayList<Resource> list = new ArrayList<>(deps.size());
-        for (ResourceDependencyRef depRef : deps) {
-            Resource resource = depRef.getResource();
-            if (resource != null) {
-                list.add(resource);
-            }
-        }
-        return list;
+    public Set<Resource> getDependencies() {
+        return Collections.unmodifiableSet(dependencies);
     }
 
-    public ResourceDependencyRef addDependency(Resource resource) {
-        if (resource.equals(this)) {
-            throw new IllegalArgumentException("Added dependency on self: " + resource);
-        }
-        return addDependency(resource, false);
+    public ResourceDependency addDependency(Resource resource) {
+        return addDependency(resource,false);
     }
 
-    public ResourceDependencyRef addDependency(String ref) throws InvalidRefException {
+    public ResourceDependency addDependency(String ref) throws InvalidRefException {
         return addDependency(ref, false);
     }
 
-    public ResourceDependencyRef addDependency(Resource resource, boolean optional) {
-        ResourceDependencyRef depRef = new ResourceDependencyRef(this, resource, optional);
-        addDependency(depRef);
+    public ResourceDependency addDependency(Resource resource, boolean optional) {
+        if (resource.equals(this)) {
+            throw new IllegalArgumentException("Added dependency on self: " + resource);
+        }
+        ResourceDependency depRef = new OneToManyResourceDependency(this, resource, optional);
+        context.getResourceManager().addDependency(depRef);
         return depRef;
     }
 
-    public ResourceDependencyRef addDependency(String ref, boolean optional) throws InvalidRefException {
-        ResourceDependencyRef dep = new ResourceDependencyRef(this, ref, optional);
-        addDependency(dep);
+    public ResourceDependency addDependency(String ref, boolean optional) throws InvalidRefException {
+        ResourceDependency dep = new OneToManyResourceDependency(this, ref, optional);
+        context.getResourceManager().addDependency(dep);
         return dep;
     }
 
-    private void addDependency(ResourceDependencyRef depRef) {
-        deps.add(depRef);
-    }
-
-    public boolean hasDependencyOn(Resource el) {
-        if (!deps.isEmpty()) {
-            for (ResourceDependencyRef depRef : deps) {
-                Resource dep = depRef.getResource();
-                if (dep == el || dep.hasDependencyOn(el)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public Resource getParent() {
-        if (parent != null) {
-            return parent.getResource();
-        } else {
-            return null;
-        }
-    }
-
-    public void setParent(String parent) throws InvalidRefException {
-        this.parent = new ResourceDependencyRef(this, parent);
+        return parent;
     }
 
     public void setParent(Resource parent) {
-        this.parent = new ResourceDependencyRef(this, parent);
-    }
-
-    public List<ResourceDependencyRef> getDeps() {
-        return deps;
-    }
-
-    public void resolveDepencies(boolean strict) throws InvalidDependencyException {
-        try {
-            for (ResourceDependencyRef dep : new ArrayList<>(deps)) {
-                if (!dep.isResolved()) {
-                    dep.resolve(context);
-                }
-            }
-        } catch (InvalidDependencyException e) {
-            if (strict) {
-                throw e;
-            }
-        }
+        this.parent = parent;
     }
 
     // ----------------------------------------------------------------------
@@ -192,41 +141,12 @@ public class Resource {
      */
     public Resource set(@NotNull String key, @Nullable Object valueObj) throws InvalidAttributeException {
         String value = ConvertUtils.convert(valueObj);
-        key = key.toLowerCase();
-        switch (key) {
-            case "depends":
-                deps.clear();
-                try {
-                    deps.add(new ResourceDependencyRef(this, value, false));
-                } catch (InvalidRefException e) {
-                    throw new InvalidAttributeException(e);
-                }
-                break;
-            default:
-                attributes.put(key, value);
-        }
+        attributes.put(key.toLowerCase(), value);
         return this;
     }
 
     public String get(@NotNull String key) {
-        key = key.toLowerCase();
-        switch (key) {
-            case "depends":
-                StringWriter txt = new StringWriter();
-                boolean first = true;
-                for (ResourceDependencyRef dep : deps) {
-                    String ref = dep.getRef();
-                    if (isNotEmpty(ref)) {
-                        txt.append(ref);
-                        if (first) {
-                            txt.append(" | ");
-                        }
-                    }
-                }
-                return txt.toString();
-            default:
-                return attributes.get(key.toLowerCase());
-        }
+        return attributes.get(key.toLowerCase().toLowerCase());
     }
 
     public void removeAttribute(@NotNull String key) {
@@ -319,7 +239,7 @@ public class Resource {
         return context.host();
     }
 
-    public FQName getFQName() {
+    public FQName getType() {
         return factory.getFQName();
     }
 

@@ -27,13 +27,19 @@ public class ResourceManagerImpl implements ResourceManager {
     private List<ResourceFactory> resourceFactories = new ArrayList<>();
     private List<Resource> resources = new ArrayList<>();
     private HashMap<Resource, List<Resource>> parentChildIndex;
-    /** Concurrency lock */
+    /**
+     * Concurrency lock
+     */
     private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private boolean closed;
-    /** Flag indicating if element creation is allowed */
+    /**
+     * Flag indicating if element creation is allowed
+     */
     private boolean createAllowed = true;
     private final Map<String, ResourceFactory> fqnResourceIndex = new HashMap<>();
     private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
+    private HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
+    private HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
 
     public ResourceManagerImpl(STContext context) {
         this.context = context;
@@ -168,7 +174,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public List<Resource> findResources(String query) throws InvalidQueryException {
-        return new ResourceQuery(query).find(resources);
+        return new ResourceQuery(context, query).find(resources);
     }
 
     @Override
@@ -337,7 +343,9 @@ public class ResourceManagerImpl implements ResourceManager {
         }
     }
 
-    /** Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies */
+    /**
+     * Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies
+     */
     @Override
     public void prepareForExecution() throws InvalidDependencyException {
         wlock();
@@ -345,12 +353,12 @@ public class ResourceManagerImpl implements ResourceManager {
             // add dependency on parent if missing
             for (Resource resource : resources) {
                 Resource parent = resource.getParent();
-                if (parent != null && !resource.getResolvedDeps().contains(parent)) {
+                if (parent != null && !resource.getDependencies().contains(parent)) {
                     resource.addDependency(parent);
                 }
             }
             // mandatory children resolution
-            resolve(true);
+            resolveDependencies(true);
             // build parent/child map
             parentChildIndex = new HashMap<>();
             for (Resource resource : resources) {
@@ -360,7 +368,7 @@ public class ResourceManagerImpl implements ResourceManager {
             }
             // make dependent on resource if dependent on parent (childrens excluded from this rule)
             for (Resource resource : resources) {
-                for (Resource dep : resource.getResolvedDeps()) {
+                for (Resource dep : resource.getDependencies()) {
                     if (resource.getParent() == null || !resource.getParent().equals(dep)) {
                         makeDependentOnChildren(resource, dep);
                     }
@@ -374,14 +382,71 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public void resolve(boolean strict) throws InvalidDependencyException {
+    public void resolveDependencies(boolean strict) throws InvalidDependencyException {
         wlock();
         try {
             for (Resource resource : resources) {
-                resource.resolveDepencies(strict);
+                resource.dependencies.clear();
+                resource.dependents.clear();
+                String depsRef = resource.get("depends");
+                if (isNotEmpty(depsRef)) {
+                    try {
+                        List<Resource> deps = context.findResources(depsRef);
+                        context.getResourceManager().addDependency(new ManyToManyResourceDependency(resource, deps));
+                    } catch (InvalidQueryException e) {
+                        throw new InvalidDependencyException("Resource " + resource + " has an invalid depends attribute: " + depsRef);
+                    }
+                }
+            }
+            for (ManyToManyResourceDependency m2mDependency : m2mDependencies) {
+                o2mDependencies.addAll(m2mDependency.resolve(context));
+            }
+            m2mDependencies.clear();
+            for (OneToManyResourceDependency dependency : o2mDependencies) {
+                dependency.resolve(context);
+                Resource origin = dependency.getOrigin();
+                for (Resource target : dependency.getTargets()) {
+                    if (target.getState() == Resource.State.FAILED) {
+                        origin.setState(Resource.State.FAILED);
+                    }
+                    origin.dependencies.add(target);
+                    target.dependents.add(origin);
+                }
             }
         } finally {
             wulock();
+        }
+    }
+
+    @Override
+    public Set<ResourceDependency> getDependencies() {
+        synchronized (m2mDependencies) {
+            HashSet<ResourceDependency> set = new HashSet<>();
+            set.addAll(o2mDependencies);
+            set.addAll(m2mDependencies);
+            return Collections.unmodifiableSet(set);
+        }
+    }
+
+    @Override
+    public void addDependency(ResourceDependency dependency) {
+        synchronized (m2mDependencies) {
+            if( dependency instanceof ManyToManyResourceDependency ) {
+                m2mDependencies.add((ManyToManyResourceDependency) dependency);
+            } else {
+                o2mDependencies.add((OneToManyResourceDependency) dependency);
+            }
+        }
+    }
+
+    @Override
+    public void removeDependency(ResourceDependency dependency) {
+        synchronized (m2mDependencies) {
+            if( dependency instanceof ManyToManyResourceDependency ) {
+                m2mDependencies.remove(dependency);
+            } else {
+                o2mDependencies.remove(dependency);
+            }
         }
     }
 

@@ -112,7 +112,7 @@ public class ResourceSorter {
             list.add(map.get(resource));
         }
         for (Resource el : resources) {
-            for (Resource dep : el.getResolvedDeps()) {
+            for (Resource dep : el.getDependencies()) {
                 map.get(el).addDependency(map.get(dep));
             }
         }

@@ -7,10 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
-import com.kloudtek.systyrant.resource.JavaResourceFactory;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.ResourceManager;
-import com.kloudtek.systyrant.resource.ResourceManagerImpl;
+import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
@@ -386,10 +383,9 @@ public class STContext implements AutoCloseable {
                 fatalFatalException(e);
                 handleResourceFailure(res);
             }
-            res.resolveDepencies(false);
             resourceScope.remove();
         }
-        resourceManager.resolve(false);
+        resourceManager.resolveDependencies(false);
         resourceManager.setCreateAllowed(false);
     }
 
@@ -439,7 +435,7 @@ public class STContext implements AutoCloseable {
         for (Resource resource : resourceManager) {
             String id = resource.getId();
             String uid = resource.getUid();
-            FQName fqName = resource.getFQName();
+            FQName fqName = resource.getType();
             HashSet<String> idsForParent = parentToChildIdsMap.get(resource.getParent());
             if (isEmpty(id)) {
                 int i = 1;
@@ -490,7 +486,7 @@ public class STContext implements AutoCloseable {
     private Collection<? extends Resource> getDependentOn(Resource el) {
         ArrayList<Resource> list = new ArrayList<>();
         for (Resource resource : resourceManager) {
-            if (resource.getResolvedDeps().contains(el)) {
+            if (resource.getDependencies().contains(el)) {
                 list.add(resource);
             }
         }

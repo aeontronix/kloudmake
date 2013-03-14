@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.BinaryOp;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
@@ -23,15 +24,15 @@ public class BinaryExpression extends Expression {
 
     public BinaryExpression(SystyrantLangParser.BinaryOpContext opCtx,
                             SystyrantLangParser.QueryExpressionContext leftExprCtx,
-                            SystyrantLangParser.QueryExpressionContext rightExprCtx, String query) throws InvalidQueryException {
+                            SystyrantLangParser.QueryExpressionContext rightExprCtx, String query, STContext context) throws InvalidQueryException {
         and = BinaryOp.valueOf(opCtx) == BinaryOp.AND;
-        leftExpression = Expression.create(leftExprCtx,query);
-        rightExpression = Expression.create(rightExprCtx,query);
+        leftExpression = Expression.create(leftExprCtx, query, context);
+        rightExpression = Expression.create(rightExprCtx, query, context);
     }
 
     @Override
-    public boolean matches(Resource resource) {
-        return and ? leftExpression.matches(resource) && rightExpression.matches(resource)
-                : leftExpression.matches(resource) || rightExpression.matches(resource);
+    public boolean matches(STContext context, Resource resource) {
+        return and ? leftExpression.matches(context, resource) && rightExpression.matches(context, resource)
+                : leftExpression.matches(context, resource) || rightExpression.matches(context, resource);
     }
 }

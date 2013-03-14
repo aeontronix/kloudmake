@@ -12,6 +12,9 @@ import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.systyrant.service.host.Host;
 import org.testng.annotations.Test;
 
+import java.util.Collection;
+import java.util.List;
+
 import static org.testng.Assert.*;
 
 public class JavaResourceFactoryTest extends AbstractContextTest {
@@ -191,6 +194,31 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
 
         @Execute
         public void test() {
+        }
+    }
+
+    @Test
+    public void testInjectChildResources() throws Throwable {
+        register(InjectChildResources.class);
+        Resource r1 = createTestResource();
+        Resource r2 = create(InjectChildResources.class);
+        Resource r3 = createTestResource();
+        r3.setParent(r2);
+        Resource r4 = createTestResource();
+        r4.setParent(r2);
+        createTestResource();
+        InjectChildResources impl = findJavaAction(InjectChildResources.class);
+        assertContainsSame(impl.childrensPersist,r3,r4);
+    }
+
+    public static class InjectChildResources {
+        @Resources("childof")
+        private List<Resource> childrens;
+        private List<Resource> childrensPersist;
+
+        @Execute
+        public void test() {
+            childrensPersist = childrens;
         }
     }
 }

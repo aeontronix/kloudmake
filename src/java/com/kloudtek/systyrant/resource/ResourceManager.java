@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface ResourceManager extends Iterable<Resource> {
     void setContext(STContext context);
@@ -53,11 +54,17 @@ public interface ResourceManager extends Iterable<Resource> {
 
     void prepareForExecution() throws InvalidDependencyException;
 
-    void resolve(boolean strict) throws InvalidDependencyException;
+    void resolveDependencies(boolean strict) throws InvalidDependencyException;
 
     boolean hasResources();
 
     Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
 
     List<Resource> findResources(String query) throws InvalidQueryException;
+
+    Set<ResourceDependency> getDependencies();
+
+    void addDependency(ResourceDependency dependency);
+
+    void removeDependency(ResourceDependency dependency);
 }

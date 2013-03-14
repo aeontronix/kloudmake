@@ -5,6 +5,9 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.AbstractContextTest;
+import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.annotation.Execute;
+import com.kloudtek.systyrant.exception.InvalidQueryException;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -153,30 +156,126 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test
     public void testAnd2() throws Throwable {
-        createTestResource().set("attr1", "val1");
+        createTestResource().setUid("uid1");
         Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2").set("attr3", "val3");
-        createTestResource().set("attr2", "val2");
+        createTestResource().set("uid", "uid3");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2' and @attr3 eq 'val3'");
         assertContainsSame(result, rs2);
     }
 
     @Test
-    public void testAndOr1() throws Throwable {
-        createTestResource("id1").set("attr1", "val1");
-        Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2");
-        Resource rs3 = createTestResource("id3");
-        createTestResource("id4");
-        List<Resource> result = resourceManager.findResources("( @attr1 eq 'val1' and @attr2 eq 'val2' ) or @id eq 'id3'");
-        assertContainsSame(result, rs2, rs3);
+    public void testChildOfScope() throws Throwable {
+        register(ChildOfScope.class, "childofscope");
+        Resource parent = resourceManager.createResource("test:childofscope", null, null);
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        createChildTestResource(null, child2);
+        createTestResource();
+        execute();
+        ChildOfScope impl = findJavaAction(ChildOfScope.class, parent);
+        assertContainsSame(impl.found, child1, child2);
+    }
+
+    public static class ChildOfScope {
+        private List<Resource> found;
+
+        @Execute
+        public void query() throws InvalidQueryException {
+            STContext ctx = STContext.get();
+            found = ctx.findResources("childof");
+        }
     }
 
     @Test
-    public void testAndOr2() throws Throwable {
-        createTestResource("id1").set("attr1", "val1");
-        Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2");
-        Resource rs3 = createTestResource("id3").set("attr1", "val1");
-        createTestResource("id4").set("attr2", "val2");
-        List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and ( @attr2 eq 'val2' or @id eq 'id3')");
-        assertContainsSame(result, rs2, rs3);
+    public void testChildOfParam() throws Throwable {
+        createTestResource();
+        Resource parent = createTestResource("id");
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        createChildTestResource(null, child2);
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("childof @id eq 'id'");
+        assertContainsSame(childs, child1, child2);
+    }
+
+    @Test
+    public void testChildOfRecursiveParam() throws Throwable {
+        createTestResource();
+        Resource parent = createTestResource("id");
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        Resource child3 = createChildTestResource(null, child2);
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("childof* @id eq 'id'");
+        assertContainsSame(childs, child1, child2, child3);
+    }
+
+    @Test
+    public void testDepOfScope() throws Throwable {
+        register(DepOfScope.class, "depsofscope");
+        Resource r1 = resourceManager.createResource("test:depsofscope", null, null);
+        Resource r2 = createTestResource();
+        r2.addDependency(r1);
+        Resource r3 = createTestResource();
+        r3.addDependency(r1);
+        createTestResource().addDependency(r3);
+        createTestResource();
+        execute();
+        ChildOfScope impl = findJavaAction(DepOfScope.class, r1);
+        assertContainsSame(impl.found, r2, r3);
+    }
+
+    public static class DepOfScope {
+        private List<Resource> found;
+
+        @Execute
+        public void query() throws InvalidQueryException {
+            STContext ctx = STContext.get();
+            found = ctx.findResources("depends");
+        }
+    }
+//
+//    @Test
+//    public void testDepOfParam() throws Throwable {
+//        createTestResource();
+//        Resource res1 = createTestResource("id");
+//        Resource res2 = createTestResource();
+//        res2.addDependency(res1);
+//        Resource res3 = createTestResource();
+//        res3.addDependency(res3);
+//        createTestResource();
+//        execute();
+//        List<Resource> childs = ctx.findResources("depends @id eq 'id'");
+//        assertContainsSame(childs, res2, res3);
+//    }
+//
+//    @Test
+//    public void testDepOfRecursiveParam() throws Throwable {
+//        createTestResource();
+//        Resource parent = createTestResource("id");
+//        Resource child1 = createChildTestResource(null, parent);
+//        Resource child2 = createChildTestResource(null, parent);
+//        Resource child3 = createChildTestResource(null, child2);
+//        createTestResource();
+//        execute();
+//        List<Resource> childs = ctx.findResources("depends* @id eq 'id'");
+//        assertContainsSame(childs, child1, child2, child3);
+//    }
+
+    @Test
+    public void testFindByType() throws Throwable {
+        register(FindByType.class, "findbytype");
+        createTestResource();
+        Resource r1 = resourceManager.createResource("test:findbytype");
+        Resource r2 = resourceManager.createResource("test:findbytype");
+        createTestResource();
+        execute();
+        List<Resource> resources = ctx.findResources("type test:findbytype");
+        assertContainsSame(resources, r1, r2);
+    }
+
+    public static class FindByType {
     }
 }

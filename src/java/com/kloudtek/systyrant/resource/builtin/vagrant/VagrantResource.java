@@ -38,7 +38,7 @@ public class VagrantResource {
     private Host host;
     @Service
     private ServiceManager serviceManager;
-    @Resources
+    @Resources("")
     private Collection<SharedFolder> sharedFolders;
     private SshHost sshHost;
 

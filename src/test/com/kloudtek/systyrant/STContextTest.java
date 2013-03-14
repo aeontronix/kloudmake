@@ -4,16 +4,13 @@
 
 package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.annotation.Inject;
-import com.kloudtek.systyrant.annotation.Prepare;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,7 +26,7 @@ public class STContextTest extends AbstractContextTest {
     }
 
 
-    @Test(dependsOnMethods = "testSimpleElementCreation",expectedExceptions = ResourceCreationException.class)
+    @Test(dependsOnMethods = "testSimpleElementCreation", expectedExceptions = ResourceCreationException.class)
     public void testCreateElementDuringExecutionStage() throws Throwable {
         Resource test1 = createTestResource("test1");
         test1.set("createElementDuringExecute", true);
@@ -52,12 +49,11 @@ public class STContextTest extends AbstractContextTest {
         List<Resource> els = resourceManager.findResourcesById(child1);
         assertEquals(els.size(), 1);
         Resource test3_child1 = els.get(0);
-        assertEquals(ctx.getResources(), Arrays.asList(test3, test3_child1, test4, test2, test1));
-        TestResource.valDeps(test1, test2);
-        TestResource.valDeps(test2, test3, test3_child1, test4);
-        TestResource.valDeps(test3);
-        TestResource.valDeps(test3_child1, test3);
-        TestResource.valDeps(test4, test3, test3_child1);
+        assertTrue(test3_child1.getDependencies().contains(test3));
+        assertBefore(test2,test1);
+        assertBefore(test3,test2,test3_child1);
+        assertBefore(test4,test2);
+        assertBefore(test4,test2);
     }
 
 
