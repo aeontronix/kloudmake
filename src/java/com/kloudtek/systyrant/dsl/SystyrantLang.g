@@ -48,7 +48,7 @@ invokeMethod: methodName=anyId '(' parameter* ')';
 
 query : queryExpression EOF;
 
-queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch | dep=queryDependsMatch;
+queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch;
 
 queryAttrMatch : AT attr=anyId ( nnul=queryAttrMatchNonNull | nul=queryAttrMatchNullOrEmpty );
 
@@ -56,7 +56,7 @@ queryAttrMatchNonNull : n=NOT? op=queryAttrMatchOp val=string;
 
 queryAttrMatchNullOrEmpty : IS n=NOT? (nul=NULL | empty=EMPTY);
 
-queryAttrMatchOp : eq=EQS | lk=LIKE | rgx=REGEX;
+queryAttrMatchOp : eq=(FEQ |EQS) | lk=( EQ | LIKE ) | rgx=( REGEX | TEQ ) | m=( GT | GTS ) | l=(LT | LTS);
 
 queryChildOfMatch : CHILDOF s=STAR? exp=queryExpression?;
 
@@ -107,6 +107,12 @@ NULL: 'null';
 EQS: 'eq';
 LIKE: 'like';
 EQ: '=';
+FEQ: '==';
+TEQ: '~=';
+GT: '>';
+GTS: 'gt';
+LT: '<';
+LTS: 'lt';
 NEQ: '!=';
 STAR: '*';
 AT: '@';

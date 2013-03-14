@@ -11,6 +11,7 @@ import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.resource.Resource;
 
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 import static com.kloudtek.systyrant.dsl.LogOp.*;
@@ -69,8 +70,28 @@ public class AttrMatchExpression extends Expression {
                 return val.equalsIgnoreCase(attrVal);
             case REGEX:
                 return valPattern.matcher(attrVal).find();
+            case GT:
+                return compareStr(attrVal, val);
+            case LT:
+                return compareStr(val, attrVal);
             default:
                 throw new RuntimeException("BUG! invalid attr operator: " + logOp);
+        }
+    }
+
+    private static boolean compareStr(String attrVal, String val) {
+        if (val == null && attrVal != null) {
+            return true;
+        } else if (val != null && attrVal == null) {
+            return false;
+        } else {
+            try {
+                BigDecimal v = new BigDecimal(val);
+                BigDecimal av = new BigDecimal(attrVal);
+                return v.compareTo(av) < 0;
+            } catch (NumberFormatException e) {
+                return val.compareTo(attrVal) < 0;
+            }
         }
     }
 }

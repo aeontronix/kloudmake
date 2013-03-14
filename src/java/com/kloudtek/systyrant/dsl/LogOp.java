@@ -14,7 +14,7 @@ import com.kloudtek.systyrant.exception.InvalidQueryException;
  * To change this template use File | Settings | File Templates.
  */
 public enum LogOp {
-    EQ, LIKE, REGEX, ISNULL, EMPTY, CONTAINS, CHILDOF;
+    EQ, LIKE, REGEX, ISNULL, EMPTY, CONTAINS, CHILDOF, GT, LT;
 
     public static LogOp valueOf(SystyrantLangParser.QueryAttrMatchOpContext op, String query) throws InvalidQueryException {
         if (op.eq != null) {
@@ -23,6 +23,10 @@ public enum LogOp {
             return LIKE;
         } else if (op.rgx != null) {
             return REGEX;
+        } else if (op.l != null) {
+            return LT;
+        } else if (op.m != null) {
+            return GT;
         } else {
             throw new RuntimeException("BUG! Invalid LogOp: " + op.getText());
         }

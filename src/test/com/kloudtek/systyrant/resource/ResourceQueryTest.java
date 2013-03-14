@@ -24,6 +24,50 @@ public class ResourceQueryTest extends AbstractContextTest {
         createTestResource().set("attr", "val2");
         List<Resource> result = resourceManager.findResources("@attr like 'val1'");
         assertContainsSame(result, rs2, rs3);
+        List<Resource> result2 = resourceManager.findResources("@attr = 'val1'");
+        assertContainsSame(result2, rs2, rs3);
+    }
+
+    @Test
+    public void testAttrGt() throws Throwable {
+        createTestResource();
+        createTestResource().set("attr", "2");
+        Resource rs2 = createTestResource().set("attr", "22");
+        Resource rs3 = createTestResource().set("attr", "20");
+        createTestResource().set("attr", "12");
+        List<Resource> result = resourceManager.findResources("@attr gt 15");
+        assertContainsSame(result, rs2, rs3);
+    }
+
+    @Test
+    public void testAttrGt2() throws Throwable {
+        createTestResource();
+        createTestResource().set("attr", "d");
+        Resource rs2 = createTestResource().set("attr", "x");
+        Resource rs3 = createTestResource().set("attr", "z");
+        createTestResource().set("attr", "b");
+        List<Resource> result = resourceManager.findResources("@attr gt f");
+        assertContainsSame(result, rs2, rs3);
+    }
+
+    @Test
+    public void testAttrLt() throws Throwable {
+        createTestResource().set("attr", "100");
+        Resource rs1 = createTestResource();
+        Resource rs2 = createTestResource().set("attr", "22");
+        createTestResource().set("attr", "120");
+        List<Resource> result = resourceManager.findResources("@attr lt 50");
+        assertContainsSame(result, rs1, rs2);
+    }
+
+    @Test
+    public void testAttrLt2() throws Throwable {
+        createTestResource().set("attr", "y");
+        Resource rs2 = createTestResource();
+        Resource rs3 = createTestResource().set("attr", "a");
+        createTestResource().set("attr", "z");
+        List<Resource> result = resourceManager.findResources("@attr lt f");
+        assertContainsSame(result, rs2, rs3);
     }
 
     @Test
@@ -212,7 +256,7 @@ public class ResourceQueryTest extends AbstractContextTest {
         assertContainsSame(childs, child1, child2, child3);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDepOfScope() throws Throwable {
         register(DepOfScope.class, "depsofscope");
         Resource r1 = resourceManager.createResource("test:depsofscope", null, null);
@@ -236,33 +280,33 @@ public class ResourceQueryTest extends AbstractContextTest {
             found = ctx.findResources("depends");
         }
     }
-//
-//    @Test
-//    public void testDepOfParam() throws Throwable {
-//        createTestResource();
-//        Resource res1 = createTestResource("id");
-//        Resource res2 = createTestResource();
-//        res2.addDependency(res1);
-//        Resource res3 = createTestResource();
-//        res3.addDependency(res3);
-//        createTestResource();
-//        execute();
-//        List<Resource> childs = ctx.findResources("depends @id eq 'id'");
-//        assertContainsSame(childs, res2, res3);
-//    }
-//
-//    @Test
-//    public void testDepOfRecursiveParam() throws Throwable {
-//        createTestResource();
-//        Resource parent = createTestResource("id");
-//        Resource child1 = createChildTestResource(null, parent);
-//        Resource child2 = createChildTestResource(null, parent);
-//        Resource child3 = createChildTestResource(null, child2);
-//        createTestResource();
-//        execute();
-//        List<Resource> childs = ctx.findResources("depends* @id eq 'id'");
-//        assertContainsSame(childs, child1, child2, child3);
-//    }
+
+    @Test(enabled = false)
+    public void testDepOfParam() throws Throwable {
+        createTestResource();
+        Resource res1 = createTestResource("id");
+        Resource res2 = createTestResource();
+        res2.addDependency(res1);
+        Resource res3 = createTestResource();
+        res3.addDependency(res3);
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("depends @id eq 'id'");
+        assertContainsSame(childs, res2, res3);
+    }
+
+    @Test(enabled = false)
+    public void testDepOfRecursiveParam() throws Throwable {
+        createTestResource();
+        Resource parent = createTestResource("id");
+        Resource child1 = createChildTestResource(null, parent);
+        Resource child2 = createChildTestResource(null, parent);
+        Resource child3 = createChildTestResource(null, child2);
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("depends* @id eq 'id'");
+        assertContainsSame(childs, child1, child2, child3);
+    }
 
     @Test
     public void testFindByType() throws Throwable {
