@@ -13,6 +13,7 @@ import com.kloudtek.systyrant.service.ServiceManager;
 import java.lang.reflect.Field;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
+import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 /**
  * This class is used to inject a service into a java resource implementation (see {@link Service} annotation for more
@@ -30,7 +31,7 @@ public class ServiceInjector extends Injector {
     public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
         try {
             ServiceManager serviceManager = ctx.getServiceManager();
-            boolean nameSpecified = isEmpty(name);
+            boolean nameSpecified = isNotEmpty(name);
             Object service = nameSpecified ? serviceManager.getService(field.getType()) : serviceManager.getService(name);
             if (service == null) {
                 throw new FieldInjectionException(field, "No service " + (nameSpecified ? "named '" + name + "' found" :

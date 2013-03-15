@@ -5,11 +5,13 @@
 package com.kloudtek.systyrant.resource.builtin.vagrant;
 
 import com.kloudtek.systyrant.annotation.*;
+import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.service.ServiceManager;
-import com.kloudtek.systyrant.service.host.Host;
-import com.kloudtek.systyrant.service.host.SshHost;
+import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.host.SshHost;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
@@ -34,11 +36,13 @@ public class VagrantResource {
     private Ensure ensure = Ensure.UP;
     @Attr
     private Ensure after;
-    @Service
+    @Inject
     private Host host;
-    @Service
+    @Inject
     private ServiceManager serviceManager;
-    @Resources("")
+    @Inject
+    private Resource resource;
+    @Resources("childof and type vagrant:sharedfolder")
     private Collection<SharedFolder> sharedFolders;
     private SshHost sshHost;
 
@@ -57,7 +61,7 @@ public class VagrantResource {
     }
 
     @Execute
-    public void exec() throws STRuntimeException {
+    public void exec() throws STRuntimeException, InjectException {
         String vagrantfile = "Vagrant::Config.run do |config|\n" +
                 "  config.vm.box = \"" + box + "\"\n" +
                 "end\n";
@@ -72,7 +76,7 @@ public class VagrantResource {
         }
         changeStatus(ensure);
         sshHost = createSshHost(host, dir);
-        serviceManager.addOverride("host", sshHost);
+        resource.setHostOverride(sshHost);
         sshHost.start();
     }
 
@@ -99,10 +103,11 @@ public class VagrantResource {
     }
 
     @Execute(postChildren = true)
-    public void postChildrens() throws STRuntimeException {
+    public void postChildrens() throws STRuntimeException, InjectException {
         try {
-            serviceManager.removeOverride("host", sshHost);
-            host = (Host) serviceManager.getService("host");
+            sshHost.stop();
+            resource.setHostOverride(null);
+            host = resource.getHost();
             if (after != null) {
                 changeStatus(after);
             }

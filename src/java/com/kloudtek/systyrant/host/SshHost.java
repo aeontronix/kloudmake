@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.service.host;
+package com.kloudtek.systyrant.host;
 
 import com.jcraft.jsch.*;
 import com.kloudtek.systyrant.ExecutionResult;
@@ -23,9 +23,9 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.kloudtek.systyrant.service.host.Host.Logging.NO;
+import static com.kloudtek.systyrant.host.Host.Logging.NO;
 
-/** {@link com.kloudtek.systyrant.service.host.Host} implementation that uses SSH to remotely administer a server. */
+/** {@link com.kloudtek.systyrant.host.Host} implementation that uses SSH to remotely administer a server. */
 public class SshHost extends AbstractHost {
     private static final Logger logger = LoggerFactory.getLogger(SshHost.class);
     private JSch jsch;
@@ -40,6 +40,7 @@ public class SshHost extends AbstractHost {
     private byte[] passphrase;
     private String loginUser;
     private String user = "root";
+    private boolean started;
 
     public SshHost() {
         handleQuoting = true;
@@ -62,7 +63,7 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public void start() throws STRuntimeException {
+    public void doStart() throws STRuntimeException {
         try {
             jsch = new JSch();
             jsch.addIdentity(keyName, privKey, pubKey, passphrase);
@@ -76,16 +77,18 @@ public class SshHost extends AbstractHost {
             executor = new SshExecutor(session);
             execPrefix = "sudo ";
             rootUser = loginUser.equals("root");
+            started = true;
         } catch (JSchException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }
-        super.start();
+        super.doStart();
     }
 
     @Override
     public void doStop() {
         sftpChannel.disconnect();
         session.disconnect();
+        started = false;
     }
 
     @Override
@@ -257,6 +260,11 @@ public class SshHost extends AbstractHost {
         String tmpfile = exec("mktemp", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), null).getOutput().trim();
         tempFiles.add(tmpfile);
         return tmpfile;
+    }
+
+    @Override
+    public boolean isStarted() {
+        return started;
     }
 
     @Override

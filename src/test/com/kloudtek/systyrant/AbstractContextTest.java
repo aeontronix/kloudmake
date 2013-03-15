@@ -24,7 +24,7 @@ public class AbstractContextTest {
     protected ResourceManager resourceManager;
 
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException {
+    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InjectException {
         ctx = new STContext();
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
@@ -200,10 +200,10 @@ public class AbstractContextTest {
     protected void assertBefore(Resource before, Resource... after) {
         List<Resource> aftRes = Arrays.asList(after);
         for (Resource r : ctx.getResourceManager()) {
-            if( r == before ) {
+            if (r == before) {
                 return;
-            } else if( aftRes.contains(r) ) {
-                fail("Resource "+r+" is before "+before);
+            } else if (aftRes.contains(r)) {
+                fail("Resource " + r + " is before " + before);
             }
         }
     }

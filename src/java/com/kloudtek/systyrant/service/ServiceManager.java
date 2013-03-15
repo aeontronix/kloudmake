@@ -28,4 +28,6 @@ public interface ServiceManager {
     Object invokeMethod(String name, Parameters parameters) throws STRuntimeException;
 
     void registerService(String name, Object service) throws InvalidServiceException;
+
+    void registerService(Class<?> clazz) throws InvalidServiceException;
 }

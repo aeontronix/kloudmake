@@ -9,7 +9,7 @@ import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

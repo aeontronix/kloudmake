@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.service.host;
+package com.kloudtek.systyrant.host;
 
 import java.io.IOException;
 import java.io.PipedInputStream;

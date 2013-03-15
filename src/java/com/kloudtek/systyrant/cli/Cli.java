@@ -11,7 +11,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.service.host.SshHost;
+import com.kloudtek.systyrant.host.SshHost;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.validator.internal.util.Version;

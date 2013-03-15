@@ -9,7 +9,7 @@ import com.kloudtek.systyrant.STAction;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +27,7 @@ public class Resource {
     private boolean executable;
     private HashSet<STAction> actions = new HashSet<>();
     private State state;
+    private Host hostOverride;
     /**
      * This contains the results of any successful verification (meaning nothing has changed). A global verification
      * will be stored as an empty string, and a specific verification will be stored as it's name.
@@ -56,7 +57,7 @@ public class Resource {
     }
 
     public ResourceDependency addDependency(Resource resource) {
-        return addDependency(resource,false);
+        return addDependency(resource, false);
     }
 
     public ResourceDependency addDependency(String ref) throws InvalidRefException {
@@ -89,6 +90,27 @@ public class Resource {
     // ----------------------------------------------------------------------
     // Meta-Data retrieval
     // ----------------------------------------------------------------------
+
+    public Host getHost() {
+        if (hostOverride != null) {
+            return hostOverride;
+        } else if (parent != null) {
+            return parent.getHost();
+        } else {
+            return context.getHost();
+        }
+    }
+
+    public Host getHostOverride() {
+        return hostOverride;
+    }
+
+    public void setHostOverride(Host hostOverride) throws InjectException {
+        this.hostOverride = hostOverride;
+        if( hostOverride != null ) {
+            context.inject(hostOverride);
+        }
+    }
 
     public ResourceFactory getFactory() {
         return factory;

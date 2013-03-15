@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.service.host;
+package com.kloudtek.systyrant.host;
 
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
@@ -20,6 +20,8 @@ import java.util.Map;
 @Service(def = LocalHost.class)
 public interface Host extends Stoppable, Startable {
     public static final int DEFAULT_TIMEOUT = 300000;
+
+    boolean isStarted();
 
     ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
 

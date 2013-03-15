@@ -9,9 +9,9 @@ import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.TestVagrantRuntime;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.service.host.Host;
-import com.kloudtek.systyrant.service.host.LocalHost;
-import com.kloudtek.systyrant.service.host.SshHost;
+import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.host.LocalHost;
+import com.kloudtek.systyrant.host.SshHost;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.io.FileUtils;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.kloudtek.systyrant.FileInfo.Type.*;
-import static com.kloudtek.systyrant.service.host.Host.Logging.YES;
+import static com.kloudtek.systyrant.host.Host.Logging.YES;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static org.testng.Assert.*;
 

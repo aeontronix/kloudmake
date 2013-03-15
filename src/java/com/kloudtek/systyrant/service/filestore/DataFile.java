@@ -5,16 +5,19 @@
 package com.kloudtek.systyrant.service.filestore;
 
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-/** Provides access to a file in the {@link FileStore} */
+/**
+ * Provides access to a file in the {@link FileStore}
+ */
 public abstract class DataFile {
     public abstract InputStream getStream() throws IOException;
 

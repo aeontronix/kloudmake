@@ -9,10 +9,9 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 import org.testng.annotations.Test;
 
-import java.util.Collection;
 import java.util.List;
 
 import static org.testng.Assert.*;

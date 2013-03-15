@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.service.host;
+package com.kloudtek.systyrant.host;
 
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import org.apache.commons.exec.CommandLine;

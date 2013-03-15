@@ -5,17 +5,20 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
+import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.service.ServiceManager;
 
 import java.lang.reflect.Field;
 
 /**
  * Injector for the {@link com.kloudtek.systyrant.annotation.Inject} annotation.
  */
-public class GenericInjector extends Injector {
+public class GenericInjector extends AttrInjector {
     protected GenericInjector(Field field) {
-        super(field);
+        super(field.getName(),field);
     }
 
     @Override
@@ -25,16 +28,18 @@ public class GenericInjector extends Injector {
             inject(obj,ctx);
         } else if( Resource.class.isAssignableFrom(type) ) {
             inject(obj,resource);
-        } else {
+        } else if( ServiceManager.class.isAssignableFrom(type) ) {
+            inject(obj,ctx.getServiceManager());
+        } else if( Host.class.isAssignableFrom(type) ) {
+            inject(obj,resource.getHost());
+        } else if( resource.getClass().getAnnotation(Service.class) != null ) {
             try {
-                Object service = ctx.getServiceManager().getService(type);
-                if( service == null ) {
-                    throw new FieldInjectionException(field, "No service of type " + field.getType() + " found");
-                }
-                inject(obj,service);
+                inject(obj, ctx.getServiceManager().getService(resource.getClass()));
             } catch (InvalidServiceException e) {
-                throw new FieldInjectionException(field, e);
+                throw new FieldInjectionException(field,e.getMessage(),e);
             }
+        } else {
+            super.inject(obj, ctx);
         }
     }
 }

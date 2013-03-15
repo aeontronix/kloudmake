@@ -5,19 +5,20 @@
 package com.kloudtek.systyrant;
 
 import com.google.common.reflect.AbstractInvocationHandler;
+import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.vagrant.SharedFolder;
 import com.kloudtek.systyrant.resource.builtin.vagrant.VagrantResource;
 import com.kloudtek.systyrant.service.ServiceManager;
-import com.kloudtek.systyrant.service.host.LinuxMetadataProvider;
-import com.kloudtek.systyrant.service.host.LocalHost;
-import com.kloudtek.systyrant.service.host.SshHost;
+import com.kloudtek.systyrant.host.LinuxMetadataProvider;
+import com.kloudtek.systyrant.host.LocalHost;
+import com.kloudtek.systyrant.host.SshHost;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import static com.kloudtek.systyrant.service.host.LocalHost.forceSet;
+import static com.kloudtek.systyrant.host.LocalHost.forceSet;
 
 public class TestVagrantRuntime {
     private final VagrantResource vagrantResource;

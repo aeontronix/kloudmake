@@ -5,10 +5,11 @@
 package com.kloudtek.systyrant;
 
 import com.jcraft.jsch.JSchException;
+import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.service.host.SshHost;
+import com.kloudtek.systyrant.host.SshHost;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -21,7 +22,7 @@ public abstract class AbstractSSHTest {
     protected SshHost host;
 
     @BeforeMethod(groups = "ssh")
-    public void setup() throws JSchException, InvalidResourceDefinitionException, InvalidServiceException {
+    public void setup() throws JSchException, InvalidResourceDefinitionException, STRuntimeException, InjectException {
 //        host = SshHost.createSSHAdminForVagrantInstance("localhost", 2222, "vagrant");
         ctx = new STContext();
         ctx.getServiceManager().addOverride("host", host);

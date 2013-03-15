@@ -6,16 +6,13 @@ package com.kloudtek.systyrant.core;
 
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.InvalidServiceException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.builtin.core.FileResource;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.service.host.Host;
 import com.kloudtek.util.CryptoUtils;
 import org.apache.commons.io.IOUtils;
 import org.mockito.ArgumentCaptor;
@@ -50,7 +47,7 @@ public class FileResourceTest {
     private static String defaultPermission = "rwx";
 
     @BeforeMethod
-    public void init() throws STRuntimeException, ResourceCreationException, InvalidResourceDefinitionException, InvalidServiceException {
+    public void init() throws STRuntimeException, ResourceCreationException, InvalidResourceDefinitionException, InvalidServiceException, InjectException {
         Mockito.reset(adminMock);
         Mockito.reset(fileStoreMock);
         context = new STContext();

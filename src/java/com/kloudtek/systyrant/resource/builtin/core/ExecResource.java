@@ -7,7 +7,7 @@ package com.kloudtek.systyrant.resource.builtin.core;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

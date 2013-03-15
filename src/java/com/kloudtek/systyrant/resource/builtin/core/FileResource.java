@@ -9,7 +9,7 @@ import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.codec.DecoderException;

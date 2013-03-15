@@ -5,27 +5,28 @@
 package com.kloudtek.systyrant.service;
 
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.annotation.Method;
-import com.kloudtek.systyrant.annotation.Provider;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.Parameters;
+import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.provider.ProviderManager;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
+import static com.kloudtek.util.StringUtils.isNotEmpty;
 
-/** Simple implementation of the {@link ServiceManager} interface. */
+/**
+ * Simple implementation of the {@link ServiceManager} interface.
+ */
 public class ServiceManagerImpl implements ServiceManager {
     private static final Logger logger = LoggerFactory.getLogger(ServiceManagerImpl.class);
     private Map<String, Object> services = new HashMap<>();
@@ -86,7 +87,14 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     @SuppressWarnings("unchecked")
     public synchronized final <X> X getService(@NotNull Class<X> classtype) throws InvalidServiceException {
-        return (X) getService(classtype.getSimpleName().toLowerCase());
+        Service annotation = classtype.getAnnotation(Service.class);
+        String name;
+        if (annotation != null && isNotEmpty(annotation.value())) {
+            name = annotation.value();
+        } else {
+            name = classtype.getSimpleName().toLowerCase();
+        }
+        return (X) getService(name);
     }
 
     @Override
@@ -97,7 +105,11 @@ public class ServiceManagerImpl implements ServiceManager {
             list = new LinkedList<>();
             overrides.put(id, list);
         }
-        inject(overrideService, overrideService.getClass());
+        try {
+            ctx.inject(overrideService);
+        } catch (InjectException e) {
+            throw new InvalidServiceException(e.getMessage(), e);
+        }
         list.addLast(overrideService);
         logger.debug("added override {} for service {}", overrideService.toString(), id);
     }
@@ -109,6 +121,32 @@ public class ServiceManagerImpl implements ServiceManager {
             list.remove(overrideService);
         }
         logger.debug("removed override {} for service {}", overrideService.toString(), id);
+    }
+
+    @Override
+    public void registerService(Class<?> clazz) throws InvalidServiceException {
+        try {
+            Object service = null;
+            String name = null;
+            Service annotation = clazz.getAnnotation(Service.class);
+            if( annotation != null ) {
+                if( annotation.def() != ServiceManager.class ) {
+                    service = annotation.def().newInstance();
+                }
+                if( isNotEmpty(annotation.value()) ) {
+                    name = annotation.value();
+                }
+            }
+            if( service == null ) {
+                service = clazz.newInstance();
+            }
+            if( name == null ) {
+                name = service.getClass().getSimpleName().toLowerCase();
+            }
+            registerService(name,service);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new InvalidServiceException("Unable to instantiate service "+clazz.getName());
+        }
     }
 
     @Override
@@ -125,29 +163,13 @@ public class ServiceManagerImpl implements ServiceManager {
                     methods.put(name1, new MethodInvoker(name, name1, javaMethod));
                 }
             }
-            inject(service, clazz);
+            try {
+                ctx.inject(service);
+            } catch (InjectException e) {
+                throw new InvalidServiceException(e.getMessage(), e);
+            }
         }
         services.put(name, service);
-    }
-
-    private void inject(Object service, Class<?> clazz) throws InvalidServiceException {
-        Class<?> cl = clazz;
-        while (cl != null) {
-            for (Field field : cl.getDeclaredFields()) {
-                Provider provider = field.getAnnotation(Provider.class);
-                if (provider != null) {
-                    ProviderManager pm = ctx.getProvidersManagementService()
-                            .getProviderManager(field.getType().asSubclass(ProviderManager.class));
-                    field.setAccessible(true);
-                    try {
-                        field.set(service, pm);
-                    } catch (IllegalAccessException e) {
-                        throw new InvalidServiceException("Cannot inject provider " + service.getClass().getName() + "#" + field.getName());
-                    }
-                }
-            }
-            cl = cl.getSuperclass();
-        }
     }
 
     @Override

@@ -4,14 +4,21 @@
 
 package com.kloudtek.systyrant;
 
+import com.kloudtek.systyrant.annotation.Provider;
+import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.host.LocalHost;
+import com.kloudtek.systyrant.provider.ProviderManager;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
-import com.kloudtek.systyrant.resource.*;
+import com.kloudtek.systyrant.resource.JavaResourceFactory;
+import com.kloudtek.systyrant.resource.Resource;
+import com.kloudtek.systyrant.resource.ResourceManager;
+import com.kloudtek.systyrant.resource.ResourceManagerImpl;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.service.host.Host;
 import com.kloudtek.systyrant.util.AutoCreateHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
@@ -24,6 +31,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -34,7 +42,9 @@ import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 
-/** This is the "brains" of SysTyrant, which contains the application's state */
+/**
+ * This is the "brains" of SysTyrant, which contains the application's state
+ */
 public class STContext implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(STContext.class);
     private static List<Resource.State> failurePropagationStates = Arrays.asList(NEW, PREPARED);
@@ -58,12 +68,21 @@ public class STContext implements AutoCloseable {
     private boolean newLibAdded;
     private ProvidersManagementService providersManagementService = new ProvidersManagementService();
     private List<Class<? extends Exception>> fatalExceptions;
+    private Host host;
 
-    public STContext() throws InvalidResourceDefinitionException, InvalidServiceException {
+    public STContext() throws InvalidResourceDefinitionException, STRuntimeException, InjectException {
+        this(new LocalHost());
+        host.start();
+    }
+
+    public STContext(Host host) throws InjectException, InvalidResourceDefinitionException, STRuntimeException {
+        this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
         resourceManager = new ResourceManagerImpl(this);
         serviceManager = new ServiceManagerImpl(this, reflections);
         registerLibrary(new Library());
+        providersManagementService.init(reflections);
+        inject(host);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -103,6 +122,14 @@ public class STContext implements AutoCloseable {
             libraryClassloader.addURL(library.getLocationUrl());
             for (JavaResourceFactory javaResourceFactory : library.getJavaElFactories()) {
                 resourceManager.registerResources(javaResourceFactory);
+            }
+            Set<Class<?>> services = library.getReflections().getTypesAnnotatedWith(Service.class);
+            try {
+                for (Class<?> service : services) {
+                    serviceManager.registerService(service);
+                }
+            } catch (InvalidServiceException e) {
+                throw new InvalidResourceDefinitionException(e.getMessage(),e);
             }
             reflections.merge(library.getReflections());
         } finally {
@@ -221,7 +248,16 @@ public class STContext implements AutoCloseable {
     }
 
     public Host host() throws InvalidServiceException {
-        return serviceManager.getService(Host.class);
+        return host;
+    }
+
+    public Host getHost() {
+        return host;
+    }
+
+    public void setHost(Host host) throws InjectException {
+        this.host = host;
+        inject(host);
     }
 
     public FileStore files() throws InvalidServiceException {
@@ -390,10 +426,10 @@ public class STContext implements AutoCloseable {
     }
 
     private void fatalFatalException(Throwable e) throws STRuntimeException {
-        if( e instanceof STRuntimeException && e.getCause() != null ) {
+        if (e instanceof STRuntimeException && e.getCause() != null) {
             e = e.getCause();
         }
-        if (fatalExceptions != null && !fatalExceptions.isEmpty() ) {
+        if (fatalExceptions != null && !fatalExceptions.isEmpty()) {
             for (Class<? extends Exception> fatalException : fatalExceptions) {
                 if (fatalException.isAssignableFrom(e.getClass())) {
                     throw new STRuntimeException("Fatal exception caught: " + e.getLocalizedMessage(), e);
@@ -540,7 +576,7 @@ public class STContext implements AutoCloseable {
         return resourceManager.getResources();
     }
 
-    public List<Resource> findResources( String query ) throws InvalidQueryException {
+    public List<Resource> findResources(String query) throws InvalidQueryException {
         return resourceManager.findResources(query);
     }
 
@@ -592,6 +628,26 @@ public class STContext implements AutoCloseable {
     public void clearFatalException() {
         fatalExceptions = null;
     }
+
+    public void inject(Object obj) throws InjectException {
+        Class<?> cl = obj.getClass();
+        while (cl != null) {
+            for (Field field : cl.getDeclaredFields()) {
+                Provider provider = field.getAnnotation(Provider.class);
+                if (provider != null) {
+                    ProviderManager pm = providersManagementService.getProviderManager(field.getType().asSubclass(ProviderManager.class));
+                    field.setAccessible(true);
+                    try {
+                        field.set(obj, pm);
+                    } catch (IllegalAccessException e) {
+                        throw new InjectException("Cannot inject object " + obj.getClass().getName() + "#" + field.getName());
+                    }
+                }
+            }
+            cl = cl.getSuperclass();
+        }
+    }
+
 
     public class LibraryClassLoader extends URLClassLoader {
         public LibraryClassLoader(URL[] urls, ClassLoader parent) {

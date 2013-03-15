@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.service.host;
+package com.kloudtek.systyrant.host;
 
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.annotation.Provider;
@@ -12,16 +12,16 @@ import org.apache.commons.exec.CommandLine;
 import java.util.HashMap;
 
 @Provider
-public class OSXMetadataProvider extends AbstractHostProvider {
-    public OSXMetadataProvider() {
-        attrs.put("os", OperatingSystem.OSX.name().toLowerCase());
+public class LinuxMetadataProvider extends AbstractHostProvider {
+    public LinuxMetadataProvider() {
+        attrs.put("os", OperatingSystem.LINUX.name().toLowerCase());
     }
 
     @Override
     public boolean supports(Host host, HashMap<String, Object> datacache) throws STRuntimeException {
         ExecutionResult res = host.exec("uname", null, Host.Logging.ON_ERROR);
         if (res.getRetCode() == 0) {
-            if (res.getOutput().trim().equals("Darwin")) {
+            if (res.getOutput().trim().equals("Linux")) {
                 return true;
             }
         }
@@ -30,7 +30,7 @@ public class OSXMetadataProvider extends AbstractHostProvider {
 
     @Override
     public OperatingSystem getOperatingSystem() {
-        return OperatingSystem.OSX;
+        return OperatingSystem.LINUX;
     }
 
     @Override

@@ -5,12 +5,12 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.host.LocalHost;
+import com.kloudtek.systyrant.host.SshHost;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
 import com.kloudtek.systyrant.resource.builtin.vagrant.VagrantResource;
-import com.kloudtek.systyrant.service.host.Host;
-import com.kloudtek.systyrant.service.host.LocalHost;
-import com.kloudtek.systyrant.service.host.SshHost;
 import org.testng.annotations.BeforeMethod;
 
 import static org.testng.Assert.assertEquals;
@@ -24,9 +24,9 @@ public class AbstractVagrantTest {
     protected Host host;
 
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException, ResourceCreationException {
+    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException, ResourceCreationException, InjectException {
         ctx = new STContext();
-        host = (Host) ctx.getServiceManager().getService("host");
+        host = ctx.getHost();
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, TEST);
         resourceManager.registerJavaResource(UniqueTestResource.class, UNIQUETEST);

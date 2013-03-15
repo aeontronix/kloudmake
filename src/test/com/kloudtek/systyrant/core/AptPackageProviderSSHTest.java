@@ -8,7 +8,7 @@ import com.kloudtek.systyrant.AbstractSSHTest;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.AptPackageProvider;
-import com.kloudtek.systyrant.service.host.Host;
+import com.kloudtek.systyrant.host.Host;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
