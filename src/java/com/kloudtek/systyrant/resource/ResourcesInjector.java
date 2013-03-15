@@ -29,7 +29,8 @@ public class ResourcesInjector extends Injector {
     @Override
     public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
         try {
-            inject(obj,ctx.findResources(query));
+            List<Resource> resources = ctx.findResources(query);
+            inject(obj, resources);
         } catch (InvalidQueryException e) {
             throw new FieldInjectionException(field,e.getMessage(),e);
         }

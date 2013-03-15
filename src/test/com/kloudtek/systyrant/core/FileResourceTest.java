@@ -52,7 +52,7 @@ public class FileResourceTest {
         Mockito.reset(fileStoreMock);
         context = new STContext();
         ServiceManager sm = context.getServiceManager();
-        sm.addOverride("host", adminMock);
+        context.setHost(adminMock);
         sm.addOverride("filestore", fileStoreMock);
         file = context.getResourceManager().createResource("file");
         file.set("path", PATH);
@@ -121,11 +121,10 @@ public class FileResourceTest {
         fileExists();
         assertTrue(context.execute());
 
-        InOrder inOrder = inOrder(adminMock);
-        inOrder.verify(adminMock).fileExists(PATH);
-        inOrder.verify(adminMock).createSymlink(PATH, PATH2);
-        inOrder.verify(adminMock).stop();
-        inOrder.verifyNoMoreInteractions();
+        verify(adminMock,times(1)).start();
+        verify(adminMock,atLeastOnce()).fileExists(PATH);
+        verify(adminMock).createSymlink(PATH, PATH2);
+        verify(adminMock,times(1)).stop();
     }
 
     @Test

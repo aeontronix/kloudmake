@@ -34,7 +34,11 @@ public class GenericInjector extends AttrInjector {
             inject(obj,resource.getHost());
         } else if( type.getAnnotation(Service.class) != null ) {
             try {
-                inject(obj, ctx.getServiceManager().getService(resource.getClass()));
+                Object service = ctx.getServiceManager().getService(type);
+                if( service == null ) {
+                    throw new FieldInjectionException(field,"Unable to find object to inject");
+                }
+                inject(obj, service);
             } catch (InvalidServiceException e) {
                 throw new FieldInjectionException(field,e.getMessage(),e);
             }

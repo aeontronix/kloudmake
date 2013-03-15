@@ -76,7 +76,7 @@ public class FileResource {
         this.path = path;
     }
 
-    @Verify(value = "content", order = -1)
+    @Verify(value = "content", order = 1)
     public boolean checkContent() throws STRuntimeException {
         delete = false;
         finfo = host.fileExists(path) ? host.getFileInfo(path) : null;
@@ -180,7 +180,7 @@ public class FileResource {
         return false;
     }
 
-    @Sync("content")
+    @Sync(value = "content", order = 1)
     public void syncContent() throws STRuntimeException {
         // attempt to retrieve existing file metadata
         if (delete) {

@@ -14,9 +14,9 @@ public interface HostProvider {
 
     OperatingSystem getOperatingSystem();
 
-    String getExecutionPrefix(String currentUser, String user);
+    CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting, String workdir);
 
-    String getExecutionSuffix(String currentUser, String user);
+    boolean isAbsolutePath(String workdir);
 
-    CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting);
+    String getWorkingDir(Host abstractHost) throws STRuntimeException;
 }

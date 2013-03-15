@@ -69,6 +69,7 @@ public class STContext implements AutoCloseable {
     private ProvidersManagementService providersManagementService = new ProvidersManagementService();
     private List<Class<? extends Exception>> fatalExceptions;
     private Host host;
+    private boolean executing;
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException, InjectException {
         this(new LocalHost());
@@ -255,9 +256,17 @@ public class STContext implements AutoCloseable {
         return host;
     }
 
-    public void setHost(Host host) throws InjectException {
-        this.host = host;
-        inject(host);
+    public void setHost(@NotNull Host host) throws STRuntimeException {
+        if( host == null ) {
+            throw new IllegalArgumentException("Host cannot be null");
+        }
+        lock.writeLock().lock();
+        try {
+            this.host = host;
+            inject(host);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public FileStore files() throws InvalidServiceException {
@@ -281,9 +290,7 @@ public class STContext implements AutoCloseable {
     public boolean execute() throws STRuntimeException {
         lock.writeLock().lock();
         try {
-            if (executed) {
-                throw new AlreadyExecutedException();
-            }
+            executing = true;
 
             logger.info("Systyrant context execution started");
             ctx.set(this);
@@ -323,6 +330,7 @@ public class STContext implements AutoCloseable {
                 ctx.remove();
             }
         } finally {
+            executing = false;
             lock.writeLock().unlock();
         }
     }
@@ -400,6 +408,7 @@ public class STContext implements AutoCloseable {
     }
 
     private void prepare() throws STRuntimeException {
+        host.start();
         if (newLibAdded) {
             providersManagementService.init(reflections);
         }
@@ -449,6 +458,7 @@ public class STContext implements AutoCloseable {
             clearResourceScope();
         }
         serviceManager.stop();
+        host.stop();
     }
 
     /**

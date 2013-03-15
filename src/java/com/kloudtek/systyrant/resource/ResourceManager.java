@@ -35,6 +35,8 @@ public interface ResourceManager extends Iterable<Resource> {
 
     Resource createResource(@NotNull String fqname) throws ResourceCreationException;
 
+    Resource createResource(@NotNull Object obj) throws ResourceCreationException;
+
     @NotNull
     List<Resource> findResources(@Nullable String pkg, @Nullable String name, @Nullable String id);
 

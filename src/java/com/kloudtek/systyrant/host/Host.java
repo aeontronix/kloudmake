@@ -26,6 +26,8 @@ public interface Host extends Stoppable, Startable {
 
     String exec(String command) throws STRuntimeException;
 
+    String exec(String command, String workdir) throws STRuntimeException;
+
     String exec(String command, Map<String, String> env) throws STRuntimeException;
 
     @NotNull
@@ -38,7 +40,7 @@ public interface Host extends Stoppable, Startable {
     ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, Map<String, String> env) throws STRuntimeException;
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, Map<String, String> env) throws STRuntimeException;
 
     boolean fileExists(String path) throws STRuntimeException;
 

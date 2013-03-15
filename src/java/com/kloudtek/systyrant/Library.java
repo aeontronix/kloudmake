@@ -104,7 +104,7 @@ public class Library {
         }
         for (Class<?> clazz : javaElements) {
             if (!clazz.getSimpleName().equals("package-info")) {
-                javaElFactories.add(new JavaResourceFactory(clazz, null, javaPkgToStPkgMap));
+                javaElFactories.add(new JavaResourceFactory(clazz, null));
             }
         }
     }

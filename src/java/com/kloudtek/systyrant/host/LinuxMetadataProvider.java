@@ -12,9 +12,9 @@ import org.apache.commons.exec.CommandLine;
 import java.util.HashMap;
 
 @Provider
-public class LinuxMetadataProvider extends AbstractHostProvider {
+public class LinuxMetadataProvider extends UnixAbstractMetadataProvider {
     public LinuxMetadataProvider() {
-        attrs.put("os", OperatingSystem.LINUX.name().toLowerCase());
+        super(OperatingSystem.LINUX);
     }
 
     @Override
@@ -26,25 +26,5 @@ public class LinuxMetadataProvider extends AbstractHostProvider {
             }
         }
         return false;
-    }
-
-    @Override
-    public OperatingSystem getOperatingSystem() {
-        return OperatingSystem.LINUX;
-    }
-
-    @Override
-    public String getExecutionPrefix(String currentUser, String user) {
-        return super.getUnixExecutionPrefix(currentUser, user);
-    }
-
-    @Override
-    public String getExecutionSuffix(String currentUser, String user) {
-        return getUnixExecutionSuffix(currentUser, user);
-    }
-
-    @Override
-    public CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting) {
-        return new CommandLine("bash").addArgument("-c").addArgument(command, handleQuoting);
     }
 }

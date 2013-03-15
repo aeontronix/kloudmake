@@ -25,7 +25,9 @@ import java.util.regex.Pattern;
 
 import static com.kloudtek.systyrant.host.Host.Logging.NO;
 
-/** {@link com.kloudtek.systyrant.host.Host} implementation that uses SSH to remotely administer a server. */
+/**
+ * {@link com.kloudtek.systyrant.host.Host} implementation that uses SSH to remotely administer a server.
+ */
 public class SshHost extends AbstractHost {
     private static final Logger logger = LoggerFactory.getLogger(SshHost.class);
     private JSch jsch;
@@ -39,7 +41,7 @@ public class SshHost extends AbstractHost {
     private byte[] pubKey;
     private byte[] passphrase;
     private String loginUser;
-    private String user = "root";
+    private String defaultUser = "root";
     private boolean started;
 
     public SshHost() {
@@ -69,13 +71,12 @@ public class SshHost extends AbstractHost {
             jsch.addIdentity(keyName, privKey, pubKey, passphrase);
             session = jsch.getSession(this.loginUser, this.address, this.port);
             session.setConfig("StrictHostKeyChecking", "no");
-//        session.setConfig("compression.s2c", "zlib@openssh.com,zlib,none");
-//        session.setConfig("compression.c2s", "zlib@openssh.com,zlib,none");
+            //        session.setConfig("compression.s2c", "zlib@openssh.com,zlib,none");
+            //        session.setConfig("compression.c2s", "zlib@openssh.com,zlib,none");
             session.connect();
             sftpChannel = (ChannelSftp) session.openChannel("sftp");
             sftpChannel.connect();
             executor = new SshExecutor(session);
-            execPrefix = "sudo ";
             rootUser = loginUser.equals("root");
             started = true;
         } catch (JSchException e) {
@@ -89,11 +90,6 @@ public class SshHost extends AbstractHost {
         sftpChannel.disconnect();
         session.disconnect();
         started = false;
-    }
-
-    @Override
-    public String getUser() {
-        return user;
     }
 
     @Override
@@ -202,7 +198,9 @@ public class SshHost extends AbstractHost {
 
     @Override
     public void writeToFile(String path, InputStream dataStream) throws STRuntimeException {
-        String tmpfile = createTempFile();
+        logger.debug("Writing stream to " + path);
+        String tmpfile = exec("mktemp", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), loginUser).getOutput().trim();
+        tempFiles.add(tmpfile);
         try {
             sftpChannel.put(dataStream, tmpfile, ChannelSftp.OVERWRITE);
         } catch (SftpException e) {
@@ -357,12 +355,22 @@ public class SshHost extends AbstractHost {
         this.passphrase = passphrase;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    @Override
+    public String getCurrentUser() {
+        return loginUser;
     }
 
     @Override
-    public String getCurrentUser() {
-        return user;
+    public String getDefaultUser() {
+        return defaultUser;
+    }
+
+    @Override
+    protected boolean execSupportsWorkDir() {
+        return false;
+    }
+
+    public void setDefaultUser(String defaultUser) {
+        this.defaultUser = defaultUser;
     }
 }

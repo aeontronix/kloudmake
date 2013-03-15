@@ -32,8 +32,6 @@ public class LocalHost extends AbstractHost {
     private String currentUser = System.getProperty("user.name");
 
     public LocalHost() {
-        execPrefix = "bash -c '";
-        execSuffix = "'";
     }
 
     @Override
@@ -248,8 +246,13 @@ public class LocalHost extends AbstractHost {
     }
 
     @Override
-    public String getUser() {
-        return System.getProperty("user.name");
+    public String getDefaultUser() {
+        return currentUser;
+    }
+
+    @Override
+    protected boolean execSupportsWorkDir() {
+        return true;
     }
 
     @Override

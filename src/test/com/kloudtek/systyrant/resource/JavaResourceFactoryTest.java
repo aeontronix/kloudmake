@@ -8,6 +8,8 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.systyrant.host.Host;
 import org.testng.annotations.Test;
@@ -218,6 +220,48 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         @Execute
         public void test() {
             childrensPersist = childrens;
+        }
+    }
+
+    @Test
+    public void testVerifySyncOrder() throws Throwable {
+        register(VerifySyncOrder.class);
+        Resource res = create(VerifySyncOrder.class);
+        VerifySyncOrder vs = res.getJavaImpl(VerifySyncOrder.class);
+        execute();
+        assertEquals(vs.verifyGlobal,0);
+        assertEquals(vs.syncGlobal,1);
+        assertEquals(vs.verifySpecific,2);
+        assertEquals(vs.syncSpecific,3);
+    }
+
+    public static class VerifySyncOrder {
+        private int count;
+        private int verifyGlobal = -1;
+        private int verifySpecific = -1;
+        private int syncGlobal = -1;
+        private int syncSpecific = -1;
+
+        @Verify
+        public boolean verifyGlobal() {
+            verifyGlobal = count++;
+            return false;
+        }
+
+        @Verify(value = "spec",order = -1)
+        public boolean veritySpecific() {
+            verifySpecific = count++;
+            return false;
+        }
+
+        @Sync
+        public void syncGlobal() {
+            syncGlobal = count++;
+        }
+
+        @Sync(value = "spec",order = -1)
+        public void syncSpecific() {
+            syncSpecific = count++;
         }
     }
 }

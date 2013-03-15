@@ -106,6 +106,7 @@ public class TestResource {
     @Sync("foo")
     public void syncSpecify() {
         syncSpecificTS = new Date();
+        assert verifySpecificTS.before(syncSpecificTS);
         logger.info("{} : SYNC SPECIFIC {}", id);
     }
 

@@ -9,6 +9,7 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import org.apache.commons.exec.CommandLine;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -48,18 +49,18 @@ public class HostProviderManager implements ProviderManager<HostProvider> {
         }
 
         @Override
-        public String getExecutionPrefix(String currentUser, String user) {
-            return "";
-        }
-
-        @Override
-        public String getExecutionSuffix(String currentUser, String user) {
-            return "";
-        }
-
-        @Override
-        public CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting) {
+        public CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting, String workdir) {
             return new CommandLine("bash").addArgument("-c").addArgument(command, handleQuoting);
+        }
+
+        @Override
+        public boolean isAbsolutePath(String workdir) {
+            return false;
+        }
+
+        @Override
+        public String getWorkingDir(Host abstractHost) throws STRuntimeException {
+            return null;
         }
     }
 }

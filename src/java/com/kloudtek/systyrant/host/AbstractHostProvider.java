@@ -6,7 +6,9 @@ package com.kloudtek.systyrant.host;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,21 +20,7 @@ import java.util.HashMap;
 public abstract class AbstractHostProvider implements HostProvider {
     protected HashMap<String, String> attrs = new HashMap<>();
 
-    protected String getUnixExecutionPrefix(@NotNull String currentUser, @NotNull String user) {
-        if (currentUser.equalsIgnoreCase(user)) {
-            return "";
-        } else {
-            StringBuilder txt = new StringBuilder("sudo");
-            if (!user.equalsIgnoreCase("root")) {
-                txt.append(" -u ").append(user);
-            }
-            txt.append(" -c '");
-            return txt.toString();
-        }
+    public synchronized Map<String, String> getAttrs() {
+        return Collections.unmodifiableMap(attrs);
     }
-
-    protected String getUnixExecutionSuffix(@NotNull String currentUser, @NotNull String user) {
-        return currentUser.equalsIgnoreCase(user) ? "" : "'";
-    }
-
 }

@@ -283,6 +283,24 @@ public class Resource {
         }
     }
 
+    /**
+     * Searches and returns the first java resource implementation object that matches the specified class
+     * @param clazz Class type to search for
+     * @return First object implementing the class, or null if none is found
+     */
+    @SuppressWarnings("unchecked")
+    public synchronized <X> X getJavaImpl(Class<X> clazz) {
+        for (STAction action : actions) {
+            if( action instanceof JavaResourceFactory.JavaImpl ) {
+                JavaResourceFactory.JavaImpl javaImpl = (JavaResourceFactory.JavaImpl) action;
+                if( javaImpl.getImpl().getClass().isAssignableFrom(clazz)) {
+                    return (X) javaImpl.getImpl();
+                }
+            }
+        }
+        return null;
+    }
+
     public enum State {
         NEW, PREPARED, EXECUTED, CLEANEDUP, SKIP, FAILED
     }

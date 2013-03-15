@@ -6,7 +6,6 @@ package com.kloudtek.systyrant.host;
 
 import com.kloudtek.systyrant.DelayedLogger;
 import com.kloudtek.systyrant.ExecutionResult;
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.CryptoUtils;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -28,15 +28,15 @@ import java.util.Map;
 import static com.kloudtek.systyrant.DelayedLogger.Severity.*;
 import static com.kloudtek.systyrant.host.Host.Logging.*;
 
-/** Abstract implementation of Host */
+/**
+ * Abstract implementation of Host
+ */
 public abstract class AbstractHost implements Host {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHost.class);
     @Provider
     protected HostProviderManager hostProviderManager;
     protected HostProvider hostProvider;
     protected Executor executor = new DefaultExecutor();
-    protected String execPrefix = "";
-    protected String execSuffix = "";
     protected long defaultTimeout = DEFAULT_TIMEOUT;
     protected Logging defaultLogging = ON_ERROR;
     protected int defaultSuccessRetCode = 0;
@@ -48,11 +48,11 @@ public abstract class AbstractHost implements Host {
 
     @Override
     public synchronized final void start() throws STRuntimeException {
+        started = true;
+        doStart();
         if (hostProvider == null) {
             hostProvider = hostProviderManager.find(this);
         }
-        started = true;
-        doStart();
     }
 
     @Override
@@ -93,44 +93,53 @@ public abstract class AbstractHost implements Host {
 
     @Override
     public String exec(String command) throws STRuntimeException {
-        return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null).getOutput();
+        return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, null, null).getOutput();
+    }
+
+    @Override
+    public String exec(String command, String workdir) throws STRuntimeException {
+        return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, workdir, null).getOutput();
     }
 
     @Override
     public String exec(String command, Map<String, String> env) throws STRuntimeException {
-        return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, env).getOutput();
+        return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, null, env).getOutput();
     }
 
     @NotNull
     @Override
     public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws STRuntimeException {
-        return exec(command, defaultTimeout, expectedRetCode, logging, null);
+        return exec(command, defaultTimeout, expectedRetCode, logging, null, null, null);
     }
 
     @NotNull
     @Override
     public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws STRuntimeException {
-        return exec(command, defaultTimeout, expectedRetCode, logging, null, env);
+        return exec(command, defaultTimeout, expectedRetCode, logging, null, null, env);
     }
 
     @Override
     public String exec(String command, Logging logging) throws STRuntimeException {
-        return exec(command, defaultTimeout, defaultSuccessRetCode, logging, null).getOutput();
+        return exec(command, defaultTimeout, defaultSuccessRetCode, logging, null, null, null).getOutput();
     }
 
     @NotNull
     @Override
     public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
-        return exec(command, timeout, expectedRetCode, logging, null, null);
+        return exec(command, timeout, expectedRetCode, logging, user, null, null );
     }
 
     @NotNull
     @Override
     public ExecutionResult exec(final String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
-                                String user, @Nullable Map<String, String> env) throws STRuntimeException {
+                                String user, String workdir, @Nullable Map<String, String> env) throws STRuntimeException {
         CommandLine cmdLine;
-        if( hostProvider != null ) {
-            cmdLine = hostProvider.generateCommandLine(command, getCurrentUser(), user, handleQuoting);
+        if (user == null) {
+            user = this.getDefaultUser();
+        }
+        if (hostProvider != null) {
+            cmdLine = hostProvider.generateCommandLine(command, getCurrentUser(), user, handleQuoting,
+                    execSupportsWorkDir() ? null : workdir);
         } else {
             cmdLine = CommandLine.parse(command);
         }
@@ -152,6 +161,9 @@ public abstract class AbstractHost implements Host {
             }
         };
         executor.setWatchdog(watchdog);
+        if( workdir != null ) {
+            executor.setWorkingDirectory(new File(workdir));
+        }
         final ExecutionResult result = new ExecutionResult();
         boolean failed;
         try {
@@ -192,9 +204,6 @@ public abstract class AbstractHost implements Host {
         }
         return result;
     }
-
-
-    public abstract String getUser();
 
     @Override
     public String readTextFile(String path, String encoding) throws STRuntimeException {
@@ -244,6 +253,10 @@ public abstract class AbstractHost implements Host {
     }
 
     public abstract String getCurrentUser();
+
+    public abstract String getDefaultUser();
+
+    protected abstract boolean execSupportsWorkDir();
 
     private class DoNothingExecResultHandler implements ExecuteResultHandler {
         private final ExecutionResult result;

@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static com.kloudtek.systyrant.resource.JavaResourceFactory.AnnotationType.*;
-import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class JavaResourceFactory extends ResourceFactory {
@@ -35,8 +34,8 @@ public class JavaResourceFactory extends ResourceFactory {
     private HashMap<Stage, List<ActionMethod>> postChildrenActionMethods = new HashMap<>();
     private HashMap<Field, String> attrInject = new HashMap<>();
 
-    public JavaResourceFactory(Class<?> clazz, FQName fqname, HashMap<String, String> packageMappings) throws InvalidResourceDefinitionException {
-        super(findFQName(clazz, fqname, packageMappings));
+    public JavaResourceFactory(Class<?> clazz, FQName fqname) throws InvalidResourceDefinitionException {
+        super(new FQName(clazz, fqname));
         this.clazz = clazz;
         if (clazz.getAnnotation(Unique.class) != null) {
             setUnique(true);
@@ -80,12 +79,12 @@ public class JavaResourceFactory extends ResourceFactory {
             Collections.sort(methods, new Comparator<ActionMethod>() {
                 @Override
                 public int compare(ActionMethod o1, ActionMethod o2) {
-                    if (o1.type == VERIFY && o2.type == SYNC) {
+                    if (o1.type == VERIFY && o2.type == SYNC && o1.syncGroup.equalsIgnoreCase(o2.syncGroup)) {
                         return -1;
-                    } else if (o1.type == SYNC && o2.type == VERIFY) {
+                    } else if (o1.type == SYNC && o2.type == VERIFY && o1.syncGroup.equalsIgnoreCase(o2.syncGroup)) {
                         return 1;
                     } else {
-                        return o1.order - o2.order;
+                        return o2.order - o1.order;
                     }
                 }
             });
@@ -157,6 +156,7 @@ public class JavaResourceFactory extends ResourceFactory {
         private Annotation annotation;
         private int order;
         private AnnotationType type;
+        private String syncGroup;
 
         public ActionMethod(Method method, Annotation actionAnnotation, int order) {
             this.method = method;
@@ -164,8 +164,10 @@ public class JavaResourceFactory extends ResourceFactory {
             this.order = order;
             if (annotation instanceof Verify) {
                 type = VERIFY;
+                syncGroup = ((Verify) annotation).value();
             } else if (annotation instanceof Sync) {
                 type = SYNC;
+                syncGroup = ((Sync) annotation).value();
             } else if (annotation instanceof Execute) {
                 type = EXECUTE;
             } else {
@@ -248,42 +250,5 @@ public class JavaResourceFactory extends ResourceFactory {
             }
         }
 
-    }
-
-    private static FQName findFQName(Class<?> clazz, FQName fqname, HashMap<String, String> packageMappings) throws InvalidResourceDefinitionException {
-        if (fqname != null && fqname.getPkg() != null) {
-            return fqname;
-        }
-        STResource rsAnno = clazz.getAnnotation(STResource.class);
-        String annoVal = rsAnno != null ? rsAnno.value() : null;
-        int annoValSep = annoVal.indexOf(":");
-        String pkg = fqname != null ? fqname.getPkg() : null;
-        if (isEmpty(pkg)) {
-            if (annoVal != null && annoValSep != -1) {
-                pkg = annoValSep == -1 ? annoVal : annoVal.substring(0, annoValSep);
-            } else if (packageMappings != null) {
-                String jpkg = clazz.getPackage().getName();
-                String mappedPkg = packageMappings.get(jpkg);
-                if (mappedPkg != null) {
-                    pkg = mappedPkg;
-                } else {
-                    pkg = jpkg;
-                }
-            }
-        }
-        String name = fqname != null ? fqname.getName() : null;
-        if (isEmpty(name) && isNotEmpty(annoVal)) {
-            name = annoValSep == -1 ? annoVal : annoVal.substring(annoValSep + 1, annoVal.length());
-        }
-        if (isEmpty(name)) {
-            name = clazz.getSimpleName().toLowerCase();
-            if (name.endsWith("resource")) {
-                name = name.substring(0, name.length() - 8);
-            }
-        }
-        if (pkg == null || name == null) {
-            throw new InvalidResourceDefinitionException("Unable to identity package and name for class " + clazz.getName());
-        }
-        return new FQName(pkg, name);
     }
 }

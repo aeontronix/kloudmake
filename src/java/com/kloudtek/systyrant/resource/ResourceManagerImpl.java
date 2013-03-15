@@ -192,6 +192,12 @@ public class ResourceManagerImpl implements ResourceManager {
         return createResource(new FQName(fqname), null, null);
     }
 
+    @Override
+    public Resource createResource(@NotNull Object obj) throws ResourceCreationException {
+//        new FQName(obj);
+        return null;
+    }
+
     // -------------------------
     // Lookups
     // -------------------------
@@ -323,7 +329,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public void registerJavaResource(Class<?> clazz, @NotNull FQName fqname) throws InvalidResourceDefinitionException {
-        registerResources(new JavaResourceFactory(clazz, fqname, null));
+        registerResources(new JavaResourceFactory(clazz, fqname));
     }
 
     @Override
