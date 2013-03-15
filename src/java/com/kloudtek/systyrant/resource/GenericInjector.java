@@ -32,7 +32,7 @@ public class GenericInjector extends AttrInjector {
             inject(obj,ctx.getServiceManager());
         } else if( Host.class.isAssignableFrom(type) ) {
             inject(obj,resource.getHost());
-        } else if( resource.getClass().getAnnotation(Service.class) != null ) {
+        } else if( type.getAnnotation(Service.class) != null ) {
             try {
                 inject(obj, ctx.getServiceManager().getService(resource.getClass()));
             } catch (InvalidServiceException e) {

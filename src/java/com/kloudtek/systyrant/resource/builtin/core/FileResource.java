@@ -35,9 +35,9 @@ public class FileResource {
     private static final byte[] EMPTYSTRSHA1 = CryptoUtils.sha1(new byte[0]);
     @Attr
     protected String id;
-    @Service
+    @Inject
     protected FileStore fileStore;
-    @Service
+    @Inject
     protected Host host;
     @Attr
     protected Ensure ensure = Ensure.FILE;
