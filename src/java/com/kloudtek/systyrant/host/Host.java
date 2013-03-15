@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.Map;
 
-@Service(def = LocalHost.class)
 public interface Host extends Stoppable, Startable {
     public static final int DEFAULT_TIMEOUT = 300000;
 
