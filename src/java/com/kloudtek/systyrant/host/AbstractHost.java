@@ -47,7 +47,7 @@ public abstract class AbstractHost implements Host {
     protected boolean started;
 
     @Override
-    public final void start() throws STRuntimeException {
+    public synchronized final void start() throws STRuntimeException {
         if (hostProvider == null) {
             hostProvider = hostProviderManager.find(this);
         }
@@ -56,7 +56,7 @@ public abstract class AbstractHost implements Host {
     }
 
     @Override
-    public final void stop() {
+    public synchronized final void stop() {
         for (String tempDir : tempDirs) {
             try {
                 deleteFile(tempDir, true);
@@ -82,7 +82,7 @@ public abstract class AbstractHost implements Host {
     }
 
     @Override
-    public boolean isStarted() {
+    public synchronized boolean isStarted() {
         return started;
     }
 

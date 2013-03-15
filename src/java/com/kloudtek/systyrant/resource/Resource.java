@@ -105,10 +105,18 @@ public class Resource {
         return hostOverride;
     }
 
-    public void setHostOverride(Host hostOverride) throws InjectException {
+    public void setHostOverride(Host hostOverride) throws STRuntimeException {
+        if( this.hostOverride != null && this.hostOverride != hostOverride ) {
+            this.hostOverride.stop();
+        }
         this.hostOverride = hostOverride;
         if( hostOverride != null ) {
             context.inject(hostOverride);
+        }
+        synchronized (hostOverride) {
+            if( ! hostOverride.isStarted() ) {
+                hostOverride.start();
+            }
         }
     }
 

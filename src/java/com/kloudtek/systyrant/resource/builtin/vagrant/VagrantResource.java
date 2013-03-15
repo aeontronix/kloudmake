@@ -77,7 +77,6 @@ public class VagrantResource {
         changeStatus(ensure);
         sshHost = createSshHost(host, dir);
         resource.setHostOverride(sshHost);
-        sshHost.start();
     }
 
     public static SshHost createSshHost(Host h, String vagrantDir) throws STRuntimeException {
@@ -105,7 +104,6 @@ public class VagrantResource {
     @Execute(postChildren = true)
     public void postChildrens() throws STRuntimeException, InjectException {
         try {
-            sshHost.stop();
             resource.setHostOverride(null);
             host = resource.getHost();
             if (after != null) {

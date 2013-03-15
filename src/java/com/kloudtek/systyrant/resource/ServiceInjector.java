@@ -32,7 +32,7 @@ public class ServiceInjector extends Injector {
         try {
             ServiceManager serviceManager = ctx.getServiceManager();
             boolean nameSpecified = isNotEmpty(name);
-            Object service = nameSpecified ? serviceManager.getService(field.getType()) : serviceManager.getService(name);
+            Object service = nameSpecified ? serviceManager.getService(name) : serviceManager.getService(field.getType());
             if (service == null) {
                 throw new FieldInjectionException(field, "No service " + (nameSpecified ? "named '" + name + "' found" :
                         "of type " + field.getType()) + " found");
