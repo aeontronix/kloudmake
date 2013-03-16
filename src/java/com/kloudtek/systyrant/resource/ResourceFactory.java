@@ -6,10 +6,15 @@ package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.Stage;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
+import com.kloudtek.systyrant.util.ListHashMap;
 import com.kloudtek.systyrant.util.ValidateUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
 
@@ -17,6 +22,7 @@ public abstract class ResourceFactory implements AutoCloseable {
     protected FQName fqname;
     protected boolean unique;
     protected boolean created;
+    protected HashMap<String, String> defaultAttrs = new HashMap<>();
 
     protected ResourceFactory(@NotNull FQName fqname) {
         this.fqname = fqname;
@@ -46,8 +52,25 @@ public abstract class ResourceFactory implements AutoCloseable {
     public void close() throws Exception {
     }
 
+    protected void addDefaultAttr(String name, String value) {
+        defaultAttrs.put(name, value);
+    }
+
+    public Resource create(STContext context) throws ResourceCreationException {
+        Resource resource = new Resource(context, this);
+        try {
+            for (Map.Entry<String, String> attr : defaultAttrs.entrySet()) {
+                resource.set(attr.getKey(), attr.getValue());
+            }
+            configure(context, resource);
+            return resource;
+        } catch (InvalidAttributeException e) {
+            throw new ResourceCreationException(e.getMessage(), e);
+        }
+    }
+
     @NotNull
-    public abstract Resource create(STContext context) throws ResourceCreationException;
+    protected abstract void configure(STContext context, Resource resource) throws ResourceCreationException;
 
     public FQName getFQName() {
         return fqname;

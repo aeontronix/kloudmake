@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
 import org.testng.annotations.BeforeMethod;
@@ -23,8 +22,9 @@ public class AbstractContextTest {
     protected STContext ctx;
     protected ResourceManager resourceManager;
 
+    @SuppressWarnings("unchecked")
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InjectException {
+    public void init() throws STRuntimeException, InvalidResourceDefinitionException {
         ctx = new STContext();
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
@@ -32,13 +32,7 @@ public class AbstractContextTest {
     }
 
     public Resource createTestResource() throws ResourceCreationException {
-        return resourceManager.createResource(TEST, null);
-    }
-
-    public Resource createTestResource(Resource dependency) throws ResourceCreationException {
-        Resource testResource = createTestResource();
-        testResource.addDependency(dependency);
-        return testResource;
+        return resourceManager.createResource(TEST);
     }
 
     public Resource createTestResource(String id, Resource dependency) throws ResourceCreationException, InvalidAttributeException {
@@ -71,11 +65,6 @@ public class AbstractContextTest {
         return this;
     }
 
-    public <X> X registerCreateExecuteReturnImpl(Class<X> clazz) throws Throwable {
-        registerAndCreate(clazz).execute();
-        return findJavaAction(clazz);
-    }
-
     public AbstractContextTest registerAndCreate(Class<?> clazz) throws InvalidResourceDefinitionException, ResourceCreationException, InvalidAttributeException {
         return registerAndCreate(clazz, clazz.getSimpleName().replace("$", "").toLowerCase());
     }
@@ -100,9 +89,9 @@ public class AbstractContextTest {
     }
 
     @SuppressWarnings("unchecked")
-    public <X> X findJavaAction(Class<?> clazz) {
+    public <X> X findJavaAction(Class<X> clazz) {
         for (Resource resource : ctx.getResourceManager()) {
-            X impl = findJavaActionInternal(clazz, resource);
+            X impl = resource.getJavaImpl(clazz);
             if (impl != null) {
                 return impl;
             }
@@ -110,25 +99,6 @@ public class AbstractContextTest {
         fail("Unable to find java action of class " + clazz.getName());
         return null;
     }
-
-    public <X> X findJavaAction(Class<?> clazz, Resource resource) {
-        X impl = findJavaActionInternal(clazz, resource);
-        assertNotNull(impl);
-        return impl;
-    }
-
-    private <X> X findJavaActionInternal(Class<?> clazz, Resource resource) {
-        for (STAction action : resource.getActions()) {
-            if (action instanceof JavaResourceFactory.JavaImpl) {
-                Object impl = ((JavaResourceFactory.JavaImpl) action).getImpl();
-                if (clazz.isAssignableFrom(impl.getClass())) {
-                    return (X) impl;
-                }
-            }
-        }
-        return null;
-    }
-
 
     public AbstractContextTest execute() throws Throwable {
         execute(true);
@@ -146,13 +116,6 @@ public class AbstractContextTest {
             }
         }
         return this;
-    }
-
-    public void enableVagrant() throws InvalidAttributeException, ResourceCreationException {
-        Resource vagrant = resourceManager.createResource("vagrant:vagrant");
-        vagrant.set("dir", "_vagrant");
-        vagrant.set("box", "ubuntu-precise64");
-        ctx.setDefaultParent(vagrant);
     }
 
     protected void executeDSLResource(String path) throws Throwable {

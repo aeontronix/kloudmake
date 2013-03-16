@@ -76,7 +76,7 @@ public class FileResource {
         this.path = path;
     }
 
-    @Verify(value = "content", order = 1)
+    @Verify("content")
     public boolean checkContent() throws STRuntimeException {
         delete = false;
         finfo = host.fileExists(path) ? host.getFileInfo(path) : null;

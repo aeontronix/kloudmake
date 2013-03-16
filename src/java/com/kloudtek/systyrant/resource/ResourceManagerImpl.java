@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.*;
+import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.query.ResourceQuery;
 import org.jetbrains.annotations.NotNull;
@@ -193,9 +194,24 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
+    public Resource createResource(@NotNull FQName fqname, @Nullable Resource parent) throws ResourceCreationException {
+        return createResource(fqname, null, parent);
+    }
+
+    @Override
+    public Resource createResource(@NotNull String fqname, @Nullable Resource parent) throws ResourceCreationException {
+        return createResource(new FQName(fqname), null, parent);
+    }
+
+    @Override
     public Resource createResource(@NotNull Object obj) throws ResourceCreationException {
-//        new FQName(obj);
-        return null;
+        STResource annotation = obj.getClass().getAnnotation(STResource.class);
+        if (annotation == null) {
+            throw new ResourceCreationException("Attempted to create resource using java class which is not annotated with @STResource: " + obj.getClass().getName());
+        }
+        Resource resource = createResource(new FQName(obj.getClass(), null));
+        JavaResourceFactory factory = (JavaResourceFactory) resource.getFactory();
+        return resource;
     }
 
     // -------------------------
@@ -222,7 +238,7 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @NotNull
-    private ResourceFactory findFactory(FQName name, Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
+    private ResourceFactory findFactory(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
         rlock();
         try {
             ResourceFinder rfinder = new ResourceFinder(name, importPaths);
@@ -230,7 +246,7 @@ public class ResourceManagerImpl implements ResourceManager {
                 // dynamically loading matching DSL file
                 if (name.getPkg() != null) {
                     dynaLoad(name.getPkg(), name.getName());
-                } else {
+                } else if (importPaths != null) {
                     for (ResourceMatcher importPath : importPaths) {
                         dynaLoad(importPath.getPkg(), name.getName());
                     }
@@ -379,6 +395,8 @@ public class ResourceManagerImpl implements ResourceManager {
                         makeDependentOnChildren(resource, dep);
                     }
                 }
+                // Sort resource's actions
+                resource.sortActions();
             }
             // Sort according to dependencies
             ResourceSorter.sort(resources);
@@ -437,7 +455,7 @@ public class ResourceManagerImpl implements ResourceManager {
     @Override
     public void addDependency(ResourceDependency dependency) {
         synchronized (m2mDependencies) {
-            if( dependency instanceof ManyToManyResourceDependency ) {
+            if (dependency instanceof ManyToManyResourceDependency) {
                 m2mDependencies.add((ManyToManyResourceDependency) dependency);
             } else {
                 o2mDependencies.add((OneToManyResourceDependency) dependency);
@@ -448,7 +466,7 @@ public class ResourceManagerImpl implements ResourceManager {
     @Override
     public void removeDependency(ResourceDependency dependency) {
         synchronized (m2mDependencies) {
-            if( dependency instanceof ManyToManyResourceDependency ) {
+            if (dependency instanceof ManyToManyResourceDependency) {
                 m2mDependencies.remove(dependency);
             } else {
                 o2mDependencies.remove(dependency);

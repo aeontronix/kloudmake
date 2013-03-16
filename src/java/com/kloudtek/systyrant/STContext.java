@@ -130,7 +130,7 @@ public class STContext implements AutoCloseable {
                     serviceManager.registerService(service);
                 }
             } catch (InvalidServiceException e) {
-                throw new InvalidResourceDefinitionException(e.getMessage(),e);
+                throw new InvalidResourceDefinitionException(e.getMessage(), e);
             }
             reflections.merge(library.getReflections());
         } finally {
@@ -256,8 +256,8 @@ public class STContext implements AutoCloseable {
         return host;
     }
 
-    public void setHost(@NotNull Host host) throws STRuntimeException {
-        if( host == null ) {
+    public void setHost(Host host) throws STRuntimeException {
+        if (host == null) {
             throw new IllegalArgumentException("Host cannot be null");
         }
         lock.writeLock().lock();
@@ -347,7 +347,7 @@ public class STContext implements AutoCloseable {
             for (Resource parent = resource.getParent(), child = resource; parent != null; parent = parent.getParent()) {
                 List<Resource> childsofchild = parentchildrens.get(child);
                 List<Resource> siblings = parentchildrens.get(parent);
-                if (parent != null && (childsofchild == null || childsofchild.isEmpty())) {
+                if (childsofchild == null || childsofchild.isEmpty()) {
                     siblings.remove(child);
                     if (siblings.isEmpty()) {
                         resourceScope.set(parent);
@@ -631,8 +631,9 @@ public class STContext implements AutoCloseable {
         this.fatalExceptions = fatalExceptions;
     }
 
-    public void setFatalExceptions(Class<? extends Exception>... fatalExceptions) {
-        this.fatalExceptions = Arrays.asList(fatalExceptions);
+    @SafeVarargs
+    public final void setFatalExceptions(Class<? extends Exception>... fatalExceptions) {
+        this.fatalExceptions = fatalExceptions != null ? Arrays.asList(fatalExceptions) : null;
     }
 
     public void clearFatalException() {

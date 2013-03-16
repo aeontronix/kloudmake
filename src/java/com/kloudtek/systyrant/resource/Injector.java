@@ -6,6 +6,7 @@ package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
 import java.lang.reflect.Field;
@@ -36,4 +37,7 @@ public abstract class Injector {
     }
 
     public abstract void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException;
+
+    public void updateAttr(Resource resource, Object obj) throws IllegalAccessException, InvalidAttributeException {
+    }
 }

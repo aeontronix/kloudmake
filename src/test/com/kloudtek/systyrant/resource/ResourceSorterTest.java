@@ -8,9 +8,6 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.ResourceFactory;
-import com.kloudtek.systyrant.resource.ResourceSorter;
 import org.jetbrains.annotations.NotNull;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -52,8 +49,7 @@ public class ResourceSorterTest {
         ResourceFactory rf = new ResourceFactory("test", "file") {
             @NotNull
             @Override
-            public Resource create(STContext context) throws ResourceCreationException {
-                return new Resource(null, null);
+            protected void configure(STContext context, Resource resource) throws ResourceCreationException {
             }
         };
         // circular dependency  5 -> [ 7 -> 11 -> 2 -> 7 ]

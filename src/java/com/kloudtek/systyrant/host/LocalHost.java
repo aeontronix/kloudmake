@@ -307,4 +307,8 @@ public class LocalHost extends AbstractHost {
         throw new IllegalArgumentException("Field " + name + " not found in " + obj.getClass().getName());
     }
 
+    @Override
+    public String toString() {
+        return "Local Host #"+hashCode();
+    }
 }

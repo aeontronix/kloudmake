@@ -5,11 +5,12 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.STAction;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.util.ListHashMap;
+import com.kloudtek.systyrant.util.ReflectionHelper;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
@@ -20,34 +21,43 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import static com.kloudtek.systyrant.resource.JavaResourceFactory.AnnotationType.*;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class JavaResourceFactory extends ResourceFactory {
     private static final Logger logger = LoggerFactory.getLogger(JavaResourceFactory.class);
     private final Class<?> clazz;
-    private HashMap<String, String> defaultAttrs = new HashMap<>();
     private Injector[] injectors;
-    private HashMap<Stage, List<ActionMethod>> actionMethods = new HashMap<>();
-    private HashMap<Stage, List<ActionMethod>> postChildrenActionMethods = new HashMap<>();
-    private HashMap<Field, String> attrInject = new HashMap<>();
+    protected ListHashMap<Stage, ActionDef> actions = new ListHashMap<>();
+    protected HashMap<String, SyncActionDef> syncActions = new HashMap<>();
 
     public JavaResourceFactory(Class<?> clazz, FQName fqname) throws InvalidResourceDefinitionException {
         super(new FQName(clazz, fqname));
+        logger.debug("Creating factory for java {}",clazz);
         this.clazz = clazz;
-        if (clazz.getAnnotation(Unique.class) != null) {
+        Unique uq = clazz.getAnnotation(Unique.class);
+        if (uq != null) {
+            logger.debug("Class is unique with scope {}",uq.value());
             setUnique(true);
         }
         for (Method method : clazz.getDeclaredMethods()) {
-            registerActions(method, Stage.PREPARE, Prepare.class);
-            registerActions(method, Stage.EXECUTE, Verify.class);
-            registerActions(method, Stage.EXECUTE, Sync.class);
-            registerActions(method, Stage.EXECUTE, Execute.class);
-            registerActions(method, Stage.CLEANUP, Cleanup.class);
+            if (method.getAnnotation(Prepare.class) != null) {
+                logger.debug("Adding PREPARE method: {}",method);
+                actions.get(Stage.PREPARE).add(new ActionDef(method, 0, false));
+            }
+            handleExecMethod(method);
+            handleVerifyMethod(method);
+            handleSyncMethod(method);
+            Cleanup cleanup = method.getAnnotation(Cleanup.class);
+            if (cleanup != null) {
+                logger.debug("Added CLEANUP method: {} ",method);
+                actions.get(Stage.CLEANUP).add(new ActionDef(method, 0, false));
+            }
         }
-        sort(actionMethods);
+        verifySyncMethod(syncActions);
         ArrayList<Injector> injectorsList = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
             for (Annotation annotation : field.getAnnotations()) {
@@ -55,6 +65,60 @@ public class JavaResourceFactory extends ResourceFactory {
             }
         }
         injectors = injectorsList.toArray(new Injector[injectorsList.size()]);
+        logger.debug("Finished setting up factory for java "+clazz);
+    }
+
+    private void verifySyncMethod(HashMap<String, SyncActionDef> syncActionDef) throws InvalidResourceDefinitionException {
+        for (SyncActionDef actionDef : syncActionDef.values()) {
+            if (actionDef.verifyMethod == null) {
+                throw new InvalidResourceDefinitionException("Sync method missing a matching Verify method: " + ReflectionHelper.toString(actionDef.method));
+            } else if (actionDef.method == null) {
+                throw new InvalidResourceDefinitionException("Verify method missing a matching Sync method: " + ReflectionHelper.toString(actionDef.verifyMethod));
+            }
+        }
+    }
+
+    private void handleVerifyMethod(Method method) throws InvalidResourceDefinitionException {
+        Verify verify = method.getAnnotation(Verify.class);
+        if (verify != null) {
+            String v = verify.value();
+            if (!method.getReturnType().equals(boolean.class)) {
+                throw new InvalidResourceDefinitionException("Verify method must return a boolean " + ReflectionHelper.toString(method));
+            }
+            SyncActionDef syncActionDef = getSyncAction(v);
+            if (syncActionDef.verifyMethod != null) {
+                throw new InvalidResourceDefinitionException("Duplicated verify methods found: " + ReflectionHelper.toString(syncActionDef.verifyMethod)
+                        + " and " + ReflectionHelper.toString(method));
+            } else {
+                syncActionDef.verifyMethod = method;
+            }
+            logger.debug("Added VERIFY ({}) method: {} ",v,method);
+        }
+    }
+
+    private void handleSyncMethod(Method method) throws InvalidResourceDefinitionException {
+        Sync sync = method.getAnnotation(Sync.class);
+        if (sync != null) {
+            String v = sync.value();
+            SyncActionDef syncAction = getSyncAction(v);
+            syncAction.postChildren = sync.postChildren();
+            if (syncAction.method != null) {
+                throw new InvalidResourceDefinitionException("Duplicated sync methods found: " + ReflectionHelper.toString(syncAction.verifyMethod)
+                        + " and " + ReflectionHelper.toString(method));
+            } else {
+                syncAction.method = method;
+                syncAction.order = sync.order();
+            }
+            logger.debug("Added SYNC ({}) method: {} ",v,method);
+        }
+    }
+
+    private void handleExecMethod(Method method) {
+        Execute exec = method.getAnnotation(Execute.class);
+        if (exec != null) {
+            logger.debug("Adding EXEC method: {}",method);
+            actions.get(Stage.EXECUTE).add(new ActionDef(method, exec.order(), exec.postChildren()));
+        }
     }
 
     private void registerFieldInjection(ArrayList<Injector> injectorsList, Field field, Annotation annotation) {
@@ -63,7 +127,7 @@ public class JavaResourceFactory extends ResourceFactory {
             String name = attr.value().isEmpty() ? field.getName() : attr.value();
             injectorsList.add(new AttrInjector(name, field));
             if (isNotEmpty(attr.def())) {
-                defaultAttrs.put(name, attr.def());
+                addDefaultAttr(name, attr.def());
             }
         } else if (annotation instanceof Service) {
             injectorsList.add(new ServiceInjector(field, (Service) annotation));
@@ -74,30 +138,21 @@ public class JavaResourceFactory extends ResourceFactory {
         }
     }
 
-    private void sort(HashMap<Stage, List<ActionMethod>> map) {
-        for (List<ActionMethod> methods : map.values()) {
-            Collections.sort(methods, new Comparator<ActionMethod>() {
-                @Override
-                public int compare(ActionMethod o1, ActionMethod o2) {
-                    if (o1.type == VERIFY && o2.type == SYNC && o1.syncGroup.equalsIgnoreCase(o2.syncGroup)) {
-                        return -1;
-                    } else if (o1.type == SYNC && o2.type == VERIFY && o1.syncGroup.equalsIgnoreCase(o2.syncGroup)) {
-                        return 1;
-                    } else {
-                        return o2.order - o1.order;
-                    }
-                }
-            });
-        }
-    }
-
     @NotNull
     @Override
-    public Resource create(STContext context) throws ResourceCreationException {
-        Resource resource = new Resource(context, this);
+    protected void configure(STContext context, Resource resource) throws ResourceCreationException {
         try {
             Object impl = clazz.newInstance();
-            resource.addAction(new JavaImpl(impl));
+            resource.addJavaImpl(impl);
+            for (Stage stage : Stage.values()) {
+                for (ActionDef actionDef : actions.get(stage)) {
+                    resource.addAction(stage, actionDef.postChildren, new JavaAction(impl, actionDef.method, actionDef.order));
+                }
+            }
+            for (SyncActionDef syncActionDef : syncActions.values()) {
+                resource.addAction(Stage.EXECUTE, syncActionDef.postChildren, new JavaSyncAction(impl,
+                        syncActionDef.method, syncActionDef.order, syncActionDef.verifyMethod));
+            }
             for (Map.Entry<String, String> entry : defaultAttrs.entrySet()) {
                 resource.set(entry.getKey(), entry.getValue());
             }
@@ -106,149 +161,136 @@ public class JavaResourceFactory extends ResourceFactory {
         } catch (InvalidAttributeException e) {
             throw new ResourceCreationException("Error while creating java resource " + clazz.getName() + ": " + e.getMessage(), e);
         }
-        return resource;
     }
 
-    private void registerActions(Method method, Stage stage, Class<? extends Annotation> annotationClass) throws InvalidResourceDefinitionException {
-        Annotation actionAnnotation = method.getAnnotation(annotationClass);
-        if (actionAnnotation != null) {
-            method.setAccessible(true);
-            boolean postChildren = false;
-            int order;
-            if (actionAnnotation instanceof Prepare) {
-                order = ((Prepare) actionAnnotation).order();
-            } else if (actionAnnotation instanceof Verify) {
-                Verify anno = (Verify) actionAnnotation;
-                order = anno.order();
-                postChildren = anno.postChildren();
-                if (!Boolean.class.equals(method.getReturnType()) && !boolean.class.equals(method.getReturnType())) {
-                    throw new InvalidResourceDefinitionException("@Verify method " + method.getDeclaringClass().getName() + "#" + method.getName() + " doesn't return a boolean");
-                }
-            } else if (actionAnnotation instanceof Sync) {
-                Sync anno = (Sync) actionAnnotation;
-                order = anno.order();
-                postChildren = anno.postChildren();
-            } else if (actionAnnotation instanceof Execute) {
-                Execute anno = (Execute) actionAnnotation;
-                order = anno.order();
-                postChildren = anno.postChildren();
-            } else if (actionAnnotation instanceof Cleanup) {
-                order = ((Cleanup) actionAnnotation).order();
-            } else {
-                throw new RuntimeException("Invalid annotation class: " + actionAnnotation.getClass());
-            }
-            getActionMethods(stage, postChildren).add(new ActionMethod(method, actionAnnotation, order));
+    public Map<String,String> getAttributesInObject( Object obj ) {
+        if( ! clazz.isInstance(obj) ) {
+            throw new IllegalArgumentException("Object "+obj.getClass()+" is not of class "+clazz.getName());
         }
+        HashMap<String,String> attrs = new HashMap<>();
+//        for (Map.Entry<Field, String> entry : attrInject.entrySet()) {
+//            attrs.put(entry.get)
+//        }
+        return attrs;
     }
 
-    public List<ActionMethod> getActionMethods(Stage stage, boolean postChildren) {
-        final HashMap<Stage, List<ActionMethod>> map = postChildren ? postChildrenActionMethods : actionMethods;
-        List<ActionMethod> methods = map.get(stage);
-        if (methods == null) {
-            methods = new ArrayList<>();
-            map.put(stage, methods);
+    private SyncActionDef getSyncAction(String name) {
+        SyncActionDef javaSyncActionFactory = syncActions.get(name);
+        if (javaSyncActionFactory == null) {
+            javaSyncActionFactory = new SyncActionDef();
+            syncActions.put(name, javaSyncActionFactory);
         }
-        return methods;
+        return javaSyncActionFactory;
     }
 
-    public class ActionMethod {
-        private Method method;
-        private Annotation annotation;
-        private int order;
-        private AnnotationType type;
-        private String syncGroup;
+    public class ActionDef {
+        protected Method method;
+        protected int order;
+        protected boolean postChildren;
 
-        public ActionMethod(Method method, Annotation actionAnnotation, int order) {
+        public ActionDef() {
+        }
+
+        public ActionDef(Method method, int order, boolean postChildren) {
             this.method = method;
-            this.annotation = actionAnnotation;
             this.order = order;
-            if (annotation instanceof Verify) {
-                type = VERIFY;
-                syncGroup = ((Verify) annotation).value();
-            } else if (annotation instanceof Sync) {
-                type = SYNC;
-                syncGroup = ((Sync) annotation).value();
-            } else if (annotation instanceof Execute) {
-                type = EXECUTE;
-            } else {
-                type = OTHER;
-            }
-        }
-
-        public String getClassAndMethodName() {
-            return method.getDeclaringClass().getName() + "#" + method.getName();
+            this.postChildren = postChildren;
         }
     }
 
-    public enum AnnotationType {
-        VERIFY, SYNC, EXECUTE, OTHER
+    public class SyncActionDef extends ActionDef {
+        protected Method verifyMethod;
+
+        public SyncActionDef() {
+        }
     }
 
-    public class JavaImpl implements STAction {
-        private Object impl;
+    public class JavaAction extends Action {
+        protected final Object obj;
+        protected Method method;
 
-        public JavaImpl(Object impl) {
-            this.impl = impl;
-        }
-
-        public Object getImpl() {
-            return impl;
+        public JavaAction(Object obj, Method method, int order) {
+            this.obj = obj;
+            this.method = method;
+            this.order = order;
         }
 
         @Override
-        public void execute(Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
-            STContext ctx = STContext.get();
-            for (ActionMethod actionMethod : getActionMethods(stage, postChildren)) {
-                try {
-                    if (actionMethod.annotation instanceof Sync) {
-                        String type = ((Sync) actionMethod.annotation).value();
-                        if (resource.containsVerification(type)) {
-                            logger.debug("Skipping sync method " + actionMethod.getClassAndMethodName() + " since verification was successful");
-                            continue;
-                        }
-                    }
-                    for (Injector injector : injectors) {
-                        injector.inject(resource, impl, ctx);
-                    }
-                    try {
-                        ValidationUtils.validate(impl, ResourceValidationException.class);
-                    } catch (ResourceValidationException e) {
-                        throw new ResourceValidationException("Failed to validate '" + resource.toString() + "' " + e.getMessage());
-                    }
-                    Object ret = actionMethod.method.invoke(impl);
-                    if (actionMethod.annotation instanceof Verify) {
-                        String type = ((Verify) actionMethod.annotation).value();
-                        assert ret instanceof Boolean : "verify method didn't return a boolean";
-                        if (((Boolean) ret)) {
-                            resource.addVerification(type);
-                        }
-                    }
-                    updateAttrs(resource);
-                } catch (IllegalAccessException e) {
-                    throw new STRuntimeException(e.getMessage(), e);
-                } catch (InvocationTargetException e) {
-                    throw new STRuntimeException(e.getTargetException().getMessage(), e.getTargetException());
-                }
+        public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+            try {
+                injectAndValidate(resource, context);
+                method.invoke(obj);
+                updateAttrs(resource);
+            } catch (IllegalAccessException e) {
+                throw new STRuntimeException(e.getMessage(), e);
+            } catch (InvocationTargetException e) {
+                throw new STRuntimeException(e.getTargetException().getMessage(), e.getTargetException());
             }
         }
 
-        private void updateAttrs(Resource resource) throws IllegalAccessException, InvalidAttributeException {
-            for (Map.Entry<Field, String> entry : attrInject.entrySet()) {
-                Field field = entry.getKey();
-                String attrName = entry.getValue();
-                Object newValObj = field.get(impl);
-                String newVal = ConvertUtils.convert(newValObj);
-                String oldVal = resource.get(attrName);
-                // If old val was null and new val is boolean false, don't prepareForExecution it
-                if (oldVal == null && Boolean.FALSE.equals(newValObj)) {
-                    newVal = null;
-                }
-                if ((newVal == null && oldVal != null) || (newVal != null && !newVal.equals(oldVal))) {
-                    logger.debug("Updating resource {}'s attribute {} to {}", resource, attrName, newVal);
-                    resource.set(attrName, newVal);
-                }
+        protected void injectAndValidate(Resource resource, STContext ctx) throws FieldInjectionException, ResourceValidationException {
+            for (Injector injector : injectors) {
+                injector.inject(resource, obj, ctx);
+            }
+            try {
+                ValidationUtils.validate(obj, ResourceValidationException.class);
+            } catch (ResourceValidationException e) {
+                throw new ResourceValidationException("Failed to validate '" + resource.toString() + "' " + e.getMessage());
             }
         }
 
+        protected void updateAttrs(Resource resource) throws IllegalAccessException, InvalidAttributeException {
+            for (Injector injector : injectors) {
+                injector.updateAttr(resource,obj);
+            }
+//            for (Map.Entry<Field, String> entry : attrInject.entrySet()) {
+//                Field field = entry.getKey();
+//                String attrName = entry.getValue();
+//                Object newValObj = field.get(obj);
+//                String newVal = ConvertUtils.convert(newValObj);
+//                String oldVal = resource.get(attrName);
+//                // If old val was null and new val is boolean false, don't prepareForExecution it
+//                if (oldVal == null && Boolean.FALSE.equals(newValObj)) {
+//                    newVal = null;
+//                }
+//                if ((newVal == null && oldVal != null) || (newVal != null && !newVal.equals(oldVal))) {
+//                    logger.debug("Updating resource {}'s attribute {} to {}", resource, attrName, newVal);
+//                    resource.set(attrName, newVal);
+//                }
+//            }
+        }
+
+        @Override
+        public String toString() {
+            return "Java action "+ReflectionHelper.toString(method);
+        }
+    }
+
+    public class JavaSyncAction extends JavaAction implements SyncAction {
+        private Method verifyMethod;
+
+        public JavaSyncAction(Object obj, Method method, int order, Method verifyMethod) {
+            super(obj, method, order);
+            this.verifyMethod = verifyMethod;
+        }
+
+        @Override
+        public boolean verify(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+            try {
+                injectAndValidate(resource, context);
+                Boolean res = (Boolean) verifyMethod.invoke(obj);
+                updateAttrs(resource);
+                return res;
+            } catch (IllegalAccessException e) {
+                throw new STRuntimeException(e.getMessage(), e);
+            } catch (InvocationTargetException e) {
+                throw new STRuntimeException(e.getTargetException().getMessage(), e.getTargetException());
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "Java sync action "+ReflectionHelper.toString(verifyMethod)+" / "+ReflectionHelper.toString(method);
+        }
     }
 }

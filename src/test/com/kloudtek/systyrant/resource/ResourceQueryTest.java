@@ -12,6 +12,8 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
+import static org.testng.Assert.assertNotNull;
+
 /**
  * Tests for the resource query language.
  */
@@ -216,7 +218,9 @@ public class ResourceQueryTest extends AbstractContextTest {
         createChildTestResource(null, child2);
         createTestResource();
         execute();
-        ChildOfScope impl = findJavaAction(ChildOfScope.class, parent);
+        ChildOfScope impl1 = parent.getJavaImpl(ChildOfScope.class);
+        assertNotNull(impl1);
+        ChildOfScope impl = impl1;
         assertContainsSame(impl.found, child1, child2);
     }
 
@@ -267,7 +271,9 @@ public class ResourceQueryTest extends AbstractContextTest {
         createTestResource().addDependency(r3);
         createTestResource();
         execute();
-        ChildOfScope impl = findJavaAction(DepOfScope.class, r1);
+        DepOfScope impl1 = r1.getJavaImpl(DepOfScope.class);
+        assertNotNull(impl1);
+        DepOfScope impl = impl1;
         assertContainsSame(impl.found, r2, r3);
     }
 

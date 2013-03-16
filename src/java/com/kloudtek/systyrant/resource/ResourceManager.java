@@ -27,9 +27,15 @@ public interface ResourceManager extends Iterable<Resource> {
 
     void setCreateAllowed(boolean createAllowed);
 
+    Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
+
     Resource createResource(@NotNull FQName fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
 
     Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException;
+
+    Resource createResource(@NotNull FQName fqname, @Nullable Resource parent) throws ResourceCreationException;
+
+    Resource createResource(@NotNull String fqname, @Nullable Resource parent) throws ResourceCreationException;
 
     Resource createResource(@NotNull FQName fqname) throws ResourceCreationException;
 
@@ -60,7 +66,6 @@ public interface ResourceManager extends Iterable<Resource> {
 
     boolean hasResources();
 
-    Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
 
     List<Resource> findResources(String query) throws InvalidQueryException;
 

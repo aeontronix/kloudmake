@@ -61,7 +61,7 @@ public class AbstractVagrantTest {
     }
 
     public Resource createTestResource() throws ResourceCreationException {
-        return resourceManager.createResource(TEST, null);
+        return resourceManager.createResource(TEST);
     }
 
     public Resource createTestResource(Resource dependency) throws ResourceCreationException {

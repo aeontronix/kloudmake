@@ -7,6 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Service;
+import com.kloudtek.systyrant.resource.Action;
 import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.OperatingSystem;
@@ -32,11 +33,7 @@ public class VagrantValidationResource {
     public static VagrantValidationResource find(STContext ctx) {
         for (com.kloudtek.systyrant.resource.Resource resource : ctx.getResourceManager()) {
             if (resource.getType().equals(new FQName("test", "vagrantvalidate"))) {
-                for (STAction action : resource.getActions()) {
-                    if (action instanceof JavaResourceFactory.JavaImpl) {
-                        return (VagrantValidationResource) ((JavaResourceFactory.JavaImpl) action).getImpl();
-                    }
-                }
+                return resource.getJavaImpl(VagrantValidationResource.class);
             }
         }
         return null;

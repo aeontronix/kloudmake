@@ -10,8 +10,6 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.kloudtek.systyrant.resource.Resource.State.EXECUTED;
@@ -34,7 +32,7 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test
-    public void testLifecycle() throws ResourceCreationException, STRuntimeException {
+    public void testResourcesDependenciesAndSorting() throws ResourceCreationException, STRuntimeException {
         Resource test1 = createTestResource("test1");
         Resource test2 = createTestResource("test2");
         Resource test3 = createTestResource("test3");
@@ -55,7 +53,6 @@ public class STContextTest extends AbstractContextTest {
         assertBefore(test4,test2);
         assertBefore(test4,test2);
     }
-
 
     @Test()
     public void testCreateSingleUniqueElements() throws STRuntimeException, ResourceCreationException {
@@ -115,11 +112,11 @@ public class STContextTest extends AbstractContextTest {
         Resource rs4 = createChildTestResource("4", rs3);
         Resource rs5 = createTestResource("5", rs4);
         execute();
-        Integer rs1ts = TestResource.get(rs1).getPostChildrenOrder();
-        Integer rs2ts = TestResource.get(rs2).getPostChildrenOrder();
-        Integer rs3ts = TestResource.get(rs3).getPostChildrenOrder();
-        Integer rs4ts = TestResource.get(rs4).getPostChildrenOrder();
-        Integer rs5ts = TestResource.get(rs5).getPostChildrenOrder();
+        Integer rs1ts = rs1.getJavaImpl(TestResource.class).getPostChildrenOrder();
+        Integer rs2ts = rs2.getJavaImpl(TestResource.class).getPostChildrenOrder();
+        Integer rs3ts = rs3.getJavaImpl(TestResource.class).getPostChildrenOrder();
+        Integer rs4ts = rs4.getJavaImpl(TestResource.class).getPostChildrenOrder();
+        Integer rs5ts = rs5.getJavaImpl(TestResource.class).getPostChildrenOrder();
         assertNotNull(rs1ts);
         assertNotNull(rs2ts);
         assertNotNull(rs3ts);
@@ -149,7 +146,7 @@ public class STContextTest extends AbstractContextTest {
     @Test
     public void testVerifyGobalNoChange() throws Throwable {
         Resource res = createTestResource("x");
-        TestResource testResource = TestResource.get(res);
+        TestResource testResource = res.getJavaImpl(TestResource.class);
         testResource.setVerifyGlobal(true);
         execute();
         assertNull(testResource.getSyncGlobalTS());
@@ -159,7 +156,7 @@ public class STContextTest extends AbstractContextTest {
     @Test
     public void testVerifyGlobalChange() throws Throwable {
         Resource res = createTestResource("x");
-        TestResource testResource = TestResource.get(res);
+        TestResource testResource = res.getJavaImpl(TestResource.class);
         execute();
         assertNotNull(testResource.getSyncGlobalTS());
         assertNotNull(testResource.getSyncSpecificTS());
@@ -168,7 +165,7 @@ public class STContextTest extends AbstractContextTest {
     @Test
     public void testVerifyGlobalAndSpecifyChange() throws Throwable {
         Resource res = createTestResource("x");
-        TestResource testResource = TestResource.get(res);
+        TestResource testResource = res.getJavaImpl(TestResource.class);
         testResource.setVerifySpecific(true);
         testResource.setVerifyGlobal(true);
         execute();

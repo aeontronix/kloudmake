@@ -5,11 +5,14 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.STAction;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
-import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
+import com.kloudtek.systyrant.exception.InvalidRefException;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.util.ListHashMap;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +28,10 @@ public class Resource {
     private ResourceFactory factory;
     private Resource parent;
     private boolean executable;
-    private HashSet<STAction> actions = new HashSet<>();
+
+    private ListHashMap<Stage, Action> actions = new ListHashMap<>();
+    private ListHashMap<Stage, Action> postChildrenActions = new ListHashMap<>();
+
     private State state;
     private Host hostOverride;
     /**
@@ -33,6 +39,7 @@ public class Resource {
      * will be stored as an empty string, and a specific verification will be stored as it's name.
      */
     private final HashSet<String> verification = new HashSet<>();
+    private final HashSet<Object> javaImpls = new HashSet<>();
     final HashSet<Resource> dependencies = new HashSet<>();
     final HashSet<Resource> indirectDependencies = new HashSet<>();
     final HashSet<Resource> dependents = new HashSet<>();
@@ -88,8 +95,63 @@ public class Resource {
     }
 
     // ----------------------------------------------------------------------
+    // Actions
+    // ----------------------------------------------------------------------
+
+    public synchronized List<Action> getActions(@NotNull Stage stage, boolean postChildren) {
+        return Collections.unmodifiableList(getActionsInternal(stage, postChildren));
+    }
+
+    public void addAction(@NotNull Stage stage, Action action) {
+        addAction(stage,false,action);
+    }
+
+    public synchronized void addAction(@NotNull Stage stage, boolean postChildren, Action action) {
+        List<Action> list = getActionsInternal(stage, postChildren);
+        if (!list.contains(action)) {
+            list.add(action);
+        }
+    }
+
+    public synchronized void addAction(ListHashMap<Stage, Action> actions, ListHashMap<Stage, Action> postChildrenActions) {
+        for (Stage stage : Stage.values()) {
+            this.actions.get(stage).addAll(actions.get(stage));
+            this.postChildrenActions.get(stage).addAll(postChildrenActions.get(stage));
+        }
+    }
+
+
+    public synchronized boolean removeAction(@NotNull Stage stage, boolean postChildren, Action action) {
+        return getActionsInternal(stage, postChildren).remove(action);
+    }
+
+    private List<Action> getActionsInternal(Stage stage, boolean postChildren) {
+        return postChildren ? postChildrenActions.get(stage) : actions.get(stage);
+    }
+
+    public synchronized void sortActions() {
+        for (Stage stage : Stage.values()) {
+            Collections.sort(actions.get(stage));
+            Collections.sort(postChildrenActions.get(stage));
+        }
+    }
+
+    // ----------------------------------------------------------------------
     // Meta-Data retrieval
     // ----------------------------------------------------------------------
+
+    public synchronized void addJavaImpl(Object obj) {
+        javaImpls.add(obj);
+    }
+
+    public synchronized <X> X getJavaImpl( Class<X> clazz ) {
+        for (Object javaImpl : javaImpls) {
+            if( javaImpl.getClass().isAssignableFrom(clazz) ) {
+                return clazz.cast(javaImpl);
+            }
+        }
+        return null;
+    }
 
     public Host getHost() {
         if (hostOverride != null) {
@@ -106,14 +168,14 @@ public class Resource {
     }
 
     public synchronized void setHostOverride(Host hostOverride) throws STRuntimeException {
-        if( this.hostOverride != null && this.hostOverride != hostOverride ) {
+        if (this.hostOverride != null && this.hostOverride != hostOverride) {
             this.hostOverride.stop();
         }
         this.hostOverride = hostOverride;
-        if( hostOverride != null ) {
+        if (hostOverride != null) {
             context.inject(hostOverride);
             synchronized (hostOverride) {
-                if( ! hostOverride.isStarted() ) {
+                if (!hostOverride.isStarted()) {
                     hostOverride.start();
                 }
             }
@@ -227,18 +289,6 @@ public class Resource {
     }
 
     // ----------------------------------------------------------------------
-    // Actions
-    // ----------------------------------------------------------------------
-
-    public List<STAction> getActions() {
-        return Collections.unmodifiableList(new ArrayList<>(actions));
-    }
-
-    public void addAction(STAction action) {
-        actions.add(action);
-    }
-
-    // ----------------------------------------------------------------------
     // Utility functions
     // ----------------------------------------------------------------------
 
@@ -278,27 +328,23 @@ public class Resource {
     // ----------------------------------------------------------------------
 
     public void executeActions(Stage stage, boolean postChildren) throws STRuntimeException {
-        for (STAction action : actions) {
-            action.execute(this, stage, postChildren);
-        }
-    }
-
-    /**
-     * Searches and returns the first java resource implementation object that matches the specified class
-     * @param clazz Class type to search for
-     * @return First object implementing the class, or null if none is found
-     */
-    @SuppressWarnings("unchecked")
-    public synchronized <X> X getJavaImpl(Class<X> clazz) {
-        for (STAction action : actions) {
-            if( action instanceof JavaResourceFactory.JavaImpl ) {
-                JavaResourceFactory.JavaImpl javaImpl = (JavaResourceFactory.JavaImpl) action;
-                if( javaImpl.getImpl().getClass().isAssignableFrom(clazz)) {
-                    return (X) javaImpl.getImpl();
+        List<Action> list = getActionsInternal(stage, postChildren);
+        logger.debug("Executing {} actions for stage {} : {}",postChildren?"postchildren":"",stage,list);
+        for (Action action : list) {
+            if (action instanceof SyncAction) {
+                logger.debug("Executing verification stage of Sync Action {}",action);
+                boolean verified = ((SyncAction) action).verify(context, this, stage, postChildren);
+                logger.debug("Sync Action {} returned {}",action,verified);
+                if (!verified) {
+                    logger.debug("Executing Sync Action {}",action,verified);
+                    action.execute(context, this, stage, postChildren);
                 }
+            } else {
+                logger.debug("Executing Action {}",action);
+                action.execute(context, this, stage, postChildren);
             }
+            logger.debug("Finished executing Action {}",action);
         }
-        return null;
     }
 
     public enum State {

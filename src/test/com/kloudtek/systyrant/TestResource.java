@@ -7,7 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.JavaResourceFactory;
+import com.kloudtek.systyrant.resource.Action;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceRef;
 import org.slf4j.Logger;
@@ -106,7 +106,6 @@ public class TestResource {
     @Sync("foo")
     public void syncSpecify() {
         syncSpecificTS = new Date();
-        assert verifySpecificTS.before(syncSpecificTS);
         logger.info("{} : SYNC SPECIFIC {}", id);
     }
 
@@ -138,15 +137,15 @@ public class TestResource {
         assertNotNull(prepared);
         assertNotNull(verifyGlobalTS);
         if (verifyGlobal) {
-            assertNotNull(syncGlobalTS);
-        } else {
             assertNull(syncGlobalTS);
+        } else {
+            assertNotNull(syncGlobalTS);
         }
         assertNotNull(verifySpecificTS);
         if (verifySpecific) {
-            assertNotNull(syncSpecificTS);
-        } else {
             assertNull(syncSpecificTS);
+        } else {
+            assertNotNull(syncSpecificTS);
         }
         assertNotNull(executed);
     }
@@ -298,31 +297,39 @@ public class TestResource {
         assertTrue(deps.isEmpty());
     }
 
-    public static TestResource get(Resource el) {
-        for (STAction action : el.getActions()) {
-            if (action instanceof JavaResourceFactory.JavaImpl) {
-                return (TestResource) ((JavaResourceFactory.JavaImpl) action).getImpl();
-            }
-        }
-        return null;
-    }
-
     public static void createChild(Resource parent, String... childrens) {
-        TestResource testResource = TestResource.get(parent);
-        testResource.childs = childrens;
-        if (childrens != null && childrens.length > 0) {
-            testResource.hasChildrens = true;
+        for (String children : childrens) {
+            parent.addAction(Stage.PREPARE, new CreateChildrenAction(parent, children));
         }
     }
 
     public Resource findResource(STContext context) throws STRuntimeException {
         for (Resource resource : context.getResourceManager()) {
-            for (STAction action : resource.getActions()) {
-                if (action instanceof JavaResourceFactory.JavaImpl && ((JavaResourceFactory.JavaImpl) action).getImpl() == this) {
-                    return resource;
-                }
+            if( resource.getJavaImpl(TestResource.class) != null ) {
+                return resource;
             }
         }
         throw new STRuntimeException("Unable to find resource");
+    }
+
+    public static class CreateChildrenAction extends Action {
+        private String name;
+        private final Resource parent;
+
+        public CreateChildrenAction(Resource parent, String id) {
+            this.name = id;
+            this.parent = parent;
+        }
+
+        @Override
+        public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+            try {
+                logger.info("Creating children {} for resource {}",name,parent);
+                Resource children = context.getResourceManager().createResource("test:test", null, parent);
+                children.setId(name);
+            } catch (ResourceCreationException e) {
+                throw new STRuntimeException(e.getMessage(),e);
+            }
+        }
     }
 }

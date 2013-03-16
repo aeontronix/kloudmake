@@ -18,9 +18,9 @@ import static org.testng.Assert.assertTrue;
 public class ResourceDependencyRefTest extends AbstractContextTest {
     @Test(expectedExceptions = InvalidDependencyException.class)
     public void testCircularDependency() throws ResourceCreationException, STRuntimeException {
-        Resource test1 = resourceManager.createResource(TEST, null);
-        Resource test2 = resourceManager.createResource(TEST, null);
-        Resource test3 = resourceManager.createResource(TEST, null);
+        Resource test1 = resourceManager.createResource(TEST);
+        Resource test2 = resourceManager.createResource(TEST);
+        Resource test3 = resourceManager.createResource(TEST);
         test1.addDependency(test2);
         test2.addDependency(test3);
         test3.addDependency(test1);

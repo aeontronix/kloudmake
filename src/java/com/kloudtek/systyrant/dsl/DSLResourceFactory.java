@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.STAction;
+import com.kloudtek.systyrant.resource.Action;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.dsl.statement.Statement;
@@ -38,9 +38,10 @@ public class DSLResourceFactory extends ResourceFactory {
 
     @NotNull
     @Override
-    public Resource create(STContext context) throws ResourceCreationException {
-        Resource resource = new Resource(context, this);
-        resource.addAction(new DSLAction());
+    protected void configure(STContext context, Resource resource) throws ResourceCreationException {
+        for (Stage stage : Stage.values()) {
+            resource.addAction(stage,false,new DSLAction(statements.get(stage)));
+        }
         for (Map.Entry<String, Parameter> attrEntry : defaultAttr.entrySet()) {
             try {
                 Parameter value = attrEntry.getValue();
@@ -49,16 +50,20 @@ public class DSLResourceFactory extends ResourceFactory {
                 throw new ResourceCreationException(e.getMessage(), e);
             }
         }
-        return resource;
     }
 
-    public class DSLAction implements STAction {
+    public class DSLAction extends Action {
+        private final ArrayList<Statement> actionStatements;
+
+        public DSLAction(ArrayList<Statement> actionStatements) {
+            this.actionStatements = actionStatements;
+        }
+
         @Override
-        public void execute(Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
-            ArrayList<Statement> list = statements.get(stage);
+        public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
             logger.debug("Executing all DSL statements for " + resource.toString());
-            if (list != null) {
-                for (Statement statement : list) {
+            if (actionStatements != null) {
+                for (Statement statement : actionStatements) {
                     try {
                         statement.execute(dslScript, resource);
                     } catch (ScriptException e) {

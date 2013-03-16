@@ -200,7 +200,7 @@ public abstract class AbstractHost implements Host {
             delayedLogger.log();
         }
         if (failed) {
-            throw new STRuntimeException("Failed to execute '" + command + "'");
+            throw new STRuntimeException(toString()+" failed to execute '" + command + "'");
         }
         return result;
     }

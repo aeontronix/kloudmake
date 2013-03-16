@@ -12,6 +12,7 @@ import com.kloudtek.systyrant.dsl.Parameters;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.MethodInvocationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,23 +91,19 @@ public class MethodInvoker {
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Param) {
                     if (name != null) {
-                        throw new InvalidServiceException(toString(method) + " has more than one @Method annotation");
+                        throw new InvalidServiceException(ReflectionHelper.toString(method) + " has more than one @Method annotation");
                     }
                     name = ((Param) annotation).value();
                 } else if (annotation instanceof Default) {
                     if (def != null) {
-                        throw new InvalidServiceException(toString(method) + " has more than one @Default annotation");
+                        throw new InvalidServiceException(ReflectionHelper.toString(method) + " has more than one @Default annotation");
                     }
                     def = ((Default) annotation).value();
                 }
             }
             if (name == null) {
-                throw new InvalidServiceException("No @Method specified for " + toString(method));
+                throw new InvalidServiceException("No @Method specified for " + ReflectionHelper.toString(method));
             }
-        }
-
-        private java.lang.String toString(Method method) {
-            return "Method " + method.getClass().getName() + "#" + method.getName();
         }
     }
 }

@@ -42,6 +42,10 @@ public abstract class UnixAbstractMetadataProvider extends AbstractHostProvider 
         if( StringUtils.isNotEmpty(workdir) ) {
             command = "cd "+workdir+" && "+command;
         }
-        return cmd.addArgument("-c").addArgument(command, handleQuoting);
+        if( handleQuoting ) {
+            return cmd.addArgument("-c").addArgument("\""+command+"\"",false);
+        } else {
+            return cmd.addArgument("-c").addArgument(command,false);
+        }
     }
 }

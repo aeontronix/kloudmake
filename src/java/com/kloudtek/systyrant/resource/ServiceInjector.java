@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.service.ServiceManager;
 

@@ -14,8 +14,4 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD})
 public @interface Verify {
     String value() default "";
-
-    int order() default 0;
-
-    boolean postChildren() default false;
 }

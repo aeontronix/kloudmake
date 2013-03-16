@@ -8,6 +8,7 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.service.filestore.FileStore;
@@ -36,24 +37,20 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
 
     @Test
     public void testInjectResource() throws Throwable {
-        try {
-            register(InjectResource.class);
-            Resource resource = create(InjectResource.class);
-            execute();
-            assertTrue(resource == InjectResource.res.get());
-        } finally {
-            InjectResource.res.remove();
-        }
+        register(InjectResource.class);
+        Resource resource = create(InjectResource.class);
+        execute();
+        assertTrue(resource == resource.getJavaImpl(InjectResource.class).resourceCopy);
     }
 
     public static class InjectResource {
-        private static ThreadLocal<Resource> res = new ThreadLocal<>();
+        private Resource resourceCopy;
         @Inject
         private Resource resource;
 
         @Prepare
         public void test() {
-            res.set(resource);
+            resourceCopy = resource;
         }
     }
 
@@ -248,7 +245,7 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
             return false;
         }
 
-        @Verify(value = "spec",order = -1)
+        @Verify(value = "spec")
         public boolean veritySpecific() {
             verifySpecific = count++;
             return false;
@@ -262,6 +259,71 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         @Sync(value = "spec",order = -1)
         public void syncSpecific() {
             syncSpecific = count++;
+        }
+    }
+
+    @Test(dependsOnMethods = "testAction")
+    public void testInjectAttr() throws Throwable {
+        Class<InjectAttrWithAttrAnnotation> cl = InjectAttrWithAttrAnnotation.class;
+        register(cl);
+        Resource resource = create(cl);
+        resource.set("test1","value1");
+        resource.set("test2","value2");
+        resource.set("test3","55");
+        resource.set("test4","value4");
+        execute();
+        assertEquals(resource.getJavaImpl(cl).attrs,new Object[]{"value1","value2",55,"value4"});
+    }
+
+    public static class InjectAttrWithAttrAnnotation {
+        public Object[] attrs;
+        @Attr
+        public String test1;
+        @Attr("test2")
+        public String test2x;
+        @Attr
+        public Integer test3;
+        @Inject
+        public String test4;
+
+        @Execute
+        public void copy() {
+            attrs = new Object[] {test1,test2x,test3,test4};
+        }
+    }
+
+    @Test(dependsOnMethods = "testInjectAttr")
+    public void testUpdateInjectedAttr() throws Throwable {
+        Class<UpdateInjectedAttr> cl = UpdateInjectedAttr.class;
+        register(cl);
+        Resource resource = create(cl);
+        resource.set("test1","value1");
+        resource.set("test2","value2");
+        resource.set("test3","55");
+        execute();
+        assertEquals(resource.get("test1"),"x1");
+        assertEquals(resource.get("test2"),"x2");
+        assertEquals(resource.get("test3"),"100");
+        assertEquals(resource.get("test4"),"x4");
+    }
+
+    public static class UpdateInjectedAttr {
+        public Object[] attrs;
+        @Attr
+        public String test1;
+        @Attr("test2")
+        public String test2x;
+        @Attr
+        public Integer test3;
+        @Inject
+        public String test4;
+
+        @Execute
+        public void copy() {
+            test1 = "x1";
+            test2x = "x2";
+            test3 = 100;
+            test4 = "x4";
         }
     }
 }

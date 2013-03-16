@@ -5,23 +5,18 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.annotation.Attr;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
 
-/**
- * Created with IntelliJ IDEA.
- * User: yannick
- * Date: 10/03/13
- * Time: 12:54
- * To change this template use File | Settings | File Templates.
- */
 public class AttrInjector extends Injector {
+    private static final Logger logger = LoggerFactory.getLogger(AttrInjector.class);
     private final String name;
 
     public AttrInjector(String name, Field field) {
@@ -29,6 +24,7 @@ public class AttrInjector extends Injector {
         this.name = name;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
         Class<?> fieldType = field.getType();
@@ -46,13 +42,27 @@ public class AttrInjector extends Injector {
                     try {
                         value = Enum.valueOf((Class<? extends Enum>) fieldType, val.toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        throw new FieldInjectionException(field,"value "+val.toUpperCase()+" is not a valid enum for "+fieldType.getName(),e);
+                        throw new FieldInjectionException(field, "value " + val.toUpperCase() + " is not a valid enum for " + fieldType.getName(), e);
                     }
                 } else {
                     value = ConvertUtils.convert(val, fieldType);
                 }
             }
             inject(obj, value);
+        }
+    }
+
+    @Override
+    public void updateAttr(Resource resource, Object obj) throws IllegalAccessException, InvalidAttributeException {
+        Object newValObj = field.get(obj);
+        String newVal = ConvertUtils.convert(newValObj);
+        String oldVal = resource.get(name);
+        if (oldVal == null && Boolean.FALSE.equals(newValObj)) {
+            newVal = null;
+        }
+        if ((newVal == null && oldVal != null) || (newVal != null && !newVal.equals(oldVal))) {
+            logger.debug("Updating resource {}'s attribute {} to {}", resource, name, newVal);
+            resource.set(name, newVal);
         }
     }
 }
