@@ -6,7 +6,7 @@ start: topLvlFunctions* EOF;
 
 topLvlFunctions: importPkg | includeFile | statement;
 
-statement: ( createResource | invokeMethod | resourceDefinition );
+statement: ( create=createResource | invoke=invokeMethod | define=resourceDefinition );
 
 // Imports & Includes
 
@@ -24,7 +24,9 @@ resourceDefinitionStatements: '{' statement* '}';
 
 // Create Resource
 
-createResource: NEW elname=fullyQualifiedId params=createResourceParams? ( createResourceStatements | SC );
+createResource: ldep=createResource ( rlk=ARWR | llk=ARWL ) rdep=createResource | NEW elname=fullyQualifiedId params=createResourceParams? ( createResourceStatements | SC );
+
+createResourceDepLinking: ARWR | ARWL;
 
 createResourceStatements: '{' ( createResourceSingleInstance | createResourceMultipleInstance* ) '}';
 
@@ -109,6 +111,8 @@ LIKE: 'like';
 EQ: '=';
 FEQ: '==';
 TEQ: '~=';
+ARWR: '->';
+ARWL: '<-';
 GT: '>';
 GTS: 'gt';
 LT: '<';

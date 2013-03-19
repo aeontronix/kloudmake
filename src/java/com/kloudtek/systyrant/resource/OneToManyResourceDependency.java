@@ -31,6 +31,12 @@ public class OneToManyResourceDependency implements ResourceDependency {
         this.targets.addAll(targets);
     }
 
+    public OneToManyResourceDependency(Resource origin, Collection<Resource> targets, boolean optional ) {
+        this.origin = origin;
+        this.optional = optional;
+        this.targets.addAll(targets);
+    }
+
     public OneToManyResourceDependency(Resource origin, String ref, boolean optional) {
         this.origin = origin;
         this.targetRef = ref;

@@ -11,6 +11,7 @@ import com.kloudtek.systyrant.resource.Resource;
 import org.antlr.v4.runtime.Token;
 
 import javax.script.ScriptException;
+import java.util.List;
 
 public class InvokeMethodStatement extends Statement {
     private final Token token;
@@ -34,7 +35,7 @@ public class InvokeMethodStatement extends Statement {
     }
 
     @Override
-    public void execute(DSLScript dslScript, Resource resource) throws ScriptException {
+    public List<Resource> execute(DSLScript dslScript, Resource resource) throws ScriptException {
         try {
             ctx.getServiceManager().invokeMethod(methodName, parameters);
         } catch (STRuntimeException e) {
@@ -42,5 +43,6 @@ public class InvokeMethodStatement extends Statement {
             scriptException.initCause(e);
             throw scriptException;
         }
+        return null;
     }
 }

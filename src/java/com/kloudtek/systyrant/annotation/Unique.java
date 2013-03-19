@@ -14,8 +14,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})
 public @interface Unique {
-    Scope value() default Scope.HOST;
+    Scope value() default Scope.GLOBAL;
     public enum Scope {
-        GLOBAL, HOST
+        GLOBAL
     }
 }

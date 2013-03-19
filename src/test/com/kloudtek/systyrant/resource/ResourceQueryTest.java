@@ -20,10 +20,10 @@ import static org.testng.Assert.assertNotNull;
 public class ResourceQueryTest extends AbstractContextTest {
     @Test
     public void testAttrCISEq() throws Throwable {
-        createTestResource();
-        Resource rs2 = createTestResource().set("attr", "val1");
-        Resource rs3 = createTestResource().set("attr", "Val1");
-        createTestResource().set("attr", "val2");
+        createJavaTestResource();
+        Resource rs2 = createJavaTestResource().set("attr", "val1");
+        Resource rs3 = createJavaTestResource().set("attr", "Val1");
+        createJavaTestResource().set("attr", "val2");
         List<Resource> result = resourceManager.findResources("@attr like 'val1'");
         assertContainsSame(result, rs2, rs3);
         List<Resource> result2 = resourceManager.findResources("@attr = 'val1'");
@@ -32,179 +32,179 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test
     public void testAttrGt() throws Throwable {
-        createTestResource();
-        createTestResource().set("attr", "2");
-        Resource rs2 = createTestResource().set("attr", "22");
-        Resource rs3 = createTestResource().set("attr", "20");
-        createTestResource().set("attr", "12");
+        createJavaTestResource();
+        createJavaTestResource().set("attr", "2");
+        Resource rs2 = createJavaTestResource().set("attr", "22");
+        Resource rs3 = createJavaTestResource().set("attr", "20");
+        createJavaTestResource().set("attr", "12");
         List<Resource> result = resourceManager.findResources("@attr gt 15");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrGt2() throws Throwable {
-        createTestResource();
-        createTestResource().set("attr", "d");
-        Resource rs2 = createTestResource().set("attr", "x");
-        Resource rs3 = createTestResource().set("attr", "z");
-        createTestResource().set("attr", "b");
+        createJavaTestResource();
+        createJavaTestResource().set("attr", "d");
+        Resource rs2 = createJavaTestResource().set("attr", "x");
+        Resource rs3 = createJavaTestResource().set("attr", "z");
+        createJavaTestResource().set("attr", "b");
         List<Resource> result = resourceManager.findResources("@attr gt f");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrLt() throws Throwable {
-        createTestResource().set("attr", "100");
-        Resource rs1 = createTestResource();
-        Resource rs2 = createTestResource().set("attr", "22");
-        createTestResource().set("attr", "120");
+        createJavaTestResource().set("attr", "100");
+        Resource rs1 = createJavaTestResource();
+        Resource rs2 = createJavaTestResource().set("attr", "22");
+        createJavaTestResource().set("attr", "120");
         List<Resource> result = resourceManager.findResources("@attr lt 50");
         assertContainsSame(result, rs1, rs2);
     }
 
     @Test
     public void testAttrLt2() throws Throwable {
-        createTestResource().set("attr", "y");
-        Resource rs2 = createTestResource();
-        Resource rs3 = createTestResource().set("attr", "a");
-        createTestResource().set("attr", "z");
+        createJavaTestResource().set("attr", "y");
+        Resource rs2 = createJavaTestResource();
+        Resource rs3 = createJavaTestResource().set("attr", "a");
+        createJavaTestResource().set("attr", "z");
         List<Resource> result = resourceManager.findResources("@attr lt f");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrCSEq() throws Throwable {
-        createTestResource().set("attr", "val1");
-        Resource rs2 = createTestResource().set("attr", "Val1");
-        Resource rs3 = createTestResource().set("attr", "Val1");
+        createJavaTestResource().set("attr", "val1");
+        Resource rs2 = createJavaTestResource().set("attr", "Val1");
+        Resource rs3 = createJavaTestResource().set("attr", "Val1");
         List<Resource> result = resourceManager.findResources("@attr eq 'Val1'");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrIsNull() throws Throwable {
-        createTestResource().set("attr", "val1");
-        Resource rs2 = createTestResource();
-        Resource rs3 = createTestResource();
+        createJavaTestResource().set("attr", "val1");
+        Resource rs2 = createJavaTestResource();
+        Resource rs3 = createJavaTestResource();
         List<Resource> result = resourceManager.findResources("@attr is null");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrIsNotNull() throws Throwable {
-        createTestResource();
-        Resource rs2 = createTestResource().set("attr", "val1");
-        Resource rs3 = createTestResource().set("attr", "val2");
+        createJavaTestResource();
+        Resource rs2 = createJavaTestResource().set("attr", "val1");
+        Resource rs3 = createJavaTestResource().set("attr", "val2");
         List<Resource> result = resourceManager.findResources("@attr is not null");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrIsEmpty() throws Throwable {
-        createTestResource().set("attr", "val1");
-        Resource rs2 = createTestResource().set("attr", "");
-        Resource rs3 = createTestResource().set("attr", "");
+        createJavaTestResource().set("attr", "val1");
+        Resource rs2 = createJavaTestResource().set("attr", "");
+        Resource rs3 = createJavaTestResource().set("attr", "");
         List<Resource> result = resourceManager.findResources("@attr is empty");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrIsNotEmpty() throws Throwable {
-        createTestResource().set("attr", "");
-        Resource rs2 = createTestResource().set("attr", "val1");
-        Resource rs3 = createTestResource().set("attr", "val2");
+        createJavaTestResource().set("attr", "");
+        Resource rs2 = createJavaTestResource().set("attr", "val1");
+        Resource rs3 = createJavaTestResource().set("attr", "val2");
         List<Resource> result = resourceManager.findResources("@attr is not empty");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrRegex1() throws Throwable {
-        createTestResource().set("attr", "xxx");
-        Resource rs2 = createTestResource().set("attr", "vol");
-        Resource rs3 = createTestResource().set("attr", "val");
-        Resource rs4 = createTestResource().set("attr", "vala");
+        createJavaTestResource().set("attr", "xxx");
+        Resource rs2 = createJavaTestResource().set("attr", "vol");
+        Resource rs3 = createJavaTestResource().set("attr", "val");
+        Resource rs4 = createJavaTestResource().set("attr", "vala");
         List<Resource> result = resourceManager.findResources("@attr regex 'v.l'");
         assertContainsSame(result, rs2, rs3, rs4);
     }
 
     @Test
     public void testAttrRegex2() throws Throwable {
-        createTestResource().set("attr", "xxx");
-        Resource rs2 = createTestResource().set("attr", "vol");
-        Resource rs3 = createTestResource().set("attr", "val");
-        createTestResource().set("attr", "vala");
-        createTestResource().set("attr", "aval");
-        createTestResource().set("attr", "avala");
+        createJavaTestResource().set("attr", "xxx");
+        Resource rs2 = createJavaTestResource().set("attr", "vol");
+        Resource rs3 = createJavaTestResource().set("attr", "val");
+        createJavaTestResource().set("attr", "vala");
+        createJavaTestResource().set("attr", "aval");
+        createJavaTestResource().set("attr", "avala");
         List<Resource> result = resourceManager.findResources("@attr regex '^v.l$'");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAttrNotLike() throws Throwable {
-        createTestResource().set("attr", "val1");
-        createTestResource().set("attr", "Val1");
-        Resource rs2 = createTestResource().set("attr", "val2");
-        Resource rs3 = createTestResource().set("attr", "Val2");
+        createJavaTestResource().set("attr", "val1");
+        createJavaTestResource().set("attr", "Val1");
+        Resource rs2 = createJavaTestResource().set("attr", "val2");
+        Resource rs3 = createJavaTestResource().set("attr", "Val2");
         List<Resource> result = resourceManager.findResources("@attr not like 'val1'");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testOr() throws Throwable {
-        createTestResource("id1");
-        Resource rs2 = createTestResource("id2");
-        Resource rs3 = createTestResource("id3");
+        createJavaTestResource("id1");
+        Resource rs2 = createJavaTestResource("id2");
+        Resource rs3 = createJavaTestResource("id3");
         List<Resource> result = resourceManager.findResources("@id eq 'id2' or @id eq 'id3'");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testOr2() throws Throwable {
-        createTestResource("id1");
-        Resource rs2 = createTestResource("id2");
-        Resource rs3 = createTestResource("id3");
-        Resource rs4 = createTestResource("id4");
-        createTestResource("id5");
+        createJavaTestResource("id1");
+        Resource rs2 = createJavaTestResource("id2");
+        Resource rs3 = createJavaTestResource("id3");
+        Resource rs4 = createJavaTestResource("id4");
+        createJavaTestResource("id5");
         List<Resource> result = resourceManager.findResources("@id eq 'id2' or @id eq 'id3' or @id eq 'id4'");
         assertContainsSame(result, rs2, rs3, rs4);
     }
 
     @Test(dependsOnMethods = "testOr2")
     public void testStrings() throws Throwable {
-        createTestResource("id1");
-        Resource rs2 = createTestResource("id2");
-        Resource rs3 = createTestResource("id3");
-        Resource rs4 = createTestResource("id4");
-        createTestResource("id5");
+        createJavaTestResource("id1");
+        Resource rs2 = createJavaTestResource("id2");
+        Resource rs3 = createJavaTestResource("id3");
+        Resource rs4 = createJavaTestResource("id4");
+        createJavaTestResource("id5");
         List<Resource> result = resourceManager.findResources("@id eq 'id2' or @id eq id3 or @id eq \"id4\"");
         assertContainsSame(result, rs2, rs3, rs4);
     }
 
     @Test(dependsOnMethods = "testOr2")
     public void testBadString() throws Throwable {
-        createTestResource("id1");
-        Resource rs2 = createTestResource("id2");
-        Resource rs3 = createTestResource("id3");
-        createTestResource("id4");
-        createTestResource("id5");
+        createJavaTestResource("id1");
+        Resource rs2 = createJavaTestResource("id2");
+        Resource rs3 = createJavaTestResource("id3");
+        createJavaTestResource("id4");
+        createJavaTestResource("id5");
         List<Resource> result = resourceManager.findResources("@id eq 'id2' or @id eq id3 or @id eq \"'id4\"");
         assertContainsSame(result, rs2, rs3);
     }
 
     @Test
     public void testAnd() throws Throwable {
-        createTestResource().setUid("uid1");
-        Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2");
-        createTestResource().set("uid", "uid3");
+        createJavaTestResource().setUid("uid1");
+        Resource rs2 = createJavaTestResource("id2").set("attr1", "val1").set("attr2", "val2");
+        createJavaTestResource().set("uid", "uid3");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2'");
         assertContainsSame(result, rs2);
     }
 
     @Test
     public void testAnd2() throws Throwable {
-        createTestResource().setUid("uid1");
-        Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2").set("attr3", "val3");
-        createTestResource().set("uid", "uid3");
+        createJavaTestResource().setUid("uid1");
+        Resource rs2 = createJavaTestResource("id2").set("attr1", "val1").set("attr2", "val2").set("attr3", "val3");
+        createJavaTestResource().set("uid", "uid3");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2' and @attr3 eq 'val3'");
         assertContainsSame(result, rs2);
     }
@@ -216,7 +216,7 @@ public class ResourceQueryTest extends AbstractContextTest {
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
         createChildTestResource(null, child2);
-        createTestResource();
+        createJavaTestResource();
         execute();
         ChildOfScope impl1 = parent.getJavaImpl(ChildOfScope.class);
         assertNotNull(impl1);
@@ -236,12 +236,12 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test
     public void testChildOfParam() throws Throwable {
-        createTestResource();
-        Resource parent = createTestResource("id");
+        createJavaTestResource();
+        Resource parent = createJavaTestResource("id");
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
         createChildTestResource(null, child2);
-        createTestResource();
+        createJavaTestResource();
         execute();
         List<Resource> childs = ctx.findResources("childof @id eq 'id'");
         assertContainsSame(childs, child1, child2);
@@ -249,12 +249,12 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test
     public void testChildOfRecursiveParam() throws Throwable {
-        createTestResource();
-        Resource parent = createTestResource("id");
+        createJavaTestResource();
+        Resource parent = createJavaTestResource("id");
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
         Resource child3 = createChildTestResource(null, child2);
-        createTestResource();
+        createJavaTestResource();
         execute();
         List<Resource> childs = ctx.findResources("childof* @id eq 'id'");
         assertContainsSame(childs, child1, child2, child3);
@@ -264,12 +264,12 @@ public class ResourceQueryTest extends AbstractContextTest {
     public void testDepOfScope() throws Throwable {
         register(DepOfScope.class, "depsofscope");
         Resource r1 = resourceManager.createResource("test:depsofscope", null, null);
-        Resource r2 = createTestResource();
+        Resource r2 = createJavaTestResource();
         r2.addDependency(r1);
-        Resource r3 = createTestResource();
+        Resource r3 = createJavaTestResource();
         r3.addDependency(r1);
-        createTestResource().addDependency(r3);
-        createTestResource();
+        createJavaTestResource().addDependency(r3);
+        createJavaTestResource();
         execute();
         DepOfScope impl1 = r1.getJavaImpl(DepOfScope.class);
         assertNotNull(impl1);
@@ -289,13 +289,13 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test(enabled = false)
     public void testDepOfParam() throws Throwable {
-        createTestResource();
-        Resource res1 = createTestResource("id");
-        Resource res2 = createTestResource();
+        createJavaTestResource();
+        Resource res1 = createJavaTestResource("id");
+        Resource res2 = createJavaTestResource();
         res2.addDependency(res1);
-        Resource res3 = createTestResource();
+        Resource res3 = createJavaTestResource();
         res3.addDependency(res3);
-        createTestResource();
+        createJavaTestResource();
         execute();
         List<Resource> childs = ctx.findResources("depends @id eq 'id'");
         assertContainsSame(childs, res2, res3);
@@ -303,12 +303,12 @@ public class ResourceQueryTest extends AbstractContextTest {
 
     @Test(enabled = false)
     public void testDepOfRecursiveParam() throws Throwable {
-        createTestResource();
-        Resource parent = createTestResource("id");
+        createJavaTestResource();
+        Resource parent = createJavaTestResource("id");
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
         Resource child3 = createChildTestResource(null, child2);
-        createTestResource();
+        createJavaTestResource();
         execute();
         List<Resource> childs = ctx.findResources("depends* @id eq 'id'");
         assertContainsSame(childs, child1, child2, child3);
@@ -317,10 +317,10 @@ public class ResourceQueryTest extends AbstractContextTest {
     @Test
     public void testFindByType() throws Throwable {
         register(FindByType.class, "findbytype");
-        createTestResource();
+        createJavaTestResource();
         Resource r1 = resourceManager.createResource("test:findbytype");
         Resource r2 = resourceManager.createResource("test:findbytype");
-        createTestResource();
+        createJavaTestResource();
         execute();
         List<Resource> resources = ctx.findResources("type test:findbytype");
         assertContainsSame(resources, r1, r2);

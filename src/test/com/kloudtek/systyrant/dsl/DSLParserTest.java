@@ -19,7 +19,9 @@ import java.util.List;
 
 import static org.testng.Assert.*;
 
-/** Those tests check {@link com.kloudtek.systyrant.dsl.DSLScript} objects produced by DSL code snippets. */
+/**
+ * Those tests check {@link com.kloudtek.systyrant.dsl.DSLScript} objects produced by DSL code snippets.
+ */
 public class DSLParserTest extends AbstractContextTest {
     @Test(expectedExceptions = ScriptException.class, expectedExceptionsMessageRegExp = ".*Unable to find resource.*")
     public void testCreateElementMissingImport() throws Throwable {
@@ -46,6 +48,65 @@ public class DSLParserTest extends AbstractContextTest {
         assertEquals(resource.get("attr"), "val");
         assertEquals(resource.get("attr2"), "val2");
         assertEquals(resource.getId(), "myid");
+    }
+
+    @Test
+    public void testDepRightLinked() throws Throwable {
+        ctx.runDSLScript("import test; new test(id='r1') {} -> new test(id='r2') {}");
+        execute();
+        Resource r1 = ctx.findResourceByUid("r1");
+        Resource r2 = ctx.findResourceByUid("r2");
+        assertEquals(r1.getDependencies().size(),1);
+        assertEquals(r2.getDependencies().size(),0);
+        assertEquals(r1.getDependencies().iterator().next(),r2);
+    }
+
+    @Test
+    public void testDepRightLinked2() throws Throwable {
+        ctx.runDSLScript("import test; new test(id='r1') {} -> new test(id='r2') {} -> new test(id='r3') {} -> new test(id='r4') {}");
+        execute();
+        Resource r1 = ctx.findResourceByUid("r1");
+        Resource r2 = ctx.findResourceByUid("r2");
+        Resource r3 = ctx.findResourceByUid("r3");
+        Resource r4 = ctx.findResourceByUid("r4");
+        assertEquals(r1.getDependencies().size(),1);
+        assertEquals(r2.getDependencies().size(),1);
+        assertEquals(r3.getDependencies().size(),1);
+        assertEquals(r4.getDependencies().size(),0);
+        assertEquals(r1.getDependencies().iterator().next(),r2);
+        assertEquals(r2.getDependencies().iterator().next(),r3);
+        assertEquals(r3.getDependencies().iterator().next(),r4);
+    }
+
+    @Test
+    public void testDepLeftLinked() throws Throwable {
+        ctx.runDSLScript("import test; new test(id='r2') {} <- new test(id='r1') {}");
+        execute();
+        Resource r1 = ctx.findResourceByUid("r1");
+        Resource r2 = ctx.findResourceByUid("r2");
+        assertEquals(r1.getDependencies().size(),1);
+        assertEquals(r2.getDependencies().size(),0);
+        assertEquals(r1.getDependencies().iterator().next(),r2);
+    }
+
+    @Test
+    public void testDepLinkedResources() throws Throwable {
+        ctx.runDSLScript("import test; new test(id='r1') {} -> new test(id='r2') {} -> new test(id='r3') {} <- new test(id='r4') {} -> new test(id='r5') {}");
+        execute();
+        Resource r1 = ctx.findResourceByUid("r1");
+        Resource r2 = ctx.findResourceByUid("r2");
+        Resource r3 = ctx.findResourceByUid("r3");
+        Resource r4 = ctx.findResourceByUid("r4");
+        Resource r5 = ctx.findResourceByUid("r5");
+        assertEquals(r1.getDependencies().size(),1);
+        assertEquals(r2.getDependencies().size(),1);
+        assertEquals(r3.getDependencies().size(),0);
+        assertEquals(r4.getDependencies().size(),2);
+        assertEquals(r5.getDependencies().size(),0);
+        assertEquals(r1.getDependencies().iterator().next(),r2);
+        assertEquals(r2.getDependencies().iterator().next(),r3);
+        assertTrue(r4.getDependencies().contains(r3));
+        assertTrue(r4.getDependencies().contains(r5));
     }
 
     @Test
@@ -107,7 +168,7 @@ public class DSLParserTest extends AbstractContextTest {
     @Test
     public void testInvokeMethodInClass() throws Throwable {
         TestService service = registerService(TestService.class);
-        ctx.runDSLScript("def test { dostuff('foo','bar',a4=ga,a5=true) } new test {}");
+        ctx.runDSLScript("def rtest { dostuff('foo','bar',a4=ga,a5=true) } new rtest {}");
         execute();
         assertEquals(service.a1, "foo");
         assertEquals(service.a2, "bar");

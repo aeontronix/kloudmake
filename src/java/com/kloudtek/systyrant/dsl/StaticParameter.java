@@ -34,4 +34,10 @@ public class StaticParameter extends Parameter {
     public String eval(STContext ctx, Resource resource) {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "staticparam{"+value+"}";
+
+    }
 }

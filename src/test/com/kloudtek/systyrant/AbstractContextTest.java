@@ -5,10 +5,13 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.resource.AbstractAction;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
 import org.testng.annotations.BeforeMethod;
 
+import javax.script.ScriptException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,6 +20,7 @@ import java.util.List;
 import static org.testng.Assert.*;
 
 public class AbstractContextTest {
+    public static final String JTEST = "test:jtest";
     public static final String TEST = "test:test";
     public static final String UNIQUETEST = "test:uniquetest";
     protected STContext ctx;
@@ -24,35 +28,59 @@ public class AbstractContextTest {
 
     @SuppressWarnings("unchecked")
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException {
+    public void init() throws STRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
         ctx = new STContext();
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
-        resourceManager.registerJavaResource(TestResource.class, "test:test");
+        resourceManager.registerJavaResource(TestResource.class, JTEST);
+        ctx.runDSLScript("def test:test {}");
     }
 
     public Resource createTestResource() throws ResourceCreationException {
         return resourceManager.createResource(TEST);
     }
 
+    public Resource createTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
+        Resource testResource = createTestResource();
+        testResource.setId(id);
+        return testResource;
+    }
+
     public Resource createTestResource(String id, Resource dependency) throws ResourceCreationException, InvalidAttributeException {
-        Resource testResource = createTestResource(id);
+        Resource testResource = createTestResource();
+        testResource.setId(id);
+        testResource.addDependency(dependency);
+        return testResource;
+    }
+
+    public Resource createTestResource(String attrName, String attrValue) throws ResourceCreationException, InvalidAttributeException {
+        Resource testResource = createTestResource();
+        testResource.set(attrName,attrValue);
+        return testResource;
+    }
+
+    public Resource createJavaTestResource() throws ResourceCreationException {
+        return resourceManager.createResource(JTEST);
+    }
+
+    public Resource createJavaTestResource(String id, Resource dependency) throws ResourceCreationException, InvalidAttributeException {
+        Resource testResource = createJavaTestResource(id);
         testResource.addDependency(dependency);
         return testResource;
     }
 
     public Resource createChildTestResource(String id, Resource parent) throws ResourceCreationException, InvalidAttributeException {
-        Resource testResource = resourceManager.createResource(TEST, null, parent);
+        Resource testResource = resourceManager.createResource(JTEST, null, parent);
         testResource.setId(id);
         return testResource;
     }
 
-    public Resource createTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
-        return createTestElement("id", id);
+    public Resource createJavaTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
+        return createJavaTestElement("id", id);
     }
 
-    public Resource createTestElement(String attr, String val) throws ResourceCreationException, InvalidAttributeException {
-        return createTestResource().set(attr, val);
+    public Resource createJavaTestElement(String attr, String val) throws ResourceCreationException, InvalidAttributeException {
+        return createJavaTestResource().set(attr, val);
     }
 
     public AbstractContextTest register(Class<?> clazz) throws InvalidResourceDefinitionException {
@@ -170,4 +198,12 @@ public class AbstractContextTest {
             }
         }
     }
+
+    public class FailAction extends AbstractAction {
+        @Override
+        public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+            throw new STRuntimeException();
+        }
+    }
+
 }

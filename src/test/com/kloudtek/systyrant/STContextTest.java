@@ -7,13 +7,18 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.AbstractAction;
 import com.kloudtek.systyrant.resource.Resource;
+import com.kloudtek.systyrant.resource.SyncAction;
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
 import static com.kloudtek.systyrant.resource.Resource.State.EXECUTED;
 import static com.kloudtek.systyrant.resource.Resource.State.FAILED;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 public class STContextTest extends AbstractContextTest {
@@ -27,7 +32,16 @@ public class STContextTest extends AbstractContextTest {
     @Test(dependsOnMethods = "testSimpleElementCreation", expectedExceptions = ResourceCreationException.class)
     public void testCreateElementDuringExecutionStage() throws Throwable {
         Resource test1 = createTestResource("test1");
-        test1.set("createElementDuringExecute", true);
+        test1.addAction(Stage.EXECUTE, new AbstractAction() {
+            @Override
+            public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+                try {
+                    context.getResourceManager().createResource(TEST);
+                } catch (ResourceCreationException e) {
+                    throw new STRuntimeException(e.getMessage(),e);
+                }
+            }
+        });
         execute();
     }
 
@@ -48,27 +62,45 @@ public class STContextTest extends AbstractContextTest {
         assertEquals(els.size(), 1);
         Resource test3_child1 = els.get(0);
         assertTrue(test3_child1.getDependencies().contains(test3));
-        assertBefore(test2,test1);
-        assertBefore(test3,test2,test3_child1);
-        assertBefore(test4,test2);
-        assertBefore(test4,test2);
+        assertBefore(test2, test1);
+        assertBefore(test3, test2, test3_child1);
+        assertBefore(test4, test2);
+        assertBefore(test4, test2);
+    }
+
+    @Test
+    public void testDependenciesSetAsDependsAttr() throws Throwable {
+        Resource r1 = createTestResource();
+        Resource r2 = createTestResource("someid");
+        Resource r3 = createTestResource();
+        r3.set("depends", "@id eq 'someid'");
+        Resource r4 = createTestResource();
+        createTestResource();
+        execute();
+        assertTrue(r1.getDependencies().isEmpty());
+        assertTrue(r2.getDependencies().isEmpty());
+        assertEquals(r3.getDependencies().size(), 1);
+        assertSame(r3.getDependencies().iterator().next(), r2);
+        assertTrue(r4.getDependencies().isEmpty());
     }
 
     @Test()
-    public void testCreateSingleUniqueElements() throws STRuntimeException, ResourceCreationException {
+    public void testCreateSingleUniqueElements() throws Throwable {
         ctx.getResourceManager().createResource(UNIQUETEST);
+        execute();
     }
 
     @Test(dependsOnMethods = "testCreateSingleUniqueElements", expectedExceptions = ResourceCreationException.class, expectedExceptionsMessageRegExp = "Cannot create more than one instance of test:uniquetest")
-    public void testCreateDuplicateUniqueElements() throws STRuntimeException, ResourceCreationException {
+    public void testCreateDuplicateUniqueElements() throws Throwable {
         ctx.getResourceManager().createResource(UNIQUETEST);
         ctx.getResourceManager().createResource(UNIQUETEST);
+        execute();
     }
 
     @Test
     public void testGenerateId() throws STRuntimeException, InvalidAttributeException, ResourceCreationException {
-        Resource el1 = createTestElement("uid", "test2");
-        Resource el2 = createTestElement("id", "testval");
+        Resource el1 = createTestResource("uid", "test2");
+        Resource el2 = createTestResource("id", "testval");
         Resource el3 = createTestResource();
         Resource el4 = createTestResource();
         ctx.validateAndGenerateIdentifiers();
@@ -82,12 +114,12 @@ public class STContextTest extends AbstractContextTest {
     public void testFailurePropagation() throws InvalidAttributeException, STRuntimeException, ResourceCreationException {
         ctx.clearFatalException();
         Resource el1 = createTestResource("1");
-        el1.set("failExecution", true);
+        el1.addAction(Stage.EXECUTE, new FailAction());
         Resource el2 = createTestResource("2", el1);
         Resource el3 = createTestResource("3", el2);
         Resource el4 = createTestResource("4", el3);
         Resource el5 = createTestResource("5");
-        el5.set("failPreparation", true);
+        el5.addAction(Stage.PREPARE, new FailAction());
         Resource el6 = createTestResource("6", el5);
         Resource el7 = createTestResource("7", el6);
         Resource el8 = createTestResource("8");
@@ -106,11 +138,11 @@ public class STContextTest extends AbstractContextTest {
 
     @Test
     public void testPostChildrenExecution() throws Throwable {
-        Resource rs1 = createTestResource("1");
+        Resource rs1 = createJavaTestResource("1");
         Resource rs2 = createChildTestResource("2", rs1);
         Resource rs3 = createChildTestResource("3", rs2);
         Resource rs4 = createChildTestResource("4", rs3);
-        Resource rs5 = createTestResource("5", rs4);
+        Resource rs5 = createJavaTestResource("5", rs4);
         execute();
         Integer rs1ts = rs1.getJavaImpl(TestResource.class).getPostChildrenOrder();
         Integer rs2ts = rs2.getJavaImpl(TestResource.class).getPostChildrenOrder();
@@ -144,32 +176,24 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test
-    public void testVerifyGobalNoChange() throws Throwable {
+    public void testVerifyNoChange() throws Throwable {
         Resource res = createTestResource("x");
-        TestResource testResource = res.getJavaImpl(TestResource.class);
-        testResource.setVerifyGlobal(true);
+        SyncAction action = Mockito.mock(SyncAction.class);
+        res.addAction(Stage.EXECUTE, action);
+        when(action.verify(ctx, res, Stage.EXECUTE, false)).thenReturn(false);
         execute();
-        assertNull(testResource.getSyncGlobalTS());
-        assertNotNull(testResource.getSyncSpecificTS());
+        verify(action, Mockito.times(1)).verify(ctx, res, Stage.EXECUTE, false);
+        verify(action, Mockito.times(1)).execute(ctx, res, Stage.EXECUTE, false);
     }
 
     @Test
-    public void testVerifyGlobalChange() throws Throwable {
+    public void testVerifyChanged() throws Throwable {
         Resource res = createTestResource("x");
-        TestResource testResource = res.getJavaImpl(TestResource.class);
+        SyncAction action = Mockito.mock(SyncAction.class);
+        res.addAction(Stage.EXECUTE, action);
+        when(action.verify(ctx, res, Stage.EXECUTE, false)).thenReturn(true);
         execute();
-        assertNotNull(testResource.getSyncGlobalTS());
-        assertNotNull(testResource.getSyncSpecificTS());
-    }
-
-    @Test
-    public void testVerifyGlobalAndSpecifyChange() throws Throwable {
-        Resource res = createTestResource("x");
-        TestResource testResource = res.getJavaImpl(TestResource.class);
-        testResource.setVerifySpecific(true);
-        testResource.setVerifyGlobal(true);
-        execute();
-        assertNull(testResource.getSyncGlobalTS());
-        assertNull(testResource.getSyncSpecificTS());
+        verify(action, Mockito.times(1)).verify(ctx, res, Stage.EXECUTE, false);
+        verify(action, Mockito.never()).execute(ctx, res, Stage.EXECUTE, false);
     }
 }

@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.resource.Action;
+import com.kloudtek.systyrant.resource.AbstractAction;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.dsl.statement.Statement;
@@ -52,7 +52,7 @@ public class DSLResourceFactory extends ResourceFactory {
         }
     }
 
-    public class DSLAction extends Action {
+    public class DSLAction extends AbstractAction {
         private final ArrayList<Statement> actionStatements;
 
         public DSLAction(ArrayList<Statement> actionStatements) {

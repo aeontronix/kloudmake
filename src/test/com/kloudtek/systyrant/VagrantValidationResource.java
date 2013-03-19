@@ -7,8 +7,6 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Service;
-import com.kloudtek.systyrant.resource.Action;
-import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.OperatingSystem;
 

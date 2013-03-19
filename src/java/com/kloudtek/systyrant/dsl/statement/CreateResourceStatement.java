@@ -11,18 +11,16 @@ import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.resource.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.script.ScriptException;
 import java.util.*;
 
-public class CreateElementsStatement extends Statement {
+public class CreateResourceStatement extends Statement {
     private FQName elementName;
     private List<Instance> instances = new ArrayList<>();
     private STContext ctx;
 
-    public CreateElementsStatement(STContext ctx, SystyrantLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
+    public CreateResourceStatement(STContext ctx, SystyrantLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
         this.ctx = ctx;
         elementName = new FQName(createElementsContext.elname.getText());
         Map<String, Parameter> params = new LinkedHashMap<>();
@@ -61,8 +59,9 @@ public class CreateElementsStatement extends Statement {
     }
 
     @Override
-    public void execute(DSLScript dslScript, Resource parent) throws ScriptException {
+    public List<Resource> execute(DSLScript dslScript, Resource parent) throws ScriptException {
         try {
+            ArrayList<Resource> resources = new ArrayList<>();
             for (Instance instance : instances) {
                 Resource resource = ctx.getResourceManager().createResource(elementName, dslScript.getImports(), parent);
                 if (instance.id != null) {
@@ -71,10 +70,12 @@ public class CreateElementsStatement extends Statement {
                 for (Map.Entry<String, Parameter> pe : instance.parameters.entrySet()) {
                     resource.set(pe.getKey(), pe.getValue().eval(ctx, resource));
                 }
-                for (CreateElementsStatement children : instance.childrens) {
+                for (CreateResourceStatement children : instance.childrens) {
                     children.execute(dslScript, resource);
                 }
+                resources.add(resource);
             }
+            return resources;
         } catch (ResourceCreationException | InvalidAttributeException | InvalidVariableException e) {
             throw new ScriptException(e);
         }
@@ -84,10 +85,15 @@ public class CreateElementsStatement extends Statement {
         return elementName;
     }
 
+    @Override
+    public String toString() {
+        return "createres{"+elementName+" : "+ instances+"}";
+    }
+
     public class Instance {
         private Parameter id;
         private Map<String, Parameter> parameters = new LinkedHashMap<>();
-        private List<CreateElementsStatement> childrens = new ArrayList<>();
+        private List<CreateResourceStatement> childrens = new ArrayList<>();
 
         public Instance(Parameter id, List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
@@ -101,7 +107,7 @@ public class CreateElementsStatement extends Statement {
                 }
                 SystyrantLangParser.CreateResourceInstanceChildContext createChildCtx = elCtx.createResourceInstanceChild();
                 if (createChildCtx != null) {
-                    childrens.add(new CreateElementsStatement(ctx, createChildCtx.createResource()));
+                    childrens.add(new CreateResourceStatement(ctx, createChildCtx.createResource()));
                 }
             }
         }
@@ -114,8 +120,13 @@ public class CreateElementsStatement extends Statement {
             return parameters;
         }
 
-        public List<CreateElementsStatement> getChildrens() {
+        public List<CreateResourceStatement> getChildrens() {
             return childrens;
+        }
+
+        @Override
+        public String toString() {
+            return "instance{"+id+":"+parameters+","+childrens+"}";
         }
     }
 }

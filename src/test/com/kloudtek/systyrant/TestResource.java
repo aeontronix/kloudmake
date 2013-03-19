@@ -7,7 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Action;
+import com.kloudtek.systyrant.resource.AbstractAction;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceRef;
 import org.slf4j.Logger;
@@ -312,7 +312,7 @@ public class TestResource {
         throw new STRuntimeException("Unable to find resource");
     }
 
-    public static class CreateChildrenAction extends Action {
+    public static class CreateChildrenAction extends AbstractAction {
         private String name;
         private final Resource parent;
 
@@ -325,7 +325,7 @@ public class TestResource {
         public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
             try {
                 logger.info("Creating children {} for resource {}",name,parent);
-                Resource children = context.getResourceManager().createResource("test:test", null, parent);
+                Resource children = context.getResourceManager().createResource(AbstractContextTest.TEST, null, parent);
                 children.setId(name);
             } catch (ResourceCreationException e) {
                 throw new STRuntimeException(e.getMessage(),e);

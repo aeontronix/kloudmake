@@ -8,9 +8,6 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.systyrant.host.Host;
 import org.testng.annotations.Test;
@@ -198,13 +195,13 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
     @Test
     public void testInjectChildResources() throws Throwable {
         register(InjectChildResources.class);
-        Resource r1 = createTestResource();
+        Resource r1 = createJavaTestResource();
         Resource r2 = create(InjectChildResources.class);
-        Resource r3 = createTestResource();
+        Resource r3 = createJavaTestResource();
         r3.setParent(r2);
-        Resource r4 = createTestResource();
+        Resource r4 = createJavaTestResource();
         r4.setParent(r2);
-        createTestResource();
+        createJavaTestResource();
         InjectChildResources impl = findJavaAction(InjectChildResources.class);
         assertContainsSame(impl.childrensPersist,r3,r4);
     }

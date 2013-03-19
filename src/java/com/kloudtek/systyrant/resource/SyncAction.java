@@ -8,6 +8,6 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
-public interface SyncAction {
+public interface SyncAction extends Action {
     boolean verify(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException;
 }

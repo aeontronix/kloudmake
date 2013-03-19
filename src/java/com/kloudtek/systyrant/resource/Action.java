@@ -7,21 +7,15 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
 
 /**
- * Used to invoke actionsByStage during lifecycle stage processing.
+ * Created with IntelliJ IDEA.
+ * User: yannick
+ * Date: 18/03/13
+ * Time: 21:32
+ * To change this template use File | Settings | File Templates.
  */
-public abstract class Action implements Comparable<Action> {
-    protected int order;
-
-    protected Action() {
-    }
-
-    protected Action(int order) {
-        this.order = order;
-    }
-
+public interface Action extends Comparable<Action> {
     /**
      * Execute this action
      *
@@ -30,18 +24,9 @@ public abstract class Action implements Comparable<Action> {
      * @param stage        Current stage.
      * @param postChildren If this is a post-children action
      */
-    public abstract void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException;
+    void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException;
 
-    public int getOrder() {
-        return order;
-    }
+    int getOrder();
 
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    @Override
-    public int compareTo(Action o) {
-        return o.order - order;
-    }
+    void setOrder(int order);
 }

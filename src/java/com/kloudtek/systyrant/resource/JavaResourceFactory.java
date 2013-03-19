@@ -12,7 +12,6 @@ import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.util.ListHashMap;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import com.kloudtek.util.validation.ValidationUtils;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,7 +204,7 @@ public class JavaResourceFactory extends ResourceFactory {
         }
     }
 
-    public class JavaAction extends Action {
+    public class JavaAction extends AbstractAction {
         protected final Object obj;
         protected Method method;
 

@@ -63,6 +63,19 @@ public class Resource {
         return Collections.unmodifiableSet(dependencies);
     }
 
+    public ResourceDependency addDependencies(Collection<Resource> resources) {
+        return addDependencies(resources,false);
+    }
+
+    public ResourceDependency addDependencies(Collection<Resource> resources, boolean optional ) {
+        if (resources.contains(this)) {
+            throw new IllegalArgumentException("Added dependencies contain self: " + resources);
+        }
+        ResourceDependency depRef = new OneToManyResourceDependency(this, resources, optional);
+        context.getResourceManager().addDependency(depRef);
+        return depRef;
+    }
+
     public ResourceDependency addDependency(Resource resource) {
         return addDependency(resource, false);
     }
