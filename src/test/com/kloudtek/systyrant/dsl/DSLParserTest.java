@@ -51,8 +51,19 @@ public class DSLParserTest extends AbstractContextTest {
     }
 
     @Test
+    public void testCreateElement2() throws Throwable {
+        ctx.runDSLScript("import test; new test(id = 'myid'); ");
+        execute();
+        assertEquals(ctx.getResources().size(), 1);
+        Resource resource = ctx.getResources().get(0);
+        assertEquals(resource.getType().getName(), "test");
+        assertEquals(resource.getType().getPkg(), "test");
+        assertEquals(resource.get("id"), "myid");
+    }
+
+    @Test
     public void testDepRightLinked() throws Throwable {
-        ctx.runDSLScript("import test; new test(id='r1') {} -> new test(id='r2') {}");
+        ctx.runDSLScript("import test; new test(id='r1'); -> new test(id='r2') {}");
         execute();
         Resource r1 = ctx.findResourceByUid("r1");
         Resource r2 = ctx.findResourceByUid("r2");

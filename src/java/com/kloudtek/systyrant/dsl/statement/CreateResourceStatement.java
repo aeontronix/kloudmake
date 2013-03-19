@@ -11,6 +11,7 @@ import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.resource.Resource;
+import org.jetbrains.annotations.Nullable;
 
 import javax.script.ScriptException;
 import java.util.*;
@@ -45,6 +46,8 @@ public class CreateResourceStatement extends Statement {
                     parseResource(instance.createResourceInstanceId(), instance.createResourceInstanceElements(), params);
                 }
             }
+        } else {
+            instances.add(new Instance(null,null,params));
         }
     }
 
@@ -95,9 +98,13 @@ public class CreateResourceStatement extends Statement {
         private Map<String, Parameter> parameters = new LinkedHashMap<>();
         private List<CreateResourceStatement> childrens = new ArrayList<>();
 
-        public Instance(Parameter id, List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
+        public Instance(@Nullable Parameter id,
+                        @Nullable List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements,
+                        @Nullable Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
-            parameters.putAll(params);
+            if( params != null ) {
+                parameters.putAll(params);
+            }
             for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntLRUtils.nullToEmpty(resourceInstanceElements)) {
                 SystyrantLangParser.ParameterAssignmentContext param = elCtx.parameterAssignment();
                 if (param != null) {
