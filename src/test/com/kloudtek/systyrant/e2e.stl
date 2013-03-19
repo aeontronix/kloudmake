@@ -1,0 +1,6 @@
+import vagrant;
+import db;
+
+new vagrant {'vm1': dir = '_e2evagrant', box = "ubuntu-precise64",
+    new postgresql {'db' :}
+}

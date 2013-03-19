@@ -52,7 +52,7 @@ public class STContext implements AutoCloseable {
     private ServiceManager serviceManager;
     private List<Library> libraries = new ArrayList<>();
     private LibraryClassLoader libraryClassloader = new LibraryClassLoader(new URL[0], STContext.class.getClassLoader());
-    private Reflections reflections = new Reflections();
+    private Reflections reflections;
     private static ThreadLocal<STContext> ctx = new ThreadLocal<>();
     private ThreadLocal<Resource> resourceScope = new ThreadLocal<>();
     private final Map<String, Resource> resourceUidIndexes = new HashMap<>();
@@ -132,7 +132,11 @@ public class STContext implements AutoCloseable {
             } catch (InvalidServiceException e) {
                 throw new InvalidResourceDefinitionException(e.getMessage(), e);
             }
-            reflections.merge(library.getReflections());
+            if( reflections != null ) {
+                reflections.merge(library.getReflections());
+            } else {
+                reflections = library.getReflections();
+            }
         } finally {
             lock.writeLock().unlock();
         }
@@ -194,6 +198,9 @@ public class STContext implements AutoCloseable {
     }
 
     public synchronized void runScript(String pkg, @NotNull URI uri) throws IOException, ScriptException {
+        if( ! uri.isAbsolute() ) {
+            uri = new File(uri.getPath()).getAbsoluteFile().toURI();
+        }
         InputStreamReader reader = new InputStreamReader(uri.toURL().openConnection().getInputStream());
         runScript(pkg, uri.toString(), reader);
         reader.close();

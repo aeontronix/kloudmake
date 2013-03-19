@@ -6,22 +6,24 @@ package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.annotation.Attr;
 import com.kloudtek.systyrant.annotation.Execute;
+import com.kloudtek.systyrant.annotation.Inject;
 import com.kloudtek.systyrant.annotation.STResource;
-import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** This resource is used to install a package. */
+/**
+ * This resource is used to install a package.
+ */
 @STResource
 public class PackageResource {
     private static final Logger logger = LoggerFactory.getLogger(PackageResource.class);
     @NotEmpty()
     @Attr
     private String name;
-    @Attr()
+    @Attr
     private boolean installed;
     @Attr
     private String version;
@@ -31,7 +33,7 @@ public class PackageResource {
     private PackageProvider pkgProvider;
     @Attr
     private boolean includeRecommended;
-    @Service
+    @Inject
     private Host host;
 
     @Execute

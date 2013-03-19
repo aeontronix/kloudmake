@@ -4,16 +4,12 @@
 
 package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.exception.InjectException;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.InvalidServiceException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.cli.Cli;
 import org.testng.annotations.Test;
 
-import javax.script.ScriptException;
-import java.io.IOException;
-
-import static org.testng.Assert.assertTrue;
-
 public class E2ETests {
+    @Test
+    public void testE2E() {
+        Cli.main(new String[]{"src/test/com/kloudtek/systyrant/e2e.stl"});
+    }
 }
