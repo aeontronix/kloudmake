@@ -56,7 +56,7 @@ public class RawDSLParserTest {
 
     @Test
     public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, InvalidVariableException {
-        DSLScript script = parser.parse("def test { new test2 { 'test'=> } }");
+        DSLScript script = parser.parse("def test { new test2 { 'test': } }");
         assertEquals(script.getDefines().size(), 1);
         ResourceDefinition resourceDefinition = script.getDefines().get(0);
         List<Statement> pst = resourceDefinition.getStatementsForStage(Stage.PREPARE);
@@ -70,7 +70,7 @@ public class RawDSLParserTest {
 
     @Test
     public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, InvalidVariableException {
-        DSLScript script = parser.parse("def test { new test2 { 'tval'=> attr1=\"test\", attr2=22 , attr = 'value', attr3 = uid } }");
+        DSLScript script = parser.parse("def test { new test2 { 'tval': attr1=\"test\", attr2=22 , attr = 'value', attr3 = uid } }");
         assertEquals(script.getDefines().size(), 1);
         ResourceDefinition resourceDefinition = script.getDefines().get(0);
         List<Statement> pst = resourceDefinition.getStatementsForStage(Stage.PREPARE);
@@ -130,17 +130,17 @@ public class RawDSLParserTest {
 
     @Test(expectedExceptions = InvalidScriptException.class)
     public void testBrokenDSL2() throws InvalidScriptException, InvalidVariableException {
-        parser.parse("new pack {'asd' => 'adfs'}");
+        parser.parse("new pack {'asd' : 'adfs'}");
     }
 
     @Test(expectedExceptions = InvalidScriptException.class)
     public void testBrokenDSL3() throws InvalidScriptException, InvalidVariableException {
-        parser.parse("new package { 'dfsa' } new pack {'asd' => 'adfs'}");
+        parser.parse("new package { 'dfsa' } new pack {'asd' : 'adfs'}");
     }
 
     @Test(expectedExceptions = InvalidScriptException.class)
     public void testBrokenDSL4() throws InvalidScriptException, InvalidVariableException {
-        parser.parse("new package { 'dfsa'} ; new pack {'asd' => 'adfs'}");
+        parser.parse("new package { 'dfsa'} ; new pack {'asd' : 'adfs'}");
     }
 
     @Test(expectedExceptions = InvalidScriptException.class)

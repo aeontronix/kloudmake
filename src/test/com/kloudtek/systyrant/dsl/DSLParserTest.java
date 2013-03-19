@@ -25,7 +25,7 @@ import static org.testng.Assert.*;
 public class DSLParserTest extends AbstractContextTest {
     @Test(expectedExceptions = ScriptException.class, expectedExceptionsMessageRegExp = ".*Unable to find resource.*")
     public void testCreateElementMissingImport() throws Throwable {
-        ctx.runDSLScript("new test { 'testid'=> attr = 'val' }");
+        ctx.runDSLScript("new test { 'testid': attr = 'val' }");
         assertFalse(ctx.execute());
     }
 
@@ -39,7 +39,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElement() throws Throwable {
-        ctx.runDSLScript("import test; new test { \"myid\" => attr = 'val', attr2=val2; }");
+        ctx.runDSLScript("import test; new test { \"myid\" : attr = 'val', attr2=val2; }");
         execute();
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -52,7 +52,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElement2() throws Throwable {
-        ctx.runDSLScript("import test; new test(id = 'myid'); ");
+        ctx.runDSLScript("import test; new test(id = 'myid');");
         execute();
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -63,7 +63,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testDepRightLinked() throws Throwable {
-        ctx.runDSLScript("import test; new test(id='r1'); -> new test(id='r2') {}");
+        ctx.runDSLScript("import test; new test {id='r1'} -> new test {id='r2'}");
         execute();
         Resource r1 = ctx.findResourceByUid("r1");
         Resource r2 = ctx.findResourceByUid("r2");
@@ -122,7 +122,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElementFqn() throws Throwable {
-        ctx.runDSLScript("new test:test { \"myid\"=> attr = 'val' }");
+        ctx.runDSLScript("new test:test { \"myid\": attr = 'val' }");
         assertTrue(ctx.execute());
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -134,14 +134,14 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateAutoLoadExplicitelyNamedElement() throws Throwable {
-        ctx.runDSLScript("new com.kloudtek.systyrant.dsl:autoload { \"myid\"=> attr1 = 'val1' }");
+        ctx.runDSLScript("new com.kloudtek.systyrant.dsl:autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
         validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:uid:myid", "test:test:uid:myid.foo");
     }
 
     @Test
     public void testCreateAutoLoadImportedElement() throws Throwable {
-        ctx.runDSLScript("import foo.bar; import com.kloudtek.systyrant.dsl; new autoload { \"myid\"=> attr1 = 'val1' }");
+        ctx.runDSLScript("import foo.bar; import com.kloudtek.systyrant.dsl; new autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
         validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:uid:myid", "test:test:uid:myid.foo");
         validateParent("com.kloudtek.systyrant.dsl:autoload:uid:myid", null);

@@ -36,7 +36,7 @@ createResourceSingleInstance: createResourceInstanceId? createResourceInstanceEl
 
 createResourceMultipleInstance: createResourceInstanceId? createResourceInstanceElements* SC;
 
-createResourceInstanceId: staticOrDynamicValue '=>'?;
+createResourceInstanceId: staticOrDynamicValue COL ?;
 
 createResourceInstanceElements: parameterAssignment | createResourceInstanceChild;
 
@@ -125,6 +125,7 @@ RB: '}';
 LSB: '[';
 RSB: ']';
 COMMA: ',';
+COL: ':';
 
 INCLUDE : 'include';
 DEF : 'def';
