@@ -9,8 +9,10 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.resource.Resource;
+import com.kloudtek.util.ReflectionUtils;
 import org.testng.annotations.Test;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.testng.Assert.assertNotNull;
@@ -19,6 +21,48 @@ import static org.testng.Assert.assertNotNull;
  * Tests for the resource query language.
  */
 public class DSLQueryLangTests extends AbstractContextTest {
+    private Field field;
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testIdMatch() throws Throwable {
+        Resource rs1 = createTestResource();
+        Resource rs2 = createTestResource("someid");
+        rs2.setParent(rs1);
+        Resource rs3 = createTestResource();
+        rs3.setParent(rs1);
+        Resource rs4 = createTestResource("someid");
+        field = STContext.class.getDeclaredField("resourceScope");
+        field.setAccessible(true);
+        ((ThreadLocal<Resource>) field.get(ctx)).set(rs3);
+        List<Resource> result = resourceManager.findResources("someid");
+        assertContainsSame(result, rs2);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testIdMatch2() throws Throwable {
+        Resource rs1 = createTestResource();
+        Resource rs2 = createTestResource("someid");
+        Resource rs3 = createTestResource();
+        field = STContext.class.getDeclaredField("resourceScope");
+        field.setAccessible(true);
+        ((ThreadLocal<Resource>) field.get(ctx)).set(rs3);
+        List<Resource> result = resourceManager.findResources("someid");
+        assertContainsSame(result, rs2);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testUidMatch() throws Throwable {
+        Resource rs1 = createTestResource();
+        Resource rs2 = createTestResource();
+        rs2.setUid("someuid");
+        Resource rs3 = createTestResource();
+        List<Resource> result = resourceManager.findResources("someuid");
+        assertContainsSame(result, rs2);
+    }
+
     @Test
     public void testAttrCISEq() throws Throwable {
         createTestResource();

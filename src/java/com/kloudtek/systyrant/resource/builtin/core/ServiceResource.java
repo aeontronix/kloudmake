@@ -39,12 +39,12 @@ public class ServiceResource {
 
     }
 
-    @Verify
+    @Verify("running")
     public boolean checkRunning() {
         return false;
     }
 
-    @Sync
+    @Sync("running")
     public void setRunning() {
 
     }
