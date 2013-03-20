@@ -174,8 +174,15 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public List<Resource> findResources(String query) throws InvalidQueryException {
-        return new ResourceQuery(context, query).find(resources);
+    @NotNull
+    public List<Resource> findResources(@NotNull String query) throws InvalidQueryException {
+        return new ResourceQuery(context, query, context.currentResource()).find(resources);
+    }
+
+    @Override
+    @NotNull
+    public List<Resource> findResources(@NotNull String query, @Nullable Resource baseResource) throws InvalidQueryException {
+        return new ResourceQuery(context, query, baseResource).find(resources);
     }
 
     @Override
@@ -412,15 +419,8 @@ public class ResourceManagerImpl implements ResourceManager {
             for (Resource resource : resources) {
                 resource.dependencies.clear();
                 resource.dependents.clear();
-                String depsRef = resource.get("depends");
-                if (isNotEmpty(depsRef)) {
-                    try {
-                        List<Resource> deps = context.findResources(depsRef);
-                        context.getResourceManager().addDependency(new ManyToManyResourceDependency(resource, deps));
-                    } catch (InvalidQueryException e) {
-                        throw new InvalidDependencyException("Resource " + resource + " has an invalid depends attribute: " + depsRef);
-                    }
-                }
+                handleDependencyAttr(resource, "before");
+                handleDependencyAttr(resource, "after");
             }
             for (ManyToManyResourceDependency m2mDependency : m2mDependencies) {
                 o2mDependencies.addAll(m2mDependency.resolve(context));
@@ -439,6 +439,29 @@ public class ResourceManagerImpl implements ResourceManager {
             }
         } finally {
             wulock();
+        }
+    }
+
+    private void handleDependencyAttr(Resource resource, String attr) throws InvalidDependencyException {
+        String value = resource.get(attr);
+        if (isNotEmpty(value)) {
+            try {
+                List<Resource> deps = context.findResources(value,resource);
+                if (deps.isEmpty()) {
+                    throw new InvalidDependencyException("resource " + resource + " " + value + " attribute does not match any resources: " + value);
+                }
+                ManyToManyResourceDependency dependency;
+                if (attr.equals("before")) {
+                    dependency = new ManyToManyResourceDependency(resource, deps);
+                } else if (attr.equals("after")) {
+                    dependency = new ManyToManyResourceDependency(deps, resource);
+                } else {
+                    throw new RuntimeException("BUG: Invalid dependency attribute " + attr);
+                }
+                addDependency(dependency);
+            } catch (InvalidQueryException e) {
+                throw new InvalidDependencyException("Resource " + resource + " has an invalid " + attr + " attribute: " + value);
+            }
         }
     }
 

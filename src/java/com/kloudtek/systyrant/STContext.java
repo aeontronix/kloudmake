@@ -593,8 +593,14 @@ public class STContext implements AutoCloseable {
         return resourceManager.getResources();
     }
 
+    @NotNull
     public List<Resource> findResources(String query) throws InvalidQueryException {
-        return resourceManager.findResources(query);
+        return resourceManager.findResources(query,currentResource());
+    }
+
+    @NotNull
+    public List<Resource> findResources(String query, Resource baseResource) throws InvalidQueryException {
+        return resourceManager.findResources(query,baseResource);
     }
 
     public Resource findResourceByUid(String uid) {

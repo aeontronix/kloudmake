@@ -66,12 +66,15 @@ public interface ResourceManager extends Iterable<Resource> {
 
     boolean hasResources();
 
-
-    List<Resource> findResources(String query) throws InvalidQueryException;
+    @NotNull
+    List<Resource> findResources(@NotNull String query, @Nullable Resource baseResource) throws InvalidQueryException;
 
     Set<ResourceDependency> getDependencies();
 
     void addDependency(ResourceDependency dependency);
 
     void removeDependency(ResourceDependency dependency);
+
+    @NotNull
+    List<Resource> findResources(@NotNull String query) throws InvalidQueryException;
 }

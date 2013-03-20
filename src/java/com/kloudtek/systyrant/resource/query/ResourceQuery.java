@@ -14,6 +14,7 @@ import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +27,19 @@ public class ResourceQuery {
     private final Expression expression;
     private final STContext context;
 
-    public ResourceQuery(STContext context, String query) throws InvalidQueryException {
+    public ResourceQuery(STContext context, String query, Resource baseResource) throws InvalidQueryException {
         this.context = context;
         SystyrantLangParser parser = new SystyrantLangParser(new CommonTokenStream(new SystyrantLangLexer(new ANTLRInputStream(query))));
         parser.setErrorHandler(new BailErrorStrategy());
         try {
-            expression = Expression.create(parser.query().queryExpression(), query, context);
+            expression = Expression.create(parser.query().queryExpression(), query, context, baseResource);
         } catch (ParseCancellationException e) {
             RecognitionException cause = (RecognitionException) e.getCause();
             throw new InvalidQueryException(cause.getOffendingToken(), query);
         }
     }
 
+    @NotNull
     public List<Resource> find(List<Resource> resources) {
         ArrayList<Resource> matches = new ArrayList<>();
         for (Resource resource : resources) {

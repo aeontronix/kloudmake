@@ -20,10 +20,9 @@ public class IdExpression extends Expression {
     private boolean uidMatch;
     private Resource parent;
 
-    public IdExpression(SystyrantLangParser.QueryIdMatchContext idCtx, String query, STContext context) {
-        Resource res = context.currentResource();
-        if( res != null ) {
-            parent = res.getParent();
+    public IdExpression(SystyrantLangParser.QueryIdMatchContext idCtx, Resource baseResource) {
+        if( baseResource != null ) {
+            parent = baseResource.getParent();
         } else {
             uidMatch = true;
         }

@@ -9,7 +9,6 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.util.ReflectionUtils;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
@@ -32,10 +31,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
         Resource rs3 = createTestResource();
         rs3.setParent(rs1);
         Resource rs4 = createTestResource("someid");
-        field = STContext.class.getDeclaredField("resourceScope");
-        field.setAccessible(true);
-        ((ThreadLocal<Resource>) field.get(ctx)).set(rs3);
-        List<Resource> result = resourceManager.findResources("someid");
+        List<Resource> result = resourceManager.findResources("someid",rs3);
         assertContainsSame(result, rs2);
     }
 
@@ -45,10 +41,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
         Resource rs1 = createTestResource();
         Resource rs2 = createTestResource("someid");
         Resource rs3 = createTestResource();
-        field = STContext.class.getDeclaredField("resourceScope");
-        field.setAccessible(true);
-        ((ThreadLocal<Resource>) field.get(ctx)).set(rs3);
-        List<Resource> result = resourceManager.findResources("someid");
+        List<Resource> result = resourceManager.findResources("someid",rs3);
         assertContainsSame(result, rs2);
     }
 

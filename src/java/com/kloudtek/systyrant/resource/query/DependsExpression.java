@@ -22,9 +22,9 @@ public class DependsExpression extends Expression {
     boolean recurse;
     private ArrayList<Resource> resources = new ArrayList<>();
 
-    public DependsExpression(SystyrantLangParser.QueryDependsMatchContext depCtx, String query, STContext context) throws InvalidQueryException {
+    public DependsExpression(SystyrantLangParser.QueryDependsMatchContext depCtx, String query, STContext context, Resource baseResource) throws InvalidQueryException {
         if (depCtx.exp != null) {
-            Expression expression = Expression.create(depCtx.exp, query, context);
+            Expression expression = Expression.create(depCtx.exp, query, context, baseResource);
             for (Resource resource : context.getResourceManager()) {
                 if (expression.matches(context, resource)) {
                     resources.add(resource);

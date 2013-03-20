@@ -19,7 +19,7 @@ import com.kloudtek.systyrant.resource.Resource;
 public class TypeExpression extends Expression {
     private final FQName fqName;
 
-    public TypeExpression(SystyrantLangParser.QueryTypeMatchContext tm, String query, STContext context) {
+    public TypeExpression(SystyrantLangParser.QueryTypeMatchContext tm, String query, STContext context, Resource baseResource) {
         fqName = new FQName(tm.t.getText());
     }
 

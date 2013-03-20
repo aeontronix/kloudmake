@@ -69,11 +69,11 @@ public class STContextTest extends AbstractContextTest {
     }
 
     @Test
-    public void testDependenciesSetAsDependsAttr() throws Throwable {
+    public void testDependenciesSetAsBeforeAttr() throws Throwable {
         Resource r1 = createTestResource();
         Resource r2 = createTestResource("someid");
         Resource r3 = createTestResource();
-        r3.set("depends", "@id eq 'someid'");
+        r3.set("before", "someid");
         Resource r4 = createTestResource();
         createTestResource();
         execute();
@@ -81,6 +81,22 @@ public class STContextTest extends AbstractContextTest {
         assertTrue(r2.getDependencies().isEmpty());
         assertEquals(r3.getDependencies().size(), 1);
         assertSame(r3.getDependencies().iterator().next(), r2);
+        assertTrue(r4.getDependencies().isEmpty());
+    }
+
+    @Test
+    public void testDependenciesSetAsAfterAttr() throws Throwable {
+        Resource r1 = createTestResource();
+        Resource r2 = createTestResource("someid");
+        Resource r3 = createTestResource();
+        r3.set("after", "someid");
+        Resource r4 = createTestResource();
+        createTestResource();
+        execute();
+        assertTrue(r1.getDependencies().isEmpty());
+        assertEquals(r2.getDependencies().size(), 1);
+        assertSame(r2.getDependencies().iterator().next(), r3);
+        assertTrue(r3.getDependencies().isEmpty());
         assertTrue(r4.getDependencies().isEmpty());
     }
 

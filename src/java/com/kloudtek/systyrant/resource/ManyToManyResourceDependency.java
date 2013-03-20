@@ -48,6 +48,16 @@ public class ManyToManyResourceDependency implements ResourceDependency {
         this.targets.addAll(targets);
     }
 
+    public ManyToManyResourceDependency(Collection<Resource> origins, Resource target) {
+        this.origins.addAll(origins);
+        this.targets.add(target);
+    }
+
+    public ManyToManyResourceDependency(Collection<Resource> origins, Collection<Resource> targets) {
+        this.origins.addAll(origins);
+        this.targets.addAll(targets);
+    }
+
     public Set<Resource> getOrigins() {
         return origins;
     }

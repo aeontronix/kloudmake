@@ -23,19 +23,19 @@ import java.util.List;
 public abstract class Expression {
     private static final Logger logger = LoggerFactory.getLogger(Expression.class);
 
-    public static Expression create(SystyrantLangParser.QueryExpressionContext expr, String query, STContext context) throws InvalidQueryException {
+    public static Expression create(SystyrantLangParser.QueryExpressionContext expr, String query, STContext context, Resource baseResource) throws InvalidQueryException {
         if (expr.attrMatch != null) {
             return new AttrMatchExpression(expr.attrMatch, query, context);
         } else if (expr.bOp != null) {
             List<SystyrantLangParser.QueryExpressionContext> exprs = expr.queryExpression();
             assert exprs.size() == 2;
-            return new BinaryExpression(expr.bOp, exprs.get(0), exprs.get(1), query, context);
+            return new BinaryExpression(expr.bOp, exprs.get(0), exprs.get(1), query, context, baseResource);
         } else if (expr.co != null) {
-            return new ChildOfExpression(expr.co, query, context);
+            return new ChildOfExpression(expr.co, query, context, baseResource);
         } else if (expr.tm != null) {
-            return new TypeExpression(expr.tm, query, context);
+            return new TypeExpression(expr.tm, query, context, baseResource);
         } else if (expr.id != null) {
-            return new IdExpression(expr.id, query, context);
+            return new IdExpression(expr.id, baseResource);
         } else {
             throw new InvalidQueryException(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), query);
         }

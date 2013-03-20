@@ -24,10 +24,10 @@ public class BinaryExpression extends Expression {
 
     public BinaryExpression(SystyrantLangParser.BinaryOpContext opCtx,
                             SystyrantLangParser.QueryExpressionContext leftExprCtx,
-                            SystyrantLangParser.QueryExpressionContext rightExprCtx, String query, STContext context) throws InvalidQueryException {
+                            SystyrantLangParser.QueryExpressionContext rightExprCtx, String query, STContext context, Resource baseResource) throws InvalidQueryException {
         and = BinaryOp.valueOf(opCtx) == BinaryOp.AND;
-        leftExpression = Expression.create(leftExprCtx, query, context);
-        rightExpression = Expression.create(rightExprCtx, query, context);
+        leftExpression = Expression.create(leftExprCtx, query, context, baseResource);
+        rightExpression = Expression.create(rightExprCtx, query, context, baseResource);
     }
 
     @Override

@@ -22,9 +22,9 @@ public class ChildOfExpression extends Expression {
     boolean recurse;
     private ArrayList<Resource> parents = new ArrayList<>();
 
-    public ChildOfExpression(SystyrantLangParser.QueryChildOfMatchContext childOfContext, String query, STContext context) throws InvalidQueryException {
+    public ChildOfExpression(SystyrantLangParser.QueryChildOfMatchContext childOfContext, String query, STContext context, Resource baseResource) throws InvalidQueryException {
         if (childOfContext.exp != null) {
-            Expression expression = Expression.create(childOfContext.exp, query, context);
+            Expression expression = Expression.create(childOfContext.exp, query, context, baseResource);
             for (Resource resource : context.getResourceManager()) {
                 if (expression.matches(context, resource)) {
                     parents.add(resource);
