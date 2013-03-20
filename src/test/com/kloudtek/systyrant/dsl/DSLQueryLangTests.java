@@ -252,18 +252,18 @@ public class DSLQueryLangTests extends AbstractContextTest {
 
     @Test
     public void testAnd() throws Throwable {
-        createTestResource().setUid("uid1");
+        createTestResource().set("attr1", "val1");
         Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2");
-        createTestResource().set("uid", "uid3");
+        createTestResource().set("attr2", "val2");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2'");
         assertContainsSame(result, rs2);
     }
 
     @Test
     public void testAnd2() throws Throwable {
-        createTestResource().setUid("uid1");
+        createTestResource().set("attr1", "val1");
         Resource rs2 = createTestResource("id2").set("attr1", "val1").set("attr2", "val2").set("attr3", "val3");
-        createTestResource().set("uid", "uid3");
+        createTestResource().set("attr3", "val3");
         List<Resource> result = resourceManager.findResources("@attr1 eq 'val1' and @attr2 eq 'val2' and @attr3 eq 'val3'");
         assertContainsSame(result, rs2);
     }
