@@ -451,9 +451,9 @@ public class ResourceManagerImpl implements ResourceManager {
                     throw new InvalidDependencyException("resource " + resource + " " + value + " attribute does not match any resources: " + value);
                 }
                 ManyToManyResourceDependency dependency;
-                if (attr.equals("before")) {
+                if (attr.equals("after")) {
                     dependency = new ManyToManyResourceDependency(resource, deps);
-                } else if (attr.equals("after")) {
+                } else if (attr.equals("before")) {
                     dependency = new ManyToManyResourceDependency(deps, resource);
                 } else {
                     throw new RuntimeException("BUG: Invalid dependency attribute " + attr);

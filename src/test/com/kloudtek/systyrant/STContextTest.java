@@ -78,9 +78,9 @@ public class STContextTest extends AbstractContextTest {
         createTestResource();
         execute();
         assertTrue(r1.getDependencies().isEmpty());
-        assertTrue(r2.getDependencies().isEmpty());
-        assertEquals(r3.getDependencies().size(), 1);
-        assertSame(r3.getDependencies().iterator().next(), r2);
+        assertEquals(r2.getDependencies().size(), 1);
+        assertSame(r2.getDependencies().iterator().next(), r3);
+        assertTrue(r3.getDependencies().isEmpty());
         assertTrue(r4.getDependencies().isEmpty());
     }
 
@@ -94,9 +94,9 @@ public class STContextTest extends AbstractContextTest {
         createTestResource();
         execute();
         assertTrue(r1.getDependencies().isEmpty());
-        assertEquals(r2.getDependencies().size(), 1);
-        assertSame(r2.getDependencies().iterator().next(), r3);
-        assertTrue(r3.getDependencies().isEmpty());
+        assertTrue(r2.getDependencies().isEmpty());
+        assertEquals(r3.getDependencies().size(), 1);
+        assertSame(r3.getDependencies().iterator().next(), r2);
         assertTrue(r4.getDependencies().isEmpty());
     }
 
