@@ -576,6 +576,10 @@ public class STContext implements AutoCloseable {
         return resourceManager.hasResources();
     }
 
+    public Reflections getReflections() {
+        return reflections;
+    }
+
     public synchronized boolean isSuccessful() {
         for (Resource resource : resourceManager) {
             if (resource.getState() == FAILED) {

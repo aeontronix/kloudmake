@@ -4,9 +4,11 @@
 
 package com.kloudtek.systyrant.provider;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.util.ListHashMap;
 import org.reflections.Reflections;
 
@@ -16,6 +18,7 @@ public class ProvidersManagementService {
     protected HashMap<Class<? extends ProviderManager>, ProviderManager> providerManagers = new HashMap<>();
     protected HashMap<Class<?>, ProviderManager> providerClasses = new HashMap<>();
     protected ListHashMap<Class<?>, Object> providerImplementations = new ListHashMap<>();
+    private STContext context;
 
     public void registerProviderManager(Class<? extends ProviderManager> clazz) throws InvalidServiceException {
         try {

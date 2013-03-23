@@ -8,6 +8,8 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.systyrant.host.Host;
 import org.testng.annotations.Test;
@@ -321,6 +323,32 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
             test2x = "x2";
             test3 = 100;
             test4 = "x4";
+        }
+    }
+
+    @Test
+    public void testResourceWithTwoJavaImpls() throws Throwable {
+        register(ResourceWithTwoJavaImpls1.class,"testmulticlass");
+        register(ResourceWithTwoJavaImpls2.class,"testmulticlass");
+        Resource resource = resourceManager.createResource("test:testmulticlass");
+        execute();
+        assertTrue(resource.getJavaImpl(ResourceWithTwoJavaImpls1.class).executed);
+        assertTrue(resource.getJavaImpl(ResourceWithTwoJavaImpls2.class).executed);
+    }
+
+    public static class ResourceWithTwoJavaImpls1 {
+        public boolean executed;
+        @Execute
+        public void action() {
+            executed = true;
+        }
+    }
+
+    public static class ResourceWithTwoJavaImpls2 {
+        public boolean executed;
+        @Execute
+        public void action() {
+            executed = true;
         }
     }
 }
