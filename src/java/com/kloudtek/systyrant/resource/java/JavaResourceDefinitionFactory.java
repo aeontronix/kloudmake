@@ -39,9 +39,6 @@ public class JavaResourceDefinitionFactory {
         }
         Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz);
         OnlyIfOperatingSystem onlyIfOperatingSystem = clazz.getAnnotation(OnlyIfOperatingSystem.class);
-        if(onlyIfOperatingSystem != null ) {
-            onlyIf.add(new EnforceOnlyIfOS(onlyIfOperatingSystem.value()));
-        }
         Set<JavaAction> actions = new HashSet<>();
         HashMap<String, JavaAction> syncs = new HashMap<>();
         ArrayList<Injector> injectors = new ArrayList<>();

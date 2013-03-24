@@ -17,15 +17,20 @@ import com.kloudtek.systyrant.resource.Resource;
 * To change this template use File | Settings | File Templates.
 */
 public class EnforceOnlyIfOS extends EnforceOnlyIf {
-    private OperatingSystem os;
+    private OperatingSystem[] operatingSystems;
 
-    public EnforceOnlyIfOS(OperatingSystem os) {
-        this.os = os;
+    public EnforceOnlyIfOS(OperatingSystem[] operatingSystems) {
+        this.operatingSystems = operatingSystems;
     }
 
     @Override
     public boolean execAllowed(STContext context, Resource resource) {
-        Host host = resource.getHost();
-        return host.getMetadata().getOperatingSystem().equals(os);
+        OperatingSystem hostOS = resource.getHost().getMetadata().getOperatingSystem();
+        for (OperatingSystem os : operatingSystems) {
+            if( ! hostOS.equals(os) ) {
+                return false;
+            }
+        }
+        return true;
     }
 }

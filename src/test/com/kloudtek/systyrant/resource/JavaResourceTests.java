@@ -417,7 +417,7 @@ public class JavaResourceTests extends AbstractContextTest {
 
     public static class ResourceExcludeUsingMethodLevelOnlyIfOS {
         @Execute
-        @OnlyIfOperatingSystem(OperatingSystem.SOLARIS)
+        @OnlyIfOperatingSystem({OperatingSystem.SOLARIS,OperatingSystem.AIX})
         public void shouldNotRun() {
             fail("Should not have been called");
         }
