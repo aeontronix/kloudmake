@@ -200,9 +200,22 @@ public class AbstractContextTest {
     }
 
     public class FailAction extends AbstractAction {
+        public FailAction() {
+            type = Type.EXECUTE;
+        }
+
+        public FailAction(Type type) {
+            this.type = type;
+        }
+
         @Override
-        public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+        public void execute(STContext context, Resource resource) throws STRuntimeException {
             throw new STRuntimeException();
+        }
+
+        @Override
+        public boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException {
+            return true;
         }
     }
 

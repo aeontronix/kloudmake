@@ -50,7 +50,7 @@ public class RawDSLParserTest {
     public void testSimpleDef() throws InvalidScriptException {
         DSLScript script = parser.parse("def test {}");
         assertEquals(script.getDefines().size(), 1);
-        ResourceDefinition def = script.getDefines().get(0);
+        DSLResourceDefinition def = script.getDefines().get(0);
         assertEquals(def.getName(), "test");
     }
 
@@ -58,8 +58,8 @@ public class RawDSLParserTest {
     public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("def test { new test2 { 'test': } }");
         assertEquals(script.getDefines().size(), 1);
-        ResourceDefinition resourceDefinition = script.getDefines().get(0);
-        List<Statement> pst = resourceDefinition.getStatementsForStage(Stage.PREPARE);
+        DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
+        List<Statement> pst = resourceDefStatement.getStatementsForStage(Stage.PREPARE);
         assertEquals(pst.size(), 1);
         Statement st = pst.get(0);
         assertTrue(st instanceof CreateResourceStatement);
@@ -72,8 +72,8 @@ public class RawDSLParserTest {
     public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, InvalidVariableException {
         DSLScript script = parser.parse("def test { new test2 { 'tval': attr1=\"test\", attr2=22 , attr = 'value', attr3 = uid } }");
         assertEquals(script.getDefines().size(), 1);
-        ResourceDefinition resourceDefinition = script.getDefines().get(0);
-        List<Statement> pst = resourceDefinition.getStatementsForStage(Stage.PREPARE);
+        DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
+        List<Statement> pst = resourceDefStatement.getStatementsForStage(Stage.PREPARE);
         assertEquals(pst.size(), 1);
         Statement st = pst.get(0);
         assertTrue(st instanceof CreateResourceStatement);
@@ -86,8 +86,8 @@ public class RawDSLParserTest {
     public void testDefineWithSingleFQNCreateEl() throws InvalidScriptException {
         DSLScript script = parser.parse("def test { new foo.bar:test2 {} }");
         assertEquals(script.getDefines().size(), 1);
-        ResourceDefinition resourceDefinition = script.getDefines().get(0);
-        List<Statement> pst = resourceDefinition.getStatementsForStage(Stage.PREPARE);
+        DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
+        List<Statement> pst = resourceDefStatement.getStatementsForStage(Stage.PREPARE);
         assertEquals(pst.size(), 1);
         Statement st = pst.get(0);
         assertTrue(st instanceof CreateResourceStatement);

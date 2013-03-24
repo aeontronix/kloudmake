@@ -17,7 +17,7 @@ import java.util.Set;
 public interface ResourceManager extends Iterable<Resource> {
     void setContext(STContext context);
 
-    List<ResourceFactory> getResourceFactories();
+    List<ResourceDefinition> getResourceDefinitions();
 
     List<Resource> getResources();
 
@@ -48,15 +48,15 @@ public interface ResourceManager extends Iterable<Resource> {
 
     List<Resource> findResourcesById(@NotNull String id) throws STRuntimeException;
 
-    void registerResources(Collection<ResourceFactory> factories) throws InvalidResourceDefinitionException;
-
-    void registerResources(ResourceFactory factory) throws InvalidResourceDefinitionException;
-
     void registerJavaResource(Class<?> clazz) throws InvalidResourceDefinitionException;
 
     void registerJavaResource(Class<?> clazz, @NotNull String fqname) throws InvalidResourceDefinitionException;
 
     void registerJavaResource(Class<?> clazz, @NotNull FQName fqname) throws InvalidResourceDefinitionException;
+
+    void registerResourceDefinitions(Collection<ResourceDefinition> resourceDefinitions) throws InvalidResourceDefinitionException;
+
+    void registerResourceDefinition(ResourceDefinition resourceDefinition) throws InvalidResourceDefinitionException;
 
     void close();
 

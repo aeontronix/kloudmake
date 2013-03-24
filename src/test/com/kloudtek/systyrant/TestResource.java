@@ -299,7 +299,7 @@ public class TestResource {
 
     public static void createChild(Resource parent, String... childrens) {
         for (String children : childrens) {
-            parent.addAction(Stage.PREPARE, new CreateChildrenAction(parent, children));
+            parent.addAction(new CreateChildrenAction(parent, children));
         }
     }
 
@@ -317,12 +317,13 @@ public class TestResource {
         private final Resource parent;
 
         public CreateChildrenAction(Resource parent, String id) {
+            type = Type.PREPARE;
             this.name = id;
             this.parent = parent;
         }
 
         @Override
-        public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+        public void execute(STContext context, Resource resource) throws STRuntimeException {
             try {
                 logger.info("Creating children {} for resource {}",name,parent);
                 Resource children = context.getResourceManager().createResource(AbstractContextTest.TEST, null, parent);

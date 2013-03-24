@@ -46,12 +46,7 @@ public class ResourceSorterTest {
     @Test(expectedExceptions = InvalidDependencyException.class)
     public void testSortCircular() throws Exception {
         STContext ctx = new STContext();
-        ResourceFactory rf = new ResourceFactory("test", "file") {
-            @NotNull
-            @Override
-            protected void configure(STContext context, Resource resource) throws ResourceCreationException {
-            }
-        };
+        ResourceDefinition rf = new ResourceDefinition("test", "file");
         // circular dependency  5 -> [ 7 -> 11 -> 2 -> 7 ]
         Resource seven = new Resource(ctx, rf);
         Resource five = new Resource(ctx, rf);

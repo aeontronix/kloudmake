@@ -23,8 +23,8 @@ import static com.kloudtek.util.StringUtils.isNotEmpty;
 public class ServiceInjector extends Injector {
     private final String name;
 
-    public ServiceInjector(Field field, Service service) {
-        super(field);
+    public ServiceInjector(Class<?> clazz, Field field, Service service) {
+        super(clazz, field);
         name = service.value();
     }
 

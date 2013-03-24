@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.core;
+package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.STContext;

@@ -19,8 +19,8 @@ public class AttrInjector extends Injector {
     private static final Logger logger = LoggerFactory.getLogger(AttrInjector.class);
     private final String name;
 
-    public AttrInjector(String name, Field field) {
-        super(field);
+    public AttrInjector(Class<?> clazz, String name, Field field) {
+        super(clazz, field);
         this.name = name;
     }
 

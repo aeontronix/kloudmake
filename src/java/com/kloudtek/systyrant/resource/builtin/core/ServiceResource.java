@@ -30,8 +30,7 @@ public class ServiceResource {
 
     @Verify
     public boolean checkEnabled() {
-
-        return false;
+        return true;
     }
 
     @Sync(order = 1)
@@ -41,7 +40,7 @@ public class ServiceResource {
 
     @Verify("running")
     public boolean checkRunning() {
-        return false;
+        return true;
     }
 
     @Sync("running")

@@ -4,7 +4,7 @@
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Systyrant Test Suite" verbose="1">
+<suite name="Systyrant Standalone Test Suite" verbose="1">
     <test name="Engine">
         <groups>
             <run>
@@ -15,6 +15,8 @@
         <packages>
             <package name="com.kloudtek.systyrant"/>
             <package name="com.kloudtek.systyrant.dsl"/>
+            <package name="com.kloudtek.systyrant.host"/>
+            <package name="com.kloudtek.systyrant.resource"/>
         </packages>
     </test>
     <test name="Core Modules">
@@ -25,7 +27,7 @@
             </run>
         </groups>
         <packages>
-            <package name="com.kloudtek.systyrant.core"/>
+            <package name="com.kloudtek.systyrant.resource.builtin.core"/>
         </packages>
     </test>
 </suite>

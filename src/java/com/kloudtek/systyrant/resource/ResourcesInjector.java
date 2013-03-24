@@ -21,8 +21,8 @@ import java.util.List;
 public class ResourcesInjector extends Injector {
     private final String query;
 
-    public ResourcesInjector(Field field, String query) {
-        super(field);
+    public ResourcesInjector(Class<?> clazz, Field field, String query) {
+        super(clazz, field);
         this.query = query;
     }
 

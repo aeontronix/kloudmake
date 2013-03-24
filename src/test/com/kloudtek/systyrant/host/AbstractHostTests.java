@@ -2,16 +2,13 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource.host;
+package com.kloudtek.systyrant.host;
 
 import com.jcraft.jsch.JSchException;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.TestVagrantRuntime;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.host.Host;
-import com.kloudtek.systyrant.host.LocalHost;
-import com.kloudtek.systyrant.host.SshHost;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.io.FileUtils;
@@ -36,7 +33,7 @@ import static com.kloudtek.systyrant.host.Host.Logging.YES;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static org.testng.Assert.*;
 
-public class HostTests {
+public abstract class AbstractHostTests {
     private final Type type;
     private String fileUser;
     private String fileGroup;
@@ -47,18 +44,14 @@ public class HostTests {
     private byte[] testData1Sha = CryptoUtils.sha1(testData1);
     private byte[] testData2 = new byte[]{1, 2, 3, 4, 5, 6};
 
-    public HostTests() {
-        this(Type.SSH_SUDO);
-    }
-
-    public HostTests(Type type) {
+    public AbstractHostTests(Type type) {
         this.type = type;
     }
 
     @BeforeClass
     public void setup() throws IOException, JSchException {
         if (type == Type.LOCAL) {
-            setup(LocalHost.createStandalone(), System.clearProperty("user.name"));
+            setup(LocalHost.createStandalone(), System.getProperty("user.name"));
         } else {
             TestVagrantRuntime testVagrantRuntime = new TestVagrantRuntime();
             setup(testVagrantRuntime.getSshHost(), type == Type.SSH_ROOT ? "root" : "vagrant");

@@ -19,9 +19,11 @@ import java.lang.reflect.Field;
  * To change this template use File | Settings | File Templates.
  */
 public abstract class Injector {
+    protected Class<?> clazz;
     protected final Field field;
 
-    protected Injector(Field field) {
+    protected Injector(Class<?> clazz,Field field) {
+        this.clazz = clazz;
         this.field = field;
         if( ! field.isAccessible() ) {
             field.setAccessible(true);

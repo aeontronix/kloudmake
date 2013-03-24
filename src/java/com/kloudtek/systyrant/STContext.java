@@ -12,7 +12,6 @@ import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
-import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
 import com.kloudtek.systyrant.resource.ResourceManagerImpl;
@@ -80,7 +79,7 @@ public class STContext implements AutoCloseable {
         this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
         resourceManager = new ResourceManagerImpl(this);
-        serviceManager = new ServiceManagerImpl(this, reflections);
+        serviceManager = new ServiceManagerImpl(this);
         registerLibrary(new Library());
         providersManagementService.init(reflections);
         inject(host);
@@ -121,8 +120,8 @@ public class STContext implements AutoCloseable {
             libraries.add(library);
             logger.debug("Adding library {} to the module classloader", library.getLocationUrl());
             libraryClassloader.addURL(library.getLocationUrl());
-            for (JavaResourceFactory javaResourceFactory : library.getJavaElFactories()) {
-                resourceManager.registerResources(javaResourceFactory);
+            for (Class<?> clazz : library.getResourceDefinitionClasses()) {
+                resourceManager.registerJavaResource(clazz);
             }
             Set<Class<?>> services = library.getReflections().getTypesAnnotatedWith(Service.class);
             try {

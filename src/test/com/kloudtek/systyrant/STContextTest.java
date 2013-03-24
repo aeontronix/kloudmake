@@ -8,8 +8,8 @@ import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.AbstractAction;
+import com.kloudtek.systyrant.resource.Action;
 import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.SyncAction;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
@@ -32,9 +32,9 @@ public class STContextTest extends AbstractContextTest {
     @Test(dependsOnMethods = "testSimpleElementCreation", expectedExceptions = ResourceCreationException.class)
     public void testCreateElementDuringExecutionStage() throws Throwable {
         Resource test1 = createTestResource("test1");
-        test1.addAction(Stage.EXECUTE, new AbstractAction() {
+        test1.addAction(new AbstractAction() {
             @Override
-            public void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException {
+            public void execute(STContext context, Resource resource) throws STRuntimeException {
                 try {
                     context.getResourceManager().createResource(TEST);
                 } catch (ResourceCreationException e) {
@@ -130,12 +130,12 @@ public class STContextTest extends AbstractContextTest {
     public void testFailurePropagation() throws InvalidAttributeException, STRuntimeException, ResourceCreationException {
         ctx.clearFatalException();
         Resource el1 = createTestResource("1");
-        el1.addAction(Stage.EXECUTE, new FailAction());
+        el1.addAction(new FailAction(Action.Type.EXECUTE));
         Resource el2 = createTestResource("2", el1);
         Resource el3 = createTestResource("3", el2);
         Resource el4 = createTestResource("4", el3);
         Resource el5 = createTestResource("5");
-        el5.addAction(Stage.PREPARE, new FailAction());
+        el5.addAction(new FailAction(Action.Type.PREPARE));
         Resource el6 = createTestResource("6", el5);
         Resource el7 = createTestResource("7", el6);
         Resource el8 = createTestResource("8");
@@ -194,22 +194,24 @@ public class STContextTest extends AbstractContextTest {
     @Test
     public void testVerifyNoChange() throws Throwable {
         Resource res = createTestResource("x");
-        SyncAction action = Mockito.mock(SyncAction.class);
-        res.addAction(Stage.EXECUTE, action);
-        when(action.verify(ctx, res, Stage.EXECUTE, false)).thenReturn(false);
+        Action action = Mockito.mock(Action.class);
+        when(action.getType()).thenReturn(Action.Type.EXECUTE);
+        res.addAction(action);
+        when(action.checkExecutionRequired(ctx, res)).thenReturn(false);
         execute();
-        verify(action, Mockito.times(1)).verify(ctx, res, Stage.EXECUTE, false);
-        verify(action, Mockito.times(1)).execute(ctx, res, Stage.EXECUTE, false);
+        verify(action, Mockito.times(1)).checkExecutionRequired(ctx, res);
+        verify(action, Mockito.never()).execute(ctx, res);
     }
 
     @Test
     public void testVerifyChanged() throws Throwable {
         Resource res = createTestResource("x");
-        SyncAction action = Mockito.mock(SyncAction.class);
-        res.addAction(Stage.EXECUTE, action);
-        when(action.verify(ctx, res, Stage.EXECUTE, false)).thenReturn(true);
+        Action action = Mockito.mock(Action.class);
+        when(action.getType()).thenReturn(Action.Type.EXECUTE);
+        res.addAction(action);
+        when(action.checkExecutionRequired(ctx, res)).thenReturn(true);
         execute();
-        verify(action, Mockito.times(1)).verify(ctx, res, Stage.EXECUTE, false);
-        verify(action, Mockito.never()).execute(ctx, res, Stage.EXECUTE, false);
+        verify(action, Mockito.times(1)).checkExecutionRequired(ctx, res);
+        verify(action, Mockito.times(1)).execute(ctx, res);
     }
 }

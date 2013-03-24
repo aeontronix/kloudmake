@@ -8,6 +8,8 @@ import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.resource.ResourceDefinition;
+import com.kloudtek.systyrant.resource.ResourceManager;
 import com.kloudtek.systyrant.resource.ResourceMatcher;
 
 import javax.script.ScriptException;
@@ -21,7 +23,7 @@ public class DSLScript {
     private STContext ctx;
     private String defaultPackage;
     private List<ResourceMatcher> imports = new ArrayList<>();
-    private List<ResourceDefinition> defines = new ArrayList<>();
+    private List<DSLResourceDefinition> defines = new ArrayList<>();
     private List<Statement> statements = new ArrayList<>();
     private ResourceMatcher defaultPkgMatcher;
 
@@ -42,7 +44,7 @@ public class DSLScript {
         if (statementContext != null) {
             SystyrantLangParser.ResourceDefinitionContext resourceDefinitionContext = statementContext.resourceDefinition();
             if (resourceDefinitionContext != null) {
-                defines.add(new ResourceDefinition(ctx, this, defaultPackage, resourceDefinitionContext));
+                defines.add(new DSLResourceDefinition(ctx, this, defaultPackage, resourceDefinitionContext));
             } else {
                 statements.add(Statement.create(ctx, statementContext));
             }
@@ -68,17 +70,19 @@ public class DSLScript {
         imports.add(importPackage);
     }
 
-    public List<ResourceDefinition> getDefines() {
+    public List<DSLResourceDefinition> getDefines() {
         return defines;
     }
 
-    public void addDefine(ResourceDefinition resourceDefinition) {
-        defines.add(resourceDefinition);
+    public void addDefine(DSLResourceDefinition resourceDefStatement) {
+        defines.add(resourceDefStatement);
     }
 
     public void execute(STContext ctx) throws InvalidResourceDefinitionException, ScriptException {
-        for (ResourceDefinition define : defines) {
-            ctx.getResourceManager().registerResources(define.createFactory(defaultPackage));
+        ResourceManager resourceManager = ctx.getResourceManager();
+        for (DSLResourceDefinition define : defines) {
+            ResourceDefinition resourceDefinition = define.toResDef(ctx);
+            resourceManager.registerResourceDefinition(resourceDefinition);
         }
         for (Statement statement : statements) {
             statement.execute(this, null);

@@ -4,7 +4,6 @@
 
 package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.resource.Resource;
@@ -13,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-/** Helper class for use by elements. */
+/**
+ * Helper class for use by elements.
+ */
 public class STHelper {
     public static Resource createElement(@NotNull FQName fqname) throws ResourceCreationException {
         return STContext.get().getResourceManager().createResource(fqname, null, null);
@@ -82,17 +83,8 @@ public class STHelper {
         return createChildElement(getCheckFQName(elementClass));
     }
 
-    public static FQName getFQName(Class<?> elementClass) {
-        STResource annotation = elementClass.getAnnotation(STResource.class);
-        if (annotation != null) {
-            return new FQName(annotation.value());
-        } else {
-            return null;
-        }
-    }
-
     private static FQName getCheckFQName(Class<?> elementClass) throws ResourceCreationException {
-        FQName fqName = getFQName(elementClass);
+        FQName fqName = new FQName(elementClass);
         if (fqName == null) {
             throw new ResourceCreationException("Class " + elementClass.getName() + " must be annotated with @Resource");
         }

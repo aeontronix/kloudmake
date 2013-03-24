@@ -4,6 +4,8 @@
 
 package com.kloudtek.systyrant.annotation;
 
+import com.kloudtek.systyrant.resource.UniqueScope;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -14,8 +16,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})
 public @interface Unique {
-    Scope value() default Scope.GLOBAL;
-    public enum Scope {
-        GLOBAL
-    }
+    UniqueScope value() default UniqueScope.GLOBAL;
 }

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 @STResource
 public class ExecResource {
     private static Logger logger = LoggerFactory.getLogger(ExecResource.class);
-    @Service
+    @Inject
     private Host host;
     @Attr
     private String command;
@@ -58,16 +58,16 @@ public class ExecResource {
         if (unless != null) {
             ExecutionResult exec = host.exec(unless, null, loggingEnum);
             if (exec.getRetCode() == 0) {
-                return true;
+                return false;
             }
         }
         if (ifAttr != null) {
             ExecutionResult exec = host.exec(ifAttr, null, loggingEnum);
             if (exec.getRetCode() != 0) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     @Sync

@@ -21,6 +21,10 @@ public class FQName {
     public FQName() {
     }
 
+    public FQName(@NotNull Class<?> clazz) {
+        this(clazz,null);
+    }
+
     public FQName(@NotNull Class<?> clazz, FQName fqname) {
         STResource rsAnno = clazz.getAnnotation(STResource.class);
         boolean annoNameDef = rsAnno != null && isNotEmpty(rsAnno.value());

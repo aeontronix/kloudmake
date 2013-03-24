@@ -8,25 +8,30 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
-/**
- * Created with IntelliJ IDEA.
- * User: yannick
- * Date: 18/03/13
- * Time: 21:32
- * To change this template use File | Settings | File Templates.
- */
+import java.lang.reflect.Method;
+
 public interface Action extends Comparable<Action> {
     /**
-     * Execute this action
-     *
-     * @param context
-     * @param resource     Resource owning the action.
-     * @param stage        Current stage.
-     * @param postChildren If this is a post-children action
+     * Executes the action
+     * @param context Context
+     * @param resource Resource being executed
+     * @throws STRuntimeException If an error occurs during execution
      */
-    void execute(STContext context, Resource resource, Stage stage, boolean postChildren) throws STRuntimeException;
+    void execute(STContext context, Resource resource) throws STRuntimeException;
+
+    /**
+     * Checks if execution is required.
+     * @return True if execution is required.
+     * @param context
+     * @param resource
+     */
+    boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException;
 
     int getOrder();
 
-    void setOrder(int order);
+    Type getType();
+
+    public enum Type {
+        INIT, PREPARE, EXECUTE, SYNC, POSTCHILDREN_EXECUTE, POSTCHILDREN_SYNC, CLEANUP;
+    }
 }

@@ -7,9 +7,9 @@ package com.kloudtek.systyrant.resource.builtin.core;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.codec.DecoderException;
@@ -84,7 +84,7 @@ public class FileResource {
             case DIRECTORY:
                 if (finfo != null) {
                     if (finfo.isDirectory()) {
-                        return true;
+                        return false;
                     } else {
                         if (force) {
                             delete = true;
@@ -104,7 +104,7 @@ public class FileResource {
                 if (finfo != null) {
                     if (finfo.isSymlink()) {
                         if (target.equals(finfo.getLinkTarget())) {
-                            return true;
+                            return false;
                         } else {
                             delete = true;
                         }
@@ -120,13 +120,13 @@ public class FileResource {
                 break;
             case ABSENT:
                 if (finfo == null) {
-                    return true;
+                    return false;
                 }
                 break;
             default:
                 throw new STRuntimeException(ensure + " not supported");
         }
-        return false;
+        return true;
     }
 
     private boolean checkFile() throws STRuntimeException {
@@ -166,7 +166,7 @@ public class FileResource {
                 byte[] existingFileSha1 = host.getFileSha1(path);
                 if (sha1Bytes != null && Arrays.equals(existingFileSha1, sha1Bytes)) {
                     logger.debug("File {} has the correct content", path);
-                    return true;
+                    return false;
                 }
             } else {
                 if (force) {
@@ -177,7 +177,7 @@ public class FileResource {
                 }
             }
         }
-        return false;
+        return true;
     }
 
     @Sync(value = "content", order = 1)
@@ -225,7 +225,7 @@ public class FileResource {
         if (permissions == null) {
             permissions = "rwxr-xr-x";
         }
-        return finfo == null || finfo != null && finfo.getPermissions().equals(permissions);
+        return finfo != null && finfo.getPermissions().equals(permissions);
     }
 
     @Sync("permissions")
@@ -239,7 +239,7 @@ public class FileResource {
         if (owner == null) {
             owner = "root";
         }
-        return finfo == null || finfo != null && owner.equals(finfo.getOwner());
+        return finfo != null && ! owner.equals(finfo.getOwner());
     }
 
     @Sync("owner")
@@ -253,7 +253,7 @@ public class FileResource {
         if (group == null) {
             group = "root";
         }
-        return finfo == null || finfo != null && group.equals(finfo.getGroup());
+        return finfo != null && ! group.equals(finfo.getGroup());
     }
 
     @Sync("group")

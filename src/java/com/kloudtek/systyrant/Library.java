@@ -6,7 +6,6 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.resource.JavaResourceFactory;
 import com.kloudtek.systyrant.resource.builtin.core.FileResource;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.XPathUtils;
@@ -34,12 +33,10 @@ public class Library {
     private ClassLoader classLoader;
     private ZipFile zipFile;
     private Reflections reflections;
-    private List<JavaResourceFactory> javaElFactories = new LinkedList<>();
+    private List<Class<?>> resourceDefinitionClasses = new ArrayList<>();
     private HashMap<String, String> stPkgToJavaPkgMap = new HashMap<>();
     private HashMap<String, String> javaPkgToStPkgMap = new HashMap<>();
     private static Reflections classpathReflections;
-    private static HashMap<String, String> classpathStPkgToJavaPkgMap;
-    private static HashMap<String, String> classpathJavaPkgToStPkgMap;
 
     public Library() throws InvalidResourceDefinitionException {
         classLoader = getClass().getClassLoader();
@@ -104,7 +101,7 @@ public class Library {
         }
         for (Class<?> clazz : javaElements) {
             if (!clazz.getSimpleName().equals("package-info")) {
-                javaElFactories.add(new JavaResourceFactory(clazz, null));
+                resourceDefinitionClasses.add(clazz);
             }
         }
     }
@@ -144,8 +141,8 @@ public class Library {
         return locationUrl;
     }
 
-    public List<JavaResourceFactory> getJavaElFactories() {
-        return javaElFactories;
+    public List<Class<?>> getResourceDefinitionClasses() {
+        return resourceDefinitionClasses;
     }
 
     public URI getResource(String path) {

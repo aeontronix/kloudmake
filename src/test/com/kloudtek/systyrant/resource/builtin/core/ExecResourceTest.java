@@ -96,6 +96,7 @@ public class ExecResourceTest extends AbstractContextTest {
 
     @Test
     public void simpleExecTimeout() throws Throwable {
+        ctx.clearFatalException();
         ctx.runDSLScript("new core:exec { command = 'sleep 3' timeout='1'}");
         execute(false);
     }

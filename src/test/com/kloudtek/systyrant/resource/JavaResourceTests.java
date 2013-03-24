@@ -8,17 +8,16 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.service.credstore.CredStore;
+import com.kloudtek.systyrant.service.filestore.FileStore;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
 import static org.testng.Assert.*;
 
-public class JavaResourceFactoryTest extends AbstractContextTest {
+public class JavaResourceTests extends AbstractContextTest {
     @Test
     public void testInjectContext() throws Throwable {
         registerAndCreate(InjectContext.class, "injectctx").execute();
@@ -109,13 +108,13 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         @Service
         private FileStore fsservice;
         @Service
-        private Host hostservice;
+        private CredStore credstoreservice;
 
         @Execute
         public void test() {
-            assertNotNull(hostservice);
+            assertNotNull(credstoreservice);
             assertNotNull(fsservice);
-            assertTrue(hostservice instanceof Host);
+            assertTrue(credstoreservice instanceof CredStore);
             assertTrue(fsservice instanceof FileStore);
         }
     }
@@ -129,13 +128,13 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         @Service
         private FileStore filestore;
         @Service
-        private Host host;
+        private CredStore credstore;
 
         @Execute
         public void test() {
-            assertNotNull(host);
+            assertNotNull(credstore);
             assertNotNull(filestore);
-            assertTrue(host instanceof Host);
+            assertTrue(credstore instanceof CredStore);
             assertTrue(filestore instanceof FileStore);
         }
     }
@@ -143,20 +142,25 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
     @Test(dependsOnMethods = "testAction")
     public void testInjectServiceByAnnoName() throws Throwable {
         registerAndCreate(InjectServiceByAnnoName.class).execute();
+        InjectServiceByAnnoName impl = findJavaAction(InjectServiceByAnnoName.class);
+        assertNotNull(impl.credstoreserv);
+        assertNotNull(impl.filestoreserv);
+        assertTrue(impl.credstoreserv instanceof CredStore);
+        assertTrue(impl.filestoreserv instanceof FileStore);
     }
 
     public static class InjectServiceByAnnoName {
+        private FileStore filestoreCopy;
+        private CredStore credstoreCopy;
         @Service("filestore")
         private FileStore filestoreserv;
-        @Service("host")
-        private Host hostserv;
+        @Service("credstore")
+        private CredStore credstoreserv;
 
         @Execute
         public void test() {
-            assertNotNull(hostserv);
-            assertNotNull(filestoreserv);
-            assertTrue(hostserv instanceof Host);
-            assertTrue(filestoreserv instanceof FileStore);
+            filestoreCopy = filestoreserv;
+            credstoreCopy = credstoreserv;
         }
     }
 
@@ -204,8 +208,9 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         Resource r4 = createJavaTestResource();
         r4.setParent(r2);
         createJavaTestResource();
+        execute();
         InjectChildResources impl = findJavaAction(InjectChildResources.class);
-        assertContainsSame(impl.childrensPersist,r3,r4);
+        assertContainsSame(impl.childrensPersist, r3, r4);
     }
 
     public static class InjectChildResources {
@@ -223,12 +228,12 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
     public void testVerifySyncOrder() throws Throwable {
         register(VerifySyncOrder.class);
         Resource res = create(VerifySyncOrder.class);
-        VerifySyncOrder vs = res.getJavaImpl(VerifySyncOrder.class);
         execute();
-        assertEquals(vs.verifyGlobal,0);
-        assertEquals(vs.syncGlobal,1);
-        assertEquals(vs.verifySpecific,2);
-        assertEquals(vs.syncSpecific,3);
+        VerifySyncOrder vs = res.getJavaImpl(VerifySyncOrder.class);
+        assertEquals(vs.verifyGlobal, 0);
+        assertEquals(vs.syncGlobal, 1);
+        assertEquals(vs.verifySpecific, 2);
+        assertEquals(vs.syncSpecific, 3);
     }
 
     public static class VerifySyncOrder {
@@ -241,13 +246,13 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         @Verify
         public boolean verifyGlobal() {
             verifyGlobal = count++;
-            return false;
+            return true;
         }
 
         @Verify(value = "spec")
         public boolean veritySpecific() {
             verifySpecific = count++;
-            return false;
+            return true;
         }
 
         @Sync
@@ -255,7 +260,7 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
             syncGlobal = count++;
         }
 
-        @Sync(value = "spec",order = -1)
+        @Sync(value = "spec", order = -1)
         public void syncSpecific() {
             syncSpecific = count++;
         }
@@ -266,12 +271,12 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         Class<InjectAttrWithAttrAnnotation> cl = InjectAttrWithAttrAnnotation.class;
         register(cl);
         Resource resource = create(cl);
-        resource.set("test1","value1");
-        resource.set("test2","value2");
-        resource.set("test3","55");
-        resource.set("test4","value4");
+        resource.set("test1", "value1");
+        resource.set("test2", "value2");
+        resource.set("test3", "55");
+        resource.set("test4", "value4");
         execute();
-        assertEquals(resource.getJavaImpl(cl).attrs,new Object[]{"value1","value2",55,"value4"});
+        assertEquals(resource.getJavaImpl(cl).attrs, new Object[]{"value1", "value2", 55, "value4"});
     }
 
     public static class InjectAttrWithAttrAnnotation {
@@ -287,7 +292,7 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
 
         @Execute
         public void copy() {
-            attrs = new Object[] {test1,test2x,test3,test4};
+            attrs = new Object[]{test1, test2x, test3, test4};
         }
     }
 
@@ -296,14 +301,14 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
         Class<UpdateInjectedAttr> cl = UpdateInjectedAttr.class;
         register(cl);
         Resource resource = create(cl);
-        resource.set("test1","value1");
-        resource.set("test2","value2");
-        resource.set("test3","55");
+        resource.set("test1", "value1");
+        resource.set("test2", "value2");
+        resource.set("test3", "55");
         execute();
-        assertEquals(resource.get("test1"),"x1");
-        assertEquals(resource.get("test2"),"x2");
-        assertEquals(resource.get("test3"),"100");
-        assertEquals(resource.get("test4"),"x4");
+        assertEquals(resource.get("test1"), "x1");
+        assertEquals(resource.get("test2"), "x2");
+        assertEquals(resource.get("test3"), "100");
+        assertEquals(resource.get("test4"), "x4");
     }
 
     public static class UpdateInjectedAttr {
@@ -328,8 +333,8 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
 
     @Test
     public void testResourceWithTwoJavaImpls() throws Throwable {
-        register(ResourceWithTwoJavaImpls1.class,"testmulticlass");
-        register(ResourceWithTwoJavaImpls2.class,"testmulticlass");
+        register(ResourceWithTwoJavaImpls1.class, "testmulticlass");
+        register(ResourceWithTwoJavaImpls2.class, "testmulticlass");
         Resource resource = resourceManager.createResource("test:testmulticlass");
         execute();
         assertTrue(resource.getJavaImpl(ResourceWithTwoJavaImpls1.class).executed);
@@ -338,6 +343,7 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
 
     public static class ResourceWithTwoJavaImpls1 {
         public boolean executed;
+
         @Execute
         public void action() {
             executed = true;
@@ -346,6 +352,7 @@ public class JavaResourceFactoryTest extends AbstractContextTest {
 
     public static class ResourceWithTwoJavaImpls2 {
         public boolean executed;
+
         @Execute
         public void action() {
             executed = true;

@@ -7,12 +7,14 @@ package com.kloudtek.systyrant;
 import com.google.common.reflect.AbstractInvocationHandler;
 import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.builtin.vagrant.SharedFolder;
 import com.kloudtek.systyrant.resource.builtin.vagrant.VagrantResource;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.host.SshHost;
+import org.mockito.Mockito;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -38,10 +40,14 @@ public class TestVagrantRuntime {
                     return null;
                 }
             });
+            Resource resource = Mockito.mock(Resource.class);
             vagrantResource = new VagrantResource("ubuntu-precise64", "_vagrant", VagrantResource.Ensure.UP, after,
                     LocalHost.createStandalone(), serviceManager, Arrays.asList(new SharedFolder(true, true, "test", "_vagrant/test", "/test")));
+            forceSet(vagrantResource,"resource",resource);
             vagrantResource.exec();
             sshHost = vagrantResource.getSshHost();
+            forceSet(sshHost,"hostProvider", new LinuxMetadataProvider());
+            sshHost.start();
             if (user != null) {
                 // TODO
             }

@@ -7,6 +7,8 @@ package com.kloudtek.systyrant.host;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.exec.CommandLine;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class UnixAbstractMetadataProvider extends AbstractHostProvider {
     protected OperatingSystem os;
@@ -32,7 +34,8 @@ public abstract class UnixAbstractMetadataProvider extends AbstractHostProvider 
     }
 
     @Override
-    public CommandLine generateCommandLine(String command, String currentUser, String user, boolean handleQuoting, String workdir) {
+    public CommandLine generateCommandLine(@NotNull String command, @NotNull String currentUser, @NotNull String user,
+                                           boolean handleQuoting, @Nullable String workdir) {
         CommandLine cmd;
         if( ! user.equalsIgnoreCase(currentUser) ) {
             cmd = new CommandLine("sudo").addArgument("-u").addArgument(user).addArgument("bash");

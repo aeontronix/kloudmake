@@ -9,11 +9,13 @@
         <packages>
             <package name="com.kloudtek.systyrant"/>
             <package name="com.kloudtek.systyrant.dsl"/>
+            <package name="com.kloudtek.systyrant.host"/>
+            <package name="com.kloudtek.systyrant.resource"/>
         </packages>
     </test>
     <test name="Core Modules">
         <packages>
-            <package name="com.kloudtek.systyrant.core"/>
+            <package name="com.kloudtek.systyrant.resource.builtin.core"/>
         </packages>
     </test>
 </suite>

@@ -25,7 +25,7 @@ import static com.kloudtek.util.StringUtils.isNotEmpty;
 public class ResourceManagerImpl implements ResourceManager {
     private STContext context;
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
-    private List<ResourceFactory> resourceFactories = new ArrayList<>();
+    private List<ResourceDefinition> resourceDefinitions = new ArrayList<>();
     private List<Resource> resources = new ArrayList<>();
     private HashMap<Resource, List<Resource>> parentChildIndex;
     /**
@@ -37,7 +37,7 @@ public class ResourceManagerImpl implements ResourceManager {
      * Flag indicating if element creation is allowed
      */
     private boolean createAllowed = true;
-    private final Map<String, ResourceFactory> fqnResourceIndex = new HashMap<>();
+    private final Map<FQName, ResourceDefinition> resourceDefinitionsFQNIndex = new HashMap<>();
     private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
     private HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
     private HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
@@ -62,10 +62,10 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public List<ResourceFactory> getResourceFactories() {
+    public List<ResourceDefinition> getResourceDefinitions() {
         rlock();
         try {
-            return Collections.unmodifiableList(resourceFactories);
+            return Collections.unmodifiableList(resourceDefinitions);
         } finally {
             rulock();
         }
@@ -143,15 +143,15 @@ public class ResourceManagerImpl implements ResourceManager {
             if (!createAllowed) {
                 throw new ResourceCreationException("Resources created not allowed at this time.");
             }
-            ResourceFactory factory;
-            factory = findFactory(fqname, importPaths);
-            if (factory.isUnique()) {
-                if (uniqueResourcesCreated.contains(factory.getFQName())) {
+            ResourceDefinition definition;
+            definition = findDefinition(fqname, importPaths);
+            if (definition.isUnique()) {
+                if (uniqueResourcesCreated.contains(definition.getFQName())) {
                     throw new ResourceCreationException("Cannot create more than one instance of " + fqname.toString());
                 }
                 uniqueResourcesCreated.add(fqname);
             }
-            Resource resource = factory.create(context);
+            Resource resource = definition.create(context);
             Resource defaultParent = context.getDefaultParent();
             if (parent != null) {
                 resource.setParent(parent);
@@ -212,13 +212,22 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public Resource createResource(@NotNull Object obj) throws ResourceCreationException {
-        STResource annotation = obj.getClass().getAnnotation(STResource.class);
+        Class<?> clazz = obj.getClass();
+        STResource annotation = clazz.getAnnotation(STResource.class);
         if (annotation == null) {
             throw new ResourceCreationException("Attempted to create resource using java class which is not annotated with @STResource: " + obj.getClass().getName());
         }
-        Resource resource = createResource(new FQName(obj.getClass(), null));
-        JavaResourceFactory factory = (JavaResourceFactory) resource.getFactory();
-        return resource;
+        try {
+            ResourceDefinition resourceDefinition = JavaResourceDefinitionFactory.create(clazz, null);
+            registerResourceDefinition(resourceDefinition);
+            return createResource(resourceDefinition.getFQName());
+        } catch (InvalidResourceDefinitionException e) {
+            throw new ResourceCreationException(e.getMessage(),e);
+        }
+    }
+
+    public ResourceDefinition createResourceDefinition(FQName fqName) {
+        return null;
     }
 
     // -------------------------
@@ -245,7 +254,7 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @NotNull
-    private ResourceFactory findFactory(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
+    private ResourceDefinition findDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
         rlock();
         try {
             ResourceFinder rfinder = new ResourceFinder(name, importPaths);
@@ -304,40 +313,8 @@ public class ResourceManagerImpl implements ResourceManager {
     // Resource registration
 
     @Override
-    public void registerResources(Collection<ResourceFactory> factories) throws InvalidResourceDefinitionException {
-        wlock();
-        try {
-            for (ResourceFactory factory : factories) {
-                registerResources(factory);
-            }
-        } catch (InvalidResourceDefinitionException e) {
-            rulock();
-        }
-    }
-
-    /**
-     * Register a new resource factory
-     *
-     * @param factory Resource Factory
-     * @throws com.kloudtek.systyrant.exception.InvalidResourceDefinitionException
-     *          If the factory is invalid.
-     */
-    @Override
-    public void registerResources(ResourceFactory factory) throws InvalidResourceDefinitionException {
-        wlock();
-        try {
-            factory.validate();
-            FQName fqName = factory.getFQName();
-            fqnResourceIndex.put(fqName.toString(), factory);
-            resourceFactories.add(factory);
-        } finally {
-            wulock();
-        }
-    }
-
-    @Override
     public void registerJavaResource(Class<?> clazz) throws InvalidResourceDefinitionException {
-        FQName fqName = STHelper.getFQName(clazz);
+        FQName fqName = new FQName(clazz);
         if (fqName == null) {
             throw new InvalidResourceDefinitionException("No FQName specified for java resource: " + clazz.getName());
         } else {
@@ -352,14 +329,48 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public void registerJavaResource(Class<?> clazz, @NotNull FQName fqname) throws InvalidResourceDefinitionException {
-        registerResources(new JavaResourceFactory(clazz, fqname));
+        registerResourceDefinition(JavaResourceDefinitionFactory.create(clazz, fqname));
+    }
+
+
+    @Override
+    public void registerResourceDefinitions(Collection<ResourceDefinition> resourceDefinitions) throws InvalidResourceDefinitionException {
+        for (ResourceDefinition def : resourceDefinitions) {
+            registerResourceDefinition(def);
+        }
+    }
+
+    @Override
+    public void registerResourceDefinition(ResourceDefinition resourceDefinition) throws InvalidResourceDefinitionException {
+        wlock();
+        try {
+            ResourceDefinition existing = findResourceDefinition(resourceDefinition.getFQName());
+            if( existing != null ) {
+                existing.merge(resourceDefinition);
+            } else {
+                resourceDefinition.validate();
+                resourceDefinitionsFQNIndex.put(resourceDefinition.getFQName(), resourceDefinition);
+                resourceDefinitions.add(resourceDefinition);
+            }
+        } finally {
+            wulock();
+        }
+    }
+
+    private ResourceDefinition findResourceDefinition(FQName fqname) {
+        rlock();
+        try {
+            return resourceDefinitionsFQNIndex.get(fqname);
+        } finally {
+            rulock();
+        }
     }
 
     @Override
     public void close() {
         wlock();
         try {
-            for (ResourceFactory factory : resourceFactories) {
+            for (ResourceDefinition factory : resourceDefinitions) {
                 try {
                     factory.close();
                 } catch (Exception e) {
@@ -550,22 +561,22 @@ public class ResourceManagerImpl implements ResourceManager {
 
     public class ResourceFinder {
         private final FQName name;
-        private ResourceFactory fac;
+        private ResourceDefinition fac;
 
         public ResourceFinder(FQName name, Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException {
             this.name = name;
             if (name.getPkg() != null) {
-                set(fqnResourceIndex.get(name.toString()));
+                set(resourceDefinitionsFQNIndex.get(name));
             } else {
-                for (ResourceFactory resourceFactory : resourceFactories) {
-                    if (ResourceMatcher.matchAll(importPaths, resourceFactory.getFQName()) && resourceFactory.getName().equals(name.getName())) {
-                        set(resourceFactory);
+                for (ResourceDefinition resourceDefinition : resourceDefinitions) {
+                    if (ResourceMatcher.matchAll(importPaths, resourceDefinition.getFQName()) && resourceDefinition.getName().equals(name.getName())) {
+                        set(resourceDefinition);
                     }
                 }
             }
         }
 
-        public void set(ResourceFactory newMatch) throws MultipleResourceMatchException {
+        public void set(ResourceDefinition newMatch) throws MultipleResourceMatchException {
             if (fac != null) {
                 throw new MultipleResourceMatchException("Found more than one match for " + name.getName() + ": " + fac.getFQName() + " and " + newMatch.getFQName().toString());
             } else {
@@ -577,7 +588,7 @@ public class ResourceManagerImpl implements ResourceManager {
             return fac != null;
         }
 
-        public ResourceFactory getMatch() throws ResourceNotFoundException {
+        public ResourceDefinition getMatch() throws ResourceNotFoundException {
             if (fac == null) {
                 throw new ResourceNotFoundException("Unable to find resource " + name);
             } else {

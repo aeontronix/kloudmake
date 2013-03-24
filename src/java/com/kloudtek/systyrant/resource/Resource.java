@@ -12,7 +12,6 @@ import com.kloudtek.systyrant.exception.InvalidRefException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
-import com.kloudtek.systyrant.util.ListHashMap;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,12 +24,14 @@ public class Resource {
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
     private Map<String, String> attributes = new HashMap<>();
     private transient STContext context;
-    private ResourceFactory factory;
+    private ResourceDefinition factory;
     private Resource parent;
     private boolean executable;
 
-    private ListHashMap<Stage, Action> actions = new ListHashMap<>();
-    private ListHashMap<Stage, Action> postChildrenActions = new ListHashMap<>();
+    private List<Action> prepareActions = new ArrayList<>();
+    private List<Action> execActions = new ArrayList<>();
+    private List<Action> postChildrenExecActions = new ArrayList<>();
+    private List<Action> cleanupActions = new ArrayList<>();
 
     private State state;
     private Host hostOverride;
@@ -44,7 +45,7 @@ public class Resource {
     final HashSet<Resource> indirectDependencies = new HashSet<>();
     final HashSet<Resource> dependents = new HashSet<>();
 
-    public Resource(STContext context, ResourceFactory factory) {
+    public Resource(STContext context, ResourceDefinition factory) {
         this.context = context;
         this.factory = factory;
         reset();
@@ -64,10 +65,10 @@ public class Resource {
     }
 
     public ResourceDependency addDependencies(Collection<Resource> resources) {
-        return addDependencies(resources,false);
+        return addDependencies(resources, false);
     }
 
-    public ResourceDependency addDependencies(Collection<Resource> resources, boolean optional ) {
+    public ResourceDependency addDependencies(Collection<Resource> resources, boolean optional) {
         if (resources.contains(this)) {
             throw new IllegalArgumentException("Added dependencies contain self: " + resources);
         }
@@ -111,42 +112,29 @@ public class Resource {
     // Actions
     // ----------------------------------------------------------------------
 
-    public synchronized List<Action> getActions(@NotNull Stage stage, boolean postChildren) {
-        return Collections.unmodifiableList(getActionsInternal(stage, postChildren));
-    }
-
-    public void addAction(@NotNull Stage stage, Action action) {
-        addAction(stage,false,action);
-    }
-
-    public synchronized void addAction(@NotNull Stage stage, boolean postChildren, Action action) {
-        List<Action> list = getActionsInternal(stage, postChildren);
-        if (!list.contains(action)) {
-            list.add(action);
+    public void addAction(@NotNull Action action) {
+        switch (action.getType()) {
+            case PREPARE:
+                prepareActions.add(action);
+                break;
+            case EXECUTE:
+            case SYNC:
+                execActions.add(action);
+                break;
+            case POSTCHILDREN_EXECUTE:
+            case POSTCHILDREN_SYNC:
+                postChildrenExecActions.add(action);
+                break;
+            case CLEANUP:
+                cleanupActions.add(action);
         }
-    }
-
-    public synchronized void addAction(ListHashMap<Stage, Action> actions, ListHashMap<Stage, Action> postChildrenActions) {
-        for (Stage stage : Stage.values()) {
-            this.actions.get(stage).addAll(actions.get(stage));
-            this.postChildrenActions.get(stage).addAll(postChildrenActions.get(stage));
-        }
-    }
-
-
-    public synchronized boolean removeAction(@NotNull Stage stage, boolean postChildren, Action action) {
-        return getActionsInternal(stage, postChildren).remove(action);
-    }
-
-    private List<Action> getActionsInternal(Stage stage, boolean postChildren) {
-        return postChildren ? postChildrenActions.get(stage) : actions.get(stage);
     }
 
     public synchronized void sortActions() {
-        for (Stage stage : Stage.values()) {
-            Collections.sort(actions.get(stage));
-            Collections.sort(postChildrenActions.get(stage));
-        }
+        Collections.sort(prepareActions);
+        Collections.sort(execActions);
+        Collections.sort(postChildrenExecActions);
+        Collections.sort(cleanupActions);
     }
 
     // ----------------------------------------------------------------------
@@ -157,9 +145,9 @@ public class Resource {
         javaImpls.add(obj);
     }
 
-    public synchronized <X> X getJavaImpl( Class<X> clazz ) {
+    public synchronized <X> X getJavaImpl(Class<X> clazz) {
         for (Object javaImpl : javaImpls) {
-            if( javaImpl.getClass().isAssignableFrom(clazz) ) {
+            if (javaImpl.getClass().isAssignableFrom(clazz)) {
                 return clazz.cast(javaImpl);
             }
         }
@@ -195,7 +183,7 @@ public class Resource {
         }
     }
 
-    public ResourceFactory getFactory() {
+    public ResourceDefinition getDefinition() {
         return factory;
     }
 
@@ -341,22 +329,28 @@ public class Resource {
     // ----------------------------------------------------------------------
 
     public void executeActions(Stage stage, boolean postChildren) throws STRuntimeException {
-        List<Action> list = getActionsInternal(stage, postChildren);
-        logger.debug("Executing {} actions for stage {} : {}",postChildren?"postchildren":"",stage,list);
-        for (Action action : list) {
-            if (action instanceof SyncAction) {
-                logger.debug("Executing verification stage of Sync Action {}",action);
-                boolean verified = ((SyncAction) action).verify(context, this, stage, postChildren);
-                logger.debug("Sync Action {} returned {}",action,verified);
-                if (!verified) {
-                    logger.debug("Executing Sync Action {}",action,verified);
-                    action.execute(context, this, stage, postChildren);
+        List<Action> list;
+        switch (stage) {
+            case PREPARE:
+                list = prepareActions;
+                break;
+            case EXECUTE:
+                if (postChildren) {
+                    list = postChildrenExecActions;
+                } else {
+                    list = execActions;
                 }
-            } else {
-                logger.debug("Executing Action {}",action);
-                action.execute(context, this, stage, postChildren);
+                break;
+            case CLEANUP:
+                list = cleanupActions;
+                break;
+            default:
+                throw new STRuntimeException("BUG: Invalid stage "+stage);
+        }
+        for (Action action : list) {
+            if (action.checkExecutionRequired(context, this)) {
+                action.execute(context, this);
             }
-            logger.debug("Finished executing Action {}",action);
         }
     }
 

@@ -33,11 +33,9 @@ public class ServiceManagerImpl implements ServiceManager {
     protected HashMap<String, LinkedList<Object>> overrides = new HashMap<>();
     protected HashMap<String, MethodInvoker> methods = new HashMap<>();
     private STContext ctx;
-    private Reflections reflections;
 
-    public ServiceManagerImpl(STContext ctx, Reflections reflections) {
+    public ServiceManagerImpl(STContext ctx) {
         this.ctx = ctx;
-        this.reflections = reflections;
     }
 
     @Override
@@ -60,7 +58,7 @@ public class ServiceManagerImpl implements ServiceManager {
             service = services.get(id);
         }
         if (service == null) {
-            Set<Class<?>> services = reflections.getTypesAnnotatedWith(Service.class);
+            Set<Class<?>> services = ctx.getReflections().getTypesAnnotatedWith(Service.class);
             for (Class<?> clazz : services) {
                 Service annotation = clazz.getAnnotation(Service.class);
                 String name = annotation.value();
