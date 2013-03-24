@@ -225,7 +225,7 @@ public class FileResource {
         if (permissions == null) {
             permissions = "rwxr-xr-x";
         }
-        return finfo != null && finfo.getPermissions().equals(permissions);
+        return finfo != null && ! finfo.getPermissions().equals(permissions);
     }
 
     @Sync("permissions")
