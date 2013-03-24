@@ -5,10 +5,7 @@
 package com.kloudtek.systyrant.resource.java;
 
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.exception.FieldInjectionException;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.ResourceValidationException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.AbstractAction;
 import com.kloudtek.systyrant.resource.Injector;
 import com.kloudtek.systyrant.resource.Resource;
@@ -22,13 +19,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created with IntelliJ IDEA.
- * User: yannick
- * Date: 24/03/13
- * Time: 00:01
- * To change this template use File | Settings | File Templates.
- */
 public class JavaAction extends AbstractAction {
     private Class<?> implClass;
     private final List<Injector> injectors;
@@ -38,12 +28,12 @@ public class JavaAction extends AbstractAction {
     private Method verifyMethod;
 
     public JavaAction(int order, Type type, Class<?> implClass, List<Injector> injectors,
-                      @NotNull Set<EnforceOnlyIf> onlyIf, Method method) {
+                      @NotNull Set<EnforceOnlyIf> onlyIf, Method method) throws InvalidResourceDefinitionException {
         this(order, type, implClass, injectors, onlyIf, method, null);
     }
 
     public JavaAction(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,
-                      @NotNull Set<EnforceOnlyIf> onlyIf, @Nullable Method method, @Nullable Method verifyMethod) {
+                      @NotNull Set<EnforceOnlyIf> onlyIf, @Nullable Method method, @Nullable Method verifyMethod) throws InvalidResourceDefinitionException {
         super(order, type);
         this.implClass = implClass;
         this.injectors = injectors;
@@ -69,20 +59,9 @@ public class JavaAction extends AbstractAction {
         }
         assert javaImpl != null;
         injectAndValidate(resource, javaImpl, context);
-        try {
-            Object ret = method.invoke(javaImpl);
-            updateAttrs(resource, javaImpl);
-            return ret;
-        } catch (IllegalAccessException e) {
-            throw new STRuntimeException("Method " + ReflectionHelper.toString(method) + " cannot be invoked: " + e.getMessage(), e);
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if( cause instanceof STRuntimeException ) {
-                throw (STRuntimeException)cause;
-            } else {
-                throw new STRuntimeException(cause.getMessage(), cause);
-            }
-        }
+        Object ret = ReflectionHelper.invoke(method,javaImpl);
+        updateAttrs(resource, javaImpl);
+        return ret;
     }
 
     @Override
@@ -96,7 +75,7 @@ public class JavaAction extends AbstractAction {
         return true;
     }
 
-    private boolean checkOnlyIf(STContext context, Resource resource) {
+    private boolean checkOnlyIf(STContext context, Resource resource) throws STRuntimeException {
         for (EnforceOnlyIf enforceOnlyIf : onlyIf) {
             if( ! enforceOnlyIf.execAllowed(context, resource) ) {
                 return true;
@@ -131,13 +110,13 @@ public class JavaAction extends AbstractAction {
         return method;
     }
 
-    public void setMethod(Method method) {
+    public void setMethod(Method method) throws InvalidResourceDefinitionException {
         if( this.method != null ) {
             throw new IllegalArgumentException("Cannot override method "+ReflectionHelper.toString(this.method));
         }
         this.method = method;
         if( method != null ) {
-            onlyIf.addAll(EnforceOnlyIf.find(method));
+            onlyIf.addAll(EnforceOnlyIf.find(method,implClass));
         }
     }
 
@@ -145,13 +124,13 @@ public class JavaAction extends AbstractAction {
         return verifyMethod;
     }
 
-    public void setVerifyMethod(Method verifyMethod) {
+    public void setVerifyMethod(Method verifyMethod) throws InvalidResourceDefinitionException {
         if( this.verifyMethod != null ) {
             throw new IllegalArgumentException("Cannot override method "+ReflectionHelper.toString(this.verifyMethod));
         }
         this.verifyMethod = verifyMethod;
         if( verifyMethod != null ) {
-            onlyIf.addAll(EnforceOnlyIf.find(verifyMethod));
+            onlyIf.addAll(EnforceOnlyIf.find(verifyMethod,implClass));
         }
     }
 }

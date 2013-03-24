@@ -37,7 +37,7 @@ public class JavaResourceDefinitionFactory {
         if (uq != null) {
             resourceDefinition.addUniqueScope(uq.value());
         }
-        Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz);
+        Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz,clazz);
         OnlyIfOperatingSystem onlyIfOperatingSystem = clazz.getAnnotation(OnlyIfOperatingSystem.class);
         Set<JavaAction> actions = new HashSet<>();
         HashMap<String, JavaAction> syncs = new HashMap<>();
@@ -67,7 +67,7 @@ public class JavaResourceDefinitionFactory {
         return resourceDefinition;
     }
 
-    private static void handleCleanupMethods(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) {
+    private static void handleCleanupMethods(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Cleanup cleanup = method.getAnnotation(Cleanup.class);
         if (cleanup != null) {
             logger.debug("Added CLEANUP method: {} ", method);
@@ -124,7 +124,7 @@ public class JavaResourceDefinitionFactory {
         }
     }
 
-    private static void handleExecActions(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) {
+    private static void handleExecActions(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Execute exec = method.getAnnotation(Execute.class);
         if (exec != null) {
             logger.debug("Adding EXEC method: {}", method);
@@ -132,7 +132,7 @@ public class JavaResourceDefinitionFactory {
         }
     }
 
-    private static void handlePrepareActions(Class<?> clazz, Set<JavaAction> actions, Method method, List<Injector> injectors, Set<EnforceOnlyIf> onlyIf) {
+    private static void handlePrepareActions(Class<?> clazz, Set<JavaAction> actions, Method method, List<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Prepare prepareAnno = method.getAnnotation(Prepare.class);
         if (prepareAnno != null) {
             logger.debug("Adding PREPARE method: {}", method);

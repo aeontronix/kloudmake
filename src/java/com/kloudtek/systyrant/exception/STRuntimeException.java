@@ -6,6 +6,8 @@ package com.kloudtek.systyrant.exception;
 
 import org.slf4j.Logger;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class STRuntimeException extends STException {
     public STRuntimeException() {
     }
@@ -32,5 +34,18 @@ public class STRuntimeException extends STException {
 
     public STRuntimeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public static STRuntimeException getCause(InvocationTargetException e) {
+        Throwable cause = e.getCause();
+        if( cause != null ) {
+            if( cause instanceof STRuntimeException ) {
+                return (STRuntimeException)cause;
+            } else {
+                return new STRuntimeException(cause.getMessage(), cause);
+            }
+        } else {
+            return new STRuntimeException(e.getMessage(),e);
+        }
     }
 }

@@ -8,6 +8,8 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.host.OperatingSystem;
@@ -420,6 +422,41 @@ public class JavaResourceTests extends AbstractContextTest {
         @OnlyIfOperatingSystem({OperatingSystem.SOLARIS,OperatingSystem.AIX})
         public void shouldNotRun() {
             fail("Should not have been called");
+        }
+    }
+
+    @Test
+    public void testResourceUsingCustomOnlyIf() throws Throwable {
+        register(CustomerOnlyIf1.class, "onlyifcustom");
+        register(CustomerOnlyIf2.class, "onlyifcustom");
+        Resource resource = resourceManager.createResource("test:onlyifcustom");
+        execute();
+        assertTrue(resource.getJavaImpl(CustomerOnlyIf1.class).executed);
+    }
+
+    public static class CustomerOnlyIf1 {
+        public boolean executed;
+
+        @Execute
+        public void action() {
+            executed = true;
+        }
+
+        @OnlyIf
+        public boolean onlyIf() {
+            return true;
+        }
+    }
+
+    public static class CustomerOnlyIf2 {
+        @Execute
+        public void action() {
+            fail();
+        }
+
+        @OnlyIf
+        public boolean onlyIf() {
+            return false;
         }
     }
 }

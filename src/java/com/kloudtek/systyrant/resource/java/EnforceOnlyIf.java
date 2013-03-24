@@ -6,7 +6,10 @@ package com.kloudtek.systyrant.resource.java;
 
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.OnlyIf;
 import com.kloudtek.systyrant.annotation.OnlyIfOperatingSystem;
+import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
 import org.jetbrains.annotations.NotNull;
 import sun.invoke.anon.AnonymousClassLoader;
@@ -18,20 +21,24 @@ import java.util.List;
 import java.util.Set;
 
 /**
-* Created with IntelliJ IDEA.
-* User: yannick
-* Date: 24/03/13
-* Time: 17:12
-* To change this template use File | Settings | File Templates.
+ * Base class for all OnlyIf annotation enforcement.
 */
 public abstract class EnforceOnlyIf {
-    public abstract boolean execAllowed(STContext context, Resource resource);
+    public abstract boolean execAllowed(STContext context, Resource resource) throws STRuntimeException;
 
-    public static Set<EnforceOnlyIf> find( @NotNull Object methodOrClass ) {
+    public static Set<EnforceOnlyIf> find( @NotNull Object methodOrClass, Class<?> clazz ) throws InvalidResourceDefinitionException {
         HashSet<EnforceOnlyIf> list = new HashSet<>();
         OnlyIfOperatingSystem os = getAnnotation(methodOrClass, OnlyIfOperatingSystem.class);
         if( os != null ) {
             list.add(new EnforceOnlyIfOS(os.value()));
+        }
+        if( methodOrClass instanceof Class ) {
+            for (java.lang.reflect.Method method : ((Class<?>) methodOrClass).getDeclaredMethods()) {
+                OnlyIf custom = getAnnotation(method, OnlyIf.class );
+                if( custom != null ) {
+                    list.add(new EnforceOnlyIfCustom(method,clazz));
+                }
+            }
         }
         return list;
     }
