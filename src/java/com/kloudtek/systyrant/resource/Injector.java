@@ -38,6 +38,10 @@ public abstract class Injector {
         }
     }
 
+    public Field getField() {
+        return field;
+    }
+
     public abstract void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException;
 
     public void updateAttr(Resource resource, Object obj) throws IllegalAccessException, InvalidAttributeException {

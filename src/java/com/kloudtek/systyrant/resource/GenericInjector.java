@@ -21,7 +21,7 @@ public class GenericInjector extends AttrInjector {
     private Type type;
     private final Class<?> fieldType;
 
-    protected GenericInjector(Class<?> clazz, Field field) {
+    public GenericInjector(Class<?> clazz, Field field) {
         super(clazz, field.getName(),field);
         fieldType = field.getType();
         if(STContext.class.isAssignableFrom(fieldType) ) {

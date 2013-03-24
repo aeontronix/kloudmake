@@ -8,6 +8,7 @@ import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
+import com.kloudtek.systyrant.util.ReflectionHelper;
 import com.kloudtek.util.TempFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -271,41 +271,11 @@ public class LocalHost extends AbstractHost {
                 hostProvider = new LinuxMetadataProvider();
                 break;
         }
-        forceSet(host, "hostProvider", hostProvider);
+        ReflectionHelper.forceSet(host, "hostProvider", hostProvider);
         return host;
     }
 
     // TODO use latest ktutils instead
-
-    public static void forceSet(Object obj, String name, Object value) {
-        try {
-            Field field = findField(obj, name);
-            field.setAccessible(true);
-            field.set(obj, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void set(Object obj, String name, Object value) {
-        try {
-            findField(obj, name).set(obj, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Field findField(Object obj, String name) {
-        Class<?> cl = obj.getClass();
-        while (cl != null) {
-            try {
-                return cl.getDeclaredField(name);
-            } catch (NoSuchFieldException e) {
-                cl = cl.getSuperclass();
-            }
-        }
-        throw new IllegalArgumentException("Field " + name + " not found in " + obj.getClass().getName());
-    }
 
     @Override
     public String toString() {

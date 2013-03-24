@@ -2,13 +2,12 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource;
+package com.kloudtek.systyrant.resource.java;
 
 import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -35,24 +34,28 @@ public class JavaResourceDefinitionFactory {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new InvalidResourceDefinitionException("Resource class " + clazz.getName() + " cannot be instantiated", e);
         }
-        String source = "class " + clazz.getName();
         if (uq != null) {
             resourceDefinition.addUniqueScope(uq.value());
+        }
+        Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz);
+        OnlyIfOperatingSystem onlyIfOperatingSystem = clazz.getAnnotation(OnlyIfOperatingSystem.class);
+        if(onlyIfOperatingSystem != null ) {
+            onlyIf.add(new EnforceOnlyIfOS(onlyIfOperatingSystem.value()));
         }
         Set<JavaAction> actions = new HashSet<>();
         HashMap<String, JavaAction> syncs = new HashMap<>();
         ArrayList<Injector> injectors = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
             for (Annotation annotation : field.getAnnotations()) {
-                registerFieldInjection(clazz, resourceDefinition, injectors, field, annotation, source);
+                registerFieldInjection(clazz, resourceDefinition, injectors, field, annotation);
             }
         }
         for (Method method : clazz.getDeclaredMethods()) {
-            handlePrepareActions(clazz, actions, method, injectors);
-            handleExecActions(clazz, actions, method, injectors);
-            handleVerifyActions(clazz, actions, method, syncs, injectors);
-            handleSyncMethods(clazz, actions, method, syncs, injectors);
-            handleCleanupMethods(clazz, actions, method, injectors);
+            handlePrepareActions(clazz, actions, method, injectors, onlyIf);
+            handleExecActions(clazz, actions, method, injectors, onlyIf);
+            handleVerifyActions(clazz, actions, method, syncs, injectors, onlyIf);
+            handleSyncMethods(clazz, actions, method, syncs, injectors, onlyIf);
+            handleCleanupMethods(clazz, actions, method, injectors, onlyIf);
         }
         for (JavaAction javaAction : syncs.values()) {
             if (javaAction.getMethod() == null) {
@@ -67,15 +70,15 @@ public class JavaResourceDefinitionFactory {
         return resourceDefinition;
     }
 
-    private static void handleCleanupMethods(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors) {
+    private static void handleCleanupMethods(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) {
         Cleanup cleanup = method.getAnnotation(Cleanup.class);
         if (cleanup != null) {
             logger.debug("Added CLEANUP method: {} ", method);
-            actions.add(new JavaAction(cleanup.order(), CLEANUP, clazz, injectors, method));
+            actions.add(new JavaAction(cleanup.order(), CLEANUP, clazz, injectors, onlyIf, method));
         }
     }
 
-    private static void handleSyncMethods(Class<?> clazz, Set<JavaAction> actions, Method method, HashMap<String, JavaAction> syncs, ArrayList<Injector> injectors) throws InvalidResourceDefinitionException {
+    private static void handleSyncMethods(Class<?> clazz, Set<JavaAction> actions, Method method, HashMap<String, JavaAction> syncs, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Sync sync = method.getAnnotation(Sync.class);
         if (sync != null) {
             String syncId = sync.value();
@@ -91,15 +94,15 @@ public class JavaResourceDefinitionFactory {
                 existing.setOrder(sync.order());
                 existing.setType(sync.postChildren() ? POSTCHILDREN_SYNC : SYNC);
             } else {
-                JavaAction action = new JavaAction(sync.order(), sync.postChildren() ? POSTCHILDREN_SYNC : SYNC, clazz, injectors, method);
+                JavaAction action = new JavaAction(sync.order(), sync.postChildren() ? POSTCHILDREN_SYNC : SYNC, clazz, injectors, onlyIf, method);
                 actions.add(action);
-                syncs.put(syncId,action);
+                syncs.put(syncId, action);
             }
             logger.debug("Added SYNC ({}) method: {} ", syncId, method);
         }
     }
 
-    private static void handleVerifyActions(Class<?> clazz, Set<JavaAction> actions, Method method, HashMap<String, JavaAction> syncs, ArrayList<Injector> injectors) throws InvalidResourceDefinitionException {
+    private static void handleVerifyActions(Class<?> clazz, Set<JavaAction> actions, Method method, HashMap<String, JavaAction> syncs, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Verify verify = method.getAnnotation(Verify.class);
         if (verify != null) {
             String syncId = verify.value();
@@ -116,33 +119,32 @@ public class JavaResourceDefinitionFactory {
                     existing.setVerifyMethod(method);
                 }
             } else {
-                JavaAction action = new JavaAction(0, SYNC, clazz, injectors, null, method);
+                JavaAction action = new JavaAction(0, SYNC, clazz, injectors, onlyIf, null, method);
                 actions.add(action);
-                syncs.put(syncId,action);
+                syncs.put(syncId, action);
             }
             logger.debug("Added VERIFY ({}) method: {} ", syncId, method);
         }
     }
 
-    private static void handleExecActions(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors) {
+    private static void handleExecActions(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) {
         Execute exec = method.getAnnotation(Execute.class);
         if (exec != null) {
             logger.debug("Adding EXEC method: {}", method);
-            actions.add(new JavaAction(exec.order(), exec.postChildren() ? POSTCHILDREN_EXECUTE : EXECUTE, clazz, injectors, method));
+            actions.add(new JavaAction(exec.order(), exec.postChildren() ? POSTCHILDREN_EXECUTE : EXECUTE, clazz, injectors, onlyIf, method));
         }
     }
 
-    private static void handlePrepareActions(Class<?> clazz, Set<JavaAction> actions, Method method, List<Injector> injectors) {
+    private static void handlePrepareActions(Class<?> clazz, Set<JavaAction> actions, Method method, List<Injector> injectors, Set<EnforceOnlyIf> onlyIf) {
         Prepare prepareAnno = method.getAnnotation(Prepare.class);
         if (prepareAnno != null) {
             logger.debug("Adding PREPARE method: {}", method);
-            actions.add(new JavaAction(prepareAnno.order(), PREPARE, clazz, injectors, method));
+            actions.add(new JavaAction(prepareAnno.order(), PREPARE, clazz, injectors, onlyIf, method));
         }
     }
 
     private static void registerFieldInjection(Class<?> clazz, ResourceDefinition resourceDefinition,
-                                               ArrayList<Injector> injectorsList, Field field, Annotation annotation,
-                                               String source) throws InvalidResourceDefinitionException {
+                                               ArrayList<Injector> injectorsList, Field field, Annotation annotation) throws InvalidResourceDefinitionException {
         if (annotation instanceof Attr) {
             Attr attr = (Attr) annotation;
             String name = attr.value().isEmpty() ? field.getName() : attr.value();
@@ -159,21 +161,4 @@ public class JavaResourceDefinitionFactory {
         }
     }
 
-    public static class ResourceInitAction extends AbstractAction {
-        private Class<?> clazz;
-
-        public ResourceInitAction(Class<?> clazz) {
-            type = INIT;
-            this.clazz = clazz;
-        }
-
-        @Override
-        public void execute(STContext context, Resource resource) throws STRuntimeException {
-            try {
-                resource.addJavaImpl(clazz.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new STRuntimeException("Unable to create java resource instance "+e.getMessage(),e);
-            }
-        }
-    }
 }

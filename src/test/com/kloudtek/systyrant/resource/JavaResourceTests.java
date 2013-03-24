@@ -9,8 +9,11 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.host.LinuxMetadataProvider;
+import com.kloudtek.systyrant.host.OperatingSystem;
 import com.kloudtek.systyrant.service.credstore.CredStore;
 import com.kloudtek.systyrant.service.filestore.FileStore;
+import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -356,6 +359,67 @@ public class JavaResourceTests extends AbstractContextTest {
         @Execute
         public void action() {
             executed = true;
+        }
+    }
+
+    @Test
+    public void testResourceExcludeUsingClassLevelOnlyIfOS() throws Throwable {
+        register(MakeResourceHostLinux.class, "onlyifos");
+        register(ResourceOnlyWindows.class, "onlyifos");
+        register(ResourceOnlyLinux.class, "onlyifos");
+        Resource resource = resourceManager.createResource("test:onlyifos");
+        execute();
+        assertTrue(resource.getJavaImpl(MakeResourceHostLinux.class).executed);
+        assertFalse(resource.getJavaImpl(ResourceOnlyWindows.class).executed);
+        assertTrue(resource.getJavaImpl(ResourceOnlyLinux.class).executed);
+    }
+
+    public static class MakeResourceHostLinux {
+        public boolean executed;
+        @Inject
+        public Host host;
+
+        @Prepare
+        public void action() {
+            ReflectionHelper.forceSet(host,"hostProvider",new LinuxMetadataProvider());
+            executed = true;
+        }
+    }
+
+    @OnlyIfOperatingSystem(OperatingSystem.WINDOWS)
+    public static class ResourceOnlyWindows {
+        public boolean executed;
+
+        @Execute
+        public void action() {
+            executed = true;
+        }
+    }
+
+    @OnlyIfOperatingSystem(OperatingSystem.LINUX)
+    public static class ResourceOnlyLinux {
+        public boolean executed;
+
+        @Execute
+        public void action() {
+            executed = true;
+        }
+    }
+
+    @Test
+    public void testResourceExcludeUsingMethodLevelOnlyIfOS() throws Throwable {
+        register(MakeResourceHostLinux.class, "onlyifmos");
+        register(ResourceExcludeUsingMethodLevelOnlyIfOS.class, "onlyifmos");
+        Resource resource = resourceManager.createResource("test:onlyifmos");
+        execute();
+        assertTrue(resource.getJavaImpl(MakeResourceHostLinux.class).executed);
+    }
+
+    public static class ResourceExcludeUsingMethodLevelOnlyIfOS {
+        @Execute
+        @OnlyIfOperatingSystem(OperatingSystem.SOLARIS)
+        public void shouldNotRun() {
+            fail("Should not have been called");
         }
     }
 }

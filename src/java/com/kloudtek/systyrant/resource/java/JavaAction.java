@@ -2,13 +2,16 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource;
+package com.kloudtek.systyrant.resource.java;
 
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceValidationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.AbstractAction;
+import com.kloudtek.systyrant.resource.Injector;
+import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,19 +32,24 @@ import java.util.List;
 public class JavaAction extends AbstractAction {
     private Class<?> implClass;
     private final List<Injector> injectors;
+    @NotNull
+    private final Set<EnforceOnlyIf> onlyIf;
     private Method method;
     private Method verifyMethod;
 
-    public JavaAction(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors, @Nullable Method method) {
-        this(order, type, implClass, injectors, method, null);
+    public JavaAction(int order, Type type, Class<?> implClass, List<Injector> injectors,
+                      @NotNull Set<EnforceOnlyIf> onlyIf, Method method) {
+        this(order, type, implClass, injectors, onlyIf, method, null);
     }
 
-    public JavaAction(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors, @Nullable Method method, @Nullable Method verifyMethod) {
+    public JavaAction(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,
+                      @NotNull Set<EnforceOnlyIf> onlyIf, @Nullable Method method, @Nullable Method verifyMethod) {
         super(order, type);
         this.implClass = implClass;
         this.injectors = injectors;
-        this.method = method;
-        this.verifyMethod = verifyMethod;
+        this.onlyIf = onlyIf;
+        setMethod(method);
+        setVerifyMethod(verifyMethod);
     }
 
     @Override
@@ -78,10 +87,22 @@ public class JavaAction extends AbstractAction {
 
     @Override
     public boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException {
+        if( checkOnlyIf(context,resource) ) {
+            return false;
+        }
         if (verifyMethod != null) {
             return (boolean) invoke(context, resource, verifyMethod);
         }
         return true;
+    }
+
+    private boolean checkOnlyIf(STContext context, Resource resource) {
+        for (EnforceOnlyIf enforceOnlyIf : onlyIf) {
+            if( ! enforceOnlyIf.execAllowed(context, resource) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -101,18 +122,23 @@ public class JavaAction extends AbstractAction {
             try {
                 injector.updateAttr(resource, javaImpl);
             } catch (IllegalAccessException e) {
-                throw new InvalidAttributeException("Unable to set field "+injector.field.getName()+" of class "+implClass.getName());
+                throw new InvalidAttributeException("Unable to set field "+injector.getField().getName()+" of class "+implClass.getName());
             }
         }
     }
-
 
     public Method getMethod() {
         return method;
     }
 
     public void setMethod(Method method) {
+        if( this.method != null ) {
+            throw new IllegalArgumentException("Cannot override method "+ReflectionHelper.toString(this.method));
+        }
         this.method = method;
+        if( method != null ) {
+            onlyIf.addAll(EnforceOnlyIf.find(method));
+        }
     }
 
     public Method getVerifyMethod() {
@@ -120,6 +146,12 @@ public class JavaAction extends AbstractAction {
     }
 
     public void setVerifyMethod(Method verifyMethod) {
+        if( this.verifyMethod != null ) {
+            throw new IllegalArgumentException("Cannot override method "+ReflectionHelper.toString(this.verifyMethod));
+        }
         this.verifyMethod = verifyMethod;
+        if( verifyMethod != null ) {
+            onlyIf.addAll(EnforceOnlyIf.find(verifyMethod));
+        }
     }
 }

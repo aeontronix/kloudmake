@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.*;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.resource.java.JavaResourceDefinitionFactory;
 import com.kloudtek.systyrant.resource.query.ResourceQuery;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

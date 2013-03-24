@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant;
 
 import com.google.common.reflect.AbstractInvocationHandler;
-import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.builtin.vagrant.SharedFolder;
@@ -20,7 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import static com.kloudtek.systyrant.host.LocalHost.forceSet;
+import static com.kloudtek.systyrant.util.ReflectionHelper.forceSet;
 
 public class TestVagrantRuntime {
     private final VagrantResource vagrantResource;
