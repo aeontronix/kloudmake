@@ -79,6 +79,18 @@ public class DSLQueryLangTests extends AbstractContextTest {
         assertContainsSame(result, rs6);
     }
 
+    @Test
+    public void testUIdMatchUsingDepends() throws Throwable {
+        Resource rs1 = createTestResource("a");
+        Resource rs2 = createChildTestResource("someid", rs1);
+        rs2.addDependency("b.c.d");
+        Resource rs3 = createChildTestResource("b", rs1);
+        Resource rs4 = createChildTestResource("c", rs3);
+        Resource rs5 = createChildTestResource("d", rs4);
+        execute();
+        assertContainsSame(rs2.getDependencies(), rs1, rs5);
+    }
+
     public static void main(String[] args) {
         SystyrantLangParser parser = new SystyrantLangParser(new CommonTokenStream(new SystyrantLangLexer(new ANTLRInputStream("parent1.as.someid"))));
         SystyrantLangParser.QueryContext queryUidMatchContext = parser.query();

@@ -541,9 +541,20 @@ public class STContext implements AutoCloseable {
         return resourceManager.getResources();
     }
 
+    /**
+     * Find a resource using the current resource's parent as a base resource.
+     * @see #currentResource()
+     * @param query Query.
+     * @return List of resources that match the specified query.
+     * @throws InvalidQueryException If the query was invalid.
+     */
     @NotNull
     public List<Resource> findResources(String query) throws InvalidQueryException {
-        return resourceManager.findResources(query,currentResource());
+        Resource baseResource = currentResource();
+        if( baseResource != null ) {
+            baseResource = baseResource.getParent();
+        }
+        return resourceManager.findResources(query, baseResource);
     }
 
     @NotNull
@@ -564,6 +575,15 @@ public class STContext implements AutoCloseable {
     // Other
     // ------------------------------------------------------------------------------------------
 
+
+    /**
+     * Retrieve the resourceScope ThreadLocal field.
+     * Do not touch this unless you've got a good reason and you know what you're doing.
+     * @return Resource scope.
+     */
+    public ThreadLocal<Resource> getResourceScope() {
+        return resourceScope;
+    }
 
     /**
      * Retrieve the root resource lock.

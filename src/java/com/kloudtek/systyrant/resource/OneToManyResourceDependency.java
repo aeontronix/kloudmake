@@ -52,7 +52,14 @@ public class OneToManyResourceDependency implements ResourceDependency {
     public void resolve(STContext context) throws InvalidDependencyException {
         try {
             if(targetRef != null) {
+                Resource old = context.getResourceScope().get();
+                context.getResourceScope().set(origin);
                 List<Resource> resources = context.findResources(targetRef);
+                if( old != null ) {
+                    context.getResourceScope().set(old);
+                } else {
+                    context.getResourceScope().remove();
+                }
                 resources.remove(origin);
                 targets.addAll(resources);
             }
