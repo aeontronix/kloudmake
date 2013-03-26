@@ -67,11 +67,15 @@ public class AbstractContextTest {
     }
 
     public Resource createChildTestResource(String id, Resource parent) throws ResourceCreationException, InvalidAttributeException {
+        return resourceManager.createResource(TEST, id, parent);
+    }
+
+    public Resource createChildJavaTestResource(String id, Resource parent) throws ResourceCreationException, InvalidAttributeException {
         return resourceManager.createResource(JTEST, id, parent);
     }
 
     public Resource createJavaTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
-        return createJavaTestElement(id, null);
+        return resourceManager.createResource(JTEST, id, null);
     }
 
     public Resource createJavaTestElement(String attr, String val) throws ResourceCreationException, InvalidAttributeException {

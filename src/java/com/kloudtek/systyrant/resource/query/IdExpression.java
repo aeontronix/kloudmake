@@ -13,22 +13,30 @@ import com.kloudtek.systyrant.resource.Resource;
  */
 public class IdExpression extends Expression {
     private String id;
-    private Resource parent;
+    private Resource base;
 
     public IdExpression(SystyrantLangParser.QueryIdMatchContext idCtx, Resource baseResource) {
-        parent = baseResource;
+        base = baseResource;
         id = idCtx.getText();
     }
 
     @Override
     public boolean matches(STContext context, Resource resource) {
-        Resource rp = resource;
-        while( rp != null ) {
-            if( rp.getParent() == parent && id.equalsIgnoreCase(resource.getId()) ) {
+        return isWithinScope(resource) && id.equalsIgnoreCase(resource.getId());
+    }
+
+    private boolean isWithinScope(Resource resource) {
+        Resource rp = resource.getParent();
+        do {
+            if( rp == base) {
                 return true;
+            } else if( rp != null ) {
+                rp = rp.getParent();
+                if( rp == null && base == null ) {
+                    return true;
+                }
             }
-            rp = rp.getParent();
-        }
+        } while ( rp != null );
         return false;
     }
 }

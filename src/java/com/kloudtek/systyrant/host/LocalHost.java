@@ -271,7 +271,7 @@ public class LocalHost extends AbstractHost {
                 hostProvider = new LinuxMetadataProvider();
                 break;
         }
-        ReflectionHelper.forceSet(host, "hostProvider", hostProvider);
+        ReflectionHelper.set(host, "hostProvider", hostProvider);
         return host;
     }
 

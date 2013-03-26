@@ -8,8 +8,6 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
-import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.host.OperatingSystem;
@@ -381,7 +379,7 @@ public class JavaResourceTests extends AbstractContextTest {
 
         @Prepare
         public void action() {
-            ReflectionHelper.forceSet(host,"hostProvider",new LinuxMetadataProvider());
+            ReflectionHelper.set(host, "hostProvider", new LinuxMetadataProvider());
             executed = true;
         }
     }

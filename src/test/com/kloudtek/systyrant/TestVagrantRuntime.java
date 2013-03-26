@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import static com.kloudtek.systyrant.util.ReflectionHelper.forceSet;
+import static com.kloudtek.systyrant.util.ReflectionHelper.set;
 
 public class TestVagrantRuntime {
     private final VagrantResource vagrantResource;
@@ -35,17 +35,17 @@ public class TestVagrantRuntime {
                 @Override
                 protected Object handleInvocation(Object o, Method method, Object[] objects) throws Throwable {
                     SshHost host = (SshHost) objects[1];
-                    forceSet(host, "hostProvider", new LinuxMetadataProvider());
+                    set(host, "hostProvider", new LinuxMetadataProvider());
                     return null;
                 }
             });
             Resource resource = Mockito.mock(Resource.class);
             vagrantResource = new VagrantResource("ubuntu-precise64", "_vagrant", VagrantResource.Ensure.UP, after,
                     LocalHost.createStandalone(), serviceManager, Arrays.asList(new SharedFolder(true, true, "test", "_vagrant/test", "/test")));
-            forceSet(vagrantResource,"resource",resource);
+            set(vagrantResource, "resource", resource);
             vagrantResource.exec();
             sshHost = vagrantResource.getSshHost();
-            forceSet(sshHost,"hostProvider", new LinuxMetadataProvider());
+            set(sshHost, "hostProvider", new LinuxMetadataProvider());
             sshHost.start();
             if (user != null) {
                 // TODO

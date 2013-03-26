@@ -116,7 +116,7 @@ public class STContextTest extends AbstractContextTest {
     @Test
     public void testGenerateId() throws STRuntimeException, InvalidAttributeException, ResourceCreationException {
         Resource el1Parent = createTestResource("parent");
-        Resource el1 = createChildTestResource("test2",el1Parent);
+        Resource el1 = createChildJavaTestResource("test2", el1Parent);
         Resource el2 = createTestResource("testval");
         Resource el3 = createTestResource();
         Resource el4 = createTestResource();
@@ -156,9 +156,9 @@ public class STContextTest extends AbstractContextTest {
     @Test
     public void testPostChildrenExecution() throws Throwable {
         Resource rs1 = createJavaTestResource("1");
-        Resource rs2 = createChildTestResource("2", rs1);
-        Resource rs3 = createChildTestResource("3", rs2);
-        Resource rs4 = createChildTestResource("4", rs3);
+        Resource rs2 = createChildJavaTestResource("2", rs1);
+        Resource rs3 = createChildJavaTestResource("3", rs2);
+        Resource rs4 = createChildJavaTestResource("4", rs3);
         Resource rs5 = createJavaTestResource("5", rs4);
         execute();
         Integer rs1ts = rs1.getJavaImpl(TestResource.class).getPostChildrenOrder();

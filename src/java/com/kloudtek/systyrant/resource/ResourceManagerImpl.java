@@ -486,7 +486,7 @@ public class ResourceManagerImpl implements ResourceManager {
         String value = resource.get(attr);
         if (isNotEmpty(value)) {
             try {
-                List<Resource> deps = context.findResources(value, resource);
+                List<Resource> deps = context.findResources(value, resource.getParent());
                 if (deps.isEmpty()) {
                     throw new InvalidDependencyException("resource " + resource + " " + value + " attribute does not match any resources: " + value);
                 }

@@ -30,19 +30,17 @@ public class ReflectionHelper {
         }
     }
 
-    public static void forceSet(Object obj, String name, Object value) {
+    public static void set(Object obj, String name, Object value) {
         try {
-            Field field = findField(obj, name);
-            field.setAccessible(true);
-            field.set(obj, value);
+            findField(obj, name).set(obj, value);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void set(Object obj, String name, Object value) {
+    public static Object get(Object obj, String name) {
         try {
-            findField(obj, name).set(obj, value);
+            return findField(obj, name).get(obj);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -52,7 +50,11 @@ public class ReflectionHelper {
         Class<?> cl = obj.getClass();
         while (cl != null) {
             try {
-                return cl.getDeclaredField(name);
+                Field field = cl.getDeclaredField(name);
+                if( ! field.isAccessible() ) {
+                    field.setAccessible(true);
+                }
+                return field;
             } catch (NoSuchFieldException e) {
                 cl = cl.getSuperclass();
             }

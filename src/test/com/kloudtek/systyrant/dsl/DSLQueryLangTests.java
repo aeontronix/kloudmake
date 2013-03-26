@@ -9,6 +9,9 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.resource.Resource;
+import com.kloudtek.systyrant.util.ReflectionHelper;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.Field;
@@ -23,34 +26,64 @@ public class DSLQueryLangTests extends AbstractContextTest {
     private Field field;
 
     @Test
-    public void testIdMatch() throws Throwable {
+    public void testIdMatchNoScope() throws Throwable {
         Resource rs1 = createTestResource("parent1");
-        Resource rs2 = createChildTestResource("someid",rs1);
+        Resource rs2 = createChildTestResource("someid", rs1);
         Resource rs3 = createTestResource("parent2");
-        Resource rs4 = createChildTestResource("someid",rs3);
-        Resource rs5 = createChildTestResource("someid",rs4);
+        Resource rs4 = createChildTestResource("someid", rs3);
+        Resource rs5 = createChildTestResource("someid", rs4);
         List<Resource> result = resourceManager.findResources("someid",rs3);
         assertContainsSame(result, rs4, rs5);
     }
 
     @Test
-    public void testIdMatch2() throws Throwable {
+    public void testIdMatch2NoScope() throws Throwable {
         Resource rs1 = createTestResource("parent1");
-        Resource rs2 = createChildTestResource("someid",rs1);
+        Resource rs2 = createChildTestResource("someid", rs1);
         Resource rs3 = createTestResource("parent2");
-        Resource rs4 = createChildTestResource("someid",rs3);
+        Resource rs4 = createChildTestResource("someid", rs3);
         List<Resource> result = resourceManager.findResources("someid");
         assertContainsSame(result, rs2,rs4);
     }
 
     @Test
-    public void testUidMatch() throws Throwable {
+    public void testIdMatchInScope() throws Throwable {
         Resource rs1 = createTestResource("parent1");
-        Resource rs2 = createChildTestResource("someid",rs1);
+        Resource rs2 = createChildTestResource("someid", rs1);
         Resource rs3 = createTestResource("parent2");
-        Resource rs4 = createChildTestResource("someid",rs3);
-        List<Resource> result = resourceManager.findResources("parent1.someid");
-        assertContainsSame(result, rs2);
+        Resource rs4 = createChildTestResource("someid", rs3);
+        List<Resource> result = resourceManager.findResources("someid",rs3);
+        assertContainsSame(result, rs4);
+    }
+
+    @Test
+    public void testUidMatchFromRoot() throws Throwable {
+        Resource rs1 = createTestResource("parent1");
+        Resource rs2 = createChildTestResource("someid", rs1);
+        Resource rs3 = createTestResource("a");
+        Resource rs4 = createChildTestResource("b", rs3);
+        Resource rs5 = createChildTestResource("c", rs4);
+        List<Resource> result = resourceManager.findResources("a.b.c");
+        assertContainsSame(result, rs5);
+    }
+
+    @Test
+    public void testUidMatchFromResource() throws Throwable {
+        Resource rs1 = createTestResource("parent1");
+        Resource rs2 = createChildTestResource("someid", rs1);
+        Resource rs3 = createTestResource("a");
+        Resource rs4 = createChildTestResource("b", rs3);
+        Resource rs5 = createChildTestResource("c", rs4);
+        Resource rs6 = createChildTestResource("d", rs5);
+        List<Resource> result = resourceManager.findResources("b.c.d",rs3);
+        assertContainsSame(result, rs6);
+    }
+
+    public static void main(String[] args) {
+        SystyrantLangParser parser = new SystyrantLangParser(new CommonTokenStream(new SystyrantLangLexer(new ANTLRInputStream("parent1.as.someid"))));
+        SystyrantLangParser.QueryContext queryUidMatchContext = parser.query();
+        System.out.println(queryUidMatchContext.getText());
+
     }
 
     @Test

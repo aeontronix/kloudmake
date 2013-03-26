@@ -36,6 +36,8 @@ public abstract class Expression {
             return new TypeExpression(expr.tm, query, context, baseResource);
         } else if (expr.id != null) {
             return new IdExpression(expr.id, baseResource);
+        } else if (expr.uid != null) {
+            return new UidExpression(expr.uid, baseResource);
         } else {
             throw new InvalidQueryException(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), query);
         }

@@ -50,9 +50,11 @@ invokeMethod: methodName=anyId '(' parameter* ')';
 
 query : queryExpression EOF;
 
-queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch | id=queryIdMatch;
+queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch | uid=queryUidMatch | id=queryIdMatch;
 
 queryAttrMatch : AT attr=anyId ( nnul=queryAttrMatchNonNull | nul=queryAttrMatchNullOrEmpty );
+
+queryUidMatch : anyId DOT anyId ( DOT anyId )*;
 
 queryIdMatch : staticOrDynamicValue;
 
@@ -86,7 +88,7 @@ dynamicValue: ASTRING | variableLookupValue;
 
 variableLookupValue: '$' anyId;
 
-packageName: anyId ( '.' anyId )*;
+packageName: anyId ( DOT anyId )*;
 
 fullyQualifiedId: ( packageName ':' )? anyId ;
 
@@ -128,6 +130,7 @@ LSB: '[';
 RSB: ']';
 COMMA: ',';
 COL: ':';
+DOT: '.';
 
 INCLUDE : 'include';
 DEF : 'def';
