@@ -115,12 +115,13 @@ public class STContextTest extends AbstractContextTest {
 
     @Test
     public void testGenerateId() throws STRuntimeException, InvalidAttributeException, ResourceCreationException {
-        Resource el1 = createTestResource("uid", "test2");
-        Resource el2 = createTestResource("id", "testval");
+        Resource el1Parent = createTestResource("parent");
+        Resource el1 = createChildTestResource("test2",el1Parent);
+        Resource el2 = createTestResource("testval");
         Resource el3 = createTestResource();
         Resource el4 = createTestResource();
-        ctx.validateAndGenerateIdentifiers();
-        assertEquals(el1.getUid(), "test2");
+        assertEquals(el1Parent.getUid(), "parent");
+        assertEquals(el1.getUid(), "parent.test2");
         assertEquals(el2.getUid(), "testval");
         assertEquals(el3.getUid(), "test:test1");
         assertEquals(el4.getUid(), "test:test2");
@@ -184,7 +185,7 @@ public class STContextTest extends AbstractContextTest {
         execute();
     }
 
-    @Test(expectedExceptions = InvalidAttributeException.class)
+    @Test(expectedExceptions = ResourceCreationException.class, expectedExceptionsMessageRegExp = "There is already a resource with uid id1")
     public void testConflictingId() throws Throwable {
         createTestResource("id1");
         createTestResource("id1");

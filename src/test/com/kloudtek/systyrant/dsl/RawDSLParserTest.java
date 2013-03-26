@@ -206,7 +206,7 @@ public class RawDSLParserTest {
         if (id == null) {
             assertNull(instance.getId());
         } else {
-            assertEquals(instance.getId().getRawValue(), id);
+            assertEquals(instance.getId(), id);
         }
         if (params != null) {
             for (int i = 0; i < params.length; i += 2) {

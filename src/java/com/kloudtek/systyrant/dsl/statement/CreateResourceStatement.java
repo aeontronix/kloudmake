@@ -53,7 +53,7 @@ public class CreateResourceStatement extends Statement {
 
     private void parseResource(SystyrantLangParser.CreateResourceInstanceIdContext resourceInstanceId,
                                List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
-        Parameter id = resourceInstanceId != null ? Parameter.create(resourceInstanceId.staticOrDynamicValue()) : null;
+        String id = AntLRUtils.toString( resourceInstanceId != null ? resourceInstanceId.id : null );
         instances.add(new Instance(id, resourceInstanceElements, params));
     }
 
@@ -66,10 +66,7 @@ public class CreateResourceStatement extends Statement {
         try {
             ArrayList<Resource> resources = new ArrayList<>();
             for (Instance instance : instances) {
-                Resource resource = ctx.getResourceManager().createResource(elementName, dslScript.getImports(), parent);
-                if (instance.id != null) {
-                    resource.setId(instance.id.eval(ctx, resource));
-                }
+                Resource resource = ctx.getResourceManager().createResource(elementName, instance.id, parent, dslScript.getImports());
                 for (Map.Entry<String, Parameter> pe : instance.parameters.entrySet()) {
                     resource.set(pe.getKey(), pe.getValue().eval(ctx, resource));
                 }
@@ -94,11 +91,11 @@ public class CreateResourceStatement extends Statement {
     }
 
     public class Instance {
-        private Parameter id;
+        private String id;
         private Map<String, Parameter> parameters = new LinkedHashMap<>();
         private List<CreateResourceStatement> childrens = new ArrayList<>();
 
-        public Instance(@Nullable Parameter id,
+        public Instance(@Nullable String id,
                         @Nullable List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements,
                         @Nullable Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
@@ -108,7 +105,7 @@ public class CreateResourceStatement extends Statement {
             for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntLRUtils.nullToEmpty(resourceInstanceElements)) {
                 SystyrantLangParser.ParameterAssignmentContext param = elCtx.parameterAssignment();
                 if (param != null) {
-                    String paramName = param.paramName.getText();
+                    String paramName = param.paramName.getText().trim().toLowerCase();
                     Parameter parameter = Parameter.create(param.staticOrDynamicValue());
                     parameters.put(paramName, parameter);
                 }
@@ -117,9 +114,18 @@ public class CreateResourceStatement extends Statement {
                     childrens.add(new CreateResourceStatement(ctx, createChildCtx.createResource()));
                 }
             }
+            Parameter idParam = parameters.get("id");
+            if( idParam != null ) {
+                parameters.remove("id");
+                if( idParam instanceof StaticParameter ) {
+                    this.id = idParam.getRawValue();
+                } else {
+                    throw new InvalidScriptException("id "+idParam.getRawValue()+" in "+elementName+"must be a static value");
+                }
+            }
         }
 
-        public Parameter getId() {
+        public String getId() {
             return id;
         }
 

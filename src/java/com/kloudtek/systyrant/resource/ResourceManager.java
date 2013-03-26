@@ -29,7 +29,7 @@ public interface ResourceManager extends Iterable<Resource> {
 
     Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
 
-    Resource createResource(@NotNull FQName fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
+    Resource createResource(@NotNull FQName fqname, String id, @Nullable Resource parent, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException;
 
     Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException;
 
@@ -66,6 +66,13 @@ public interface ResourceManager extends Iterable<Resource> {
 
     boolean hasResources();
 
+    /**
+     * Find Resources using a resource query expression.
+     * @param query Query expression.
+     * @param baseResource Root element to search under
+     * @return Matching resources.
+     * @throws InvalidQueryException If the query expression was invalid.
+     */
     @NotNull
     List<Resource> findResources(@NotNull String query, @Nullable Resource baseResource) throws InvalidQueryException;
 
@@ -77,4 +84,8 @@ public interface ResourceManager extends Iterable<Resource> {
 
     @NotNull
     List<Resource> findResources(@NotNull String query) throws InvalidQueryException;
+
+    Resource createResource(@NotNull String fqname, String id, @Nullable Resource parent) throws ResourceCreationException;
+
+    Resource createResource(@NotNull String fqname, String id) throws ResourceCreationException;
 }

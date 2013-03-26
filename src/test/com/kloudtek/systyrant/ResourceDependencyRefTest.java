@@ -29,12 +29,9 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
 
     @Test
     public void testDependencyResolution() throws InvalidRefException, STRuntimeException, ResourceCreationException {
-        Resource test1 = createJavaTestResource();
-        test1.setId("test1");
-        Resource test2 = createJavaTestResource();
-        test2.setId("test2");
-        Resource test3 = createJavaTestResource();
-        test3.setId("test3");
+        Resource test1 = createJavaTestResource("test1");
+        Resource test2 = createJavaTestResource("test2");
+        Resource test3 = createJavaTestResource("test3");
         test2.addDependency("@id eq test1");
         test3.addDependency("type test:jtest");
         assertTrue(ctx.execute());

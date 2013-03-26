@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.dsl;
 
+import org.antlr.v4.runtime.Token;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,6 +28,15 @@ public class InvalidScriptException extends Exception {
 
     public InvalidScriptException(String location, String token, Exception cause) {
         this("Invalid text found: " + token, location, token, cause);
+    }
+
+    public InvalidScriptException(String message, Token token) {
+        super(message);
+        location = token.getLine() + ":" + token.getCharPositionInLine();
+    }
+
+    public InvalidScriptException(String message) {
+        super(message);
     }
 
     public String getLocation() {

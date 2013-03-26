@@ -77,9 +77,7 @@ public class AbstractVagrantTest {
     }
 
     public Resource createChildTestResource(String id, Resource parent) throws ResourceCreationException, InvalidAttributeException {
-        Resource testResource = resourceManager.createResource(TEST, null, parent);
-        testResource.setId(id);
-        return testResource;
+        return resourceManager.createResource(TEST, id, parent);
     }
 
     public Resource createTestResource(String id) throws ResourceCreationException, InvalidAttributeException {

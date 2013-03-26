@@ -33,6 +33,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.kloudtek.systyrant.Stage.EXECUTE;
@@ -54,8 +55,6 @@ public class STContext implements AutoCloseable {
     private Reflections reflections;
     private static ThreadLocal<STContext> ctx = new ThreadLocal<>();
     private ThreadLocal<Resource> resourceScope = new ThreadLocal<>();
-    private final Map<String, Resource> resourceUidIndexes = new HashMap<>();
-    private final Map<String, Resource> resourceIdIndexes = new HashMap<>();
     private final Map<Resource, List<Resource>> parentToPendingChildrenMap = new HashMap<>();
     private final HashSet<Resource> postChildrenExecuted = new HashSet<>();
     private boolean executed;
@@ -69,6 +68,7 @@ public class STContext implements AutoCloseable {
     private List<Class<? extends Exception>> fatalExceptions;
     private Host host;
     private boolean executing;
+    private final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException, InjectException {
         this(new LocalHost());
@@ -308,8 +308,6 @@ public class STContext implements AutoCloseable {
 
                 resourceManager.prepareForExecution();
 
-                validateAndGenerateIdentifiers();
-
                 buildIndexes();
 
                 executeResources(EXECUTE);
@@ -467,59 +465,6 @@ public class STContext implements AutoCloseable {
         host.stop();
     }
 
-    /**
-     * This will generate Uids for resources that don't have one.
-     * The logic this follows is to use the id if one has been defined and it hasn't been used already, or to use the
-     * resource value plus a counter (ie: file1, file2, etc)
-     */
-    public synchronized void validateAndGenerateIdentifiers() throws InvalidAttributeException {
-        resourceUidIndexes.clear();
-
-        HashSet<String> uids = new HashSet<>();
-        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-        AutoCreateHashMap<Resource, HashSet<String>> parentToChildIdsMap = new AutoCreateHashMap<Resource, HashSet<String>>() {
-            @Override
-            protected HashSet<String> create() {
-                return new HashSet<>();
-            }
-        };
-
-        for (Resource resource : resourceManager) {
-            String id = resource.getId();
-            String uid = resource.getUid();
-            FQName fqName = resource.getType();
-            HashSet<String> idsForParent = parentToChildIdsMap.get(resource.getParent());
-            if (isEmpty(id)) {
-                int i = 1;
-                if (isNotEmpty(uid) && !idsForParent.contains(uid)) {
-                    id = uid;
-                } else {
-                    while (id == null) {
-                        String proposedId = fqName.toString() + i++;
-                        if (!idsForParent.contains(proposedId)) {
-                            id = proposedId;
-                        }
-                    }
-                }
-                resource.setId(id);
-            }
-            if (idsForParent.contains(id)) {
-                throw new InvalidAttributeException("Duplicated id found for " + fqName.toString() + ": " + id);
-            } else {
-                idsForParent.add(id);
-            }
-            if (isEmpty(uid)) {
-                uid = resource.generateUid();
-                resource.setUid(uid);
-            }
-            if (uids.contains(uid)) {
-                throw new InvalidAttributeException("Duplicated uid found for " + fqName.toString() + ": " + uid);
-            } else {
-                uids.add(uid);
-            }
-        }
-    }
-
     private void handleResourceFailure(Resource resource) {
         LinkedList<Resource> list = new LinkedList<>();
         list.add(resource);
@@ -618,6 +563,16 @@ public class STContext implements AutoCloseable {
     // ------------------------------------------------------------------------------------------
     // Other
     // ------------------------------------------------------------------------------------------
+
+
+    /**
+     * Retrieve the root resource lock.
+     * This is currently used to make id generation threadsafe for resources with no parents.
+     * @return ReadWriteLock
+     */
+    public ReadWriteLock getRootResourceLock() {
+        return rootResourceLock;
+    }
 
     public ClassLoader getLibraryClassloader() {
         if (libraryClassloader != null) {

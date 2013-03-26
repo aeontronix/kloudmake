@@ -17,15 +17,16 @@ import java.util.Map;
  */
 public class STHelper {
     public static Resource createElement(@NotNull FQName fqname) throws ResourceCreationException {
-        return STContext.get().getResourceManager().createResource(fqname, null, null);
+        return createElement(fqname,null,(Resource)null);
+    }
+
+    public static Resource createElement(@NotNull FQName fqname, String id, Resource parent) throws ResourceCreationException {
+        return STContext.get().getResourceManager().createResource(fqname, null, null, null);
     }
 
     public static Resource createElement(@NotNull FQName fqname, String id, Map<String, Object> attributes) throws ResourceCreationException {
-        Resource resource = createElement(fqname);
+        Resource resource = createElement(fqname,id,(Resource)null);
         try {
-            if (id != null) {
-                resource.setId(id);
-            }
             if (attributes != null) {
                 resource.setAttributes(attributes);
             }
@@ -36,14 +37,15 @@ public class STHelper {
     }
 
     public static Resource createChildElement(FQName fqname) throws ResourceCreationException {
-        Resource child = createElement(fqname);
-        Resource currentResource = STContext.get().currentResource();
-        child.setParent(currentResource);
-        return child;
+        return createElement(fqname,null,STContext.get().currentResource());
+    }
+
+    public static Resource createChildElement(FQName fqname, String id) throws ResourceCreationException {
+        return createElement(fqname,id,STContext.get().currentResource());
     }
 
     public static Resource createElement(@Nullable String pkg, @NotNull String name, @Nullable String id) throws ResourceCreationException {
-        return createElement(new FQName(pkg, name), id, null);
+        return createElement(new FQName(pkg, name), id, (Resource)null);
     }
 
     public static Resource createElement(@Nullable String pkg, @NotNull String name) throws ResourceCreationException {
@@ -51,7 +53,7 @@ public class STHelper {
     }
 
     public static Resource createElement(@NotNull FQName fqname, String id) throws ResourceCreationException {
-        return createElement(fqname, id, null);
+        return createElement(fqname, id, (Resource)null);
     }
 
     public static Resource createChildElement(String fqname) throws ResourceCreationException {
@@ -59,11 +61,11 @@ public class STHelper {
     }
 
     public static Resource createElement(@NotNull Class<?> elementClass) throws ResourceCreationException {
-        return createElement(getCheckFQName(elementClass), null, null);
+        return createElement(getCheckFQName(elementClass), null, (Resource)null);
     }
 
     public static Resource createElement(@NotNull Class<?> elementClass, String id) throws ResourceCreationException {
-        return createElement(getCheckFQName(elementClass), id, null);
+        return createElement(getCheckFQName(elementClass), id, (Resource)null);
     }
 
     public static Resource createElement(Class<?> elementClass, Map<String, Object> attributes) throws ResourceCreationException {

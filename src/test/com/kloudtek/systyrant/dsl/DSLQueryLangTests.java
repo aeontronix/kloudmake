@@ -23,36 +23,33 @@ public class DSLQueryLangTests extends AbstractContextTest {
     private Field field;
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testIdMatch() throws Throwable {
-        Resource rs1 = createTestResource();
-        Resource rs2 = createTestResource("someid");
-        rs2.setParent(rs1);
-        Resource rs3 = createTestResource();
-        rs3.setParent(rs1);
-        Resource rs4 = createTestResource("someid");
+        Resource rs1 = createTestResource("parent1");
+        Resource rs2 = createChildTestResource("someid",rs1);
+        Resource rs3 = createTestResource("parent2");
+        Resource rs4 = createChildTestResource("someid",rs3);
+        Resource rs5 = createChildTestResource("someid",rs4);
         List<Resource> result = resourceManager.findResources("someid",rs3);
-        assertContainsSame(result, rs2);
+        assertContainsSame(result, rs4, rs5);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testIdMatch2() throws Throwable {
-        Resource rs1 = createTestResource();
-        Resource rs2 = createTestResource("someid");
-        Resource rs3 = createTestResource();
-        List<Resource> result = resourceManager.findResources("someid",rs3);
-        assertContainsSame(result, rs2);
+        Resource rs1 = createTestResource("parent1");
+        Resource rs2 = createChildTestResource("someid",rs1);
+        Resource rs3 = createTestResource("parent2");
+        Resource rs4 = createChildTestResource("someid",rs3);
+        List<Resource> result = resourceManager.findResources("someid");
+        assertContainsSame(result, rs2,rs4);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testUidMatch() throws Throwable {
-        Resource rs1 = createTestResource();
-        Resource rs2 = createTestResource();
-        rs2.setUid("someuid");
-        Resource rs3 = createTestResource();
-        List<Resource> result = resourceManager.findResources("someuid");
+        Resource rs1 = createTestResource("parent1");
+        Resource rs2 = createChildTestResource("someid",rs1);
+        Resource rs3 = createTestResource("parent2");
+        Resource rs4 = createChildTestResource("someid",rs3);
+        List<Resource> result = resourceManager.findResources("parent1.someid");
         assertContainsSame(result, rs2);
     }
 
@@ -264,7 +261,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
     @Test
     public void testChildOfScope() throws Throwable {
         register(ChildOfScope.class, "childofscope");
-        Resource parent = resourceManager.createResource("test:childofscope", null, null);
+        Resource parent = resourceManager.createResource("test:childofscope");
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
         createChildTestResource(null, child2);
@@ -315,7 +312,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
     @Test(enabled = false)
     public void testDepOfScope() throws Throwable {
         register(DepOfScope.class, "depsofscope");
-        Resource r1 = resourceManager.createResource("test:depsofscope", null, null);
+        Resource r1 = resourceManager.createResource("test:depsofscope");
         Resource r2 = createTestResource();
         r2.addDependency(r1);
         Resource r3 = createTestResource();

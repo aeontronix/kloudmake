@@ -208,10 +208,8 @@ public class JavaResourceTests extends AbstractContextTest {
         register(InjectChildResources.class);
         Resource r1 = createJavaTestResource();
         Resource r2 = create(InjectChildResources.class);
-        Resource r3 = createJavaTestResource();
-        r3.setParent(r2);
-        Resource r4 = createJavaTestResource();
-        r4.setParent(r2);
+        Resource r3 = createJavaChildTestResource(r2);
+        Resource r4 = createJavaChildTestResource(r2);
         createJavaTestResource();
         execute();
         InjectChildResources impl = findJavaAction(InjectChildResources.class);

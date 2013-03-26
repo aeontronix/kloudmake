@@ -19,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Resource {
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
@@ -27,12 +30,11 @@ public class Resource {
     private ResourceDefinition factory;
     private Resource parent;
     private boolean executable;
-
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private List<Action> prepareActions = new ArrayList<>();
     private List<Action> execActions = new ArrayList<>();
     private List<Action> postChildrenExecActions = new ArrayList<>();
     private List<Action> cleanupActions = new ArrayList<>();
-
     private State state;
     private Host hostOverride;
     /**
@@ -45,9 +47,12 @@ public class Resource {
     final HashSet<Resource> indirectDependencies = new HashSet<>();
     final HashSet<Resource> dependents = new HashSet<>();
 
-    public Resource(STContext context, ResourceDefinition factory) {
+    public Resource(STContext context, ResourceDefinition factory, String id, String uid, Resource parent) {
         this.context = context;
         this.factory = factory;
+        this.parent = parent;
+        attributes.put("id",id);
+        attributes.put("uid",uid);
         reset();
     }
 
@@ -66,6 +71,14 @@ public class Resource {
 
     public ResourceDependency addDependencies(Collection<Resource> resources) {
         return addDependencies(resources, false);
+    }
+
+    public Lock rlock() {
+        return lock.readLock();
+    }
+
+    public Lock wlock() {
+        return lock.writeLock();
     }
 
     public ResourceDependency addDependencies(Collection<Resource> resources, boolean optional) {
@@ -102,10 +115,6 @@ public class Resource {
 
     public Resource getParent() {
         return parent;
-    }
-
-    public void setParent(Resource parent) {
-        this.parent = parent;
     }
 
     // ----------------------------------------------------------------------
@@ -233,8 +242,12 @@ public class Resource {
      * @return This resource.
      */
     public Resource set(@NotNull String key, @Nullable Object valueObj) throws InvalidAttributeException {
+        key = key.trim().toLowerCase();
+        if( key.equalsIgnoreCase("id") || key.equalsIgnoreCase("uid") ) {
+            throw new InvalidAttributeException("attribute id cannot be modified");
+        }
         String value = ConvertUtils.convert(valueObj);
-        attributes.put(key.toLowerCase(), value);
+        attributes.put(key, value);
         return this;
     }
 
@@ -243,6 +256,9 @@ public class Resource {
     }
 
     public void removeAttribute(@NotNull String key) {
+        if( key.equalsIgnoreCase("id") ) {
+            throw new IllegalArgumentException("attribute id cannot be removed");
+        }
         attributes.remove(key.toLowerCase());
     }
 
@@ -250,8 +266,8 @@ public class Resource {
         return get("id");
     }
 
-    public void setId(@Nullable String id) throws InvalidAttributeException {
-        set("id", id);
+    void setId(String value) {
+        attributes.put("id",value);
     }
 
     public String getUid() {

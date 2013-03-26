@@ -4,7 +4,10 @@
 
 package com.kloudtek.systyrant.resource;
 
-import com.kloudtek.systyrant.*;
+import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Library;
+import com.kloudtek.systyrant.MultipleResourceMatchException;
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.java.JavaResourceDefinitionFactory;
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.kloudtek.util.StringUtils.isNotEmpty;
@@ -125,17 +129,21 @@ public class ResourceManagerImpl implements ResourceManager {
         }
     }
 
-    // Resource creation
+    // -------------------------
+    // Resource Creation
+    // -------------------------
 
     /**
      * Used to create an Resource instance.
      * Important notes: Must only be called before the pre-execution
      *
      * @param fqname Fully qualified resource name
+     * @param id     Id of the resource or null if the id should be automatically generated.
      * @param parent If specified, the new resource will set this as it's parent
      */
     @Override
-    public Resource createResource(@NotNull FQName fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException {
+    public Resource createResource(@NotNull FQName fqname, @Nullable String id, @Nullable Resource parent,
+                                   @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException {
         wlock();
         try {
             if (logger.isDebugEnabled()) {
@@ -152,13 +160,27 @@ public class ResourceManagerImpl implements ResourceManager {
                 }
                 uniqueResourcesCreated.add(fqname);
             }
-            Resource resource = definition.create(context);
-            Resource defaultParent = context.getDefaultParent();
-            if (parent != null) {
-                resource.setParent(parent);
-            } else if (defaultParent != null) {
-                resource.setParent(defaultParent);
+            String uid;
+            Lock lock = parent != null ? parent.wlock() : context.getRootResourceLock().writeLock();
+            lock.lock();
+            try {
+                if( id != null ) {
+                    uid = parent != null ? ( parent.getUid() ) + "."+id : id;
+                    if( context.findResourceByUid(uid) != null ) {
+                        throw new ResourceCreationException("There is already a resource with uid "+uid);
+                    }
+                } else {
+                    uid = parent != null ? ( parent.getUid() ) + "."+definition.getFQName().toString() : definition.getFQName().toString();
+                    int count=1;
+                    while(context.findResourceByUid(uid+count) != null) {
+                        count++;
+                    }
+                    uid = uid+count;
+                }
+            } finally {
+                lock.unlock();
             }
+            Resource resource = definition.create(context, id, uid, parent != null ? parent : context.getDefaultParent());
             resources.add(resource);
             if (logger.isDebugEnabled()) {
                 logger.debug("Created resource {}", fqname);
@@ -170,45 +192,38 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException {
-        return createResource(new FQName(fqname), importPaths, parent);
+    public Resource createResource(@NotNull String fqname, String id, @Nullable Resource parent) throws ResourceCreationException {
+        return createResource(new FQName(fqname), id, parent, null);
     }
 
     @Override
-    @NotNull
-    public List<Resource> findResources(@NotNull String query) throws InvalidQueryException {
-        return new ResourceQuery(context, query, context.currentResource()).find(resources);
-    }
-
-    @Override
-    @NotNull
-    public List<Resource> findResources(@NotNull String query, @Nullable Resource baseResource) throws InvalidQueryException {
-        return new ResourceQuery(context, query, baseResource).find(resources);
+    public Resource createResource(@NotNull String fqname, String id) throws ResourceCreationException {
+        return createResource(new FQName(fqname), id, null, null);
     }
 
     @Override
     public Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException {
-        return createResource(new FQName(fqname), importPaths, null);
+        return createResource(new FQName(fqname), null, null, importPaths);
     }
 
     @Override
     public Resource createResource(@NotNull FQName fqname) throws ResourceCreationException {
-        return createResource(fqname, null, null);
+        return createResource(fqname, null, null, null);
     }
 
     @Override
     public Resource createResource(@NotNull String fqname) throws ResourceCreationException {
-        return createResource(new FQName(fqname), null, null);
+        return createResource(new FQName(fqname), null, null, null);
     }
 
     @Override
     public Resource createResource(@NotNull FQName fqname, @Nullable Resource parent) throws ResourceCreationException {
-        return createResource(fqname, null, parent);
+        return createResource(fqname, null, parent, null);
     }
 
     @Override
     public Resource createResource(@NotNull String fqname, @Nullable Resource parent) throws ResourceCreationException {
-        return createResource(new FQName(fqname), null, parent);
+        return createResource(new FQName(fqname), null, parent, null);
     }
 
     @Override
@@ -223,12 +238,25 @@ public class ResourceManagerImpl implements ResourceManager {
             registerResourceDefinition(resourceDefinition);
             return createResource(resourceDefinition.getFQName());
         } catch (InvalidResourceDefinitionException e) {
-            throw new ResourceCreationException(e.getMessage(),e);
+            throw new ResourceCreationException(e.getMessage(), e);
         }
     }
 
-    public ResourceDefinition createResourceDefinition(FQName fqName) {
-        return null;
+    @Override
+    public Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException {
+        return createResource(new FQName(fqname), null, parent, importPaths);
+    }
+
+    @Override
+    @NotNull
+    public List<Resource> findResources(@NotNull String query) throws InvalidQueryException {
+        return new ResourceQuery(context, query, context.currentResource()).find(resources);
+    }
+
+    @Override
+    @NotNull
+    public List<Resource> findResources(@NotNull String query, @Nullable Resource baseResource) throws InvalidQueryException {
+        return new ResourceQuery(context, query, baseResource).find(resources);
     }
 
     // -------------------------
@@ -346,7 +374,7 @@ public class ResourceManagerImpl implements ResourceManager {
         wlock();
         try {
             ResourceDefinition existing = findResourceDefinition(resourceDefinition.getFQName());
-            if( existing != null ) {
+            if (existing != null) {
                 existing.merge(resourceDefinition);
             } else {
                 resourceDefinition.validate();
@@ -458,7 +486,7 @@ public class ResourceManagerImpl implements ResourceManager {
         String value = resource.get(attr);
         if (isNotEmpty(value)) {
             try {
-                List<Resource> deps = context.findResources(value,resource);
+                List<Resource> deps = context.findResources(value, resource);
                 if (deps.isEmpty()) {
                     throw new InvalidDependencyException("resource " + resource + " " + value + " attribute does not match any resources: " + value);
                 }

@@ -41,21 +41,18 @@ public class AbstractContextTest {
     }
 
     public Resource createTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
-        Resource testResource = createTestResource();
-        testResource.setId(id);
-        return testResource;
+        return resourceManager.createResource(TEST, id);
     }
 
     public Resource createTestResource(String id, Resource dependency) throws ResourceCreationException, InvalidAttributeException {
-        Resource testResource = createTestResource();
-        testResource.setId(id);
+        Resource testResource = createTestResource(id);
         testResource.addDependency(dependency);
         return testResource;
     }
 
     public Resource createTestResource(String attrName, String attrValue) throws ResourceCreationException, InvalidAttributeException {
         Resource testResource = createTestResource();
-        testResource.set(attrName,attrValue);
+        testResource.set(attrName, attrValue);
         return testResource;
     }
 
@@ -70,18 +67,25 @@ public class AbstractContextTest {
     }
 
     public Resource createChildTestResource(String id, Resource parent) throws ResourceCreationException, InvalidAttributeException {
-        Resource testResource = resourceManager.createResource(JTEST, null, parent);
-        testResource.setId(id);
-        return testResource;
+        return resourceManager.createResource(JTEST, id, parent);
     }
 
     public Resource createJavaTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
-        return createJavaTestElement("id", id);
+        return createJavaTestElement(id, null);
     }
 
     public Resource createJavaTestElement(String attr, String val) throws ResourceCreationException, InvalidAttributeException {
         return createJavaTestResource().set(attr, val);
     }
+
+    protected Resource createJavaChildTestResource(Resource parent) throws ResourceCreationException {
+        return resourceManager.createResource(JTEST, (String) null, parent);
+    }
+
+    private Resource createJavaChildTestResource(String id, Resource parent) throws ResourceCreationException {
+        return resourceManager.createResource(JTEST, id, parent);
+    }
+
 
     public AbstractContextTest register(Class<?> clazz) throws InvalidResourceDefinitionException {
         resourceManager.registerJavaResource(clazz, "test:" + clazz.getSimpleName().toLowerCase().replace("$", ""));
@@ -105,10 +109,7 @@ public class AbstractContextTest {
     public AbstractContextTest registerAndCreate(Class<?> clazz, String name, String id) throws InvalidResourceDefinitionException, ResourceCreationException, InvalidAttributeException {
         String fqname = "test:" + name;
         resourceManager.registerJavaResource(clazz, fqname);
-        Resource resource = resourceManager.createResource(fqname);
-        if (id != null) {
-            resource.setId(id);
-        }
+        resourceManager.createResource(fqname, id);
         return this;
     }
 

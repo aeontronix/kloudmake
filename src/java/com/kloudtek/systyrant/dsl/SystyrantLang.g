@@ -36,7 +36,7 @@ createResourceSingleInstance: createResourceInstanceId? createResourceInstanceEl
 
 createResourceMultipleInstance: createResourceInstanceId? createResourceInstanceElements* SC;
 
-createResourceInstanceId: staticOrDynamicValue COL ?;
+createResourceInstanceId: id=string COL ?;
 
 createResourceInstanceElements: parameterAssignment | createResourceInstanceChild;
 

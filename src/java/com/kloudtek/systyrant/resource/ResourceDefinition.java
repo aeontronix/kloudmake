@@ -83,8 +83,8 @@ public class ResourceDefinition implements AutoCloseable {
         defaultAttrs.put(name, value);
     }
 
-    public Resource create(STContext context) throws ResourceCreationException {
-        Resource resource = new Resource(context, this);
+    public Resource create(STContext context, String id, String uid, Resource parent) throws ResourceCreationException {
+        Resource resource = new Resource(context, this, id, uid, parent);
         try {
             for (Map.Entry<String, String> attr : defaultAttrs.entrySet()) {
                 resource.set(attr.getKey(), attr.getValue());

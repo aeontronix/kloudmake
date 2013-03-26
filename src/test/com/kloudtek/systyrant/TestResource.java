@@ -69,8 +69,7 @@ public class TestResource {
         if (childs != null) {
             for (String id : childs) {
                 try {
-                    Resource child = STHelper.createElement("test","test", id);
-                    child.setParent(resource);
+                    Resource child = STHelper.createElement(new FQName("test:test"), id, resource);
                 } catch (ResourceCreationException e) {
                     throw new STRuntimeException(e.getMessage(),e);
                 }
@@ -326,8 +325,7 @@ public class TestResource {
         public void execute(STContext context, Resource resource) throws STRuntimeException {
             try {
                 logger.info("Creating children {} for resource {}",name,parent);
-                Resource children = context.getResourceManager().createResource(AbstractContextTest.TEST, null, parent);
-                children.setId(name);
+                context.getResourceManager().createResource(AbstractContextTest.TEST, name, parent);
             } catch (ResourceCreationException e) {
                 throw new STRuntimeException(e.getMessage(),e);
             }
