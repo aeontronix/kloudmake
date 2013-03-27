@@ -12,6 +12,7 @@ import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
+import com.kloudtek.systyrant.resource.RequiresExpression;
 import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceManager;
 import com.kloudtek.systyrant.resource.ResourceManagerImpl;
@@ -69,8 +70,9 @@ public class STContext implements AutoCloseable {
     private Host host;
     private boolean executing;
     private final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
+    private ThreadLocal<List<String>> importPaths = new ThreadLocal<>();
 
-    public STContext() throws InvalidResourceDefinitionException, STRuntimeException, InjectException {
+    public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
         host.start();
     }
@@ -78,7 +80,7 @@ public class STContext implements AutoCloseable {
     public STContext(Host host) throws InjectException, InvalidResourceDefinitionException, STRuntimeException {
         this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
-        resourceManager = new ResourceManagerImpl(this);
+        resourceManager = new ResourceManagerImpl(this,resourceScope);
         serviceManager = new ServiceManagerImpl(this);
         registerLibrary(new Library());
         providersManagementService.init(reflections);
@@ -335,6 +337,8 @@ public class STContext implements AutoCloseable {
             }
         } finally {
             executing = false;
+            clearImports();
+            clearResourceScope();
             lock.writeLock().unlock();
         }
     }
@@ -432,9 +436,14 @@ public class STContext implements AutoCloseable {
                 fatalFatalException(e);
                 handleResourceFailure(res);
             }
+            // resolve 'requires' attribute
+            String requires = res.get("requires");
+            if( isNotEmpty(requires) ) {
+                new RequiresExpression(res,requires).resolveRequires(this);
+            }
+            resourceManager.resolveDependencies(false);
             resourceScope.remove();
         }
-        resourceManager.resolveDependencies(false);
         resourceManager.setCreateAllowed(false);
     }
 
@@ -508,6 +517,28 @@ public class STContext implements AutoCloseable {
         MDC.remove("resource");
     }
 
+    public List<String> getImports() {
+        List<String> list = importPaths.get();
+        if( list == null ) {
+            return Collections.emptyList();
+        } else {
+            return list;
+        }
+    }
+
+    public void addImport( String value ) {
+        List<String> list = importPaths.get();
+        if( list == null ) {
+            list = new ArrayList<>();
+            importPaths.set(list);
+        }
+        list.add(value);
+    }
+
+    public void clearImports() {
+        importPaths.remove();
+    }
+
     // ------------------------------------------------------------------------------------------
     // Other runtime methods for use by resources or calling code
     // ------------------------------------------------------------------------------------------
@@ -563,27 +594,12 @@ public class STContext implements AutoCloseable {
     }
 
     public Resource findResourceByUid(String uid) {
-        for (Resource resource : resourceManager) {
-            if (uid.equals(resource.getUid())) {
-                return resource;
-            }
-        }
-        return null;
+        return resourceManager.findResourcesByUid(uid);
     }
 
     // ------------------------------------------------------------------------------------------
     // Other
     // ------------------------------------------------------------------------------------------
-
-
-    /**
-     * Retrieve the resourceScope ThreadLocal field.
-     * Do not touch this unless you've got a good reason and you know what you're doing.
-     * @return Resource scope.
-     */
-    public ThreadLocal<Resource> getResourceScope() {
-        return resourceScope;
-    }
 
     /**
      * Retrieve the root resource lock.
@@ -649,7 +665,6 @@ public class STContext implements AutoCloseable {
             cl = cl.getSuperclass();
         }
     }
-
 
     public class LibraryClassLoader extends URLClassLoader {
         public LibraryClassLoader(URL[] urls, ClassLoader parent) {

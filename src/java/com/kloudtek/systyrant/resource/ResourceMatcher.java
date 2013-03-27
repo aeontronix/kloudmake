@@ -7,7 +7,9 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.FQName;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ResourceMatcher {
     private String pkg;
@@ -21,6 +23,24 @@ public class ResourceMatcher {
     public ResourceMatcher(FQName fqName) {
         this.pkg = fqName.getPkg();
         this.name = fqName.getName();
+    }
+
+    public ResourceMatcher(String pkgWithOptionalName) {
+        int idx = pkgWithOptionalName.indexOf(':');
+        if( idx != -1 ) {
+            pkg = pkgWithOptionalName.substring(0,idx);
+            name = pkgWithOptionalName.substring(idx+1,pkgWithOptionalName.length());
+        } else {
+            pkg = pkgWithOptionalName;
+        }
+    }
+
+    public static List<ResourceMatcher> convert( List<String> matchers ) {
+        List<ResourceMatcher> list = new ArrayList<>();
+        for (String matcher : matchers) {
+            list.add(new ResourceMatcher(matcher));
+        }
+        return list;
     }
 
     public String getPkg() {

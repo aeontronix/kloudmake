@@ -7,7 +7,7 @@ package com.kloudtek.systyrant.exception;
 import org.slf4j.Logger;
 
 /** Thrown when a resource creation fails. */
-public class ResourceCreationException extends STException {
+public class ResourceCreationException extends STRuntimeException {
     public ResourceCreationException() {
     }
 

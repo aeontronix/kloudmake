@@ -31,6 +31,7 @@ public class Resource {
     private Resource parent;
     private boolean executable;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final HashSet<Resource> childrens = new HashSet<>();
     private List<Action> prepareActions = new ArrayList<>();
     private List<Action> execActions = new ArrayList<>();
     private List<Action> postChildrenExecActions = new ArrayList<>();
@@ -53,6 +54,9 @@ public class Resource {
         this.parent = parent;
         attributes.put("id",id);
         attributes.put("uid",uid);
+        if( parent != null ) {
+            parent.childrens.add(this);
+        }
         reset();
     }
 
@@ -64,6 +68,11 @@ public class Resource {
     // ----------------------------------------------------------------------
     // Dependency Management
     // ----------------------------------------------------------------------
+
+
+    public Set<Resource> getChildrens() {
+        return Collections.unmodifiableSet(childrens);
+    }
 
     public Set<Resource> getDependencies() {
         return Collections.unmodifiableSet(dependencies);

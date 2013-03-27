@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.MultipleResourceMatchException;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.*;
 import org.jetbrains.annotations.NotNull;
@@ -88,4 +89,9 @@ public interface ResourceManager extends Iterable<Resource> {
     Resource createResource(@NotNull String fqname, String id, @Nullable Resource parent) throws ResourceCreationException;
 
     Resource createResource(@NotNull String fqname, String id) throws ResourceCreationException;
+
+    @NotNull
+    ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException;
+
+    Resource findResourcesByUid(String uid);
 }

@@ -20,7 +20,7 @@ resourceDefinition: DEF fullyQualifiedId resourceDefinitionParams? ( resourceDef
 
 resourceDefinitionParams: '(' parameterAssignment* ')';
 
-resourceDefinitionStatements: '{' statement* '}';
+resourceDefinitionStatements: LCB statement* RCB;
 
 // Create Resource
 
@@ -69,6 +69,16 @@ queryChildOfMatch : CHILDOF s=STAR? exp=queryExpression?;
 queryDependsMatch : DEPENDS s=STAR? exp=queryExpression?;
 
 queryTypeMatch : TYPE t=fullyQualifiedIdWithPkg;
+
+// Requires support
+
+requires : r1=requiresType* ( COMMA r2=requiresType )* EOF;
+
+requiresType : id=fullyQualifiedId attrs=requiresTypeAttrs?;
+
+requiresTypeAttrs : LB attr=requiresTypeAttrsMatch RB ;
+
+requiresTypeAttrsMatch : a=parameterAssignment*;
 
 // Common
 
@@ -124,8 +134,10 @@ LTS: 'lt';
 NEQ: '!=';
 STAR: '*';
 AT: '@';
-LB: '{';
-RB: '}';
+LCB: '{';
+RCB: '}';
+LB: '(';
+RB: ')';
 LSB: '[';
 RSB: ']';
 COMMA: ',';

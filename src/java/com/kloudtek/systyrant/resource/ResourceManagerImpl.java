@@ -29,9 +29,11 @@ import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class ResourceManagerImpl implements ResourceManager {
     private STContext context;
+    private final ThreadLocal<Resource> resourceScope;
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
     private List<ResourceDefinition> resourceDefinitions = new ArrayList<>();
     private List<Resource> resources = new ArrayList<>();
+    private HashMap<String,Resource> resourcesUidIndex = new HashMap<>();
     private HashMap<Resource, List<Resource>> parentChildIndex;
     /**
      * Concurrency lock
@@ -47,8 +49,9 @@ public class ResourceManagerImpl implements ResourceManager {
     private HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
     private HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
 
-    public ResourceManagerImpl(STContext context) {
+    public ResourceManagerImpl(STContext context, ThreadLocal<Resource> resourceScope) {
         this.context = context;
+        this.resourceScope = resourceScope;
     }
 
     @Override
@@ -153,34 +156,35 @@ public class ResourceManagerImpl implements ResourceManager {
                 throw new ResourceCreationException("Resources created not allowed at this time.");
             }
             ResourceDefinition definition;
-            definition = findDefinition(fqname, importPaths);
+            definition = findResourceDefinition(fqname, importPaths);
             if (definition.isUnique()) {
                 if (uniqueResourcesCreated.contains(definition.getFQName())) {
                     throw new ResourceCreationException("Cannot create more than one instance of " + fqname.toString());
                 }
                 uniqueResourcesCreated.add(fqname);
             }
-            String uid;
+            String uid = null;
             Lock lock = parent != null ? parent.wlock() : context.getRootResourceLock().writeLock();
             lock.lock();
             try {
-                if( id != null ) {
-                    uid = parent != null ? ( parent.getUid() ) + "."+id : id;
-                    if( context.findResourceByUid(uid) != null ) {
-                        throw new ResourceCreationException("There is already a resource with uid "+uid);
-                    }
-                } else {
-                    uid = parent != null ? ( parent.getUid() ) + "."+definition.getFQName().toString() : definition.getFQName().toString();
-                    int count=1;
-                    while(context.findResourceByUid(uid+count) != null) {
+                if (id == null) {
+                    id = definition.getFQName().toString();
+                    String str = parent != null ? parent.getUid() + "." + id : id;
+                    int count = 1;
+                    while (context.findResourceByUid(str + count) != null) {
                         count++;
                     }
-                    uid = uid+count;
+                    id = id + count;
                 }
+                uid = parent != null ? parent.getUid() + "." + id : id;
             } finally {
                 lock.unlock();
             }
+            if(resourcesUidIndex.containsKey(uid) ) {
+                throw new ResourceCreationException("There is already a resource with uid "+uid);
+            }
             Resource resource = definition.create(context, id, uid, parent != null ? parent : context.getDefaultParent());
+            resourcesUidIndex.put(uid,resource);
             resources.add(resource);
             if (logger.isDebugEnabled()) {
                 logger.debug("Created resource {}", fqname);
@@ -283,7 +287,8 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @NotNull
-    private ResourceDefinition findDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
+    @Override
+    public ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
         rlock();
         try {
             ResourceFinder rfinder = new ResourceFinder(name, importPaths);
@@ -338,6 +343,10 @@ public class ResourceManagerImpl implements ResourceManager {
         }
     }
 
+    @Override
+    public Resource findResourcesByUid(String uid) {
+        return resourcesUidIndex.get(uid);
+    }
 
     // Resource registration
 
@@ -419,8 +428,8 @@ public class ResourceManagerImpl implements ResourceManager {
     public void prepareForExecution() throws InvalidDependencyException {
         wlock();
         try {
-            // add dependency on parent if missing
-            for (Resource resource : resources) {
+            for (Resource resource : new ArrayList<>(resources)) {
+                // add dependency on parent if missing
                 Resource parent = resource.getParent();
                 if (parent != null && !resource.getDependencies().contains(parent)) {
                     resource.addDependency(parent);
@@ -435,8 +444,8 @@ public class ResourceManagerImpl implements ResourceManager {
                     getChildrensInternalList(resource.getParent()).add(resource);
                 }
             }
-            // make dependent on resource if dependent on parent (childrens excluded from this rule)
             for (Resource resource : resources) {
+                // make dependent on resource if dependent on parent (childrens excluded from this rule)
                 for (Resource dep : resource.getDependencies()) {
                     if (resource.getParent() == null || !resource.getParent().equals(dep)) {
                         makeDependentOnChildren(resource, dep);
@@ -467,7 +476,14 @@ public class ResourceManagerImpl implements ResourceManager {
             }
             m2mDependencies.clear();
             for (OneToManyResourceDependency dependency : o2mDependencies) {
+                Resource old = resourceScope.get();
+                resourceScope.set(dependency.getOrigin());
                 dependency.resolve(context);
+                if (old != null) {
+                    resourceScope.set(old);
+                } else {
+                    resourceScope.remove();
+                }
                 Resource origin = dependency.getOrigin();
                 for (Resource target : dependency.getTargets()) {
                     if (target.getState() == Resource.State.FAILED) {

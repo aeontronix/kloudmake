@@ -22,38 +22,38 @@ public class FQName {
     }
 
     public FQName(@NotNull Class<?> clazz) {
-        this(clazz,null);
+        this(clazz, null);
     }
 
     public FQName(@NotNull Class<?> clazz, FQName fqname) {
         STResource rsAnno = clazz.getAnnotation(STResource.class);
         boolean annoNameDef = rsAnno != null && isNotEmpty(rsAnno.value());
         int annoNameSep = rsAnno != null ? rsAnno.value().indexOf(":") : -1;
-        if( fqname != null ) {
+        if (fqname != null) {
             name = fqname.getName();
         } else {
-            if( annoNameDef ) {
-                if( annoNameSep != -1 ) {
-                    name = rsAnno.value().substring(annoNameSep+1);
+            if (annoNameDef) {
+                if (annoNameSep != -1) {
+                    name = rsAnno.value().substring(annoNameSep + 1);
                 } else {
                     name = rsAnno.value();
                 }
             } else {
                 name = clazz.getSimpleName().toLowerCase();
-                if( name.endsWith("resource") ) {
+                if (name.endsWith("resource")) {
                     name = name.substring(0, name.length() - 8);
                 }
             }
         }
-        if( fqname != null && fqname.getPkg() != null ) {
+        if (fqname != null && fqname.getPkg() != null) {
             pkg = fqname.getPkg();
         } else {
-            if( annoNameSep != -1) {
-                pkg = rsAnno.value().substring(0,annoNameSep);
+            if (annoNameSep != -1) {
+                pkg = rsAnno.value().substring(0, annoNameSep);
             } else {
                 Package jpkg = clazz.getPackage();
                 STResource pkgAnno = jpkg.getAnnotation(STResource.class);
-                if( pkgAnno != null && isNotEmpty(pkgAnno.value() ) ) {
+                if (pkgAnno != null && isNotEmpty(pkgAnno.value())) {
                     pkg = pkgAnno.value();
                 } else {
                     pkg = jpkg.getName();
@@ -91,6 +91,22 @@ public class FQName {
 
     public void setPkg(@Nullable String pkg) {
         this.pkg = pkg;
+    }
+
+    public boolean matches(FQName fqname, STContext ctx) {
+        if (isNotEmpty(pkg)) {
+            return equals(fqname);
+        } else {
+            for (String importValue : ctx.getImports()) {
+                boolean fullyQualified = importValue.indexOf(':') != -1;
+                String fqnameStr = fqname.toString();
+                String compare = fullyQualified ? importValue : importValue + ":" + name;
+                if (compare.equalsIgnoreCase(fqnameStr)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     @Override
