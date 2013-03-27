@@ -5,12 +5,10 @@
 package com.kloudtek.systyrant.resource;
 
 /**
-* Created with IntelliJ IDEA.
-* User: yannick
-* Date: 23/03/13
-* Time: 14:33
-* To change this template use File | Settings | File Templates.
+ * Resource uniqueness scopes.
+ * <p>GLOBAL indicates that a resource must be unique globally.</p>
+ * <p>HOST indicates that a resource must be unique within the scope of a host.</p>
 */
 public enum UniqueScope {
-    GLOBAL
+    GLOBAL, HOST
 }

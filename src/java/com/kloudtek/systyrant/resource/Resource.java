@@ -362,8 +362,8 @@ public class Resource {
         return context;
     }
 
-    public Host host() throws InvalidServiceException {
-        return context.host();
+    public Host host() {
+        return getHost();
     }
 
     public FQName getType() {

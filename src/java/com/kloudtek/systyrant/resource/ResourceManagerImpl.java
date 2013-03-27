@@ -10,8 +10,10 @@ import com.kloudtek.systyrant.MultipleResourceMatchException;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.resource.java.JavaResourceDefinitionFactory;
 import com.kloudtek.systyrant.resource.query.ResourceQuery;
+import com.kloudtek.systyrant.util.SetHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ public class ResourceManagerImpl implements ResourceManager {
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
     private List<ResourceDefinition> resourceDefinitions = new ArrayList<>();
     private List<Resource> resources = new ArrayList<>();
-    private HashMap<String,Resource> resourcesUidIndex = new HashMap<>();
+    private HashMap<String, Resource> resourcesUidIndex = new HashMap<>();
     private HashMap<Resource, List<Resource>> parentChildIndex;
     /**
      * Concurrency lock
@@ -157,12 +159,6 @@ public class ResourceManagerImpl implements ResourceManager {
             }
             ResourceDefinition definition;
             definition = findResourceDefinition(fqname, importPaths);
-            if (definition.isUnique()) {
-                if (uniqueResourcesCreated.contains(definition.getFQName())) {
-                    throw new ResourceCreationException("Cannot create more than one instance of " + fqname.toString());
-                }
-                uniqueResourcesCreated.add(fqname);
-            }
             String uid = null;
             Lock lock = parent != null ? parent.wlock() : context.getRootResourceLock().writeLock();
             lock.lock();
@@ -180,11 +176,11 @@ public class ResourceManagerImpl implements ResourceManager {
             } finally {
                 lock.unlock();
             }
-            if(resourcesUidIndex.containsKey(uid) ) {
-                throw new ResourceCreationException("There is already a resource with uid "+uid);
+            if (resourcesUidIndex.containsKey(uid)) {
+                throw new ResourceCreationException("There is already a resource with uid " + uid);
             }
             Resource resource = definition.create(context, id, uid, parent != null ? parent : context.getDefaultParent());
-            resourcesUidIndex.put(uid,resource);
+            resourcesUidIndex.put(uid, resource);
             resources.add(resource);
             if (logger.isDebugEnabled()) {
                 logger.debug("Created resource {}", fqname);
@@ -425,11 +421,38 @@ public class ResourceManagerImpl implements ResourceManager {
      * Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies
      */
     @Override
-    public void prepareForExecution() throws InvalidDependencyException {
+    public void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException {
         wlock();
         try {
+            // Validate resource uniqueness
+            HashSet<FQName> globalUnique = new HashSet<>();
+            SetHashMap<Host, FQName> hostUnique = new SetHashMap<>();
+            for (Resource resource : resources) {
+                UniqueScope uniqueScope = resource.getDefinition().getUniqueScope();
+                if (uniqueScope != null) {
+                    switch (uniqueScope) {
+                        case GLOBAL:
+                            if (globalUnique.contains(resource.getType())) {
+                                throw new MultipleUniqueResourcesFoundException(resource);
+                            } else {
+                                globalUnique.add(resource.getType());
+                            }
+                            break;
+                        case HOST:
+                            HashSet<FQName> set = hostUnique.get(resource.host());
+                            if (set.contains(resource.getType())) {
+                                throw new MultipleUniqueResourcesFoundException(resource);
+                            } else {
+                                set.add(resource.getType());
+                            }
+                            break;
+                        default:
+                            throw new RuntimeException("BUG! Unknown resource scope "+uniqueScope);
+                    }
+                }
+            }
+            // add dependency on parent if missing
             for (Resource resource : new ArrayList<>(resources)) {
-                // add dependency on parent if missing
                 Resource parent = resource.getParent();
                 if (parent != null && !resource.getDependencies().contains(parent)) {
                     resource.addDependency(parent);

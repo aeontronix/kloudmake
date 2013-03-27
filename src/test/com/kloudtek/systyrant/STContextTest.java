@@ -4,9 +4,12 @@
 
 package com.kloudtek.systyrant;
 
+import com.kloudtek.systyrant.annotation.Unique;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
+import com.kloudtek.systyrant.exception.MultipleUniqueResourcesFoundException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.resource.*;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
@@ -98,17 +101,42 @@ public class STContextTest extends AbstractContextTest {
         assertTrue(r4.getDependencies().isEmpty());
     }
 
-    @Test()
+    @Test(dependsOnMethods = "testCreateDuplicateGlobalUniqueElements")
     public void testCreateSingleUniqueElements() throws Throwable {
         ctx.getResourceManager().createResource(UNIQUETEST);
         execute();
     }
 
-    @Test(dependsOnMethods = "testCreateSingleUniqueElements", expectedExceptions = ResourceCreationException.class, expectedExceptionsMessageRegExp = "Cannot create more than one instance of test:uniquetest")
-    public void testCreateDuplicateUniqueElements() throws Throwable {
+    @Test(expectedExceptions = MultipleUniqueResourcesFoundException.class)
+    public void testCreateDuplicateGlobalUniqueElements() throws Throwable {
         ctx.getResourceManager().createResource(UNIQUETEST);
         ctx.getResourceManager().createResource(UNIQUETEST);
         execute();
+    }
+
+    @Test
+    public void testCreateDuplicateHostUniqueElementsNoConflict() throws Throwable {
+        register(HostUnique.class);
+        Resource p1 = createTestResource();
+        p1.setHostOverride(new LocalHost());
+        createChild(HostUnique.class, p1);
+        Resource p2 = createTestResource();
+        p2.setHostOverride(new LocalHost());
+        createChild(HostUnique.class, p2);
+        execute();
+    }
+
+    @Test(expectedExceptions = MultipleUniqueResourcesFoundException.class)
+    public void testCreateDuplicateHostUniqueElementsConflicts() throws Throwable {
+        register(HostUnique.class);
+        Resource p1 = createTestResource();
+        createChild(HostUnique.class, p1);
+        Resource p2 = createTestResource();
+        createChild(HostUnique.class, p2);
+        execute();
+    }
+    @Unique(UniqueScope.HOST)
+    public static class HostUnique {
     }
 
     @Test

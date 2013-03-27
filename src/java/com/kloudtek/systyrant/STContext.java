@@ -254,7 +254,7 @@ public class STContext implements AutoCloseable {
         return scriptEngine;
     }
 
-    public Host host() throws InvalidServiceException {
+    public Host host() {
         return host;
     }
 

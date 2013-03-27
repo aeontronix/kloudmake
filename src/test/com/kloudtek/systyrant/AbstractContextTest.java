@@ -121,6 +121,10 @@ public class AbstractContextTest {
         return resourceManager.createResource("test:" + clazz.getSimpleName().toLowerCase().replace("$", "."));
     }
 
+    public Resource createChild(Class<?> clazz, Resource parent) throws ResourceCreationException {
+        return resourceManager.createResource("test:" + clazz.getSimpleName().toLowerCase().replace("$", "."),(String)null,parent);
+    }
+
     @SuppressWarnings("unchecked")
     public <X> X findJavaAction(Class<X> clazz) {
         for (Resource resource : ctx.getResourceManager()) {
