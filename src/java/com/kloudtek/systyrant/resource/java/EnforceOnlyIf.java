@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import sun.invoke.anon.AnonymousClassLoader;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,19 +27,26 @@ import java.util.Set;
 public abstract class EnforceOnlyIf {
     public abstract boolean execAllowed(STContext context, Resource resource) throws STRuntimeException;
 
-    public static Set<EnforceOnlyIf> find( @NotNull Object methodOrClass, Class<?> clazz ) throws InvalidResourceDefinitionException {
+    public static Set<EnforceOnlyIf> find( Class<?> clazz ) throws InvalidResourceDefinitionException {
         HashSet<EnforceOnlyIf> list = new HashSet<>();
-        OnlyIfOperatingSystem os = getAnnotation(methodOrClass, OnlyIfOperatingSystem.class);
+        OnlyIfOperatingSystem os = clazz.getAnnotation(OnlyIfOperatingSystem.class);
         if( os != null ) {
             list.add(new EnforceOnlyIfOS(os.value()));
         }
-        if( methodOrClass instanceof Class ) {
-            for (java.lang.reflect.Method method : ((Class<?>) methodOrClass).getDeclaredMethods()) {
-                OnlyIf custom = getAnnotation(method, OnlyIf.class );
-                if( custom != null ) {
-                    list.add(new EnforceOnlyIfCustom(method,clazz));
-                }
+        for (java.lang.reflect.Method method : clazz.getDeclaredMethods()) {
+            OnlyIf custom = getAnnotation(method, OnlyIf.class );
+            if( custom != null ) {
+                list.add(new EnforceOnlyIfCustom(method,clazz));
             }
+        }
+        return list;
+    }
+
+    public static Set<EnforceOnlyIf> find( java.lang.reflect.Method method ) throws InvalidResourceDefinitionException {
+        HashSet<EnforceOnlyIf> list = new HashSet<>();
+        OnlyIfOperatingSystem os = getAnnotation(method, OnlyIfOperatingSystem.class);
+        if( os != null ) {
+            list.add(new EnforceOnlyIfOS(os.value()));
         }
         return list;
     }

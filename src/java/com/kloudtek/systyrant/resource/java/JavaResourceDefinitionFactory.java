@@ -40,8 +40,7 @@ public class JavaResourceDefinitionFactory {
         if (uq != null) {
             resourceDefinition.addUniqueScope(uq.value());
         }
-        Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz,clazz);
-        OnlyIfOperatingSystem onlyIfOperatingSystem = clazz.getAnnotation(OnlyIfOperatingSystem.class);
+        Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz);
         Set<JavaAction> actions = new HashSet<>();
         HashMap<String, JavaAction> syncs = new HashMap<>();
         ArrayList<Injector> injectors = new ArrayList<>();

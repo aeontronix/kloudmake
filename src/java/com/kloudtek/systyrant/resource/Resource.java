@@ -7,10 +7,7 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidRefException;
-import com.kloudtek.systyrant.exception.InvalidServiceException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
@@ -47,15 +44,15 @@ public class Resource {
     final HashSet<Resource> dependencies = new HashSet<>();
     final HashSet<Resource> indirectDependencies = new HashSet<>();
     final HashSet<Resource> dependents = new HashSet<>();
-    final HashMap<String,List<Resource>> requires = new HashMap<>();
+    final HashMap<String, List<Resource>> requires = new HashMap<>();
 
     public Resource(STContext context, ResourceDefinition factory, String id, String uid, Resource parent) {
         this.context = context;
         this.factory = factory;
         this.parent = parent;
-        attributes.put("id",id);
-        attributes.put("uid",uid);
-        if( parent != null ) {
+        attributes.put("id", id);
+        attributes.put("uid", uid);
+        if (parent != null) {
             parent.childrens.add(this);
         }
         reset();
@@ -132,22 +129,22 @@ public class Resource {
     }
 
     @Nullable
-    public List<Resource> getResolvedRequires( String expr ) {
+    public List<Resource> getResolvedRequires(String expr) {
         return requires.get(expr);
     }
 
-    public void addRequires( String requiresExpr ) {
-        if( requires.get(requiresExpr) == null ) {
-            requires.put(requiresExpr,null);
+    public void addRequires(String requiresExpr) {
+        if (requires.get(requiresExpr) == null) {
+            requires.put(requiresExpr, null);
         }
     }
 
-    public void removeRequires( String requiresExpr ) {
+    public void removeRequires(String requiresExpr) {
         requires.remove(requiresExpr);
     }
 
-    public void assignedResolvedRequires( String requiresExpr, List<Resource> resources ) {
-        requires.put(requiresExpr,resources);
+    public void assignedResolvedRequires(String requiresExpr, List<Resource> resources) {
+        requires.put(requiresExpr, resources);
     }
 
     // ----------------------------------------------------------------------
@@ -276,7 +273,7 @@ public class Resource {
      */
     public Resource set(@NotNull String key, @Nullable Object valueObj) throws InvalidAttributeException {
         key = key.trim().toLowerCase();
-        if( key.equalsIgnoreCase("id") || key.equalsIgnoreCase("uid") ) {
+        if (key.equalsIgnoreCase("id") || key.equalsIgnoreCase("uid")) {
             throw new InvalidAttributeException("attribute id cannot be modified");
         }
         String value = ConvertUtils.convert(valueObj);
@@ -289,7 +286,7 @@ public class Resource {
     }
 
     public void removeAttribute(@NotNull String key) {
-        if( key.equalsIgnoreCase("id") ) {
+        if (key.equalsIgnoreCase("id")) {
             throw new IllegalArgumentException("attribute id cannot be removed");
         }
         attributes.remove(key.toLowerCase());
@@ -300,7 +297,7 @@ public class Resource {
     }
 
     void setId(String value) {
-        attributes.put("id",value);
+        attributes.put("id", value);
     }
 
     public String getUid() {
@@ -394,11 +391,32 @@ public class Resource {
                 list = cleanupActions;
                 break;
             default:
-                throw new STRuntimeException("BUG: Invalid stage "+stage);
+                throw new STRuntimeException("BUG: Invalid stage " + stage);
         }
+        HashSet<String> supportedAlternatives = new HashSet<>();
+        HashSet<String> requiredAlternatives = new HashSet<>();
         for (Action action : list) {
-            if (action.checkExecutionRequired(context, this)) {
-                action.execute(context, this);
+            String alternative = action.getAlternative();
+            if (alternative != null) {
+                requiredAlternatives.add(alternative);
+            }
+            if (action.supports(context, this)) {
+                if (alternative != null) {
+                    supportedAlternatives.add(alternative);
+                }
+                if (action.checkExecutionRequired(context, this)) {
+                    action.execute(context, this);
+                }
+            }
+        }
+        for (String requiredAlternative : requiredAlternatives) {
+            if (!supportedAlternatives.contains(requiredAlternative)) {
+                StringBuilder msg = new StringBuilder("Unable to find ").append(requiredAlternative);
+                if (!requiredAlternative.isEmpty()) {
+                    msg.append(' ');
+                }
+                msg.append("alternative for ").append(getType());
+                throw new MissingAlternativeException(msg.toString());
             }
         }
     }

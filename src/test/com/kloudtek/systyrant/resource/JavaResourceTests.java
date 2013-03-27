@@ -8,6 +8,8 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
+import com.kloudtek.systyrant.exception.MissingAlternativeException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.host.OperatingSystem;
@@ -486,6 +488,126 @@ public class JavaResourceTests extends AbstractContextTest {
         public void validate() {
             copy = req;
             executed = true;
+        }
+    }
+
+    @Test(expectedExceptions = MissingAlternativeException.class)
+    public void testAlternativeActionMethodsNoSupport() throws Throwable {
+        registerAndCreate(MakeResourceHostLinux.class);
+        registerAndCreate(AlternativeActionMethods.class);
+        execute();
+    }
+
+    public static class AlternativeActionMethods {
+        @OnlyIfOperatingSystem(OperatingSystem.SOLARIS)
+        @Alternative
+        @Execute
+        public void alt1() {
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.AIX)
+        @Alternative
+        @Execute
+        public void alt2() {
+        }
+    }
+
+    @Test(expectedExceptions = MissingAlternativeException.class)
+    public void testAlternativeActionTwoCategoriesMethodsNoSupport() throws Throwable {
+        registerAndCreate(MakeResourceHostLinux.class);
+        registerAndCreate(AlternativeActionTwoCategoriesMethodsNoSupport.class);
+        execute();
+    }
+
+    public static class AlternativeActionTwoCategoriesMethodsNoSupport {
+        @OnlyIfOperatingSystem(OperatingSystem.LINUX)
+        @Alternative("cat1")
+        @Execute
+        public void alt1() {
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.AIX)
+        @Alternative("cat1")
+        @Execute
+        public void alt2() {
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.WINDOWS)
+        @Alternative("cat2")
+        @Execute
+        public void alt3() {
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.AIX)
+        @Alternative("cat2")
+        @Execute
+        public void alt4() {
+        }
+    }
+
+    @Test
+    public void testAlternativeActionTwoCategoriesMethodsSupported() throws Throwable {
+        registerAndCreate(MakeResourceHostLinux.class);
+        registerAndCreate(AlternativeActionTwoCategoriesMethodsSupported.class);
+        execute();
+        AlternativeActionTwoCategoriesMethodsSupported javaAction = findJavaAction(AlternativeActionTwoCategoriesMethodsSupported.class);
+        assertTrue(javaAction.exec1);
+        assertTrue(javaAction.exec2);
+    }
+
+    public static class AlternativeActionTwoCategoriesMethodsSupported {
+        private boolean exec1;
+        private boolean exec2;
+        @OnlyIfOperatingSystem(OperatingSystem.LINUX)
+        @Alternative("cat1")
+        @Execute
+        public void alt1() {
+            exec1 = true;
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.AIX)
+        @Alternative("cat1")
+        @Execute
+        public void alt2() {
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.WINDOWS)
+        @Alternative("cat2")
+        @Execute
+        public void alt3() {
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.LINUX)
+        @Alternative("cat2")
+        @Execute
+        public void alt4() {
+            exec2 = true;
+        }
+    }
+
+    @Test
+    public void testAlternativeActionMethodsSupported() throws Throwable {
+        registerAndCreate(MakeResourceHostLinux.class);
+        registerAndCreate(AlternativeActionMethodsSupported.class);
+        execute();
+        AlternativeActionMethodsSupported action = findJavaAction(AlternativeActionMethodsSupported.class);
+        assertTrue(action.executed);
+    }
+
+    public static class AlternativeActionMethodsSupported {
+        private boolean executed;
+
+        @OnlyIfOperatingSystem(OperatingSystem.LINUX)
+        @Alternative
+        @Execute
+        public void alt1() {
+            executed = true;
+        }
+
+        @OnlyIfOperatingSystem(OperatingSystem.AIX)
+        @Alternative
+        @Execute
+        public void alt2() {
         }
     }
 }

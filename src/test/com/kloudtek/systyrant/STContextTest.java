@@ -196,6 +196,7 @@ public class STContextTest extends AbstractContextTest {
         Action action = Mockito.mock(Action.class);
         when(action.getType()).thenReturn(Action.Type.EXECUTE);
         res.addAction(action);
+        when(action.supports(ctx, res)).thenReturn(true);
         when(action.checkExecutionRequired(ctx, res)).thenReturn(false);
         execute();
         verify(action, Mockito.times(1)).checkExecutionRequired(ctx, res);
@@ -208,6 +209,7 @@ public class STContextTest extends AbstractContextTest {
         Action action = Mockito.mock(Action.class);
         when(action.getType()).thenReturn(Action.Type.EXECUTE);
         res.addAction(action);
+        when(action.supports(ctx, res)).thenReturn(true);
         when(action.checkExecutionRequired(ctx, res)).thenReturn(true);
         execute();
         verify(action, Mockito.times(1)).checkExecutionRequired(ctx, res);

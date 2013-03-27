@@ -13,6 +13,7 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 public abstract class AbstractAction implements Action {
     protected int order;
     protected Type type = Type.EXECUTE;
+    protected String alternative;
 
     protected AbstractAction() {
     }
@@ -43,6 +44,16 @@ public abstract class AbstractAction implements Action {
     @Override
     public int compareTo(Action o) {
         return o.getOrder() - order;
+    }
+
+    @Override
+    public String getAlternative() {
+        return alternative;
+    }
+
+    @Override
+    public boolean supports(STContext context, Resource resource) throws STRuntimeException {
+        return true;
     }
 
     @Override
