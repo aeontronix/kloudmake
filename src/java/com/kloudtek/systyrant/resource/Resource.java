@@ -47,6 +47,7 @@ public class Resource {
     final HashSet<Resource> dependencies = new HashSet<>();
     final HashSet<Resource> indirectDependencies = new HashSet<>();
     final HashSet<Resource> dependents = new HashSet<>();
+    final HashMap<String,List<Resource>> requires = new HashMap<>();
 
     public Resource(STContext context, ResourceDefinition factory, String id, String uid, Resource parent) {
         this.context = context;
@@ -124,6 +125,29 @@ public class Resource {
 
     public Resource getParent() {
         return parent;
+    }
+
+    public Set<String> getRequires() {
+        return Collections.unmodifiableSet(requires.keySet());
+    }
+
+    @Nullable
+    public List<Resource> getResolvedRequires( String expr ) {
+        return requires.get(expr);
+    }
+
+    public void addRequires( String requiresExpr ) {
+        if( requires.get(requiresExpr) == null ) {
+            requires.put(requiresExpr,null);
+        }
+    }
+
+    public void removeRequires( String requiresExpr ) {
+        requires.remove(requiresExpr);
+    }
+
+    public void assignedResolvedRequires( String requiresExpr, List<Resource> resources ) {
+        requires.put(requiresExpr,resources);
     }
 
     // ----------------------------------------------------------------------

@@ -16,6 +16,10 @@ public class ReflectionHelper {
         return "Method " + method.getDeclaringClass().getName() + "#" + method.getName();
     }
 
+    public static String toString(Field field) {
+        return field.getDeclaringClass().getName() + "#" + field.getName();
+    }
+
     public static Object invoke( Method method, Class<?> clazz, Resource resource ) throws STRuntimeException {
         return invoke(method, resource.getJavaImpl(clazz));
     }

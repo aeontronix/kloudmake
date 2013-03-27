@@ -5,8 +5,10 @@
 package com.kloudtek.systyrant.resource.java;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.jetbrains.annotations.Nullable;
@@ -26,8 +28,9 @@ public class JavaResourceDefinitionFactory {
     private static final Logger logger = LoggerFactory.getLogger(JavaResourceDefinitionFactory.class);
 
     public static ResourceDefinition create(@NotNull Class<?> clazz, @Nullable FQName fqname) throws InvalidResourceDefinitionException {
+        HashSet<String> requires = new HashSet<>();
         ResourceDefinition resourceDefinition = new ResourceDefinition(fqname != null ? fqname : new FQName(clazz, null));
-        resourceDefinition.addAction(new ResourceInitAction(clazz));
+        resourceDefinition.addAction(new ResourceInitAction(clazz,requires));
         Unique uq = clazz.getAnnotation(Unique.class);
         try {
             clazz.newInstance();
@@ -44,7 +47,7 @@ public class JavaResourceDefinitionFactory {
         ArrayList<Injector> injectors = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
             for (Annotation annotation : field.getAnnotations()) {
-                registerFieldInjection(clazz, resourceDefinition, injectors, field, annotation);
+                registerFieldInjection(clazz, resourceDefinition, injectors, field, annotation, requires);
             }
         }
         for (Method method : clazz.getDeclaredMethods()) {
@@ -141,7 +144,7 @@ public class JavaResourceDefinitionFactory {
     }
 
     private static void registerFieldInjection(Class<?> clazz, ResourceDefinition resourceDefinition,
-                                               ArrayList<Injector> injectorsList, Field field, Annotation annotation) throws InvalidResourceDefinitionException {
+                                               ArrayList<Injector> injectorsList, Field field, Annotation annotation, HashSet<String> requires) throws InvalidResourceDefinitionException {
         if (annotation instanceof Attr) {
             Attr attr = (Attr) annotation;
             String name = attr.value().isEmpty() ? field.getName() : attr.value();
@@ -155,7 +158,10 @@ public class JavaResourceDefinitionFactory {
             injectorsList.add(new GenericInjector(clazz, field));
         } else if (annotation instanceof Resources) {
             injectorsList.add(new ResourcesInjector(clazz, field, ((Resources) annotation).value()));
+        } else if (annotation instanceof Requires) {
+            String reqExpr = ((Requires) annotation).value();
+            injectorsList.add(new RequiresInjector(clazz, field, reqExpr));
+            requires.add(reqExpr);
         }
     }
-
 }

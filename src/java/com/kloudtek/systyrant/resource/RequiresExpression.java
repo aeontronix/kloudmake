@@ -40,7 +40,8 @@ public class RequiresExpression {
         }
     }
 
-    public void resolveRequires(STContext ctx) throws InvalidVariableException, ResourceCreationException, InvalidAttributeException {
+    public ArrayList<Resource> resolveRequires(STContext ctx) throws InvalidVariableException, ResourceCreationException, InvalidAttributeException {
+        ArrayList<Resource> allMatches = new ArrayList<>();
         for (RequiredDependency requiredDependency : requiredDependencies) {
             requiredDependency.resolveAttrs(ctx);
             List<Resource> matches = requiredDependency.findMatches(ctx);
@@ -55,7 +56,9 @@ public class RequiresExpression {
             for (Resource match : matches) {
                 resource.addDependency(match);
             }
+            allMatches.addAll(matches);
         }
+        return allMatches;
     }
 
     public class RequiredDependency {

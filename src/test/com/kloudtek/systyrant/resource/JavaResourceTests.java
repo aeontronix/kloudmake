@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
 public class JavaResourceTests extends AbstractContextTest {
     @Test
@@ -453,6 +454,38 @@ public class JavaResourceTests extends AbstractContextTest {
         @OnlyIf
         public boolean onlyIf() {
             return false;
+        }
+    }
+
+    @Test
+    public void testResourceRequiresExists() throws Throwable {
+        Class<ResourceRequiresExists> cl = ResourceRequiresExists.class;
+        register(cl);
+        Resource r1 = createTestResource("c");
+        r1.set("a", "c");
+        Resource r2 = createTestResource("b");
+        r2.set("a","b");
+        Resource resource = create(cl);
+        System.out.println("Finished initialization");
+        execute();
+        assertContainsSame(resourceManager.getResources(),resource,r1,r2);
+        ResourceRequiresExists obj = resource.getJavaImpl(cl);
+        assertTrue(obj.executed);
+        assertNotNull(obj.copy);
+        assertContainsSame(obj.copy, r1, r2);
+        assertContainsSame(resource.getDependencies(), r1, r2);
+    }
+
+    public static class ResourceRequiresExists {
+        @Requires("test:test(a=c),test:test(a=b)")
+        private List<Resource> req;
+        private boolean executed;
+        private List<Resource> copy;
+
+        @Execute
+        public void validate() {
+            copy = req;
+            executed = true;
         }
     }
 }

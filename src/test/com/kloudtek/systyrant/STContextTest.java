@@ -220,7 +220,8 @@ public class STContextTest extends AbstractContextTest {
         resourceManager.registerResourceDefinition(new ResourceDefinition("test","test2"));
         resourceManager.registerResourceDefinition(new ResourceDefinition("xxx","test3"));
         Resource r1 = createTestResource();
-        r1.set("requires","test:test1,test:test2( foo = 'bar' ),test3( foo = 'bar', ba = 'be' )");
+        r1.set("requires","test:test1,test:test2( foo = 'bar' )");
+        r1.addRequires("test3( foo = 'bar', ba = 'be' )");
         Resource r2 = resourceManager.createResource("test:test1");
         Resource r3 = resourceManager.createResource("test:test2");
         r3.set("foo","bar");

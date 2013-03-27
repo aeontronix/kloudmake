@@ -19,7 +19,6 @@ import com.kloudtek.systyrant.resource.ResourceManagerImpl;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.util.AutoCreateHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.kloudtek.systyrant.Stage.EXECUTE;
 import static com.kloudtek.systyrant.resource.Resource.State.*;
-import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 
@@ -80,7 +78,7 @@ public class STContext implements AutoCloseable {
     public STContext(Host host) throws InjectException, InvalidResourceDefinitionException, STRuntimeException {
         this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
-        resourceManager = new ResourceManagerImpl(this,resourceScope);
+        resourceManager = new ResourceManagerImpl(this, resourceScope);
         serviceManager = new ServiceManagerImpl(this);
         registerLibrary(new Library());
         providersManagementService.init(reflections);
@@ -133,7 +131,7 @@ public class STContext implements AutoCloseable {
             } catch (InvalidServiceException e) {
                 throw new InvalidResourceDefinitionException(e.getMessage(), e);
             }
-            if( reflections != null ) {
+            if (reflections != null) {
                 reflections.merge(library.getReflections());
             } else {
                 reflections = library.getReflections();
@@ -199,7 +197,7 @@ public class STContext implements AutoCloseable {
     }
 
     public synchronized void runScript(String pkg, @NotNull URI uri) throws IOException, ScriptException {
-        if( ! uri.isAbsolute() ) {
+        if (!uri.isAbsolute()) {
             uri = new File(uri.getPath()).getAbsoluteFile().toURI();
         }
         InputStreamReader reader = new InputStreamReader(uri.toURL().openConnection().getInputStream());
@@ -437,9 +435,13 @@ public class STContext implements AutoCloseable {
                 handleResourceFailure(res);
             }
             // resolve 'requires' attribute
-            String requires = res.get("requires");
-            if( isNotEmpty(requires) ) {
-                new RequiresExpression(res,requires).resolveRequires(this);
+            String requiresAttr = res.get("requires");
+            if (isNotEmpty(requiresAttr)) {
+                res.addRequires(requiresAttr);
+            }
+            for (String requiresExpr : res.getRequires()) {
+                ArrayList<Resource> resolved = new RequiresExpression(res, requiresExpr).resolveRequires(this);
+                res.assignedResolvedRequires(requiresExpr, resolved);
             }
             resourceManager.resolveDependencies(false);
             resourceScope.remove();
@@ -519,16 +521,16 @@ public class STContext implements AutoCloseable {
 
     public List<String> getImports() {
         List<String> list = importPaths.get();
-        if( list == null ) {
+        if (list == null) {
             return Collections.emptyList();
         } else {
             return list;
         }
     }
 
-    public void addImport( String value ) {
+    public void addImport(String value) {
         List<String> list = importPaths.get();
-        if( list == null ) {
+        if (list == null) {
             list = new ArrayList<>();
             importPaths.set(list);
         }
@@ -574,15 +576,16 @@ public class STContext implements AutoCloseable {
 
     /**
      * Find a resource using the current resource's parent as a base resource.
-     * @see #currentResource()
+     *
      * @param query Query.
      * @return List of resources that match the specified query.
      * @throws InvalidQueryException If the query was invalid.
+     * @see #currentResource()
      */
     @NotNull
     public List<Resource> findResources(String query) throws InvalidQueryException {
         Resource baseResource = currentResource();
-        if( baseResource != null ) {
+        if (baseResource != null) {
             baseResource = baseResource.getParent();
         }
         return resourceManager.findResources(query, baseResource);
@@ -590,7 +593,7 @@ public class STContext implements AutoCloseable {
 
     @NotNull
     public List<Resource> findResources(String query, Resource baseResource) throws InvalidQueryException {
-        return resourceManager.findResources(query,baseResource);
+        return resourceManager.findResources(query, baseResource);
     }
 
     public Resource findResourceByUid(String uid) {
@@ -604,6 +607,7 @@ public class STContext implements AutoCloseable {
     /**
      * Retrieve the root resource lock.
      * This is currently used to make id generation threadsafe for resources with no parents.
+     *
      * @return ReadWriteLock
      */
     public ReadWriteLock getRootResourceLock() {

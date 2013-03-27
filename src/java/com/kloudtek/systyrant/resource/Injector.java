@@ -10,6 +10,9 @@ import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -45,5 +48,21 @@ public abstract class Injector {
     public abstract void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException;
 
     public void updateAttr(Resource resource, Object obj) throws IllegalAccessException, InvalidAttributeException {
+    }
+
+    public enum FieldType {
+        OTHER, OBJ, ARRAY, COLLECTION;
+        public static FieldType valueOf( Field field, Class<?> expected ) {
+            Class<?> type = field.getType();
+            if(type.equals(expected)) {
+                return FieldType.OBJ;
+            } else if( Collection.class.isAssignableFrom(type) && expected.equals(((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0])  ) {
+                return FieldType.COLLECTION;
+            } else if( type.isArray() && expected.equals(type.getComponentType()) ) {
+                return FieldType.ARRAY;
+            } else {
+                return FieldType.OTHER;
+            }
+        }
     }
 }
