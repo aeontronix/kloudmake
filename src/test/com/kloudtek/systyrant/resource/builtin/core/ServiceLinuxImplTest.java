@@ -44,7 +44,7 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
     }
 
     @Test
-    public void testStopInitdScanervice() throws STRuntimeException, InvalidQueryException {
+    public void testStopInitdService() throws STRuntimeException, InvalidQueryException {
         sshHost.exec("/etc/init.d/nginx start");
         sshHost.exec("/etc/init.d/nginx status");
         Resource resource = resourceManager.createResource("core:service").set("name", "nginx").set("running", false);
