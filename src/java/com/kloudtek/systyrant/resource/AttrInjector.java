@@ -48,6 +48,7 @@ public class AttrInjector extends Injector {
                     value = ConvertUtils.convert(val, fieldType);
                 }
             }
+            logger.debug("Injecting {} into {}",value,field);
             inject(obj, value);
         }
     }

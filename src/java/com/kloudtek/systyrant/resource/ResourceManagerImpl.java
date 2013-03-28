@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.script.ScriptException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -236,7 +237,9 @@ public class ResourceManagerImpl implements ResourceManager {
         try {
             ResourceDefinition resourceDefinition = JavaResourceDefinitionFactory.create(clazz, null);
             registerResourceDefinition(resourceDefinition);
-            return createResource(resourceDefinition.getFQName());
+            Resource resource = createResource(resourceDefinition.getFQName());
+            // TODO copy attributes
+            return resource;
         } catch (InvalidResourceDefinitionException e) {
             throw new ResourceCreationException(e.getMessage(), e);
         }

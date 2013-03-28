@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
+import com.kloudtek.systyrant.annotation.Attr;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -24,7 +26,7 @@ public class Resource {
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
     private Map<String, String> attributes = new HashMap<>();
     private transient STContext context;
-    private ResourceDefinition factory;
+    private ResourceDefinition definition;
     private Resource parent;
     private boolean executable;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -46,9 +48,9 @@ public class Resource {
     final HashSet<Resource> dependents = new HashSet<>();
     final HashMap<String, List<Resource>> requires = new HashMap<>();
 
-    public Resource(STContext context, ResourceDefinition factory, String id, String uid, Resource parent) {
+    public Resource(STContext context, ResourceDefinition definition, String id, String uid, Resource parent) {
         this.context = context;
-        this.factory = factory;
+        this.definition = definition;
         this.parent = parent;
         attributes.put("id", id);
         attributes.put("uid", uid);
@@ -223,15 +225,15 @@ public class Resource {
     }
 
     public ResourceDefinition getDefinition() {
-        return factory;
+        return definition;
     }
 
     public String getName() {
-        return factory.getName();
+        return definition.getName();
     }
 
     public String getPkg() {
-        return factory.getPkg();
+        return definition.getPkg();
     }
 
     public boolean isExecutable() {
@@ -259,6 +261,7 @@ public class Resource {
     }
 
     public void setAttributes(Map<String, Object> attributes) throws InvalidAttributeException {
+        logger.debug("Setting {}'s attributes to {}",definition.getFQName(),attributes);
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             set(entry.getKey(), entry.getValue());
         }
@@ -277,6 +280,7 @@ public class Resource {
             throw new InvalidAttributeException("attribute id cannot be modified");
         }
         String value = ConvertUtils.convert(valueObj);
+        logger.debug("Setting {}'s attribute {} to {}",definition.getFQName(),key,value);
         attributes.put(key, value);
         return this;
     }
@@ -298,6 +302,7 @@ public class Resource {
 
     void setId(String value) {
         attributes.put("id", value);
+        logger.debug("setting id {}",value);
     }
 
     public String getUid() {
@@ -341,7 +346,7 @@ public class Resource {
 
     public String toString() {
         StringBuilder tmp = new StringBuilder();
-        tmp.append(factory.getFQName());
+        tmp.append(definition.getFQName());
         String uid = getUid();
         if (uid != null) {
             tmp.append(":uid:").append(uid);
@@ -367,7 +372,7 @@ public class Resource {
     }
 
     public FQName getType() {
-        return factory.getFQName();
+        return definition.getFQName();
     }
 
     // ----------------------------------------------------------------------
