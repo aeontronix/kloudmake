@@ -11,11 +11,15 @@ import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Resource;
 import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Tests {@link ServiceLinuxImpl}
@@ -37,9 +41,9 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
     public void testStartInitdService() throws STRuntimeException, InvalidQueryException {
         sshHost.exec("/etc/init.d/nginx stop");
         Resource resource = resourceManager.createResource("core:service").set("name", "nginx");
-        Assert.assertEquals(ctx.findResources("type core:service").size(), 1);
+        assertEquals(ctx.findResources("type core:service").size(), 1);
         execute();
-        Assert.assertEquals(ctx.findResources("type core:service").size(), 1);
+        assertEquals(ctx.findResources("type core:service").size(), 1);
         sshHost.exec("/etc/init.d/nginx status");
     }
 
@@ -48,10 +52,28 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
         sshHost.exec("/etc/init.d/nginx start");
         sshHost.exec("/etc/init.d/nginx status");
         Resource resource = resourceManager.createResource("core:service").set("name", "nginx").set("running", false);
-        Assert.assertEquals(ctx.findResources("type core:service").size(), 1);
+        assertEquals(ctx.findResources("type core:service").size(), 1);
         execute();
-        Assert.assertEquals(ctx.findResources("type core:service").size(), 1);
+        assertEquals(ctx.findResources("type core:service").size(), 1);
         ExecutionResult exec = sshHost.exec("/etc/init.d/nginx status", null, null);
         Assert.assertTrue(exec.getRetCode() != 0);
+    }
+
+    @Test
+    public void testDisabledAutoStartInitdService() throws STRuntimeException, InvalidQueryException {
+        sshHost.exec("update-rc.d nginx enable");
+        Resource resource = resourceManager.createResource("core:service").set("name", "nginx")
+                .set("running", true).set("autostart","false");
+        execute();
+        assertTrue(sshHost.fileExists("/etc/rc2.d/K80nginx"));
+    }
+
+    @Test
+    public void testEnabledAutoStartInitdService() throws STRuntimeException, InvalidQueryException {
+        sshHost.exec("update-rc.d nginx disable");
+        Resource resource = resourceManager.createResource("core:service").set("name", "nginx")
+                .set("running", true).set("autostart","true");
+        execute();
+        assertTrue(sshHost.fileExists("/etc/rc2.d/S20nginx"));
     }
 }

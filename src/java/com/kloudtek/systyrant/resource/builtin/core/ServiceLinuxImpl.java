@@ -29,18 +29,18 @@ public class ServiceLinuxImpl {
     @Attr(def = "true")
     private boolean running;
     @Attr(def = "true")
-    private boolean enabled;
+    private boolean autostart;
     @Inject
     private Host host;
 
     public ServiceLinuxImpl() {
     }
 
-    public ServiceLinuxImpl(String name, Type type, boolean running, boolean enabled) {
+    public ServiceLinuxImpl(String name, Type type, boolean running, boolean autostart) {
         this.name = name;
         this.type = type;
         this.running = running;
-        this.enabled = enabled;
+        this.autostart = autostart;
     }
 
     @Execute(order = 2)
@@ -56,22 +56,19 @@ public class ServiceLinuxImpl {
 
     @Verify
     public boolean checkEnabled() throws STRuntimeException {
-System.out.println("1RUNNING="+running);
         boolean status = host.exec("ls -1 /etc/rc2.d | grep '^S[0-9]*" + name + "$'", null, null).getRetCode() == 0;
-        return enabled != status;
+        return autostart != status;
     }
 
     @Sync(order = 1)
     public void setEnabled() throws STRuntimeException {
-System.out.println("2RUNNING="+running);
-        String cmd = enabled ? "enable" : "disable";
-        host.exec("update-rc.d nginx " + cmd);
+        String cmd = autostart ? "enable" : "disable";
+        host.exec("update-rc.d "+name+" " + cmd);
         logger.info(StringUtils.capitalize(cmd) + "d service " + name);
     }
 
     @Verify("running")
     public boolean checkRunning() throws STRuntimeException {
-System.out.println("3RUNNING="+running);
         switch (type) {
             case INITD:
                 boolean status = host.exec("/etc/init.d/" + name + " status", null, null).getRetCode() == 0;
@@ -83,7 +80,6 @@ System.out.println("3RUNNING="+running);
 
     @Sync("running")
     public void setRunning() throws STRuntimeException {
-System.out.println("5RUNNING="+running);
         switch (type) {
             case INITD:
                 host.exec("/etc/init.d/" + name + " " + (running ? "start" : "stop"));
@@ -92,7 +88,6 @@ System.out.println("5RUNNING="+running);
                 throw new STRuntimeException("BUG: Unknown service type " + type);
         }
         logger.info((running ? "Started" : "Stopped") + " service " + name);
-System.out.println("6RUNNING="+running);
     }
 
     public enum Type {
