@@ -61,7 +61,7 @@ public interface ResourceManager extends Iterable<Resource> {
 
     void close();
 
-    void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException;
+    void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException, InvalidAttributeException;
 
     void resolveDependencies(boolean strict) throws InvalidDependencyException;
 

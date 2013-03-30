@@ -31,6 +31,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class ResourceManagerImpl implements ResourceManager {
+    public static final String SUBSCRIBE = "subscribe";
+    public static final String REQUIRE = "require";
+    public static final String NOTIFY = "notify";
     private STContext context;
     private final ThreadLocal<Resource> resourceScope;
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
@@ -424,9 +427,12 @@ public class ResourceManagerImpl implements ResourceManager {
      * Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies
      */
     @Override
-    public void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException {
+    public void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException, InvalidAttributeException {
         wlock();
         try {
+            if( resources.isEmpty() ) {
+                return;
+            }
             // Validate resource uniqueness
             HashSet<FQName> globalUnique = new HashSet<>();
             SetHashMap<Host, FQName> hostUnique = new SetHashMap<>();
@@ -482,6 +488,35 @@ public class ResourceManagerImpl implements ResourceManager {
             }
             // Sort according to dependencies
             ResourceSorter.sort(resources);
+            // Resolve indirect dependencies
+            for (Resource resource : resources) {
+                resource.setupIndirectDependencies();
+                for (Resource dep : resource.getDependencies()) {
+                    assert dep.getIndirectDependencies() != null;
+                    resource.addIndirectDependencies(dep.getDependencies());
+                }
+                String subscribe = resource.get(SUBSCRIBE);
+                if( isNotEmpty(subscribe) ) {
+                    try {
+                        resource.addSubscriptions(context.findResources(subscribe));
+                    } catch (InvalidQueryException e) {
+                        throw new InvalidAttributeException("Invalid query specified in "+resource.getUid()+" subscribe attribute: "+subscribe);
+                    }
+                    resource.removeAttribute(SUBSCRIBE);
+                }
+                String notify = resource.get(NOTIFY);
+                if( isNotEmpty(notify) ) {
+                    try {
+                        for (Resource res : context.findResources(notify)) {
+                            res.addSubscription(resource);
+                        }
+                    } catch (InvalidQueryException e) {
+                        throw new InvalidAttributeException("Invalid query specified in "+resource.getUid()+" notify attribute: "+notify);
+                    }
+                    resource.removeAttribute(NOTIFY);
+                }
+            }
+            ResourceSorter.sort2(resources);
         } finally {
             wulock();
         }

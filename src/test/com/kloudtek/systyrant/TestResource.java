@@ -199,7 +199,6 @@ public class TestResource {
         return this;
     }
 
-    @Unique
     public String getUnique() {
         return unique;
     }

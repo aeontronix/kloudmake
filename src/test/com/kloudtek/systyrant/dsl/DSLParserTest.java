@@ -33,8 +33,8 @@ public class DSLParserTest extends AbstractContextTest {
     public void testDefineResourceWithDefaultAttr() throws Throwable {
         ctx.runDSLScript("def atest(attr = 'testval') {} new atest {}");
         execute();
-        validateResources(ctx, "default:atest:uid:default:atest1");
-        validateResourcesAttrs(ctx, "default:atest:uid:default:atest1", "attr", "testval");
+        validateResources(ctx, "default:atest:default:atest1");
+        validateResourcesAttrs(ctx, "default:atest:default:atest1", "attr", "testval");
     }
 
     @Test
@@ -77,21 +77,21 @@ public class DSLParserTest extends AbstractContextTest {
     public void testCreateAutoLoadExplicitelyNamedElement() throws Throwable {
         ctx.runDSLScript("new com.kloudtek.systyrant.dsl:autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
-        validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:uid:myid", "test:test:uid:myid.foo");
+        validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:myid", "test:test:myid.foo");
     }
 
     @Test
     public void testCreateAutoLoadImportedElement() throws Throwable {
         ctx.runDSLScript("import foo.bar; import com.kloudtek.systyrant.dsl; new autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
-        validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:uid:myid", "test:test:uid:myid.foo");
-        validateParent("com.kloudtek.systyrant.dsl:autoload:uid:myid", null);
+        validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:myid", "test:test:myid.foo");
+        validateParent("com.kloudtek.systyrant.dsl:autoload:myid", null);
     }
 
     @Test
     public void testCreateMultipleElements() throws Throwable {
         executeDSLResource("create-resources.stl");
-        String[] res = {"default:test2el:uid:myid1", "test3:test3el:uid:myid2", "test:test:uid:myid1.foo", "test:test:uid:myid2.bar", "default:test2el:uid:myid2.myc1d1", "test:test:uid:myid2.myc1d1.foo"};
+        String[] res = {"default:test2el:myid1", "test3:test3el:myid2", "test:test:myid1.foo", "test:test:myid2.bar", "default:test2el:myid2.myc1d1", "test:test:myid2.myc1d1.foo"};
         validateResources(ctx, res);
         validateResourcesAttrs(ctx, res[0], "attr1", "val1");
         validateResourcesAttrs(ctx, res[1], "attr2", "val2", "attr3", "val2");

@@ -7,8 +7,10 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
-import com.kloudtek.systyrant.annotation.Attr;
-import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.exception.InvalidAttributeException;
+import com.kloudtek.systyrant.exception.InvalidRefException;
+import com.kloudtek.systyrant.exception.MissingAlternativeException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -43,8 +44,9 @@ public class Resource {
      */
     private final HashSet<String> verification = new HashSet<>();
     private final HashSet<Object> javaImpls = new HashSet<>();
+    private final HashSet<Resource> subscriptions = new HashSet<>();
     final HashSet<Resource> dependencies = new HashSet<>();
-    final HashSet<Resource> indirectDependencies = new HashSet<>();
+    HashSet<Resource> indirectDependencies;
     final HashSet<Resource> dependents = new HashSet<>();
     final HashMap<String, List<Resource>> requires = new HashMap<>();
 
@@ -63,12 +65,13 @@ public class Resource {
     public void reset() {
         state = State.NEW;
         verification.clear();
+        indirectDependencies = null;
+        dependencies.clear();
     }
 
     // ----------------------------------------------------------------------
     // Dependency Management
     // ----------------------------------------------------------------------
-
 
     public Set<Resource> getChildrens() {
         return Collections.unmodifiableSet(childrens);
@@ -147,6 +150,18 @@ public class Resource {
 
     public void assignedResolvedRequires(String requiresExpr, List<Resource> resources) {
         requires.put(requiresExpr, resources);
+    }
+
+    public Set<Resource> getIndirectDependencies() {
+        return indirectDependencies;
+    }
+
+    public void setupIndirectDependencies() {
+        indirectDependencies = new HashSet<>(dependencies);
+    }
+
+    public void addIndirectDependencies(Collection<Resource> dependencies) {
+        indirectDependencies.addAll(dependencies);
     }
 
     // ----------------------------------------------------------------------
@@ -261,7 +276,7 @@ public class Resource {
     }
 
     public void setAttributes(Map<String, Object> attributes) throws InvalidAttributeException {
-        logger.debug("Setting {}'s attributes to {}",definition.getFQName(),attributes);
+        logger.debug("Setting {}'s attributes to {}", definition.getFQName(), attributes);
         for (Map.Entry<String, Object> entry : attributes.entrySet()) {
             set(entry.getKey(), entry.getValue());
         }
@@ -280,7 +295,7 @@ public class Resource {
             throw new InvalidAttributeException("attribute id cannot be modified");
         }
         String value = ConvertUtils.convert(valueObj);
-        logger.debug("Setting {}'s attribute {} to {}",definition.getFQName(),key,value);
+        logger.debug("Setting {}'s attribute {} to {}", definition.getFQName(), key, value);
         attributes.put(key, value);
         return this;
     }
@@ -302,7 +317,7 @@ public class Resource {
 
     void setId(String value) {
         attributes.put("id", value);
-        logger.debug("setting id {}",value);
+        logger.debug("setting id {}", value);
     }
 
     public String getUid() {
@@ -340,23 +355,43 @@ public class Resource {
         }
     }
 
+    public Set<Resource> getSubscriptions() {
+        synchronized (subscriptions) {
+            return Collections.unmodifiableSet(subscriptions);
+        }
+    }
+
+    public void setSubscriptions(Collection<Resource> resources) {
+        synchronized (subscriptions) {
+            subscriptions.clear();
+            subscriptions.addAll(resources);
+        }
+    }
+
+    public void addSubscription(Resource resource) {
+        synchronized (subscriptions) {
+            subscriptions.add(resource);
+        }
+    }
+
+    public void addSubscriptions(Collection<Resource> resources) {
+        synchronized (subscriptions) {
+            subscriptions.addAll(resources);
+        }
+    }
+
+    public boolean hasSubscriptionOn( Resource resource ) {
+        synchronized (subscriptions) {
+            return subscriptions.contains(resource);
+        }
+    }
+
     // ----------------------------------------------------------------------
     // Utility functions
     // ----------------------------------------------------------------------
 
     public String toString() {
-        StringBuilder tmp = new StringBuilder();
-        tmp.append(definition.getFQName());
-        String uid = getUid();
-        if (uid != null) {
-            tmp.append(":uid:").append(uid);
-        } else {
-            String id = getId();
-            if (id != null) {
-                tmp.append(":id:").append(id);
-            }
-        }
-        return tmp.toString();
+        return definition.getFQName().toString()+":"+getUid();
     }
 
     public Logger logger() {

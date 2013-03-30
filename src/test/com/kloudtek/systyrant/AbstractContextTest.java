@@ -56,6 +56,12 @@ public class AbstractContextTest {
         return testResource;
     }
 
+    public Resource createTestResourceWithIndirectDepsSetup(String id) throws ResourceCreationException, InvalidAttributeException {
+        Resource testResource = createTestResource(id);
+        testResource.setupIndirectDependencies();
+        return testResource;
+    }
+
     public Resource createJavaTestResource() throws ResourceCreationException {
         return resourceManager.createResource(JTEST);
     }

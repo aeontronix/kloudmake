@@ -5,15 +5,16 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.Unique;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.MultipleUniqueResourcesFoundException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.resource.*;
+import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.kloudtek.systyrant.resource.Resource.State.EXECUTED;
@@ -67,6 +68,11 @@ public class STContextTest extends AbstractContextTest {
         assertBefore(test3, test2, test3_child1);
         assertBefore(test4, test2);
         assertBefore(test4, test2);
+        assertContainsSame(test1.getIndirectDependencies(), test2, test3, test4);
+        assertContainsSame(test2.getIndirectDependencies(), test3, test4);
+        assertContainsSame(test3.getIndirectDependencies());
+        assertContainsSame(test4.getIndirectDependencies(), test3);
+        assertContainsSame(test3_child1.getIndirectDependencies(), test3);
     }
 
     @Test
@@ -298,5 +304,51 @@ public class STContextTest extends AbstractContextTest {
         assertEquals(r4.getAttributes().get("foo"),"bar");
         assertEquals(r4.getAttributes().get("ba"),"be");
         assertContainsSame(r1.getDependencies(),r2,r3,r4);
+    }
+
+
+    @Test
+    public void testSortingOnNotifications() throws Throwable {
+        Resource target = createTestResource("target");
+        Resource afterDueNotAndDep = createTestResourceWithIndirectDepsSetup("afterDueNotAndDep");
+        Resource beforeDueNot = createTestResourceWithIndirectDepsSetup("beforeDueNot");
+        target.addSubscription(beforeDueNot);
+        target.addSubscription(afterDueNotAndDep);
+        ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
+        ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
+        List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
+        ResourceSorter.sort2(resources);
+        assertEquals(resources.toArray(new Resource[resources.size()]),new Resource[]{beforeDueNot,target,afterDueNotAndDep});
+    }
+
+    @Test
+    public void testNotificationReordering() throws Throwable {
+        assert resourceManager.getResources().size() == 0;
+        LinkedList<Resource> before = new LinkedList<>();
+        LinkedList<Resource> after = new LinkedList<>();
+        resourceManager.registerResourceDefinition(new ResourceDefinition("test", "test2"));
+        for (int i = 0; i < 50; i++) {
+            before.add(createTestResource("before-1-"+i));
+        }
+        Resource res = resourceManager.createResource("test:test2","target");
+        for (int i = 0; i < 50; i++) {
+            before.add(createTestResource("before-2-"+i));
+        }
+        for (int i = 0; i < 50; i++) {
+            Resource r = createTestResource("after-"+i);
+            r.addDependency(res);
+            after.add(r);
+        }
+        res.addSubscriptions(before);
+        execute();
+        List<Resource> resources = resourceManager.getResources();
+        assertEquals(resources.size(),151);
+        for (int i = 0; i < 100; i++) {
+            assertTrue(before.remove(resources.get(i)));
+        }
+        assertSame(res,resources.get(100));
+        for (int i = 101; i < 149; i++) {
+            assertTrue(after.remove(resources.get(i)));
+        }
     }
 }

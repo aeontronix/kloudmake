@@ -4,54 +4,12 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class ResourceSorter {
-    static class Node {
-        final Resource resource;
-        final HashSet<Dependency> inDependencies;
-        final HashSet<Dependency> outDependencies;
-        boolean visited;
-
-        public Node(Resource resource) {
-            this.resource = resource;
-            inDependencies = new HashSet<>();
-            outDependencies = new HashSet<>();
-        }
-
-        public Node addDependency(Node node) {
-            Dependency e = new Dependency(this, node);
-            outDependencies.add(e);
-            node.inDependencies.add(e);
-            return this;
-        }
-    }
-
-    static class Dependency {
-        public final Node from;
-        public final Node to;
-
-        public Dependency(Node from, Node to) {
-            this.from = from;
-            this.to = to;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Dependency) {
-                Dependency e = (Dependency) obj;
-                return e.from == from && e.to == to;
-            } else {
-                return false;
-            }
-        }
-    }
-
     public static void sort(List<Resource> resources) throws InvalidDependencyException {
         if (resources.isEmpty()) {
             return;
@@ -135,5 +93,72 @@ public class ResourceSorter {
             }
         }
         return list;
+    }
+
+    /**
+     * This method is used for the second round of sorting, which will attempt to put notifying resources before
+     * the resource being notified.
+     * @param resources
+     */
+    public static void sort2(List<Resource> resources) {
+        ArrayList<Resource> list = new ArrayList<>(resources);
+        LinkedHashSet<Resource> sorted = new LinkedHashSet<>();
+        while( ! list.isEmpty() ) {
+            Resource res = list.remove(0);
+            for (Resource subscribed : res.getSubscriptions()) {
+                if( ! subscribed.getIndirectDependencies().contains(res) ) {
+                    if( ! sorted.contains(subscribed) ) {
+                        sorted.add(subscribed);
+                        list.remove(subscribed);
+                    }
+                }
+            }
+            if( ! sorted.contains(res) ) {
+                sorted.add(res);
+            }
+        }
+        assert resources.size() == sorted.size();
+        resources.clear();
+        resources.addAll(sorted);
+    }
+
+    static class Node {
+        final Resource resource;
+        final HashSet<Dependency> inDependencies;
+        final HashSet<Dependency> outDependencies;
+        boolean visited;
+
+        public Node(Resource resource) {
+            this.resource = resource;
+            inDependencies = new HashSet<>();
+            outDependencies = new HashSet<>();
+        }
+
+        public Node addDependency(Node node) {
+            Dependency e = new Dependency(this, node);
+            outDependencies.add(e);
+            node.inDependencies.add(e);
+            return this;
+        }
+    }
+
+    static class Dependency {
+        public final Node from;
+        public final Node to;
+
+        public Dependency(Node from, Node to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Dependency) {
+                Dependency e = (Dependency) obj;
+                return e.from == from && e.to == to;
+            } else {
+                return false;
+            }
+        }
     }
 }
