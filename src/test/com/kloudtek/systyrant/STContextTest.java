@@ -308,12 +308,27 @@ public class STContextTest extends AbstractContextTest {
 
 
     @Test
+    public void testSortingOnNotificationsNoHandler() throws Throwable {
+        Resource target = createTestResource("target");
+        Resource afterDueNotAndDep = createTestResourceWithIndirectDepsSetup("afterDueNotAndDep");
+        Resource beforeDueNot = createTestResourceWithIndirectDepsSetup("beforeDueNot");
+        target.addSubscription(beforeDueNot);
+        target.addSubscription(afterDueNotAndDep);
+        ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
+        ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
+        List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
+        ResourceSorter.sort2(resources);
+        assertEquals(resources.toArray(new Resource[resources.size()]),new Resource[]{target,afterDueNotAndDep,beforeDueNot});
+    }
+
+    @Test
     public void testSortingOnNotifications() throws Throwable {
         Resource target = createTestResource("target");
         Resource afterDueNotAndDep = createTestResourceWithIndirectDepsSetup("afterDueNotAndDep");
         Resource beforeDueNot = createTestResourceWithIndirectDepsSetup("beforeDueNot");
         target.addSubscription(beforeDueNot);
         target.addSubscription(afterDueNotAndDep);
+        ReflectionHelper.set(target, "notificationRequireOrder", true);
         ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
         ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
         List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
@@ -331,6 +346,8 @@ public class STContextTest extends AbstractContextTest {
             before.add(createTestResource("before-1-"+i));
         }
         Resource res = resourceManager.createResource("test:test2","target");
+        TestNotificationHandler notificationHandler =new TestNotificationHandler();
+        res.addNotificationHandler(notificationHandler);
         for (int i = 0; i < 50; i++) {
             before.add(createTestResource("before-2-"+i));
         }
@@ -349,6 +366,20 @@ public class STContextTest extends AbstractContextTest {
         assertSame(res,resources.get(100));
         for (int i = 101; i < 149; i++) {
             assertTrue(after.remove(resources.get(i)));
+        }
+//        assertEquals(notificationHandler.notified,100);
+    }
+
+    static class TestNotificationHandler extends NotificationHandler{
+        private int notified = 0;
+
+        TestNotificationHandler() {
+            super(true,true,true);
+        }
+
+        @Override
+        public void handleNotification(Notification notification) {
+            notified++;
         }
     }
 }

@@ -12,6 +12,8 @@ import org.testng.annotations.BeforeMethod;
 
 import javax.script.ScriptException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -56,9 +58,11 @@ public class AbstractContextTest {
         return testResource;
     }
 
-    public Resource createTestResourceWithIndirectDepsSetup(String id) throws ResourceCreationException, InvalidAttributeException {
+    public Resource createTestResourceWithIndirectDepsSetup(String id) throws ResourceCreationException, InvalidAttributeException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Resource testResource = createTestResource(id);
-        testResource.setupIndirectDependencies();
+        Method prepareForExecution = testResource.getClass().getDeclaredMethod("prepareForExecution",STContext.class);
+        prepareForExecution.setAccessible(true);
+        prepareForExecution.invoke(testResource,ctx);
         return testResource;
     }
 

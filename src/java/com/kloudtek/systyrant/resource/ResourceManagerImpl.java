@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.script.ScriptException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -31,9 +30,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class ResourceManagerImpl implements ResourceManager {
-    public static final String SUBSCRIBE = "subscribe";
-    public static final String REQUIRE = "require";
-    public static final String NOTIFY = "notify";
     private STContext context;
     private final ThreadLocal<Resource> resourceScope;
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
@@ -488,33 +484,8 @@ public class ResourceManagerImpl implements ResourceManager {
             }
             // Sort according to dependencies
             ResourceSorter.sort(resources);
-            // Resolve indirect dependencies
             for (Resource resource : resources) {
-                resource.setupIndirectDependencies();
-                for (Resource dep : resource.getDependencies()) {
-                    assert dep.getIndirectDependencies() != null;
-                    resource.addIndirectDependencies(dep.getDependencies());
-                }
-                String subscribe = resource.get(SUBSCRIBE);
-                if( isNotEmpty(subscribe) ) {
-                    try {
-                        resource.addSubscriptions(context.findResources(subscribe));
-                    } catch (InvalidQueryException e) {
-                        throw new InvalidAttributeException("Invalid query specified in "+resource.getUid()+" subscribe attribute: "+subscribe);
-                    }
-                    resource.removeAttribute(SUBSCRIBE);
-                }
-                String notify = resource.get(NOTIFY);
-                if( isNotEmpty(notify) ) {
-                    try {
-                        for (Resource res : context.findResources(notify)) {
-                            res.addSubscription(resource);
-                        }
-                    } catch (InvalidQueryException e) {
-                        throw new InvalidAttributeException("Invalid query specified in "+resource.getUid()+" notify attribute: "+notify);
-                    }
-                    resource.removeAttribute(NOTIFY);
-                }
+                resource.prepareForExecution(context);
             }
             ResourceSorter.sort2(resources);
         } finally {

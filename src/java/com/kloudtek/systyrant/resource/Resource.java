@@ -7,10 +7,7 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidRefException;
-import com.kloudtek.systyrant.exception.MissingAlternativeException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +20,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static com.kloudtek.util.StringUtils.isNotEmpty;
+
 public class Resource {
+    public static final String SUBSCRIBE = "subscribe";
+    public static final String NOTIFY = "notify";
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
     private Map<String, String> attributes = new HashMap<>();
     private transient STContext context;
@@ -45,6 +46,10 @@ public class Resource {
     private final HashSet<String> verification = new HashSet<>();
     private final HashSet<Object> javaImpls = new HashSet<>();
     private final HashSet<Resource> subscriptions = new HashSet<>();
+    private boolean notificationRequireOrder;
+    private boolean notificationAggregate;
+    private boolean notificationOnlyAfter;
+    private final HashSet<NotificationHandler> notificationHandlers = new HashSet<>();
     final HashSet<Resource> dependencies = new HashSet<>();
     HashSet<Resource> indirectDependencies;
     final HashSet<Resource> dependents = new HashSet<>();
@@ -156,12 +161,65 @@ public class Resource {
         return indirectDependencies;
     }
 
-    public void setupIndirectDependencies() {
+    void prepareForExecution(STContext context) throws InvalidAttributeException {
         indirectDependencies = new HashSet<>(dependencies);
+        for (Resource dep : dependencies) {
+            assert dep.getIndirectDependencies() != null;
+            indirectDependencies.addAll(dep.getDependencies());
+        }
+        String subscribe = get(SUBSCRIBE);
+        if (isNotEmpty(subscribe)) {
+            try {
+                addSubscriptions(context.findResources(subscribe));
+            } catch (InvalidQueryException e) {
+                throw new InvalidAttributeException("Invalid query specified in " + getUid() + " subscribe attribute: " + subscribe);
+            }
+            removeAttribute(SUBSCRIBE);
+        }
+        String notify = get(NOTIFY);
+        if (isNotEmpty(notify)) {
+            try {
+                for (Resource res : context.findResources(notify)) {
+                    res.addSubscription(this);
+                }
+            } catch (InvalidQueryException e) {
+                throw new InvalidAttributeException("Invalid query specified in " + getUid() + " notify attribute: " + notify);
+            }
+            removeAttribute(NOTIFY);
+        }
+        for (NotificationHandler notificationHandler : notificationHandlers) {
+            if (notificationHandler.isReorder()) {
+                notificationRequireOrder = true;
+            }
+            if (notificationHandler.isAggregate()) {
+                notificationAggregate = true;
+            }
+            if (notificationHandler.isOnlyIfAfter()) {
+                notificationOnlyAfter = true;
+            }
+        }
     }
 
-    public void addIndirectDependencies(Collection<Resource> dependencies) {
-        indirectDependencies.addAll(dependencies);
+    // ----------------------------------------------------------------------
+    // Notifications
+    // ----------------------------------------------------------------------
+
+    public void addNotificationHandler(NotificationHandler notificationHandler) {
+        synchronized (notificationHandlers) {
+            notificationHandlers.add(notificationHandler);
+        }
+    }
+
+    public boolean isNotificationOnlyAfter() {
+        return notificationOnlyAfter;
+    }
+
+    public boolean isNotificationAggregate() {
+        return notificationAggregate;
+    }
+
+    public boolean isNotificationRequireOrder() {
+        return notificationRequireOrder;
     }
 
     // ----------------------------------------------------------------------
@@ -380,7 +438,7 @@ public class Resource {
         }
     }
 
-    public boolean hasSubscriptionOn( Resource resource ) {
+    public boolean hasSubscriptionOn(Resource resource) {
         synchronized (subscriptions) {
             return subscriptions.contains(resource);
         }
@@ -391,7 +449,7 @@ public class Resource {
     // ----------------------------------------------------------------------
 
     public String toString() {
-        return definition.getFQName().toString()+":"+getUid();
+        return definition.getFQName().toString() + ":" + getUid();
     }
 
     public Logger logger() {
