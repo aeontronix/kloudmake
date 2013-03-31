@@ -520,7 +520,7 @@ public class Resource {
         }
     }
 
-    public void handleNotification(Notification notification) {
+    public void handleNotification(Notification notification) throws STRuntimeException {
         synchronized (notificationHandlers) {
             for (NotificationHandler handler : notificationHandlers) {
                 String handlerCategory = handler.getCategory();

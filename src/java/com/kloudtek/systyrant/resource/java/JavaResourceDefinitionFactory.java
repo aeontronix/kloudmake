@@ -5,10 +5,8 @@
 package com.kloudtek.systyrant.resource.java;
 
 import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +28,7 @@ public class JavaResourceDefinitionFactory {
     public static ResourceDefinition create(@NotNull Class<?> clazz, @Nullable FQName fqname) throws InvalidResourceDefinitionException {
         HashSet<String> requires = new HashSet<>();
         ResourceDefinition resourceDefinition = new ResourceDefinition(fqname != null ? fqname : new FQName(clazz, null));
-        resourceDefinition.addAction(new ResourceInitAction(clazz,requires));
+        resourceDefinition.addAction(new ResourceInitAction(clazz, requires));
         Unique uq = clazz.getAnnotation(Unique.class);
         try {
             clazz.newInstance();
@@ -55,6 +53,7 @@ public class JavaResourceDefinitionFactory {
             handleVerifyActions(clazz, actions, method, syncs, injectors, onlyIf);
             handleSyncMethods(clazz, actions, method, syncs, injectors, onlyIf);
             handleCleanupMethods(clazz, actions, method, injectors, onlyIf);
+            handleNotificationHandling(clazz, resourceDefinition, method);
         }
         for (JavaAction javaAction : syncs.values()) {
             if (javaAction.getMethod() == null) {
@@ -67,6 +66,13 @@ public class JavaResourceDefinitionFactory {
             resourceDefinition.addAction(action);
         }
         return resourceDefinition;
+    }
+
+    private static void handleNotificationHandling(Class<?> clazz, ResourceDefinition resourceDefinition, Method method) {
+        HandleNotification handleNotification = method.getAnnotation(HandleNotification.class);
+        if (handleNotification != null) {
+            resourceDefinition.addNotificationHandler(new JavaNotificationHandler(method, handleNotification, clazz));
+        }
     }
 
     private static void handleCleanupMethods(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {

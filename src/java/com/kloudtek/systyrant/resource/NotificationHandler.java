@@ -4,6 +4,8 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.exception.STRuntimeException;
+
 public abstract class NotificationHandler {
     protected boolean reorder;
     protected boolean aggregate;
@@ -33,5 +35,5 @@ public abstract class NotificationHandler {
         return category;
     }
 
-    public abstract void handleNotification(Notification notification);
+    public abstract void handleNotification(Notification notification) throws STRuntimeException;
 }

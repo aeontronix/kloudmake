@@ -9,7 +9,6 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.MissingAlternativeException;
-import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.host.OperatingSystem;
@@ -21,7 +20,6 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertEquals;
 
 public class JavaResourceTests extends AbstractContextTest {
     @Test
@@ -418,7 +416,7 @@ public class JavaResourceTests extends AbstractContextTest {
 
     public static class ResourceExcludeUsingMethodLevelOnlyIfOS {
         @Execute
-        @OnlyIfOperatingSystem({OperatingSystem.SOLARIS,OperatingSystem.AIX})
+        @OnlyIfOperatingSystem({OperatingSystem.SOLARIS, OperatingSystem.AIX})
         public void shouldNotRun() {
             fail("Should not have been called");
         }
@@ -466,11 +464,11 @@ public class JavaResourceTests extends AbstractContextTest {
         Resource r1 = createTestResource("c");
         r1.set("a", "c");
         Resource r2 = createTestResource("b");
-        r2.set("a","b");
+        r2.set("a", "b");
         Resource resource = create(cl);
         System.out.println("Finished initialization");
         execute();
-        assertContainsSame(resourceManager.getResources(),resource,r1,r2);
+        assertContainsSame(resourceManager.getResources(), resource, r1, r2);
         ResourceRequiresExists obj = resource.getJavaImpl(cl);
         assertTrue(obj.executed);
         assertNotNull(obj.copy);
@@ -558,6 +556,7 @@ public class JavaResourceTests extends AbstractContextTest {
     public static class AlternativeActionTwoCategoriesMethodsSupported {
         private boolean exec1;
         private boolean exec2;
+
         @OnlyIfOperatingSystem(OperatingSystem.LINUX)
         @Alternative("cat1")
         @Execute
@@ -608,6 +607,23 @@ public class JavaResourceTests extends AbstractContextTest {
         @Alternative
         @Execute
         public void alt2() {
+        }
+    }
+
+    @Test
+    public void testHandleNotificationDefCat() throws Throwable {
+        registerAndCreate(HandleNotificationDefCat.class, "notifdef");
+        createTestResource().set("notify", "type test:notifdef");
+        execute();
+        assertTrue(findJavaAction(HandleNotificationDefCat.class).handled);
+    }
+
+    public static class HandleNotificationDefCat {
+        private boolean handled;
+
+        @HandleNotification()
+        public void handle() {
+            handled = true;
         }
     }
 }
