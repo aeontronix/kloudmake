@@ -12,10 +12,7 @@ import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
-import com.kloudtek.systyrant.resource.RequiresExpression;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.ResourceManager;
-import com.kloudtek.systyrant.resource.ResourceManagerImpl;
+import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
@@ -69,6 +66,7 @@ public class STContext implements AutoCloseable {
     private boolean executing;
     private final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
     private ThreadLocal<List<String>> importPaths = new ThreadLocal<>();
+    private final LinkedList<Notification> notifications = new LinkedList<>();
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
@@ -363,6 +361,15 @@ public class STContext implements AutoCloseable {
                 }
                 child = parent;
             }
+            for (Resource target : resource.getNotifies()) {
+                notifications.add(new Notification(null, resource, target));
+            }
+            for (Notification notification = removePendingNotifications(); notification != null; notification = removePendingNotifications()) {
+                Resource target = notification.getTarget();
+                resourceScope.set(target);
+                target.handleNotification(notification);
+                resourceScope.remove();
+            }
         }
     }
 
@@ -499,6 +506,40 @@ public class STContext implements AutoCloseable {
             }
         }
         return list;
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Notification
+    // ------------------------------------------------------------------------------------------
+
+    public void notify(String resourceQuery, String category) throws InvalidQueryException {
+        for (Resource resource : findResources(resourceQuery)) {
+            notify(resource, category);
+        }
+    }
+
+    public void notify(Resource resource) {
+        notify(currentResource(), resource, null);
+    }
+
+    public void notify(Resource resource, String category) {
+        notify(currentResource(), resource, category);
+    }
+
+    public void notify(Resource source, Resource resource, String category) {
+        synchronized (notifications) {
+            notifications.add(new Notification(category, source, resource));
+        }
+    }
+
+    private Notification removePendingNotifications() {
+        synchronized (notifications) {
+            if (notifications.isEmpty()) {
+                return null;
+            } else {
+                return notifications.removeFirst();
+            }
+        }
     }
 
     // ------------------------------------------------------------------------------------------

@@ -20,6 +20,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class Resource {
@@ -45,7 +46,7 @@ public class Resource {
      */
     private final HashSet<String> verification = new HashSet<>();
     private final HashSet<Object> javaImpls = new HashSet<>();
-    private final HashSet<Resource> subscriptions = new HashSet<>();
+    private final HashSet<Resource> notifies = new HashSet<>();
     private boolean notificationRequireOrder;
     private boolean notificationAggregate;
     private boolean notificationOnlyAfter;
@@ -170,7 +171,9 @@ public class Resource {
         String subscribe = get(SUBSCRIBE);
         if (isNotEmpty(subscribe)) {
             try {
-                addSubscriptions(context.findResources(subscribe));
+                for (Resource res : context.findResources(subscribe)) {
+                    res.addNotification(this);
+                }
             } catch (InvalidQueryException e) {
                 throw new InvalidAttributeException("Invalid query specified in " + getUid() + " subscribe attribute: " + subscribe);
             }
@@ -179,9 +182,7 @@ public class Resource {
         String notify = get(NOTIFY);
         if (isNotEmpty(notify)) {
             try {
-                for (Resource res : context.findResources(notify)) {
-                    res.addSubscription(this);
-                }
+                addNotifications(context.findResources(notify));
             } catch (InvalidQueryException e) {
                 throw new InvalidAttributeException("Invalid query specified in " + getUid() + " notify attribute: " + notify);
             }
@@ -413,34 +414,34 @@ public class Resource {
         }
     }
 
-    public Set<Resource> getSubscriptions() {
-        synchronized (subscriptions) {
-            return Collections.unmodifiableSet(subscriptions);
+    public Set<Resource> getNotifies() {
+        synchronized (notifies) {
+            return Collections.unmodifiableSet(notifies);
         }
     }
 
-    public void setSubscriptions(Collection<Resource> resources) {
-        synchronized (subscriptions) {
-            subscriptions.clear();
-            subscriptions.addAll(resources);
+    public void setNotifies(Collection<Resource> resources) {
+        synchronized (notifies) {
+            notifies.clear();
+            notifies.addAll(resources);
         }
     }
 
-    public void addSubscription(Resource resource) {
-        synchronized (subscriptions) {
-            subscriptions.add(resource);
+    public void addNotification(Resource resource) {
+        synchronized (notifies) {
+            notifies.add(resource);
         }
     }
 
-    public void addSubscriptions(Collection<Resource> resources) {
-        synchronized (subscriptions) {
-            subscriptions.addAll(resources);
+    public void addNotifications(Collection<Resource> resources) {
+        synchronized (notifies) {
+            notifies.addAll(resources);
         }
     }
 
     public boolean hasSubscriptionOn(Resource resource) {
-        synchronized (subscriptions) {
-            return subscriptions.contains(resource);
+        synchronized (notifies) {
+            return notifies.contains(resource);
         }
     }
 
@@ -515,6 +516,18 @@ public class Resource {
                 }
                 msg.append("alternative for ").append(getType());
                 throw new MissingAlternativeException(msg.toString());
+            }
+        }
+    }
+
+    public void handleNotification(Notification notification) {
+        synchronized (notificationHandlers) {
+            for (NotificationHandler handler : notificationHandlers) {
+                String handlerCategory = handler.getCategory();
+                if (isEmpty(handlerCategory) ? isEmpty(notification.getCategory())
+                        : handlerCategory.equalsIgnoreCase(notification.getCategory())) {
+                    handler.handleNotification(notification);
+                }
             }
         }
     }

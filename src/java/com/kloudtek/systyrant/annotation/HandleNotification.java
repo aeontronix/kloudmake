@@ -13,8 +13,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 @Target({TYPE, FIELD})
-public @interface Refresh {
+public @interface HandleNotification {
+    String value() default "";
+
     boolean reorder() default true;
+
     boolean aggregate() default true;
+
     boolean onlyIfAfter() default true;
 }

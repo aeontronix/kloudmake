@@ -4,7 +4,6 @@
 
 package com.kloudtek.systyrant.resource;
 
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 
 import java.util.*;
@@ -98,24 +97,25 @@ public class ResourceSorter {
     /**
      * This method is used for the second round of sorting, which will attempt to put notifying resources before
      * the resource being notified.
+     *
      * @param resources
      */
     public static void sort2(List<Resource> resources) {
         ArrayList<Resource> list = new ArrayList<>(resources);
         LinkedHashSet<Resource> sorted = new LinkedHashSet<>();
-        while( ! list.isEmpty() ) {
+        while (!list.isEmpty()) {
             Resource res = list.remove(0);
-            if( res.isNotificationRequireOrder() ) {
-                for (Resource subscribed : res.getSubscriptions()) {
-                    if( ! subscribed.getIndirectDependencies().contains(res) ) {
-                        if( ! sorted.contains(subscribed) ) {
-                            sorted.add(subscribed);
-                            list.remove(subscribed);
+            if (res.isNotificationRequireOrder()) {
+                for (Resource candidate : new ArrayList<>(list)) {
+                    if (candidate.getNotifies().contains(res) && !candidate.getIndirectDependencies().contains(res)) {
+                        if (!sorted.contains(candidate)) {
+                            sorted.add(candidate);
+                            list.remove(candidate);
                         }
                     }
                 }
             }
-            if( ! sorted.contains(res) ) {
+            if (!sorted.contains(res)) {
                 sorted.add(res);
             }
         }

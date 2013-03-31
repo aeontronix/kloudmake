@@ -4,31 +4,35 @@
 
 package com.kloudtek.systyrant.resource;
 
-import com.kloudtek.systyrant.STContext;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class Notification {
-    private List<Resource> origins = new ArrayList<>();
+    private String category;
+    private Resource source;
     private Resource target;
 
-    public Notification(List<Resource> origins, Resource target) {
-        this.origins.addAll(origins);
+    public Notification(String category, Resource source, Resource target) {
+        this.category = category;
+        this.source = source;
         this.target = target;
     }
 
-    public Notification(Resource origin, Resource target) {
-        this.origins.add(origin);
-        this.target = target;
+    public Notification(Resource source) {
+        this.source = source;
     }
 
-    public List<Resource> getOrigins() {
-        return origins;
+    public String getCategory() {
+        return category;
     }
 
-    public void setOrigins(List<Resource> origins) {
-        this.origins = origins;
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Resource getSource() {
+        return source;
+    }
+
+    public void setSource(Resource source) {
+        this.source = source;
     }
 
     public Resource getTarget() {

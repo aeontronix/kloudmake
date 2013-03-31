@@ -5,17 +5,16 @@
 package com.kloudtek.systyrant.resource;
 
 public abstract class NotificationHandler {
-    private boolean reorder;
-    private boolean aggregate;
-    private boolean onlyIfAfter;
+    protected boolean reorder;
+    protected boolean aggregate;
+    protected boolean onlyIfAfter;
+    protected String category;
 
-    protected NotificationHandler() {
-    }
-
-    protected NotificationHandler(boolean reorder, boolean aggregate, boolean onlyIfAfter) {
+    protected NotificationHandler(boolean reorder, boolean aggregate, boolean onlyIfAfter, String category) {
         this.reorder = reorder;
         this.aggregate = aggregate;
         this.onlyIfAfter = onlyIfAfter;
+        this.category = category;
     }
 
     public boolean isReorder() {
@@ -30,5 +29,9 @@ public abstract class NotificationHandler {
         return onlyIfAfter;
     }
 
-    public abstract void handleNotification( Notification notification );
+    public String getCategory() {
+        return category;
+    }
+
+    public abstract void handleNotification(Notification notification);
 }
