@@ -20,7 +20,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class Resource {
@@ -46,10 +45,6 @@ public class Resource {
      */
     private final HashSet<String> verification = new HashSet<>();
     private final HashSet<Object> javaImpls = new HashSet<>();
-    private final HashSet<Resource> notifies = new HashSet<>();
-    private boolean notificationRequireOrder;
-    private boolean notificationAggregate;
-    private boolean notificationOnlyAfter;
     private final HashSet<NotificationHandler> notificationHandlers = new HashSet<>();
     final HashSet<Resource> dependencies = new HashSet<>();
     HashSet<Resource> indirectDependencies;
@@ -172,7 +167,7 @@ public class Resource {
         if (isNotEmpty(subscribe)) {
             try {
                 for (Resource res : context.findResources(subscribe)) {
-                    res.addNotification(this);
+                    res.addAutoNotification(this);
                 }
             } catch (InvalidQueryException e) {
                 throw new InvalidAttributeException("Invalid query specified in " + getUid() + " subscribe attribute: " + subscribe);
@@ -182,22 +177,11 @@ public class Resource {
         String notify = get(NOTIFY);
         if (isNotEmpty(notify)) {
             try {
-                addNotifications(context.findResources(notify));
+                addAutoNotifications(context.findResources(notify));
             } catch (InvalidQueryException e) {
                 throw new InvalidAttributeException("Invalid query specified in " + getUid() + " notify attribute: " + notify);
             }
             removeAttribute(NOTIFY);
-        }
-        for (NotificationHandler notificationHandler : notificationHandlers) {
-            if (notificationHandler.isReorder()) {
-                notificationRequireOrder = true;
-            }
-            if (notificationHandler.isAggregate()) {
-                notificationAggregate = true;
-            }
-            if (notificationHandler.isOnlyIfAfter()) {
-                notificationOnlyAfter = true;
-            }
         }
     }
 
@@ -209,18 +193,6 @@ public class Resource {
         synchronized (notificationHandlers) {
             notificationHandlers.add(notificationHandler);
         }
-    }
-
-    public boolean isNotificationOnlyAfter() {
-        return notificationOnlyAfter;
-    }
-
-    public boolean isNotificationAggregate() {
-        return notificationAggregate;
-    }
-
-    public boolean isNotificationRequireOrder() {
-        return notificationRequireOrder;
     }
 
     // ----------------------------------------------------------------------
@@ -414,34 +386,13 @@ public class Resource {
         }
     }
 
-    public Set<Resource> getNotifies() {
-        synchronized (notifies) {
-            return Collections.unmodifiableSet(notifies);
-        }
+    public void addAutoNotification(Resource resource) {
+        context.addAutoNotification(new AutoNotify(this, resource, null));
     }
 
-    public void setNotifies(Collection<Resource> resources) {
-        synchronized (notifies) {
-            notifies.clear();
-            notifies.addAll(resources);
-        }
-    }
-
-    public void addNotification(Resource resource) {
-        synchronized (notifies) {
-            notifies.add(resource);
-        }
-    }
-
-    public void addNotifications(Collection<Resource> resources) {
-        synchronized (notifies) {
-            notifies.addAll(resources);
-        }
-    }
-
-    public boolean hasSubscriptionOn(Resource resource) {
-        synchronized (notifies) {
-            return notifies.contains(resource);
+    public void addAutoNotifications(Collection<Resource> resources) {
+        for (Resource resource : resources) {
+            addAutoNotification(resource);
         }
     }
 
@@ -523,9 +474,7 @@ public class Resource {
     public void handleNotification(Notification notification) throws STRuntimeException {
         synchronized (notificationHandlers) {
             for (NotificationHandler handler : notificationHandlers) {
-                String handlerCategory = handler.getCategory();
-                if (isEmpty(handlerCategory) ? isEmpty(notification.getCategory())
-                        : handlerCategory.equalsIgnoreCase(notification.getCategory())) {
+                if (handler.isSameCategory(handler.getCategory()) && (!handler.onlyIfAfter || state.ordinal() >= State.EXECUTED.ordinal())) {
                     handler.handleNotification(notification);
                 }
             }

@@ -16,6 +16,7 @@ import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
+import com.kloudtek.systyrant.util.ListHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -65,8 +66,11 @@ public class STContext implements AutoCloseable {
     private Host host;
     private boolean executing;
     private final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
+    private List<AutoNotify> autoNotifications = new ArrayList<>();
+    private ListHashMap<Resource,AutoNotify> autoNotificationsSourceIndex = new ListHashMap<>();
+    private HashMap<Resource,HashMap<String,AutoNotify>> autoNotificationsTargetIndex = new HashMap<>();
     private ThreadLocal<List<String>> importPaths = new ThreadLocal<>();
-    private final LinkedList<Notification> notifications = new LinkedList<>();
+    private final LinkedList<Notification> notificationsPending = new LinkedList<>();
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
@@ -361,15 +365,15 @@ public class STContext implements AutoCloseable {
                 }
                 child = parent;
             }
-            for (Resource target : resource.getNotifies()) {
-                notifications.add(new Notification(null, resource, target));
-            }
-            for (Notification notification = removePendingNotifications(); notification != null; notification = removePendingNotifications()) {
-                Resource target = notification.getTarget();
-                resourceScope.set(target);
-                target.handleNotification(notification);
-                resourceScope.remove();
-            }
+//            for (Resource target : findAutoNotificationBySource(resource)) {
+//                notificationsPending.add(new Notification(null, resource, target));
+//            }
+//            for (Notification notification = removePendingNotifications(); notification != null; notification = removePendingNotifications()) {
+//                Resource target = notification.getTarget();
+//                resourceScope.set(target);
+//                target.handleNotification(notification);
+//                resourceScope.remove();
+//            }
         }
     }
 
@@ -512,6 +516,20 @@ public class STContext implements AutoCloseable {
     // Notification
     // ------------------------------------------------------------------------------------------
 
+    public void addAutoNotification( AutoNotify autoNotify ) {
+        synchronized (autoNotifications) {
+            autoNotifications.add(autoNotify);
+        }
+    }
+
+    public AutoNotify findAutoNotify(Resource target, String category) {
+        HashMap<String, AutoNotify> map = autoNotificationsTargetIndex.get(target);
+        if( map != null ) {
+            return map.get(category == null ? "" : category);
+        }
+        return null;
+    }
+
     public void notify(String resourceQuery, String category) throws InvalidQueryException {
         for (Resource resource : findResources(resourceQuery)) {
             notify(resource, category);
@@ -527,17 +545,17 @@ public class STContext implements AutoCloseable {
     }
 
     public void notify(Resource source, Resource resource, String category) {
-        synchronized (notifications) {
-            notifications.add(new Notification(category, source, resource));
+        synchronized (notificationsPending) {
+            notificationsPending.add(new Notification(category, source, resource));
         }
     }
 
     private Notification removePendingNotifications() {
-        synchronized (notifications) {
-            if (notifications.isEmpty()) {
+        synchronized (notificationsPending) {
+            if (notificationsPending.isEmpty()) {
                 return null;
             } else {
-                return notifications.removeFirst();
+                return notificationsPending.removeFirst();
             }
         }
     }

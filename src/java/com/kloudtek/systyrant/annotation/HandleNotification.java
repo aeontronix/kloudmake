@@ -19,5 +19,5 @@ public @interface HandleNotification {
 
     boolean aggregate() default true;
 
-    boolean onlyIfAfter() default true;
+    boolean onlyIfAfter() default false;
 }

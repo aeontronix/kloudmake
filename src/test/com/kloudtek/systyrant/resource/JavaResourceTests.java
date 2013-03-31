@@ -609,21 +609,4 @@ public class JavaResourceTests extends AbstractContextTest {
         public void alt2() {
         }
     }
-
-    @Test
-    public void testHandleNotificationDefCat() throws Throwable {
-        registerAndCreate(HandleNotificationDefCat.class, "notifdef");
-        createTestResource().set("notify", "type test:notifdef");
-        execute();
-        assertTrue(findJavaAction(HandleNotificationDefCat.class).handled);
-    }
-
-    public static class HandleNotificationDefCat {
-        private boolean handled;
-
-        @HandleNotification()
-        public void handle() {
-            handled = true;
-        }
-    }
 }

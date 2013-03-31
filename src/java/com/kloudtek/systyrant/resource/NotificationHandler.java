@@ -6,6 +6,8 @@ package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
+import static com.kloudtek.util.StringUtils.isEmpty;
+
 public abstract class NotificationHandler {
     protected boolean reorder;
     protected boolean aggregate;
@@ -33,6 +35,10 @@ public abstract class NotificationHandler {
 
     public String getCategory() {
         return category;
+    }
+
+    public boolean isSameCategory(String handlerCategory) {
+        return isEmpty(handlerCategory) ? isEmpty(category) : handlerCategory.equalsIgnoreCase(category);
     }
 
     public abstract void handleNotification(Notification notification) throws STRuntimeException;

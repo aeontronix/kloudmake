@@ -105,16 +105,16 @@ public class ResourceSorter {
         LinkedHashSet<Resource> sorted = new LinkedHashSet<>();
         while (!list.isEmpty()) {
             Resource res = list.remove(0);
-            if (res.isNotificationRequireOrder()) {
-                for (Resource candidate : new ArrayList<>(list)) {
-                    if (candidate.getNotifies().contains(res) && !candidate.getIndirectDependencies().contains(res)) {
-                        if (!sorted.contains(candidate)) {
-                            sorted.add(candidate);
-                            list.remove(candidate);
-                        }
-                    }
-                }
-            }
+//            if (res.isNotificationRequireOrder()) {
+//                for (Resource candidate : new ArrayList<>(list)) {
+//                    if (candidate.getNotifies().contains(res) && !candidate.getIndirectDependencies().contains(res)) {
+//                        if (!sorted.contains(candidate)) {
+//                            sorted.add(candidate);
+//                            list.remove(candidate);
+//                        }
+//                    }
+//                }
+//            }
             if (!sorted.contains(res)) {
                 sorted.add(res);
             }
