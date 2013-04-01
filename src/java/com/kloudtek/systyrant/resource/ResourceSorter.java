@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 
 import java.util.*;
@@ -99,24 +100,35 @@ public class ResourceSorter {
      * the resource being notified.
      *
      * @param resources
+     * @param context
      */
-    public static void sort2(List<Resource> resources) {
-        ArrayList<Resource> list = new ArrayList<>(resources);
+    public static void sort2(List<Resource> resources, STContext context) {
+        LinkedList<Resource> list = new LinkedList<>(resources);
         LinkedHashSet<Resource> sorted = new LinkedHashSet<>();
         while (!list.isEmpty()) {
-            Resource res = list.remove(0);
-//            if (res.isNotificationRequireOrder()) {
-//                for (Resource candidate : new ArrayList<>(list)) {
-//                    if (candidate.getNotifies().contains(res) && !candidate.getIndirectDependencies().contains(res)) {
-//                        if (!sorted.contains(candidate)) {
-//                            sorted.add(candidate);
-//                            list.remove(candidate);
-//                        }
-//                    }
-//                }
-//            }
-            if (!sorted.contains(res)) {
-                sorted.add(res);
+            Resource res = list.getFirst();
+            List<AutoNotify> autoNotifications = context.findAutoNotificationByTarget(res);
+            boolean notifiersMoved = false;
+            ArrayList<Resource> reschedule = new ArrayList<>();
+            for (AutoNotify autoNotify : autoNotifications) {
+                if (res.isReOrderRequiredForNotification(autoNotify.getCategory())) {
+                    for (Resource source : autoNotify.getSources()) {
+                        if (!sorted.contains(source) && !source.getIndirectDependencies().contains(res)) {
+                            reschedule.add(source);
+                            list.remove(source);
+                            notifiersMoved = true;
+                        }
+                    }
+                }
+            }
+            if (!reschedule.isEmpty()) {
+                list.addAll(0, reschedule);
+            }
+            if (!notifiersMoved) {
+                list.remove(res);
+                if (!sorted.contains(res)) {
+                    sorted.add(res);
+                }
             }
         }
         assert resources.size() == sorted.size();

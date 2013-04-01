@@ -8,15 +8,12 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.HandleNotification;
 import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.testng.Assert.*;
-import static org.testng.Assert.assertEquals;
 
 public class NotificationTests extends AbstractContextTest {
     @Test
@@ -29,25 +26,41 @@ public class NotificationTests extends AbstractContextTest {
         ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
         ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
         List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
-        ResourceSorter.sort2(resources);
+        ResourceSorter.sort2(resources, ctx);
         assertEquals(resources.toArray(new Resource[resources.size()]), new Resource[]{target, afterDueNotAndDep, beforeDueNot});
     }
 
     @Test
     public void testSortingOnNotifications() throws Throwable {
         Resource target = createTestResource("target");
-        Resource afterDueNotAndDep = createTestResourceWithIndirectDepsSetup("afterDueNotAndDep");
-        Resource beforeDueNot = createTestResourceWithIndirectDepsSetup("beforeDueNot");
-        beforeDueNot.addAutoNotification(target);
-        afterDueNotAndDep.addAutoNotification(target);
-        ReflectionHelper.set(target, "notificationRequireOrder", true);
-        ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
-        ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
-        List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
-        ResourceSorter.sort2(resources);
-        assertEquals(resources.toArray(new Resource[resources.size()]), new Resource[]{beforeDueNot, target, afterDueNotAndDep});
-    }
+        target.addNotificationHandler(new TestNotificationHandler(true, false, false, null));
 
+        Resource after = createTestResourceWithIndirectDepsSetup("after");
+        ReflectionHelper.set(after, "dependencies", new HashSet<>(Arrays.asList(target)));
+        ReflectionHelper.set(after, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
+        AutoNotify afterAN = new AutoNotify(after, target, null);
+
+        Resource before = createTestResourceWithIndirectDepsSetup("before");
+        AutoNotify beforeAN = new AutoNotify(before, target, null);
+
+        Resource cascadeTarget = createTestResourceWithIndirectDepsSetup("cascadeTarget");
+        AutoNotify cascadeTargetAN = new AutoNotify(cascadeTarget, target, null);
+        cascadeTarget.addNotificationHandler(new TestNotificationHandler(true, false, false, null));
+
+        Resource cascadeSource = createTestResourceWithIndirectDepsSetup("cascadeSource");
+        AutoNotify beforeCascadeSourceAN = new AutoNotify(cascadeSource, cascadeTarget, null);
+
+        STContext mock = Mockito.mock(STContext.class);
+        Mockito.when(mock.findAutoNotificationByTarget(target)).thenReturn(Arrays.asList(beforeAN, afterAN, cascadeTargetAN));
+        Mockito.when(mock.findAutoNotificationByTarget(cascadeTarget)).thenReturn(Arrays.asList(beforeCascadeSourceAN));
+        List<AutoNotify> empty = Collections.emptyList();
+        for (Resource resource : Arrays.asList(before, after, cascadeSource)) {
+            Mockito.when(mock.findAutoNotificationByTarget(resource)).thenReturn(empty);
+        }
+        List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
+        ResourceSorter.sort2(resources, mock);
+        assertEquals(resources.toArray(new Resource[resources.size()]), new Resource[]{before, cascadeSource, cascadeTarget, target, after});
+    }
 
     @Test
     public void testHandleNotificationDefCat() throws Throwable {
@@ -76,7 +89,7 @@ public class NotificationTests extends AbstractContextTest {
             before.add(createTestResource("before-1-" + i));
         }
         Resource res = resourceManager.createResource("test:test2", "target");
-        TestNotificationHandler notificationHandler = new TestNotificationHandler(true,false,false,null);
+        TestNotificationHandler notificationHandler = new TestNotificationHandler(true, false, false, null);
         res.addNotificationHandler(notificationHandler);
         for (int i = 0; i < 5; i++) {
             before.add(createTestResource("before-2-" + i));
@@ -126,7 +139,7 @@ public class NotificationTests extends AbstractContextTest {
         target.addNotificationHandler(notificationHandler);
         createTestResource().addAutoNotification(target);
         execute();
-        assertSame(resourceManager.getResources().get(1),target);
+        assertSame(resourceManager.getResources().get(1), target);
         assertEquals(notificationHandler.notified, 0, "Notification was received when it shouldn't");
     }
 
@@ -139,9 +152,9 @@ public class NotificationTests extends AbstractContextTest {
         res1a.addAutoNotification(target);
         Resource res1b = createTestResource("1b");
         res1b.addAutoNotification(target);
-        Resource res2a = createTestResource("2a",res1a);
+        Resource res2a = createTestResource("2a", res1a);
         res2a.addAutoNotification(target);
-        Resource res2b = createTestResource("2b",res1b);
+        Resource res2b = createTestResource("2b", res1b);
         res2b.addAutoNotification(target);
         execute();
         assertEquals(notificationHandler.notified, 2, "Notification should have occured twice");

@@ -481,6 +481,15 @@ public class Resource {
         }
     }
 
+    public boolean isReOrderRequiredForNotification(@NotNull String category) {
+        for (NotificationHandler notificationHandler : notificationHandlers) {
+            if (notificationHandler.getCategory().equalsIgnoreCase(category) && notificationHandler.isReorder()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public enum State {
         NEW, PREPARED, EXECUTED, CLEANEDUP, SKIP, FAILED
     }

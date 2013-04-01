@@ -67,8 +67,9 @@ public class STContext implements AutoCloseable {
     private boolean executing;
     private final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
     private List<AutoNotify> autoNotifications = new ArrayList<>();
-    private ListHashMap<Resource,AutoNotify> autoNotificationsSourceIndex = new ListHashMap<>();
-    private HashMap<Resource,HashMap<String,AutoNotify>> autoNotificationsTargetIndex = new HashMap<>();
+    private ListHashMap<Resource, AutoNotify> autoNotificationsSourceIndex = new ListHashMap<>();
+    private ListHashMap<Resource, AutoNotify> autoNotificationsTargetIndex = new ListHashMap<>();
+
     private ThreadLocal<List<String>> importPaths = new ThreadLocal<>();
     private final LinkedList<Notification> notificationsPending = new LinkedList<>();
 
@@ -77,7 +78,7 @@ public class STContext implements AutoCloseable {
         host.start();
     }
 
-    public STContext(Host host) throws InjectException, InvalidResourceDefinitionException, STRuntimeException {
+    public STContext(Host host) throws InvalidResourceDefinitionException, STRuntimeException {
         this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
         resourceManager = new ResourceManagerImpl(this, resourceScope);
@@ -365,15 +366,17 @@ public class STContext implements AutoCloseable {
                 }
                 child = parent;
             }
-//            for (Resource target : findAutoNotificationBySource(resource)) {
-//                notificationsPending.add(new Notification(null, resource, target));
-//            }
-//            for (Notification notification = removePendingNotifications(); notification != null; notification = removePendingNotifications()) {
-//                Resource target = notification.getTarget();
-//                resourceScope.set(target);
-//                target.handleNotification(notification);
-//                resourceScope.remove();
-//            }
+            for (AutoNotify autoNotify : findAutoNotificationBySource(resource)) {
+                if (autoNotify.execute(resource)) {
+                    notificationsPending.add(new Notification(autoNotify.getCategory(), resource, autoNotify.getTarget()));
+                }
+            }
+            for (Notification notification = removePendingNotifications(); notification != null; notification = removePendingNotifications()) {
+                Resource target = notification.getTarget();
+                resourceScope.set(target);
+                target.handleNotification(notification);
+                resourceScope.remove();
+            }
         }
     }
 
@@ -458,6 +461,9 @@ public class STContext implements AutoCloseable {
             resourceScope.remove();
         }
         resourceManager.setCreateAllowed(false);
+        for (AutoNotify autoNotify : autoNotifications) {
+            autoNotify.prepare();
+        }
     }
 
     private void fatalFatalException(Throwable e) throws STRuntimeException {
@@ -516,18 +522,22 @@ public class STContext implements AutoCloseable {
     // Notification
     // ------------------------------------------------------------------------------------------
 
-    public void addAutoNotification( AutoNotify autoNotify ) {
+    public void addAutoNotification(AutoNotify autoNotify) {
         synchronized (autoNotifications) {
             autoNotifications.add(autoNotify);
+            for (Resource source : autoNotify.getSources()) {
+                autoNotificationsSourceIndex.get(source).add(autoNotify);
+            }
+            autoNotificationsTargetIndex.get(autoNotify.getTarget()).add(autoNotify);
         }
     }
 
-    public AutoNotify findAutoNotify(Resource target, String category) {
-        HashMap<String, AutoNotify> map = autoNotificationsTargetIndex.get(target);
-        if( map != null ) {
-            return map.get(category == null ? "" : category);
-        }
-        return null;
+    public List<AutoNotify> findAutoNotificationBySource(Resource source) {
+        return autoNotificationsSourceIndex.get(source);
+    }
+
+    public List<AutoNotify> findAutoNotificationByTarget(Resource target) {
+        return autoNotificationsTargetIndex.get(target);
     }
 
     public void notify(String resourceQuery, String category) throws InvalidQueryException {

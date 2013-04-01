@@ -426,7 +426,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException, InvalidAttributeException {
         wlock();
         try {
-            if( resources.isEmpty() ) {
+            if (resources.isEmpty()) {
                 return;
             }
             // Validate resource uniqueness
@@ -452,7 +452,7 @@ public class ResourceManagerImpl implements ResourceManager {
                             }
                             break;
                         default:
-                            throw new RuntimeException("BUG! Unknown resource scope "+uniqueScope);
+                            throw new RuntimeException("BUG! Unknown resource scope " + uniqueScope);
                     }
                 }
             }
@@ -487,7 +487,7 @@ public class ResourceManagerImpl implements ResourceManager {
             for (Resource resource : resources) {
                 resource.prepareForExecution(context);
             }
-            ResourceSorter.sort2(resources);
+            ResourceSorter.sort2(resources, context);
         } finally {
             wulock();
         }
