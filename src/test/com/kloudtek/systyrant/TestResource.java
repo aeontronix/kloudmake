@@ -8,7 +8,6 @@ import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.AbstractAction;
-import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +70,7 @@ public class TestResource {
                 try {
                     Resource child = STHelper.createElement(new FQName("test:test"), id, resource);
                 } catch (ResourceCreationException e) {
-                    throw new STRuntimeException(e.getMessage(),e);
+                    throw new STRuntimeException(e.getMessage(), e);
                 }
             }
         }
@@ -117,7 +116,7 @@ public class TestResource {
             throw new STRuntimeException("Failed execution as requested");
         }
         if (createElementDuringExecute) {
-            STHelper.createElement("test","test", id + "-exechildren");
+            STHelper.createElement("test", "test", id + "-exechildren");
         }
     }
 
@@ -303,7 +302,7 @@ public class TestResource {
 
     public Resource findResource(STContext context) throws STRuntimeException {
         for (Resource resource : context.getResourceManager()) {
-            if( resource.getJavaImpl(TestResource.class) != null ) {
+            if (resource.getJavaImpl(TestResource.class) != null) {
                 return resource;
             }
         }
@@ -323,10 +322,10 @@ public class TestResource {
         @Override
         public void execute(STContext context, Resource resource) throws STRuntimeException {
             try {
-                logger.info("Creating children {} for resource {}",name,parent);
+                logger.info("Creating children {} for resource {}", name, parent);
                 context.getResourceManager().createResource(AbstractContextTest.TEST, name, parent);
             } catch (ResourceCreationException e) {
-                throw new STRuntimeException(e.getMessage(),e);
+                throw new STRuntimeException(e.getMessage(), e);
             }
         }
     }

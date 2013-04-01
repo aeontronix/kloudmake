@@ -8,10 +8,12 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.HandleNotification;
 import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
-import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.testng.Assert.*;
 
@@ -25,9 +27,9 @@ public class NotificationTests extends AbstractContextTest {
         afterDueNotAndDep.addAutoNotification(target);
         ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
         ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
-        List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
-        ResourceSorter.sort2(resources, ctx);
-        assertEquals(resources.toArray(new Resource[resources.size()]), new Resource[]{target, afterDueNotAndDep, beforeDueNot});
+        STContextData data = (STContextData) ReflectionHelper.get(ctx, "data");
+        ResourceSorter.bringResourcesForwardDueToNotification(data);
+        assertEquals(data.resources.toArray(new Resource[data.resources.size()]), new Resource[]{target, afterDueNotAndDep, beforeDueNot});
     }
 
     @Test
@@ -38,28 +40,20 @@ public class NotificationTests extends AbstractContextTest {
         Resource after = createTestResourceWithIndirectDepsSetup("after");
         ReflectionHelper.set(after, "dependencies", new HashSet<>(Arrays.asList(target)));
         ReflectionHelper.set(after, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
-        AutoNotify afterAN = new AutoNotify(after, target, null);
+        data.add(new AutoNotify(after, target, null));
 
         Resource before = createTestResourceWithIndirectDepsSetup("before");
-        AutoNotify beforeAN = new AutoNotify(before, target, null);
+        data.add(new AutoNotify(before, target, null));
 
         Resource cascadeTarget = createTestResourceWithIndirectDepsSetup("cascadeTarget");
-        AutoNotify cascadeTargetAN = new AutoNotify(cascadeTarget, target, null);
+        data.add(new AutoNotify(cascadeTarget, target, null));
         cascadeTarget.addNotificationHandler(new TestNotificationHandler(true, false, false, null));
 
         Resource cascadeSource = createTestResourceWithIndirectDepsSetup("cascadeSource");
-        AutoNotify beforeCascadeSourceAN = new AutoNotify(cascadeSource, cascadeTarget, null);
+        data.add(new AutoNotify(cascadeSource, cascadeTarget, null));
 
-        STContext mock = Mockito.mock(STContext.class);
-        Mockito.when(mock.findAutoNotificationByTarget(target)).thenReturn(Arrays.asList(beforeAN, afterAN, cascadeTargetAN));
-        Mockito.when(mock.findAutoNotificationByTarget(cascadeTarget)).thenReturn(Arrays.asList(beforeCascadeSourceAN));
-        List<AutoNotify> empty = Collections.emptyList();
-        for (Resource resource : Arrays.asList(before, after, cascadeSource)) {
-            Mockito.when(mock.findAutoNotificationByTarget(resource)).thenReturn(empty);
-        }
-        List<Resource> resources = (List<Resource>) ReflectionHelper.get(resourceManager, "resources");
-        ResourceSorter.sort2(resources, mock);
-        assertEquals(resources.toArray(new Resource[resources.size()]), new Resource[]{before, cascadeSource, cascadeTarget, target, after});
+        ResourceSorter.bringResourcesForwardDueToNotification(data);
+        assertEquals(data.resources.toArray(new Resource[data.resources.size()]), new Resource[]{before, cascadeSource, cascadeTarget, target, after});
     }
 
     @Test
@@ -156,7 +150,13 @@ public class NotificationTests extends AbstractContextTest {
         res2a.addAutoNotification(target);
         Resource res2b = createTestResource("2b", res1b);
         res2b.addAutoNotification(target);
+        Resource res2b2 = createTestResource("2b2", res1b);
+        res2b2.addAutoNotification(target);
+        Resource res3b = createTestResource("3b", res2b);
+        res3b.addAutoNotification(target);
+        Resource res4b = createTestResource("4b", res3b);
+        res4b.addAutoNotification(target);
         execute();
-        assertEquals(notificationHandler.notified, 2, "Notification should have occured twice");
+        assertEquals(notificationHandler.notified, 4);
     }
 }

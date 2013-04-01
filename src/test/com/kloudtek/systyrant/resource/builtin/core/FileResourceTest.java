@@ -5,18 +5,16 @@
 package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.FileInfo;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.builtin.core.FileResource;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.util.CryptoUtils;
 import org.apache.commons.io.IOUtils;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -121,10 +119,10 @@ public class FileResourceTest {
         fileExists();
         assertTrue(context.execute());
 
-        verify(adminMock,times(1)).start();
-        verify(adminMock,atLeastOnce()).fileExists(PATH);
+        verify(adminMock, times(1)).start();
+        verify(adminMock, atLeastOnce()).fileExists(PATH);
         verify(adminMock).createSymlink(PATH, PATH2);
-        verify(adminMock,times(1)).stop();
+        verify(adminMock, times(1)).stop();
     }
 
     @Test

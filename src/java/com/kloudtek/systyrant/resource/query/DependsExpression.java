@@ -4,10 +4,10 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
-import com.kloudtek.systyrant.resource.Resource;
 
 import java.util.ArrayList;
 
@@ -43,11 +43,11 @@ public class DependsExpression extends Expression {
     @Override
     public boolean matches(STContext context, Resource resource) {
         // todo fail is dependency resolution not done
-        if(recurse) {
+        if (recurse) {
             return false;
         } else {
             for (Resource r : resources) {
-                if( resource.getDependencies().contains(r) ) {
+                if (resource.getDependencies().contains(r)) {
                     return true;
                 }
             }

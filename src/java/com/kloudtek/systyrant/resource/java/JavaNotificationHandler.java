@@ -4,11 +4,11 @@
 
 package com.kloudtek.systyrant.resource.java;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.annotation.HandleNotification;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.Notification;
 import com.kloudtek.systyrant.resource.NotificationHandler;
-import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 
 import java.lang.reflect.InvocationTargetException;

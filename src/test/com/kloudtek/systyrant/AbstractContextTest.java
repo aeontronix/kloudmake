@@ -6,8 +6,7 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.AbstractAction;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.ResourceManager;
+import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.testng.annotations.BeforeMethod;
 
 import javax.script.ScriptException;
@@ -27,6 +26,7 @@ public class AbstractContextTest {
     public static final String UNIQUETEST = "test:uniquetest";
     protected STContext ctx;
     protected ResourceManager resourceManager;
+    protected STContextData data;
 
     @SuppressWarnings("unchecked")
     @BeforeMethod
@@ -36,6 +36,7 @@ public class AbstractContextTest {
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, JTEST);
         ctx.runDSLScript("def test:test {}");
+        data = (STContextData) ReflectionHelper.get(ctx, "data");
     }
 
     public Resource createTestResource() throws ResourceCreationException {
@@ -60,9 +61,9 @@ public class AbstractContextTest {
 
     public Resource createTestResourceWithIndirectDepsSetup(String id) throws ResourceCreationException, InvalidAttributeException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Resource testResource = createTestResource(id);
-        Method prepareForExecution = testResource.getClass().getDeclaredMethod("prepareForExecution",STContext.class);
+        Method prepareForExecution = testResource.getClass().getDeclaredMethod("prepareForExecution", STContext.class);
         prepareForExecution.setAccessible(true);
-        prepareForExecution.invoke(testResource,ctx);
+        prepareForExecution.invoke(testResource, ctx);
         return testResource;
     }
 
@@ -132,7 +133,7 @@ public class AbstractContextTest {
     }
 
     public Resource createChild(Class<?> clazz, Resource parent) throws ResourceCreationException {
-        return resourceManager.createResource("test:" + clazz.getSimpleName().toLowerCase().replace("$", "."),(String)null,parent);
+        return resourceManager.createResource("test:" + clazz.getSimpleName().toLowerCase().replace("$", "."), (String) null, parent);
     }
 
     @SuppressWarnings("unchecked")

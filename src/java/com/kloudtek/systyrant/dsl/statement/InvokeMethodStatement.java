@@ -4,10 +4,10 @@
 
 package com.kloudtek.systyrant.dsl.statement;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.*;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.antlr.v4.runtime.Token;
 
 import javax.script.ScriptException;

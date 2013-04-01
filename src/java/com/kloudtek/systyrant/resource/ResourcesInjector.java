@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
@@ -32,7 +33,7 @@ public class ResourcesInjector extends Injector {
             List<Resource> resources = ctx.findResources(query);
             inject(obj, resources);
         } catch (InvalidQueryException e) {
-            throw new FieldInjectionException(field,e.getMessage(),e);
+            throw new FieldInjectionException(field, e.getMessage(), e);
         }
     }
 }

@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.dsl;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.resource.Resource;
 
 public class StaticParameter extends Parameter {
     private String value;
@@ -37,7 +37,7 @@ public class StaticParameter extends Parameter {
 
     @Override
     public String toString() {
-        return "staticparam{"+value+"}";
+        return "staticparam{" + value + "}";
 
     }
 }

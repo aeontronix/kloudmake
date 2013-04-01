@@ -29,7 +29,7 @@ public class VagrantValidationResource {
     }
 
     public static VagrantValidationResource find(STContext ctx) {
-        for (com.kloudtek.systyrant.resource.Resource resource : ctx.getResourceManager()) {
+        for (Resource resource : ctx.getResourceManager()) {
             if (resource.getType().equals(new FQName("test", "vagrantvalidate"))) {
                 return resource.getJavaImpl(VagrantValidationResource.class);
             }

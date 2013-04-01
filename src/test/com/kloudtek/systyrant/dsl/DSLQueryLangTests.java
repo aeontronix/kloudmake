@@ -5,11 +5,10 @@
 package com.kloudtek.systyrant.dsl;
 
 import com.kloudtek.systyrant.AbstractContextTest;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.testng.annotations.Test;
@@ -32,7 +31,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
         Resource rs3 = createTestResource("parent2");
         Resource rs4 = createChildTestResource("someid", rs3);
         Resource rs5 = createChildTestResource("someid", rs4);
-        List<Resource> result = resourceManager.findResources("someid",rs3);
+        List<Resource> result = resourceManager.findResources("someid", rs3);
         assertContainsSame(result, rs4, rs5);
     }
 
@@ -43,7 +42,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
         Resource rs3 = createTestResource("parent2");
         Resource rs4 = createChildTestResource("someid", rs3);
         List<Resource> result = resourceManager.findResources("someid");
-        assertContainsSame(result, rs2,rs4);
+        assertContainsSame(result, rs2, rs4);
     }
 
     @Test
@@ -52,7 +51,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
         Resource rs2 = createChildTestResource("someid", rs1);
         Resource rs3 = createTestResource("parent2");
         Resource rs4 = createChildTestResource("someid", rs3);
-        List<Resource> result = resourceManager.findResources("someid",rs3);
+        List<Resource> result = resourceManager.findResources("someid", rs3);
         assertContainsSame(result, rs4);
     }
 
@@ -75,7 +74,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
         Resource rs4 = createChildTestResource("b", rs3);
         Resource rs5 = createChildTestResource("c", rs4);
         Resource rs6 = createChildTestResource("d", rs5);
-        List<Resource> result = resourceManager.findResources("b.c.d",rs3);
+        List<Resource> result = resourceManager.findResources("b.c.d", rs3);
         assertContainsSame(result, rs6);
     }
 

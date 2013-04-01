@@ -4,10 +4,10 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
-import com.kloudtek.systyrant.resource.Resource;
 
 import java.util.ArrayList;
 
@@ -42,10 +42,10 @@ public class ChildOfExpression extends Expression {
 
     @Override
     public boolean matches(STContext context, Resource resource) {
-        if( recurse ) {
-            while( resource != null ) {
+        if (recurse) {
+            while (resource != null) {
                 boolean match = match(resource);
-                if(!match) {
+                if (!match) {
                     resource = resource.getParent();
                 } else {
                     return true;

@@ -4,11 +4,11 @@
 
 package com.kloudtek.systyrant.dsl.statement;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.DSLScript;
 import com.kloudtek.systyrant.dsl.InvalidScriptException;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
-import com.kloudtek.systyrant.resource.Resource;
 
 import javax.script.ScriptException;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DepLinkedCreateResourceStatement extends Statement {
     public List<Resource> execute(DSLScript dslScript, Resource resource) throws ScriptException {
         List<Resource> leftResources = leftStatement.execute(dslScript, resource);
         List<Resource> rightResources = rightStatement.execute(dslScript, resource);
-        if( forwardDep ) {
+        if (forwardDep) {
             makeDependent(leftResources, rightResources);
         } else {
             makeDependent(rightResources, leftResources);

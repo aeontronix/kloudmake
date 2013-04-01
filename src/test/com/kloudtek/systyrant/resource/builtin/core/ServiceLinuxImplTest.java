@@ -6,12 +6,11 @@ package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.AbstractVagrantTest;
 import com.kloudtek.systyrant.ExecutionResult;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.testng.Assert;
-import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -63,7 +62,7 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
     public void testDisabledAutoStartInitdService() throws STRuntimeException, InvalidQueryException {
         sshHost.exec("update-rc.d nginx enable");
         Resource resource = resourceManager.createResource("core:service").set("name", "nginx")
-                .set("running", true).set("autostart","false");
+                .set("running", true).set("autostart", "false");
         execute();
         assertTrue(sshHost.fileExists("/etc/rc2.d/K80nginx"));
     }
@@ -72,7 +71,7 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
     public void testEnabledAutoStartInitdService() throws STRuntimeException, InvalidQueryException {
         sshHost.exec("update-rc.d nginx disable");
         Resource resource = resourceManager.createResource("core:service").set("name", "nginx")
-                .set("running", true).set("autostart","true");
+                .set("running", true).set("autostart", "true");
         execute();
         assertTrue(sshHost.fileExists("/etc/rc2.d/S20nginx"));
     }

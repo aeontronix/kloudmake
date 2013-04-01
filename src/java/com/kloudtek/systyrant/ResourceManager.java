@@ -2,12 +2,12 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource;
+package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.MultipleResourceMatchException;
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.resource.ResourceDefinition;
+import com.kloudtek.systyrant.resource.ResourceDependency;
+import com.kloudtek.systyrant.resource.ResourceMatcher;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,15 +61,14 @@ public interface ResourceManager extends Iterable<Resource> {
 
     void close();
 
-    void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException, InvalidAttributeException;
-
     void resolveDependencies(boolean strict) throws InvalidDependencyException;
 
     boolean hasResources();
 
     /**
      * Find Resources using a resource query expression.
-     * @param query Query expression.
+     *
+     * @param query        Query expression.
      * @param baseResource Root element to search under
      * @return Matching resources.
      * @throws InvalidQueryException If the query expression was invalid.

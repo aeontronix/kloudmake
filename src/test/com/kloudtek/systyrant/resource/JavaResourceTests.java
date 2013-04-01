@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.AbstractContextTest;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.FieldInjectionException;

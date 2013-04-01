@@ -15,7 +15,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * object depends on the type of the annotated field:</p>
  * <ul>
  * <li>{@link com.kloudtek.systyrant.STContext}: The owning context will be injected</li>
- * <li>{@link com.kloudtek.systyrant.resource.Resource}: The resource corresponding to the java class will be injected</li>
+ * <li>{@link com.kloudtek.systyrant.Resource}: The resource corresponding to the java class will be injected</li>
  * <li>In any other case, it will attempt to inject a service of the specified class type using
  * {@link com.kloudtek.systyrant.service.ServiceManager#getService(Class)}</li>
  * </ul>

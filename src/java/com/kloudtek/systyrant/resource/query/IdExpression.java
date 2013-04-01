@@ -4,9 +4,9 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
-import com.kloudtek.systyrant.resource.Resource;
 
 /**
  * Expression used to match by id.
@@ -28,15 +28,15 @@ public class IdExpression extends Expression {
     private boolean isWithinScope(Resource resource) {
         Resource rp = resource.getParent();
         do {
-            if( rp == base) {
+            if (rp == base) {
                 return true;
-            } else if( rp != null ) {
+            } else if (rp != null) {
                 rp = rp.getParent();
-                if( rp == null && base == null ) {
+                if (rp == null && base == null) {
                     return true;
                 }
             }
-        } while ( rp != null );
+        } while (rp != null);
         return false;
     }
 }

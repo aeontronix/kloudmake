@@ -5,12 +5,12 @@
 package com.kloudtek.systyrant.dsl.statement;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.*;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.jetbrains.annotations.Nullable;
 
 import javax.script.ScriptException;
@@ -47,13 +47,13 @@ public class CreateResourceStatement extends Statement {
                 }
             }
         } else {
-            instances.add(new Instance(null,null,params));
+            instances.add(new Instance(null, null, params));
         }
     }
 
     private void parseResource(SystyrantLangParser.CreateResourceInstanceIdContext resourceInstanceId,
                                List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements, Map<String, Parameter> params) throws InvalidScriptException {
-        String id = AntLRUtils.toString( resourceInstanceId != null ? resourceInstanceId.id : null );
+        String id = AntLRUtils.toString(resourceInstanceId != null ? resourceInstanceId.id : null);
         instances.add(new Instance(id, resourceInstanceElements, params));
     }
 
@@ -87,7 +87,7 @@ public class CreateResourceStatement extends Statement {
 
     @Override
     public String toString() {
-        return "createres{"+elementName+" : "+ instances+"}";
+        return "createres{" + elementName + " : " + instances + "}";
     }
 
     public class Instance {
@@ -99,7 +99,7 @@ public class CreateResourceStatement extends Statement {
                         @Nullable List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements,
                         @Nullable Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
-            if( params != null ) {
+            if (params != null) {
                 parameters.putAll(params);
             }
             for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntLRUtils.nullToEmpty(resourceInstanceElements)) {
@@ -115,12 +115,12 @@ public class CreateResourceStatement extends Statement {
                 }
             }
             Parameter idParam = parameters.get("id");
-            if( idParam != null ) {
+            if (idParam != null) {
                 parameters.remove("id");
-                if( idParam instanceof StaticParameter ) {
+                if (idParam instanceof StaticParameter) {
                     this.id = idParam.getRawValue();
                 } else {
-                    throw new InvalidScriptException("id "+idParam.getRawValue()+" in "+elementName+"must be a static value");
+                    throw new InvalidScriptException("id " + idParam.getRawValue() + " in " + elementName + "must be a static value");
                 }
             }
         }
@@ -139,7 +139,7 @@ public class CreateResourceStatement extends Statement {
 
         @Override
         public String toString() {
-            return "instance{"+id+":"+parameters+","+childrens+"}";
+            return "instance{" + id + ":" + parameters + "," + childrens + "}";
         }
     }
 }

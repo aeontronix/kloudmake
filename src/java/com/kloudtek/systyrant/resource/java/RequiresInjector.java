@@ -4,11 +4,10 @@
 
 package com.kloudtek.systyrant.resource.java;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.resource.Injector;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.util.ReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -33,20 +32,20 @@ public class RequiresInjector extends Injector {
     @Override
     public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
         List<Resource> list = resource.getResolvedRequires(expr);
-        if( list != null ) {
+        if (list != null) {
             int size = list.size();
-            if( type == FieldType.OBJ ) {
-                if( size == 1 ) {
-                    inject(obj,list.get(0));
-                } else if ( size > 1) {
-                    throw new FieldInjectionException(field,"Cannot inject multiple objects in field");
+            if (type == FieldType.OBJ) {
+                if (size == 1) {
+                    inject(obj, list.get(0));
+                } else if (size > 1) {
+                    throw new FieldInjectionException(field, "Cannot inject multiple objects in field");
                 }
-            } else if ( type == FieldType.COLLECTION ) {
-                inject(obj,list);
-            } else if( type == FieldType.ARRAY ) {
-                inject(obj,list.toArray(new Resource[size]));
+            } else if (type == FieldType.COLLECTION) {
+                inject(obj, list);
+            } else if (type == FieldType.ARRAY) {
+                inject(obj, list.toArray(new Resource[size]));
             } else {
-                throw new FieldInjectionException(field,"Field is not a single/array/collection of resources");
+                throw new FieldInjectionException(field, "Field is not a single/array/collection of resources");
             }
         }
     }

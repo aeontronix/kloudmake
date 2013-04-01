@@ -2,18 +2,13 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource;
+package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.Library;
-import com.kloudtek.systyrant.MultipleResourceMatchException;
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.resource.*;
 import com.kloudtek.systyrant.resource.java.JavaResourceDefinitionFactory;
 import com.kloudtek.systyrant.resource.query.ResourceQuery;
-import com.kloudtek.systyrant.util.SetHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -25,42 +20,26 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class ResourceManagerImpl implements ResourceManager {
     private STContext context;
-    private final ThreadLocal<Resource> resourceScope;
+    private final STContextData data;
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
-    private List<ResourceDefinition> resourceDefinitions = new ArrayList<>();
-    private List<Resource> resources = new ArrayList<>();
-    private HashMap<String, Resource> resourcesUidIndex = new HashMap<>();
-    private HashMap<Resource, List<Resource>> parentChildIndex;
-    /**
-     * Concurrency lock
-     */
-    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private boolean closed;
-    /**
-     * Flag indicating if element creation is allowed
-     */
-    private boolean createAllowed = true;
-    private final Map<FQName, ResourceDefinition> resourceDefinitionsFQNIndex = new HashMap<>();
-    private HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
-    private HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
-    private HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
 
-    public ResourceManagerImpl(STContext context, ThreadLocal<Resource> resourceScope) {
+    public ResourceManagerImpl(STContext context, STContextData data) {
         this.context = context;
-        this.resourceScope = resourceScope;
+        this.data = data;
+
     }
 
     @Override
     public Iterator<Resource> iterator() {
         rlock();
         try {
-            return resources.iterator();
+            return data.resources.iterator();
         } finally {
             rulock();
         }
@@ -75,7 +54,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public List<ResourceDefinition> getResourceDefinitions() {
         rlock();
         try {
-            return Collections.unmodifiableList(resourceDefinitions);
+            return Collections.unmodifiableList(data.resourceDefinitions);
         } finally {
             rulock();
         }
@@ -85,7 +64,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public List<Resource> getResources() {
         rlock();
         try {
-            return Collections.unmodifiableList(resources);
+            return Collections.unmodifiableList(data.resources);
         } finally {
             rulock();
         }
@@ -95,7 +74,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public List<Resource> getChildrens(Resource resource) {
         rlock();
         try {
-            return Collections.unmodifiableList(getChildrensInternalList(resource));
+            return Collections.unmodifiableList(data.getChildrensInternalList(resource));
         } finally {
             rulock();
         }
@@ -104,7 +83,7 @@ public class ResourceManagerImpl implements ResourceManager {
     private List<Resource> getChildrenOnDemandSearch(Resource resource) {
         ArrayList<Resource> list = new ArrayList<>();
         wlock();
-        for (Resource rs : resources) {
+        for (Resource rs : data.resources) {
             Resource p = rs.getParent();
             if (p != null && p.equals(resource)) {
                 list.add(rs);
@@ -118,7 +97,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public boolean isCreateAllowed() {
         rlock();
         try {
-            return createAllowed;
+            return data.createAllowed;
         } finally {
             rulock();
         }
@@ -128,7 +107,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public void setCreateAllowed(boolean createAllowed) {
         wlock();
         try {
-            this.createAllowed = createAllowed;
+            this.data.createAllowed = createAllowed;
         } catch (Exception e) {
             wulock();
         }
@@ -154,7 +133,7 @@ public class ResourceManagerImpl implements ResourceManager {
             if (logger.isDebugEnabled()) {
                 logger.debug("Creating resource {}", fqname);
             }
-            if (!createAllowed) {
+            if (!data.createAllowed) {
                 throw new ResourceCreationException("Resources created not allowed at this time.");
             }
             ResourceDefinition definition;
@@ -176,12 +155,12 @@ public class ResourceManagerImpl implements ResourceManager {
             } finally {
                 lock.unlock();
             }
-            if (resourcesUidIndex.containsKey(uid)) {
+            if (data.resourcesUidIndex.containsKey(uid)) {
                 throw new ResourceCreationException("There is already a resource with uid " + uid);
             }
             Resource resource = definition.create(context, id, uid, parent != null ? parent : context.getDefaultParent());
-            resourcesUidIndex.put(uid, resource);
-            resources.add(resource);
+            data.resourcesUidIndex.put(uid, resource);
+            data.resources.add(resource);
             if (logger.isDebugEnabled()) {
                 logger.debug("Created resource {}", fqname);
             }
@@ -252,13 +231,13 @@ public class ResourceManagerImpl implements ResourceManager {
     @Override
     @NotNull
     public List<Resource> findResources(@NotNull String query) throws InvalidQueryException {
-        return new ResourceQuery(context, query, context.currentResource()).find(resources);
+        return new ResourceQuery(context, query, context.currentResource()).find(data.resources);
     }
 
     @Override
     @NotNull
     public List<Resource> findResources(@NotNull String query, @Nullable Resource baseResource) throws InvalidQueryException {
-        return new ResourceQuery(context, query, baseResource).find(resources);
+        return new ResourceQuery(context, query, baseResource).find(data.resources);
     }
 
     // -------------------------
@@ -271,7 +250,7 @@ public class ResourceManagerImpl implements ResourceManager {
         rlock();
         try {
             ArrayList<Resource> results = new ArrayList<>();
-            for (Resource resource : resources) {
+            for (Resource resource : data.resources) {
                 if ((pkg != null && resource.getPkg().equalsIgnoreCase(pkg) ||
                         (name != null && resource.getName().equalsIgnoreCase(name)) ||
                         (isNotEmpty(id) && resource.getId().equals(id)))) {
@@ -330,7 +309,7 @@ public class ResourceManagerImpl implements ResourceManager {
         rlock();
         try {
             ArrayList<Resource> list = new ArrayList<>();
-            for (Resource resource : resources) {
+            for (Resource resource : data.resources) {
                 if (id.equals(resource.getId())) {
                     list.add(resource);
                 }
@@ -343,7 +322,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public Resource findResourcesByUid(String uid) {
-        return resourcesUidIndex.get(uid);
+        return data.resourcesUidIndex.get(uid);
     }
 
     // Resource registration
@@ -385,8 +364,8 @@ public class ResourceManagerImpl implements ResourceManager {
                 existing.merge(resourceDefinition);
             } else {
                 resourceDefinition.validate();
-                resourceDefinitionsFQNIndex.put(resourceDefinition.getFQName(), resourceDefinition);
-                resourceDefinitions.add(resourceDefinition);
+                data.resourceDefinitionsFQNIndex.put(resourceDefinition.getFQName(), resourceDefinition);
+                data.resourceDefinitions.add(resourceDefinition);
             }
         } finally {
             wulock();
@@ -396,7 +375,7 @@ public class ResourceManagerImpl implements ResourceManager {
     private ResourceDefinition findResourceDefinition(FQName fqname) {
         rlock();
         try {
-            return resourceDefinitionsFQNIndex.get(fqname);
+            return data.resourceDefinitionsFQNIndex.get(fqname);
         } finally {
             rulock();
         }
@@ -406,7 +385,7 @@ public class ResourceManagerImpl implements ResourceManager {
     public void close() {
         wlock();
         try {
-            for (ResourceDefinition factory : resourceDefinitions) {
+            for (ResourceDefinition factory : data.resourceDefinitions) {
                 try {
                     factory.close();
                 } catch (Exception e) {
@@ -416,117 +395,6 @@ public class ResourceManagerImpl implements ResourceManager {
         } finally {
             wulock();
             closed = true;
-        }
-    }
-
-    /**
-     * Calling this method will prepareForExecution all indexes, resolve all references, and re-order the resources based on dependencies
-     */
-    @Override
-    public void prepareForExecution() throws InvalidDependencyException, MultipleUniqueResourcesFoundException, InvalidAttributeException {
-        wlock();
-        try {
-            if (resources.isEmpty()) {
-                return;
-            }
-            // Validate resource uniqueness
-            HashSet<FQName> globalUnique = new HashSet<>();
-            SetHashMap<Host, FQName> hostUnique = new SetHashMap<>();
-            for (Resource resource : resources) {
-                UniqueScope uniqueScope = resource.getDefinition().getUniqueScope();
-                if (uniqueScope != null) {
-                    switch (uniqueScope) {
-                        case GLOBAL:
-                            if (globalUnique.contains(resource.getType())) {
-                                throw new MultipleUniqueResourcesFoundException(resource);
-                            } else {
-                                globalUnique.add(resource.getType());
-                            }
-                            break;
-                        case HOST:
-                            HashSet<FQName> set = hostUnique.get(resource.host());
-                            if (set.contains(resource.getType())) {
-                                throw new MultipleUniqueResourcesFoundException(resource);
-                            } else {
-                                set.add(resource.getType());
-                            }
-                            break;
-                        default:
-                            throw new RuntimeException("BUG! Unknown resource scope " + uniqueScope);
-                    }
-                }
-            }
-            // add dependency on parent if missing
-            for (Resource resource : new ArrayList<>(resources)) {
-                Resource parent = resource.getParent();
-                if (parent != null && !resource.getDependencies().contains(parent)) {
-                    resource.addDependency(parent);
-                }
-            }
-            // mandatory children resolution
-            resolveDependencies(true);
-            // build parent/child map
-            parentChildIndex = new HashMap<>();
-            for (Resource resource : resources) {
-                if (resource.getParent() != null) {
-                    getChildrensInternalList(resource.getParent()).add(resource);
-                }
-            }
-            for (Resource resource : resources) {
-                // make dependent on resource if dependent on parent (childrens excluded from this rule)
-                for (Resource dep : resource.getDependencies()) {
-                    if (resource.getParent() == null || !resource.getParent().equals(dep)) {
-                        makeDependentOnChildren(resource, dep);
-                    }
-                }
-                // Sort resource's actions
-                resource.sortActions();
-            }
-            // Sort according to dependencies
-            ResourceSorter.sort(resources);
-            for (Resource resource : resources) {
-                resource.prepareForExecution(context);
-            }
-            ResourceSorter.sort2(resources, context);
-        } finally {
-            wulock();
-        }
-    }
-
-    @Override
-    public void resolveDependencies(boolean strict) throws InvalidDependencyException {
-        wlock();
-        try {
-            for (Resource resource : resources) {
-                resource.dependencies.clear();
-                resource.dependents.clear();
-                handleDependencyAttr(resource, "before");
-                handleDependencyAttr(resource, "after");
-            }
-            for (ManyToManyResourceDependency m2mDependency : m2mDependencies) {
-                o2mDependencies.addAll(m2mDependency.resolve(context));
-            }
-            m2mDependencies.clear();
-            for (OneToManyResourceDependency dependency : o2mDependencies) {
-                Resource old = resourceScope.get();
-                resourceScope.set(dependency.getOrigin());
-                dependency.resolve(context);
-                if (old != null) {
-                    resourceScope.set(old);
-                } else {
-                    resourceScope.remove();
-                }
-                Resource origin = dependency.getOrigin();
-                for (Resource target : dependency.getTargets()) {
-                    if (target.getState() == Resource.State.FAILED) {
-                        origin.setState(Resource.State.FAILED);
-                    }
-                    origin.dependencies.add(target);
-                    target.dependents.add(origin);
-                }
-            }
-        } finally {
-            wulock();
         }
     }
 
@@ -555,32 +423,32 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public Set<ResourceDependency> getDependencies() {
-        synchronized (m2mDependencies) {
+        synchronized (data.m2mDependencies) {
             HashSet<ResourceDependency> set = new HashSet<>();
-            set.addAll(o2mDependencies);
-            set.addAll(m2mDependencies);
+            set.addAll(data.o2mDependencies);
+            set.addAll(data.m2mDependencies);
             return Collections.unmodifiableSet(set);
         }
     }
 
     @Override
     public void addDependency(ResourceDependency dependency) {
-        synchronized (m2mDependencies) {
+        synchronized (data.m2mDependencies) {
             if (dependency instanceof ManyToManyResourceDependency) {
-                m2mDependencies.add((ManyToManyResourceDependency) dependency);
+                data.m2mDependencies.add((ManyToManyResourceDependency) dependency);
             } else {
-                o2mDependencies.add((OneToManyResourceDependency) dependency);
+                data.o2mDependencies.add((OneToManyResourceDependency) dependency);
             }
         }
     }
 
     @Override
     public void removeDependency(ResourceDependency dependency) {
-        synchronized (m2mDependencies) {
+        synchronized (data.m2mDependencies) {
             if (dependency instanceof ManyToManyResourceDependency) {
-                m2mDependencies.remove(dependency);
+                data.m2mDependencies.remove(dependency);
             } else {
-                o2mDependencies.remove(dependency);
+                data.o2mDependencies.remove(dependency);
             }
         }
     }
@@ -589,51 +457,70 @@ public class ResourceManagerImpl implements ResourceManager {
     public boolean hasResources() {
         rlock();
         try {
-            return !resources.isEmpty();
+            return !data.resources.isEmpty();
         } finally {
             rulock();
         }
     }
 
-    private List<Resource> getChildrensInternalList(Resource resource) {
-        List<Resource> childrens = parentChildIndex.get(resource);
-        if (childrens == null) {
-            childrens = new ArrayList<>();
-            parentChildIndex.put(resource, childrens);
+    @Override
+    public void resolveDependencies(boolean strict) throws InvalidDependencyException {
+        wlock();
+        try {
+            for (Resource resource : data.resources) {
+                resource.dependencies.clear();
+                resource.dependents.clear();
+                handleDependencyAttr(resource, "before");
+                handleDependencyAttr(resource, "after");
+            }
+            for (ManyToManyResourceDependency m2mDependency : data.m2mDependencies) {
+                data.o2mDependencies.addAll(m2mDependency.resolve(context));
+            }
+            data.m2mDependencies.clear();
+            for (OneToManyResourceDependency dependency : data.o2mDependencies) {
+                Resource old = data.resourceScope.get();
+                data.resourceScope.set(dependency.getOrigin());
+                dependency.resolve(context);
+                if (old != null) {
+                    data.resourceScope.set(old);
+                } else {
+                    data.resourceScope.remove();
+                }
+                Resource origin = dependency.getOrigin();
+                for (Resource target : dependency.getTargets()) {
+                    if (target.getState() == Resource.State.FAILED) {
+                        origin.setState(Resource.State.FAILED);
+                    }
+                    origin.dependencies.add(target);
+                    target.dependents.add(origin);
+                }
+            }
+        } finally {
+            wulock();
         }
-        return childrens;
     }
 
-    private void makeDependentOnChildren(Resource resource, Resource dependency) {
-        LinkedList<Resource> list = new LinkedList<>();
-        list.addAll(getChildrensInternalList(dependency));
-        while (!list.isEmpty()) {
-            Resource el = list.removeFirst();
-            resource.addDependency(el);
-            list.addAll(getChildrensInternalList(el));
-        }
-    }
 
     private void rulock() {
-        lock.readLock().unlock();
+        data.resourceListLock.readLock().unlock();
         if (closed) {
             throw new RuntimeException("Attempted to access resource manager that has already been closed.");
         }
     }
 
     private void rlock() {
-        lock.readLock().lock();
+        data.resourceListLock.readLock().lock();
     }
 
     private void wlock() {
-        lock.writeLock().lock();
+        data.resourceListLock.writeLock().lock();
         if (closed) {
             throw new RuntimeException("Attempted to access resource manager that has already been closed.");
         }
     }
 
     private void wulock() {
-        lock.writeLock().unlock();
+        data.resourceListLock.writeLock().unlock();
     }
 
     public class ResourceFinder {
@@ -643,9 +530,9 @@ public class ResourceManagerImpl implements ResourceManager {
         public ResourceFinder(FQName name, Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException {
             this.name = name;
             if (name.getPkg() != null) {
-                set(resourceDefinitionsFQNIndex.get(name));
+                set(data.resourceDefinitionsFQNIndex.get(name));
             } else {
-                for (ResourceDefinition resourceDefinition : resourceDefinitions) {
+                for (ResourceDefinition resourceDefinition : data.resourceDefinitions) {
                     if (ResourceMatcher.matchAll(importPaths, resourceDefinition.getFQName()) && resourceDefinition.getName().equals(name.getName())) {
                         set(resourceDefinition);
                     }

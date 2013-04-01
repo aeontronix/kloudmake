@@ -4,16 +4,15 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-
-import java.lang.reflect.Method;
 
 public interface Action extends Comparable<Action> {
     /**
      * Executes the action
-     * @param context Context
+     *
+     * @param context  Context
      * @param resource Resource being executed
      * @throws STRuntimeException If an error occurs during execution
      */
@@ -21,15 +20,17 @@ public interface Action extends Comparable<Action> {
 
     /**
      * Checks if execution is required.
-     * @return True if execution is required.
+     *
      * @param context
      * @param resource
+     * @return True if execution is required.
      */
     boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException;
 
     /**
      * Checks if this action supports running on the resource
-     * @param context Context
+     *
+     * @param context  Context
      * @param resource Resource
      * @return True if the action supports running on the resource and it's environment.
      * @throws STRuntimeException If an error occurs
@@ -46,6 +47,7 @@ public interface Action extends Comparable<Action> {
      * If any action on a resource has a non-null alternative value, this means that it will expect at least of the actions
      * of that id to be supported (meaning that {@link #supports(com.kloudtek.systyrant.STContext, Resource)} has returned
      * true).
+     *
      * @return Alternative id or null if not an alternative
      * @see #supports(com.kloudtek.systyrant.STContext, Resource)
      */

@@ -4,12 +4,12 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.AntLRUtils;
 import com.kloudtek.systyrant.dsl.LogOp;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
-import com.kloudtek.systyrant.resource.Resource;
 
 import java.math.BigDecimal;
 import java.util.regex.Pattern;

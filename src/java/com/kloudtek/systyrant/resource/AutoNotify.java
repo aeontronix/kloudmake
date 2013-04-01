@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.Stage;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +49,13 @@ public class AutoNotify {
     }
 
     public void merge(AutoNotify autoNotify) {
-        throw new RuntimeException("TODO");
+        if (!autoNotify.category.equals(category)) {
+            throw new IllegalArgumentException("Attempted to merge AutoNotify with different categories: '" + autoNotify.category + "' and '" + category + "'");
+        }
+        if (!autoNotify.target.equals(target)) {
+            throw new IllegalArgumentException("Attempted to merge AutoNotify with different targets: '" + autoNotify.target + "' and '" + target + "'");
+        }
+        sources.addAll(autoNotify.sources);
     }
 
     public Set<Resource> getSources() {
@@ -74,5 +81,15 @@ public class AutoNotify {
 
     public void setCategory(@NotNull String category) {
         this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "AutoNotify{" +
+                "sources=" + sources +
+                ", target=" + target +
+                ", category='" + category + '\'' +
+                ", sourcesToExecuted=" + sourcesToExecuted +
+                '}';
     }
 }

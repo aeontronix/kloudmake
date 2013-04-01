@@ -4,14 +4,14 @@
 
 package com.kloudtek.systyrant.resource.builtin.vagrant;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.annotation.*;
 import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.SshHost;
+import com.kloudtek.systyrant.service.ServiceManager;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
@@ -80,7 +80,7 @@ public class VagrantResource {
     }
 
     public static SshHost createSshHost(Host h, String vagrantDir) throws STRuntimeException {
-        SshConfig sshConfig = new SshConfig(h.exec("vagrant ssh-config",vagrantDir));
+        SshConfig sshConfig = new SshConfig(h.exec("vagrant ssh-config", vagrantDir));
         logger.debug("Vagrant VM SSH config: {}", sshConfig);
         File pkeyFile = new File(sshConfig.getPkey());
         if (pkeyFile.exists() || pkeyFile.isFile()) {
@@ -116,7 +116,7 @@ public class VagrantResource {
 
     private void changeStatus(Ensure newState) throws STRuntimeException {
         Ensure status;
-        String statusStr = host.exec("vagrant status",dir);
+        String statusStr = host.exec("vagrant status", dir);
         if (statusStr.contains("The VM is powered off") || statusStr.contains("To resume this VM")) {
             status = Ensure.HALTED;
         } else if (statusStr.contains("The VM is running.")) {
@@ -132,16 +132,16 @@ public class VagrantResource {
             switch (newState) {
                 case UP:
                     logger.info("Starting vagrant vm: {}", dir);
-                    host.exec("vagrant up",dir);
+                    host.exec("vagrant up", dir);
                     break;
                 case HALTED:
                     logger.info("Halting vagrant vm: {}", dir);
-                    host.exec("vagrant halt -f",dir);
+                    host.exec("vagrant halt -f", dir);
                     break;
                 case DESTROYED:
                 case ABSENT:
                     logger.info("Destroying vagrant vm: {}", dir);
-                    host.exec("vagrant destroy -f",dir);
+                    host.exec("vagrant destroy -f", dir);
                     break;
                 case ABORTED:
                     throw new STRuntimeException("ABORTED is not a valid state to set this VM to");

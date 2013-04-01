@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.service;
 
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.STContextData;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.Parameters;
@@ -12,7 +13,6 @@ import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import org.jetbrains.annotations.NotNull;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +33,11 @@ public class ServiceManagerImpl implements ServiceManager {
     protected HashMap<String, LinkedList<Object>> overrides = new HashMap<>();
     protected HashMap<String, MethodInvoker> methods = new HashMap<>();
     private STContext ctx;
+    private final STContextData data;
 
-    public ServiceManagerImpl(STContext ctx) {
+    public ServiceManagerImpl(STContext ctx, STContextData data) {
         this.ctx = ctx;
+        this.data = data;
     }
 
     @Override
@@ -58,7 +60,7 @@ public class ServiceManagerImpl implements ServiceManager {
             service = services.get(id);
         }
         if (service == null) {
-            Set<Class<?>> services = ctx.getReflections().getTypesAnnotatedWith(Service.class);
+            Set<Class<?>> services = data.reflections.getTypesAnnotatedWith(Service.class);
             for (Class<?> clazz : services) {
                 Service annotation = clazz.getAnnotation(Service.class);
                 String name = annotation.value();
@@ -127,23 +129,23 @@ public class ServiceManagerImpl implements ServiceManager {
             Object service = null;
             String name = null;
             Service annotation = clazz.getAnnotation(Service.class);
-            if( annotation != null ) {
-                if( annotation.def() != ServiceManager.class ) {
+            if (annotation != null) {
+                if (annotation.def() != ServiceManager.class) {
                     service = annotation.def().newInstance();
                 }
-                if( isNotEmpty(annotation.value()) ) {
+                if (isNotEmpty(annotation.value())) {
                     name = annotation.value();
                 }
             }
-            if( service == null ) {
+            if (service == null) {
                 service = clazz.newInstance();
             }
-            if( name == null ) {
+            if (name == null) {
                 name = service.getClass().getSimpleName().toLowerCase();
             }
-            registerService(name,service);
+            registerService(name, service);
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new InvalidServiceException("Unable to instantiate service "+clazz.getName());
+            throw new InvalidServiceException("Unable to instantiate service " + clazz.getName());
         }
     }
 

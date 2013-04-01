@@ -2,10 +2,11 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource;
+package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
+import com.kloudtek.systyrant.resource.ResourceDefinition;
+import com.kloudtek.systyrant.resource.ResourceSorter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

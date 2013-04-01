@@ -5,11 +5,11 @@
 package com.kloudtek.systyrant.dsl;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.ResourceManager;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.resource.ResourceDefinition;
-import com.kloudtek.systyrant.resource.ResourceManager;
 import com.kloudtek.systyrant.resource.ResourceMatcher;
 
 import javax.script.ScriptException;

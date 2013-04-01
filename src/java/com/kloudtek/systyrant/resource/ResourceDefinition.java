@@ -5,8 +5,8 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
@@ -95,31 +95,23 @@ public class ResourceDefinition implements AutoCloseable {
             for (Map.Entry<String, String> attr : defaultAttrs.entrySet()) {
                 resource.set(attr.getKey(), attr.getValue());
             }
-            try {
-                for (Map.Entry<String, String> entry : defaultAttrs.entrySet()) {
-                    resource.set(entry.getKey(), entry.getValue());
-                }
-                for (Action action : actions) {
-                    if (action.getType() == Action.Type.INIT) {
-                        try {
-                            if (action.checkExecutionRequired(context, resource)) {
-                                action.execute(context, resource);
-                            }
-                        } catch (STRuntimeException e) {
-                            throw new ResourceCreationException(e.getMessage(), e);
-                        }
-                    } else {
-                        resource.addAction(action);
+            for (Map.Entry<String, String> entry : defaultAttrs.entrySet()) {
+                resource.set(entry.getKey(), entry.getValue());
+            }
+            for (Action action : actions) {
+                if (action.getType() == Action.Type.INIT) {
+                    if (action.checkExecutionRequired(context, resource)) {
+                        action.execute(context, resource);
                     }
+                } else {
+                    resource.addAction(action);
                 }
-                for (NotificationHandler notificationHandler : notificationHandlers) {
-                    resource.addNotificationHandler(notificationHandler);
-                }
-            } catch (InvalidAttributeException e) {
-                throw new ResourceCreationException(e.getMessage(), e);
+            }
+            for (NotificationHandler notificationHandler : notificationHandlers) {
+                resource.addNotificationHandler(notificationHandler);
             }
             return resource;
-        } catch (InvalidAttributeException e) {
+        } catch (STRuntimeException e) {
             throw new ResourceCreationException(e.getMessage(), e);
         }
     }

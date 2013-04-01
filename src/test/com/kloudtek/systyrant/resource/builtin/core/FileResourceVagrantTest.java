@@ -5,9 +5,9 @@
 package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.AbstractVagrantTest;
-import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.host.SshHost;
-import com.kloudtek.systyrant.resource.Resource;
+import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import com.kloudtek.systyrant.exception.ResourceCreationException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -24,8 +24,8 @@ public class FileResourceVagrantTest extends AbstractVagrantTest {
     @Test(groups = "vagrant")
     public void testCreateNonExistingFile() throws STRuntimeException, IOException, ScriptException, ResourceCreationException {
         sshHost.exec("rm -rf /root/testCreateNonExistingFile");
-        ctx.getResourceManager().createResource("core:file").set("path","/root/testCreateNonExistingFile")
-                .set("content","hello").set("owner","uucp").set("group","fuse").set("permissions","rwxr-xrw-");
+        ctx.getResourceManager().createResource("core:file").set("path", "/root/testCreateNonExistingFile")
+                .set("content", "hello").set("owner", "uucp").set("group", "fuse").set("permissions", "rwxr-xrw-");
         execute();
         String stats = sshHost.exec("stat -c '%F:%s:%A:%U:%G' /root/testCreateNonExistingFile");
         Assert.assertEquals(stats, "regular file:5:-rwxr-xrw-:uucp:fuse\n");

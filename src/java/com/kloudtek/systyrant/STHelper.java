@@ -6,7 +6,6 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +16,7 @@ import java.util.Map;
  */
 public class STHelper {
     public static Resource createElement(@NotNull FQName fqname) throws ResourceCreationException {
-        return createElement(fqname,null,(Resource)null);
+        return createElement(fqname, null, (Resource) null);
     }
 
     public static Resource createElement(@NotNull FQName fqname, String id, Resource parent) throws ResourceCreationException {
@@ -25,7 +24,7 @@ public class STHelper {
     }
 
     public static Resource createElement(@NotNull FQName fqname, String id, Map<String, Object> attributes) throws ResourceCreationException {
-        Resource resource = createElement(fqname,id,(Resource)null);
+        Resource resource = createElement(fqname, id, (Resource) null);
         try {
             if (attributes != null) {
                 resource.setAttributes(attributes);
@@ -37,15 +36,15 @@ public class STHelper {
     }
 
     public static Resource createChildElement(FQName fqname) throws ResourceCreationException {
-        return createElement(fqname,null,STContext.get().currentResource());
+        return createElement(fqname, null, STContext.get().currentResource());
     }
 
     public static Resource createChildElement(FQName fqname, String id) throws ResourceCreationException {
-        return createElement(fqname,id,STContext.get().currentResource());
+        return createElement(fqname, id, STContext.get().currentResource());
     }
 
     public static Resource createElement(@Nullable String pkg, @NotNull String name, @Nullable String id) throws ResourceCreationException {
-        return createElement(new FQName(pkg, name), id, (Resource)null);
+        return createElement(new FQName(pkg, name), id, (Resource) null);
     }
 
     public static Resource createElement(@Nullable String pkg, @NotNull String name) throws ResourceCreationException {
@@ -53,7 +52,7 @@ public class STHelper {
     }
 
     public static Resource createElement(@NotNull FQName fqname, String id) throws ResourceCreationException {
-        return createElement(fqname, id, (Resource)null);
+        return createElement(fqname, id, (Resource) null);
     }
 
     public static Resource createChildElement(String fqname) throws ResourceCreationException {
@@ -61,11 +60,11 @@ public class STHelper {
     }
 
     public static Resource createElement(@NotNull Class<?> elementClass) throws ResourceCreationException {
-        return createElement(getCheckFQName(elementClass), null, (Resource)null);
+        return createElement(getCheckFQName(elementClass), null, (Resource) null);
     }
 
     public static Resource createElement(@NotNull Class<?> elementClass, String id) throws ResourceCreationException {
-        return createElement(getCheckFQName(elementClass), id, (Resource)null);
+        return createElement(getCheckFQName(elementClass), id, (Resource) null);
     }
 
     public static Resource createElement(Class<?> elementClass, Map<String, Object> attributes) throws ResourceCreationException {

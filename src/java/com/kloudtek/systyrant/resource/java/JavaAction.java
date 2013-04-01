@@ -4,20 +4,18 @@
 
 package com.kloudtek.systyrant.resource.java;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Alternative;
-import com.kloudtek.systyrant.annotation.OnlyIfOperatingSystem;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.resource.AbstractAction;
 import com.kloudtek.systyrant.resource.Injector;
-import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import com.kloudtek.util.validation.ValidationUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -120,7 +118,7 @@ public class JavaAction extends AbstractAction {
         if (method != null) {
             this.onlyIf.addAll(EnforceOnlyIf.find(method));
             Alternative altAnno = method.getAnnotation(Alternative.class);
-            if( altAnno != null ) {
+            if (altAnno != null) {
                 alternative = altAnno.value();
             }
         }

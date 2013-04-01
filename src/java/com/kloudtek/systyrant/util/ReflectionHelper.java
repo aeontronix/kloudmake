@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.util;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,11 +20,11 @@ public class ReflectionHelper {
         return field.getDeclaringClass().getName() + "#" + field.getName();
     }
 
-    public static Object invoke( Method method, Class<?> clazz, Resource resource ) throws STRuntimeException {
+    public static Object invoke(Method method, Class<?> clazz, Resource resource) throws STRuntimeException {
         return invoke(method, resource.getJavaImpl(clazz));
     }
 
-    public static Object invoke( Method method, Object obj ) throws STRuntimeException {
+    public static Object invoke(Method method, Object obj) throws STRuntimeException {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException e) {
@@ -55,7 +55,7 @@ public class ReflectionHelper {
         while (cl != null) {
             try {
                 Field field = cl.getDeclaredField(name);
-                if( ! field.isAccessible() ) {
+                if (!field.isAccessible()) {
                     field.setAccessible(true);
                 }
                 return field;

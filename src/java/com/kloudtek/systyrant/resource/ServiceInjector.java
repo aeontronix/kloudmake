@@ -4,16 +4,15 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.service.ServiceManager;
 
 import java.lang.reflect.Field;
 
-import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 /**

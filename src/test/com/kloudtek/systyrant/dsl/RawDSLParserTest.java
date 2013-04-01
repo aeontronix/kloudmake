@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.dsl;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.dsl.statement.CreateResourceStatement;
 import com.kloudtek.systyrant.dsl.statement.InvokeMethodStatement;
@@ -12,7 +13,6 @@ import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.resource.RequiresExpression;
-import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.resource.ResourceMatcher;
 import org.apache.tools.ant.util.ReflectUtil;
 import org.testng.annotations.Test;
@@ -24,7 +24,9 @@ import java.util.Map;
 
 import static org.testng.Assert.*;
 
-/** Those tests check {@link DSLScript} objects produced by DSL code snippets. */
+/**
+ * Those tests check {@link DSLScript} objects produced by DSL code snippets.
+ */
 public class RawDSLParserTest {
     private DSLParser parser = new AntlrDSLParser();
 
@@ -84,7 +86,7 @@ public class RawDSLParserTest {
         assertTrue(st instanceof CreateResourceStatement);
         CreateResourceStatement createEl = (CreateResourceStatement) st;
         validateResource(createEl, "test2", 1);
-        validateResourceInstance(createEl, 0, "tval", "attr1", "test", "attr2", "22", "attr", "value","attr3","uid");
+        validateResourceInstance(createEl, 0, "tval", "attr1", "test", "attr2", "22", "attr", "value", "attr3", "uid");
     }
 
     @Test
@@ -173,20 +175,20 @@ public class RawDSLParserTest {
 
     @Test
     public void testParseRequiresExpression() throws InvalidDependencyException {
-        Resource res = new Resource(null,null,null,null,null);
+        Resource res = new Resource(null, null, null, null, null);
         RequiresExpression requiresExpression = new RequiresExpression(res, "test:val( bla = 'asd', ba=\"asdffdsa\", adsf=sfafdsa ), asfd:asds, foobar( x = 'z' )");
         ArrayList<RequiresExpression.RequiredDependency> deps = (ArrayList<RequiresExpression.RequiredDependency>) ReflectUtil.getField(requiresExpression, "requiredDependencies");
-        assertEquals(deps.size(),3);
-        assertEquals(deps.get(0).getName().toString(),"test:val");
-        assertEquals(deps.get(0).getAttrs().size(),3);
-        assertEquals(deps.get(0).getAttrs().get("bla").getRawValue(),"asd");
-        assertEquals(deps.get(0).getAttrs().get("ba").getRawValue(),"asdffdsa");
-        assertEquals(deps.get(0).getAttrs().get("adsf").getRawValue(),"sfafdsa");
-        assertEquals(deps.get(1).getName().toString(),"asfd:asds");
-        assertEquals(deps.get(1).getAttrs().size(),0);
-        assertEquals(deps.get(2).getName().toString(),"foobar");
-        assertEquals(deps.get(2).getAttrs().size(),1);
-        assertEquals(deps.get(2).getAttrs().get("x").getRawValue(),"z");
+        assertEquals(deps.size(), 3);
+        assertEquals(deps.get(0).getName().toString(), "test:val");
+        assertEquals(deps.get(0).getAttrs().size(), 3);
+        assertEquals(deps.get(0).getAttrs().get("bla").getRawValue(), "asd");
+        assertEquals(deps.get(0).getAttrs().get("ba").getRawValue(), "asdffdsa");
+        assertEquals(deps.get(0).getAttrs().get("adsf").getRawValue(), "sfafdsa");
+        assertEquals(deps.get(1).getName().toString(), "asfd:asds");
+        assertEquals(deps.get(1).getAttrs().size(), 0);
+        assertEquals(deps.get(2).getName().toString(), "foobar");
+        assertEquals(deps.get(2).getAttrs().size(), 1);
+        assertEquals(deps.get(2).getAttrs().get("x").getRawValue(), "z");
     }
 
     private void checkImports(DSLScript script, String... imports) {

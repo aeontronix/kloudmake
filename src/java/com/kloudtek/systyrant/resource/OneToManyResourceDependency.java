@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
@@ -31,7 +32,7 @@ public class OneToManyResourceDependency implements ResourceDependency {
         this.targets.addAll(targets);
     }
 
-    public OneToManyResourceDependency(Resource origin, Collection<Resource> targets, boolean optional ) {
+    public OneToManyResourceDependency(Resource origin, Collection<Resource> targets, boolean optional) {
         this.origin = origin;
         this.optional = optional;
         this.targets.addAll(targets);
@@ -51,7 +52,7 @@ public class OneToManyResourceDependency implements ResourceDependency {
 
     public void resolve(STContext context) throws InvalidDependencyException {
         try {
-            if(targetRef != null) {
+            if (targetRef != null) {
                 List<Resource> resources = context.findResources(targetRef);
                 resources.remove(origin);
                 targets.addAll(resources);
@@ -59,8 +60,8 @@ public class OneToManyResourceDependency implements ResourceDependency {
         } catch (InvalidQueryException e) {
             throw new InvalidDependencyException(e.getMessage(), e);
         }
-        if( ( targets.isEmpty() ) && ! optional ) {
-            throw new InvalidDependencyException("Mandatory dependency has not valid targets: "+toString());
+        if ((targets.isEmpty()) && !optional) {
+            throw new InvalidDependencyException("Mandatory dependency has not valid targets: " + toString());
         }
     }
 

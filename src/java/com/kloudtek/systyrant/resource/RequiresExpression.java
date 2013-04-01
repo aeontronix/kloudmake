@@ -5,16 +5,22 @@
 package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.dsl.*;
+import com.kloudtek.systyrant.dsl.AntLRUtils;
+import com.kloudtek.systyrant.dsl.AntlrDSLParser;
+import com.kloudtek.systyrant.dsl.Parameter;
+import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import org.antlr.v4.runtime.RecognitionException;
 
-import javax.script.ScriptException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,10 +39,10 @@ public class RequiresExpression {
         try {
             reqCtx = AntlrDSLParser.createParser(expression).requires();
         } catch (RecognitionException e) {
-            throw new InvalidDependencyException("Invalid requires expression: "+expression);
+            throw new InvalidDependencyException("Invalid requires expression: " + expression);
         }
         for (SystyrantLangParser.RequiresTypeContext rtctx : AntLRUtils.nullToEmpty(reqCtx.requiresType())) {
-            requiredDependencies.add( new RequiredDependency(rtctx) );
+            requiredDependencies.add(new RequiredDependency(rtctx));
         }
     }
 
@@ -45,11 +51,11 @@ public class RequiresExpression {
         for (RequiredDependency requiredDependency : requiredDependencies) {
             requiredDependency.resolveAttrs(ctx);
             List<Resource> matches = requiredDependency.findMatches(ctx);
-            if( matches.isEmpty() ) {
+            if (matches.isEmpty()) {
                 String id = requiredDependency.attrsResolved.remove("id");
                 Resource newRes = ctx.getResourceManager().createResource(requiredDependency.name, id, null, ResourceMatcher.convert(ctx.getImports()));
                 for (Map.Entry<String, String> entry : requiredDependency.attrsResolved.entrySet()) {
-                    newRes.set(entry.getKey(),entry.getValue());
+                    newRes.set(entry.getKey(), entry.getValue());
                 }
                 matches.add(newRes);
             }
@@ -62,8 +68,8 @@ public class RequiresExpression {
     }
 
     public class RequiredDependency {
-        private final HashMap<String,Parameter> attrs = new HashMap<>();
-        private final HashMap<String,String> attrsResolved = new HashMap<>();
+        private final HashMap<String, Parameter> attrs = new HashMap<>();
+        private final HashMap<String, String> attrsResolved = new HashMap<>();
         private FQName name;
 
         public HashMap<String, Parameter> getAttrs() {
@@ -76,7 +82,7 @@ public class RequiresExpression {
 
         public RequiredDependency(SystyrantLangParser.RequiresTypeContext reqCtx) {
             name = new FQName(reqCtx.id.getText());
-            if( reqCtx.attrs != null ) {
+            if (reqCtx.attrs != null) {
                 for (SystyrantLangParser.ParameterAssignmentContext parameterAssignmentContext : reqCtx.attrs.attr.parameterAssignment()) {
                     attrs.put(parameterAssignmentContext.anyId().getText(), Parameter.create(parameterAssignmentContext.staticOrDynamicValue()));
                 }
@@ -86,8 +92,8 @@ public class RequiresExpression {
         private List<Resource> findMatches(STContext ctx) throws InvalidVariableException {
             final ArrayList<Resource> matches = new ArrayList<>();
             for (Resource candidate : ctx.getResourceManager()) {
-                if( name.matches(candidate.getType(), ctx) ) {
-                    if( attrMatch( candidate ) ) {
+                if (name.matches(candidate.getType(), ctx)) {
+                    if (attrMatch(candidate)) {
                         matches.add(candidate);
                     }
                 }
@@ -96,12 +102,12 @@ public class RequiresExpression {
         }
 
         private boolean attrMatch(Resource candidate) {
-            if( attrs.isEmpty() ) {
+            if (attrs.isEmpty()) {
                 return true;
             } else {
                 for (Map.Entry<String, String> entry : attrsResolved.entrySet()) {
                     String val = candidate.get(entry.getKey());
-                    if( ! entry.getValue().equalsIgnoreCase(val)) {
+                    if (!entry.getValue().equalsIgnoreCase(val)) {
                         return false;
                     }
                 }
@@ -111,7 +117,7 @@ public class RequiresExpression {
 
         public void resolveAttrs(STContext ctx) throws InvalidVariableException {
             for (Map.Entry<String, Parameter> entry : attrs.entrySet()) {
-                attrsResolved.put(entry.getKey(),entry.getValue().eval(ctx, resource));
+                attrsResolved.put(entry.getKey(), entry.getValue().eval(ctx, resource));
             }
         }
     }

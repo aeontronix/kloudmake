@@ -4,6 +4,8 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
+
 public class Notification {
     private String category;
     private Resource source;

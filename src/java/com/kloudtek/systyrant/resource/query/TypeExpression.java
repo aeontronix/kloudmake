@@ -5,9 +5,9 @@
 package com.kloudtek.systyrant.resource.query;
 
 import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
-import com.kloudtek.systyrant.resource.Resource;
 
 /**
  * Created with IntelliJ IDEA.

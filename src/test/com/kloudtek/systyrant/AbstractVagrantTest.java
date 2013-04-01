@@ -8,8 +8,6 @@ import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.host.SshHost;
-import com.kloudtek.systyrant.resource.Resource;
-import com.kloudtek.systyrant.resource.ResourceManager;
 import com.kloudtek.systyrant.resource.builtin.vagrant.SharedFolder;
 import com.kloudtek.systyrant.resource.builtin.vagrant.VagrantResource;
 import org.apache.commons.exec.CommandLine;

@@ -2,13 +2,11 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.resource;
+package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.Stage;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
+import com.kloudtek.systyrant.resource.*;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -157,7 +155,8 @@ public class Resource {
         return indirectDependencies;
     }
 
-    void prepareForExecution(STContext context) throws InvalidAttributeException {
+    public void prepareForExecution(STContext context) throws InvalidAttributeException {
+        // TODO this needs to move to lifecycle executor
         indirectDependencies = new HashSet<>(dependencies);
         for (Resource dep : dependencies) {
             assert dep.getIndirectDependencies() != null;
@@ -189,8 +188,18 @@ public class Resource {
     // Notifications
     // ----------------------------------------------------------------------
 
-    public void addNotificationHandler(NotificationHandler notificationHandler) {
+    /**
+     * Add a notification handler to this resource. This can only be done before the {@link Stage#EXECUTE} stage.
+     *
+     * @param notificationHandler Handler to add to this resource.
+     * @throws InvalidStageException If attempted to add the handler at EXECUTE or later stage.
+     */
+    public void addNotificationHandler(NotificationHandler notificationHandler) throws InvalidStageException {
         synchronized (notificationHandlers) {
+            switch (state) {
+                case PREPARED:
+                    throw new InvalidStageException("Notification handlers cannot be added after the ");
+            }
             notificationHandlers.add(notificationHandler);
         }
     }
@@ -474,7 +483,7 @@ public class Resource {
     public void handleNotification(Notification notification) throws STRuntimeException {
         synchronized (notificationHandlers) {
             for (NotificationHandler handler : notificationHandlers) {
-                if (handler.isSameCategory(handler.getCategory()) && (!handler.onlyIfAfter || state.ordinal() >= State.EXECUTED.ordinal())) {
+                if (handler.isSameCategory(handler.getCategory()) && (!handler.isOnlyIfAfter() || state.ordinal() >= State.EXECUTED.ordinal())) {
                     handler.handleNotification(notification);
                 }
             }
@@ -488,6 +497,22 @@ public class Resource {
             }
         }
         return false;
+    }
+
+    public boolean isAggregationSupportedForNotification(@NotNull String category) {
+        boolean match = false;
+        for (NotificationHandler notificationHandler : notificationHandlers) {
+            if (notificationHandler.getCategory().equalsIgnoreCase(category)) {
+                if (notificationHandler.isAggregate()) {
+                    // Notification handler supports aggregation
+                    match = true;
+                } else if (match) {
+                    // There's a notification handler on that category that doesn't support aggregation
+                    return false;
+                }
+            }
+        }
+        return match;
     }
 
     public enum State {

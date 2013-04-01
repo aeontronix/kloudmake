@@ -4,7 +4,8 @@
 
 package com.kloudtek.systyrant.resource;
 
-import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.Resource;
+import com.kloudtek.systyrant.STContextData;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 
 import java.util.*;
@@ -95,19 +96,19 @@ public class ResourceSorter {
         return list;
     }
 
+
     /**
      * This method is used for the second round of sorting, which will attempt to put notifying resources before
      * the resource being notified.
      *
-     * @param resources
-     * @param context
+     * @param data Context data
      */
-    public static void sort2(List<Resource> resources, STContext context) {
-        LinkedList<Resource> list = new LinkedList<>(resources);
+    public static void bringResourcesForwardDueToNotification(STContextData data) {
+        LinkedList<Resource> list = new LinkedList<>(data.resources);
         LinkedHashSet<Resource> sorted = new LinkedHashSet<>();
         while (!list.isEmpty()) {
             Resource res = list.getFirst();
-            List<AutoNotify> autoNotifications = context.findAutoNotificationByTarget(res);
+            List<AutoNotify> autoNotifications = data.findAutoNotificationByTarget(res);
             boolean notifiersMoved = false;
             ArrayList<Resource> reschedule = new ArrayList<>();
             for (AutoNotify autoNotify : autoNotifications) {
@@ -131,9 +132,9 @@ public class ResourceSorter {
                 }
             }
         }
-        assert resources.size() == sorted.size();
-        resources.clear();
-        resources.addAll(sorted);
+        assert data.resources.size() == sorted.size();
+        data.resources.clear();
+        data.resources.addAll(sorted);
     }
 
     static class Node {

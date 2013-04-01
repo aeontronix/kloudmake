@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
@@ -48,7 +49,7 @@ public class AttrInjector extends Injector {
                     value = ConvertUtils.convert(val, fieldType);
                 }
             }
-            logger.debug("Injecting {} into {}",value,field);
+            logger.debug("Injecting {} into {}", value, field);
             inject(obj, value);
         }
     }

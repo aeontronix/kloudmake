@@ -4,9 +4,9 @@
 
 package com.kloudtek.systyrant.dsl;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 public abstract class Parameter {

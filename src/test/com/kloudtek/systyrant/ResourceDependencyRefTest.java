@@ -8,7 +8,6 @@ import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidRefException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

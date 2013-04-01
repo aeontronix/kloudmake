@@ -10,14 +10,17 @@ import com.kloudtek.systyrant.exception.MultipleUniqueResourcesFoundException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.LocalHost;
-import com.kloudtek.systyrant.resource.*;
+import com.kloudtek.systyrant.resource.AbstractAction;
+import com.kloudtek.systyrant.resource.Action;
+import com.kloudtek.systyrant.resource.ResourceDefinition;
+import com.kloudtek.systyrant.resource.UniqueScope;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.kloudtek.systyrant.resource.Resource.State.EXECUTED;
-import static com.kloudtek.systyrant.resource.Resource.State.FAILED;
+import static com.kloudtek.systyrant.Resource.State.EXECUTED;
+import static com.kloudtek.systyrant.Resource.State.FAILED;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;

@@ -4,10 +4,10 @@
 
 package com.kloudtek.systyrant.resource.query;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.SystyrantLangParser;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
-import com.kloudtek.systyrant.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

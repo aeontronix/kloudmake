@@ -8,7 +8,6 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.Resource;
 import com.kloudtek.systyrant.util.ListHashMap;
 import org.reflections.Reflections;
 

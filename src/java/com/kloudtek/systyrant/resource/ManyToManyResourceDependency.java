@@ -4,13 +4,13 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -112,17 +112,17 @@ public class ManyToManyResourceDependency implements ResourceDependency {
     public Set<OneToManyResourceDependency> resolve(STContext context) throws InvalidDependencyException {
         Set<OneToManyResourceDependency> o2mSet = new HashSet<>();
         try {
-            if( originRef != null ) {
+            if (originRef != null) {
                 origins.addAll(context.findResources(originRef));
             }
-            if( targetRef != null ) {
+            if (targetRef != null) {
                 targets.addAll(context.findResources(targetRef));
             }
-            if( origins.isEmpty() && ! optional ) {
-                throw new InvalidDependencyException("Mandatory dependency has no origins: "+toString());
+            if (origins.isEmpty() && !optional) {
+                throw new InvalidDependencyException("Mandatory dependency has no origins: " + toString());
             }
-            if( targets.isEmpty() && ! optional ) {
-                throw new InvalidDependencyException("Mandatory dependency has no targets: "+toString());
+            if (targets.isEmpty() && !optional) {
+                throw new InvalidDependencyException("Mandatory dependency has no targets: " + toString());
             }
         } catch (InvalidQueryException e) {
             throw new InvalidDependencyException(e.getMessage(), e);
@@ -130,7 +130,7 @@ public class ManyToManyResourceDependency implements ResourceDependency {
         for (Resource origin : origins) {
             HashSet<Resource> tlist = new HashSet<>(targets);
             tlist.remove(origin);
-            o2mSet.add(new OneToManyResourceDependency(origin,tlist));
+            o2mSet.add(new OneToManyResourceDependency(origin, tlist));
         }
         return o2mSet;
     }
