@@ -18,35 +18,32 @@
     </publications>
     <dependencies>
         <!-- Build -->
-        <dependency org="com.jetbrains" name="annotations" rev="latest.integration" conf="build->default"/>
+        <dependency org="com.jetbrains" name="annotations" rev="10eap1052" conf="build->default"/>
         <dependency org="org.antlr" name="antlr-ant" rev="1169924912745" conf="build->default"/>
         <dependency org="org.antlr" name="antlr" rev="4.0-rc1" conf="build->default"/>
-        <dependency org="org.apache" name="ant" rev="latest.release" conf="build->default"/>
+        <dependency org="org.apache" name="ant" rev="1.8.1" conf="build->default"/>
         <dependency org="net.java" name="javacc" rev="5.0" conf="build->default"/>
         <!-- Test -->
-        <dependency org="org.testng" name="testng" rev="latest.release" conf="test->default"/>
+        <dependency org="org.testng" name="testng" rev="6.0.1" conf="test->default"/>
         <dependency org="com.google.code" name="mockito" rev="1.9.0-rc1" conf="test->all"/>
         <dependency org="org.sl4j" name="sl4j" rev="1.6.6" conf="test->jdk"/>
-        <dependency org="ch.qos" name="logback" rev="latest.release" conf="test->classic;cli->classic"/>
+        <dependency org="ch.qos" name="logback" rev="1.0.7" conf="test->classic;cli->classic"/>
         <!-- Core -->
-        <dependency name="ktutils" rev="latest.integration" conf="core->default"/>
-        <dependency name="credstore" rev="latest.integration" conf="core->core"/>
-        <dependency org="org.apache" name="commons-io" rev="latest.release" conf="core->default"/>
+        <dependency name="ktutils" rev="1.0" conf="core->default"/>
+        <dependency org="org.apache" name="commons-io" rev="2.4" conf="core->default"/>
         <dependency org="org.apache" name="commons-lang3" rev="3.1" conf="core->default"/>
-        <dependency org="org.apache" name="commons-exec" rev="latest.release" conf="core->default"/>
-        <dependency org="org.apache" name="commons-codec" rev="latest.release" conf="core->default"/>
-        <dependency org="org.apache" name="commons-beanutils" rev="latest.release" conf="core->default"/>
-        <dependency org="org.apache" name="commons-httpclient" rev="latest.release" conf="core->default"/>
-        <dependency org="org.apache" name="commons-jexl" rev="latest.release" conf="core->default"/>
-        <dependency org="org.dom4j" name="dom4j" rev="latest.release" conf="core->default"/>
-        <dependency org="net.sourceforge" name="jsch" rev="latest.release" conf="core->default,sources"/>
-        <dependency org="net.sourceforge" name="freemarker" rev="latest.release" conf="core->default"/>
-        <dependency org="com.sun" name="jaxb" rev="latest.release" conf="core->default,sources"/>
-        <dependency org="org.jboss" name="javassist" rev="latest.release" conf="core->default"/>
-        <dependency org="org.hibernate" name="hibernate-validator" rev="latest.release" conf="core->default"/>
+        <dependency org="org.apache" name="commons-exec" rev="1.1" conf="core->default"/>
+        <dependency org="org.apache" name="commons-codec" rev="1.4" conf="core->default"/>
+        <dependency org="org.apache" name="commons-beanutils" rev="1.8.0" conf="core->default"/>
+        <dependency org="org.apache" name="commons-httpclient" rev="3.1" conf="core->default"/>
+        <dependency org="net.sourceforge" name="jsch" rev="0.1.48" conf="core->default,sources"/>
+        <dependency org="net.sourceforge" name="freemarker" rev="2.3.15" conf="core->default"/>
+        <dependency org="com.sun" name="jaxb" rev="2.2" conf="core->default,sources"/>
+        <dependency org="org.jboss" name="javassist" rev="3.15.0" conf="core->default"/>
+        <dependency org="org.hibernate" name="hibernate-validator" rev="4.3.0" conf="core->default"/>
         <dependency org="org.sl4j" name="sl4j" rev="1.7.1" conf="core->api,ext"/>
         <dependency org="org.jruby" name="jruby" rev="1.7.0preview2" conf="core->default"/>
-        <dependency org="com.google.code" name="reflections" rev="latest.release" conf="core->default"/>
+        <dependency org="com.google.code" name="reflections" rev="0.9.8" conf="core->default"/>
         <!-- CLI -->
         <dependency org="net.sourceforge" name="jline" rev="0.9.5" conf="cli->default"/>
         <dependency org="com.beust" name="jcommander" rev="1.29" conf="cli->default"/>

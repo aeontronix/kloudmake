@@ -3,8 +3,8 @@
   -->
 
 <project name="systyrant" xmlns:bm="antlib:com.kloudtek.buildmagic"
-         xmlns:bmt="antlib:com.kloudtek.buildmagic.tools">
-    <bm:init/>
+        >
+    <property name="ivysettings.url" value="http://s3.amazonaws.com/ivy.kloudtek.com/ivysettings.xml"/>
     <bm:template name="ivy"/>
     <bm:template name="simple-java"/>
 
@@ -29,19 +29,6 @@
         <copy todir="/usr/share/systyrant">
             <fileset dir="${build.dir}/dist"/>
         </copy>
-    </target>
-
-    <target name="deb" depends="systyrant-dist">
-        <bmt:deb destfile="${artifacts.dir}/systyrant.deb" name="systyrant" version="${version}" section="development"
-                 priority="extra" maintName="KloudTek Ltd" maintEmail="info@kloudtek.com" license="GPL-3">
-            <tarfileset prefix="/usr/share/systyrant" dir="${build.dir}/dist" excludes="bin/**"/>
-            <tarfileset prefix="/usr/share/systyrant" dir="${build.dir}/dist" includes="bin/**" filemode="755"
-                        dirmode="755"/>
-            <symlink path="/usr/bin/systyrant" target="/usr/share/systyrant/bin/systyrant.sh"/>
-            <description
-                    short="Next generation declarative configuration management tool">
-                <![CDATA[Powerful declarative configuration management tool that supports multiple languages and agent-less usage]]></description>
-        </bmt:deb>
     </target>
 
     <target name="antlr" extensionOf="pre-compile">
