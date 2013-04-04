@@ -7,7 +7,6 @@ package com.kloudtek.systyrant.host;
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import org.apache.commons.exec.CommandLine;
 
 import java.util.HashMap;
 

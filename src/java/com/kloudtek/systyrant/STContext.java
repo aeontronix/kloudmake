@@ -17,6 +17,7 @@ import com.kloudtek.systyrant.resource.Notification;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +39,19 @@ import static javax.script.ScriptContext.ENGINE_SCOPE;
  * This is the "brains" of SysTyrant, which contains the application's state
  */
 public class STContext implements AutoCloseable {
+    private static final HashMap<String, String> scriptingSupport = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(STContext.class);
     static ThreadLocal<STContext> ctx = new ThreadLocal<>();
     final STContextData data = new STContextData();
     private STContextLifecycleExecutor lifecycleExecutor = new STContextLifecycleExecutor(this, data);
+
+    static {
+        try {
+            scriptingSupport.put("rb", IOUtils.toString(STContext.class.getResourceAsStream("ruby/systyrant.rb")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
@@ -190,13 +200,17 @@ public class STContext implements AutoCloseable {
         if (dotIdx == -1) {
             throw new IOException("path has no extension: " + path);
         }
-        String ext = path.substring(dotIdx + 1);
+        String ext = path.substring(dotIdx + 1).toLowerCase();
         ScriptEngine scriptEngine = getScriptEngineByExt(ext);
         Bindings bindings = scriptEngine.getBindings(ENGINE_SCOPE);
         bindings.put("package", pkg);
-        bindings.put("stctx", this);
+        bindings.put("ctx", this);
         bindings.put("stsm", getServiceManager());
         bindings.put("strm", getResourceManager());
+        String support = scriptingSupport.get(ext);
+        if (support != null) {
+            scriptEngine.eval(support, bindings);
+        }
         scriptEngine.eval(scriptReader, bindings);
     }
 

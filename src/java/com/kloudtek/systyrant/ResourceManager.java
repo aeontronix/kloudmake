@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface ResourceManager extends Iterable<Resource> {
@@ -43,6 +44,14 @@ public interface ResourceManager extends Iterable<Resource> {
     Resource createResource(@NotNull String fqname) throws ResourceCreationException;
 
     Resource createResource(@NotNull Object obj) throws ResourceCreationException;
+
+    Resource createResource(@NotNull String fqname, String id, @Nullable Resource parent) throws ResourceCreationException;
+
+    Resource createResource(@NotNull String fqname, String id) throws ResourceCreationException;
+
+    Resource createResource(@NotNull String fqname, String id, Map<String, String> attrs) throws ResourceCreationException, InvalidAttributeException;
+
+    Resource create(@NotNull String fqname, @Nullable String id, Map<String, String> attrs, Resource parent) throws ResourceCreationException, InvalidAttributeException;
 
     @NotNull
     List<Resource> findResources(@Nullable String pkg, @Nullable String name, @Nullable String id);
@@ -84,10 +93,6 @@ public interface ResourceManager extends Iterable<Resource> {
 
     @NotNull
     List<Resource> findResources(@NotNull String query) throws InvalidQueryException;
-
-    Resource createResource(@NotNull String fqname, String id, @Nullable Resource parent) throws ResourceCreationException;
-
-    Resource createResource(@NotNull String fqname, String id) throws ResourceCreationException;
 
     @NotNull
     ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException;

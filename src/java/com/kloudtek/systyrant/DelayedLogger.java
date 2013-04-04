@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 
-/** Used to temporary keep a log record */
+/**
+ * Used to temporary keep a log record
+ */
 public class DelayedLogger {
     private final ArrayList<LogRecord> records = new ArrayList<>();
     private final Logger logger;

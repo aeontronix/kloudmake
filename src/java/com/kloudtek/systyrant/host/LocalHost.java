@@ -9,6 +9,7 @@ import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.systyrant.util.ReflectionHelper;
+import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.TempFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -25,7 +26,6 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.Map;
 
-import static com.kloudtek.util.CryptoUtils.sha1;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
 public class LocalHost extends AbstractHost {
@@ -61,7 +61,9 @@ public class LocalHost extends AbstractHost {
         return File.separator;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @NotNull
     @Override
     public FileInfo getFileInfo(String path) throws STRuntimeException {
@@ -121,7 +123,7 @@ public class LocalHost extends AbstractHost {
     @Override
     public byte[] getFileSha1(String path) throws STRuntimeException {
         try (FileInputStream is = new FileInputStream(path)) {
-            return sha1(is);
+            return CryptoUtils.sha1(is);
         } catch (IOException e) {
             throw new STRuntimeException("Error occured while reading " + path, e);
         }
@@ -279,6 +281,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public String toString() {
-        return "Local Host #"+hashCode();
+        return "Local Host #" + hashCode();
     }
 }

@@ -8,9 +8,9 @@ import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.host.SshHost;
 import com.kloudtek.systyrant.service.ServiceManager;
 import com.kloudtek.systyrant.service.filestore.FileStore;
-import com.kloudtek.systyrant.host.SshHost;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @STResource

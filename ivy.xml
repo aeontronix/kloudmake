@@ -29,7 +29,7 @@
         <dependency org="org.sl4j" name="sl4j" rev="1.6.6" conf="test->jdk"/>
         <dependency org="ch.qos" name="logback" rev="1.0.7" conf="test->classic;cli->classic"/>
         <!-- Core -->
-        <dependency name="ktutils" rev="1.0" conf="core->default"/>
+        <dependency name="ktutils" rev="1.0.1" conf="core->default"/>
         <dependency org="org.apache" name="commons-io" rev="2.4" conf="core->default"/>
         <dependency org="org.apache" name="commons-lang3" rev="3.1" conf="core->default"/>
         <dependency org="org.apache" name="commons-exec" rev="1.1" conf="core->default"/>

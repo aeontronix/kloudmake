@@ -15,12 +15,12 @@ public enum BinaryOp {
     AND, OR;
 
     public static BinaryOp valueOf(SystyrantLangParser.BinaryOpContext op) {
-        if( op.a != null ) {
+        if (op.a != null) {
             return AND;
-        } else if( op.o != null) {
+        } else if (op.o != null) {
             return OR;
         } else {
-            throw new RuntimeException("BUG! Invalid binary operator "+op.getText());
+            throw new RuntimeException("BUG! Invalid binary operator " + op.getText());
         }
     }
 

@@ -6,10 +6,8 @@ package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.AbstractVagrantTest;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.builtin.core.AptPackageProvider;
 import com.kloudtek.systyrant.host.Host;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -96,7 +94,7 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
 
     @Test(groups = "vagrant")
     public void testInstallLatest() throws Exception {
-        String available = sshHost.exec("apt-cache show aespipe | grep Version",null, 0, Host.Logging.YES, "root").getOutput().substring(9).trim();
+        String available = sshHost.exec("apt-cache show aespipe | grep Version", null, 0, Host.Logging.YES, "root").getOutput().substring(9).trim();
         removePkg(AESPIPE);
         provider.install(AESPIPE, null);
         String installed = sshHost.exec("dpkg -s aespipe | grep Version").substring(9).trim();
@@ -104,15 +102,15 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
     }
 
     private String findVersion(String pkg) throws STRuntimeException {
-        return sshHost.exec("apt-cache show "+ pkg +" | grep Version").substring(9).trim();
+        return sshHost.exec("apt-cache show " + pkg + " | grep Version").substring(9).trim();
     }
 
     private void removePkg(String pkg) throws STRuntimeException {
-        sshHost.exec(APTCMD+" purge -y "+ pkg);
+        sshHost.exec(APTCMD + " purge -y " + pkg);
     }
 
     private void installPkg(String pkg) throws STRuntimeException {
-        sshHost.exec(APTCMD+" install -y "+ pkg);
-        sshHost.exec(APTCMD+" upgrade -y "+ pkg);
+        sshHost.exec(APTCMD + " install -y " + pkg);
+        sshHost.exec(APTCMD + " upgrade -y " + pkg);
     }
 }

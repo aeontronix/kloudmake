@@ -181,6 +181,17 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
+    public Resource createResource(@NotNull String fqname, String id, Map<String, String> attrs) throws ResourceCreationException, InvalidAttributeException {
+        Resource resource = createResource(fqname, id);
+        if (attrs != null) {
+            for (Map.Entry<String, String> entry : attrs.entrySet()) {
+                resource.set(entry.getKey(), entry.getValue());
+            }
+        }
+        return resource;
+    }
+
+    @Override
     public Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException {
         return createResource(new FQName(fqname), null, null, importPaths);
     }
@@ -203,6 +214,15 @@ public class ResourceManagerImpl implements ResourceManager {
     @Override
     public Resource createResource(@NotNull String fqname, @Nullable Resource parent) throws ResourceCreationException {
         return createResource(new FQName(fqname), null, parent, null);
+    }
+
+    @Override
+    public Resource create(@NotNull String fqname, @Nullable String id, @Nullable Map<String, String> attrs, @Nullable Resource parent) throws ResourceCreationException, InvalidAttributeException {
+        Resource resource = createResource(fqname, id, parent);
+        if (attrs != null) {
+            resource.set(attrs);
+        }
+        return resource;
     }
 
     @Override

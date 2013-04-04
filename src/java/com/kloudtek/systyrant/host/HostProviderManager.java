@@ -9,7 +9,6 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import org.apache.commons.exec.CommandLine;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 

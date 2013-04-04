@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant.annotation;
 
 import com.kloudtek.systyrant.host.Architecture;
-import com.kloudtek.systyrant.host.OperatingSystem;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

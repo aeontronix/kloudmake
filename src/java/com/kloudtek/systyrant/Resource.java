@@ -340,6 +340,13 @@ public class Resource {
         return this;
     }
 
+    public Resource set(@NotNull Map<String, String> attributes) throws InvalidAttributeException {
+        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+            set(entry.getKey(), entry.getValue());
+        }
+        return this;
+    }
+
     public String get(@NotNull String key) {
         return attributes.get(key.toLowerCase().toLowerCase());
     }

@@ -200,7 +200,7 @@ public class SshHost extends AbstractHost {
     public void writeToFile(String path, InputStream dataStream) throws STRuntimeException {
         logger.debug("Writing stream to {} via SSH");
         String tmpfile = exec("mktemp", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), loginUser).getOutput().trim();
-        logger.debug("Created temporary file {} on host {}",tmpfile);
+        logger.debug("Created temporary file {} on host {}", tmpfile);
         tempFiles.add(tmpfile);
         try {
             sftpChannel.put(dataStream, tmpfile, ChannelSftp.OVERWRITE);
@@ -378,6 +378,6 @@ public class SshHost extends AbstractHost {
 
     @Override
     public String toString() {
-        return "SSH Host to "+ address+" #"+hashCode();
+        return "SSH Host to " + address + " #" + hashCode();
     }
 }

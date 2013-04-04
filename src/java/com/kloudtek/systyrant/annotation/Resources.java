@@ -12,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * <p>This annotation is used to inject other resources (retrieving using the query specified in {@link #value()})
- *    from the context into a Resource's field.</p>
+ * from the context into a Resource's field.</p>
  * <p/>
  * <p>The annotated field must be in a {@link STResource} annotated class.</p>
  * <p>The annotated field's class type must be either of:</p>
@@ -29,8 +29,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface Resources {
     /**
      * Query used to retrieve resources to inject.
-     * @see com.kloudtek.systyrant.resource.query.ResourceQuery
+     *
      * @return Query string.
+     * @see com.kloudtek.systyrant.resource.query.ResourceQuery
      */
     String value();
 }

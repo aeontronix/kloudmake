@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 
-import static com.kloudtek.util.CryptoUtils.sha1;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 /**
@@ -152,7 +151,7 @@ public class FileStore implements Closeable {
         @Override
         public synchronized InputStream getStream() throws IOException {
             if (local != null) {
-                byte[] localSha1 = sha1(local);
+                byte[] localSha1 = CryptoUtils.sha1(local);
                 if (sha1 != null && Arrays.equals(sha1, localSha1)) {
                     StringBuilder err = new StringBuilder("Local data file ").append(filename)
                             .append(" did not match sha1 checksum (is ").append(new String(Hex.encode(localSha1)))
@@ -208,7 +207,7 @@ public class FileStore implements Closeable {
                     IOUtils.copy(getMethod.getResponseBodyAsStream(), os);
                 }
                 if (sha1 != null) {
-                    byte[] localSha1 = sha1(local);
+                    byte[] localSha1 = CryptoUtils.sha1(local);
                     if (Arrays.equals(sha1, localSha1)) {
                         throw new IOException("Retrieved file did not match sha1 checksum (is " +
                                 new String(Hex.encode(localSha1)) + " but expected " + def.getSha1());
@@ -216,7 +215,7 @@ public class FileStore implements Closeable {
                 }
             } else {
                 if (sha1 != null) {
-                    byte[] localSha1 = sha1(local);
+                    byte[] localSha1 = CryptoUtils.sha1(local);
                     if (Arrays.equals(sha1, localSha1)) {
                         throw new IOException("File did not match sha1 checksum, and is not retrievable (is " +
                                 new String(Hex.encode(localSha1)) + " but expected " + def.getSha1());

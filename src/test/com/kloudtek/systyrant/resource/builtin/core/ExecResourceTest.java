@@ -5,13 +5,10 @@
 package com.kloudtek.systyrant.resource.builtin.core;
 
 import com.kloudtek.systyrant.AbstractContextTest;
-import com.kloudtek.systyrant.exception.STRuntimeException;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
-import javax.script.ScriptException;
 import java.io.File;
-import java.io.IOException;
 
 import static org.testng.Assert.assertEquals;
 

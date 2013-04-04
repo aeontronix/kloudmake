@@ -225,7 +225,7 @@ public class FileResource {
         if (permissions == null) {
             permissions = "rwxr-xr-x";
         }
-        return finfo != null && ! finfo.getPermissions().equals(permissions);
+        return finfo != null && !finfo.getPermissions().equals(permissions);
     }
 
     @Sync("permissions")
@@ -239,7 +239,7 @@ public class FileResource {
         if (owner == null) {
             owner = "root";
         }
-        return finfo != null && ! owner.equals(finfo.getOwner());
+        return finfo != null && !owner.equals(finfo.getOwner());
     }
 
     @Sync("owner")
@@ -253,7 +253,7 @@ public class FileResource {
         if (group == null) {
             group = "root";
         }
-        return finfo != null && ! group.equals(finfo.getGroup());
+        return finfo != null && !group.equals(finfo.getGroup());
     }
 
     @Sync("group")

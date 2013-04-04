@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant.service.filestore;
 
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;

@@ -7,10 +7,6 @@ package com.kloudtek.systyrant.dsl;
 import com.kloudtek.systyrant.STContext;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
-import java.util.Collections;
-import java.util.List;
 
 public class AntlrDSLParser implements DSLParser {
     @Override

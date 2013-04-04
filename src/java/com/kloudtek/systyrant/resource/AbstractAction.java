@@ -24,6 +24,18 @@ public abstract class AbstractAction implements Action {
         this.type = type;
     }
 
+    public void type(String type) {
+        this.type = Type.valueOf(type.toUpperCase());
+    }
+
+    public void order(int order) {
+        this.order = order;
+    }
+
+    public void alt(String alternative) {
+        this.alternative = alternative;
+    }
+
     @Override
     public int getOrder() {
         return order;

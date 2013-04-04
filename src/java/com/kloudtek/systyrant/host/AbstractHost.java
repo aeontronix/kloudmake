@@ -126,7 +126,7 @@ public abstract class AbstractHost implements Host {
     @NotNull
     @Override
     public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
-        return exec(command, timeout, expectedRetCode, logging, user, null, null );
+        return exec(command, timeout, expectedRetCode, logging, user, null, null);
     }
 
     @NotNull
@@ -161,7 +161,7 @@ public abstract class AbstractHost implements Host {
             }
         };
         executor.setWatchdog(watchdog);
-        if( workdir != null ) {
+        if (workdir != null) {
             executor.setWorkingDirectory(new File(workdir));
         }
         final ExecutionResult result = new ExecutionResult();
@@ -200,7 +200,7 @@ public abstract class AbstractHost implements Host {
             delayedLogger.log();
         }
         if (failed) {
-            throw new STRuntimeException(toString()+" failed to execute '" + command + "'");
+            throw new STRuntimeException(toString() + " failed to execute '" + command + "'");
         }
         return result;
     }

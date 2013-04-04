@@ -6,7 +6,6 @@ package com.kloudtek.systyrant.host;
 
 import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.FileInfo;
-import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
 import com.kloudtek.systyrant.service.Startable;

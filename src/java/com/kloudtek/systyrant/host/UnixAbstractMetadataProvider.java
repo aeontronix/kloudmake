@@ -37,18 +37,18 @@ public abstract class UnixAbstractMetadataProvider extends AbstractHostProvider 
     public CommandLine generateCommandLine(@NotNull String command, @NotNull String currentUser, @NotNull String user,
                                            boolean handleQuoting, @Nullable String workdir) {
         CommandLine cmd;
-        if( ! user.equalsIgnoreCase(currentUser) ) {
+        if (!user.equalsIgnoreCase(currentUser)) {
             cmd = new CommandLine("sudo").addArgument("-u").addArgument(user).addArgument("bash");
         } else {
             cmd = new CommandLine("bash");
         }
-        if( StringUtils.isNotEmpty(workdir) ) {
-            command = "cd "+workdir+" && "+command;
+        if (StringUtils.isNotEmpty(workdir)) {
+            command = "cd " + workdir + " && " + command;
         }
-        if( handleQuoting ) {
-            return cmd.addArgument("-c").addArgument("\""+command+"\"",false);
+        if (handleQuoting) {
+            return cmd.addArgument("-c").addArgument("\"" + command + "\"", false);
         } else {
-            return cmd.addArgument("-c").addArgument(command,false);
+            return cmd.addArgument("-c").addArgument(command, false);
         }
     }
 }

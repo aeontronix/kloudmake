@@ -63,7 +63,7 @@ public class ServiceLinuxImpl {
     @Sync(order = 1)
     public void setEnabled() throws STRuntimeException {
         String cmd = autostart ? "enable" : "disable";
-        host.exec("update-rc.d "+name+" " + cmd);
+        host.exec("update-rc.d " + name + " " + cmd);
         logger.info(StringUtils.capitalize(cmd) + "d service " + name);
     }
 

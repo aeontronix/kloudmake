@@ -4,8 +4,6 @@
 
 package com.kloudtek.systyrant.exception;
 
-import org.slf4j.Logger;
-
 import java.lang.reflect.Field;
 
 /**
@@ -24,7 +22,7 @@ public class FieldInjectionException extends STRuntimeException {
     }
 
     public FieldInjectionException(Field field, Throwable cause) {
-        super(genMsg(field,cause) , cause);
+        super(genMsg(field, cause), cause);
         this.field = field;
     }
 
@@ -34,17 +32,17 @@ public class FieldInjectionException extends STRuntimeException {
     }
 
     public FieldInjectionException(Field field, String message, Throwable cause) {
-        super(genMsg(field)+": "+message , cause);
+        super(genMsg(field) + ": " + message, cause);
         this.field = field;
     }
 
     private static String genMsg(Field field) {
-        return "Unable inject "+field.getDeclaringClass().getName()+"#"+field.getName();
+        return "Unable inject " + field.getDeclaringClass().getName() + "#" + field.getName();
     }
 
     private static String genMsg(Field field, Throwable cause) {
         StringBuilder tmp = new StringBuilder(genMsg(field)).append(": ");
-        if( cause instanceof IllegalAccessException ) {
+        if (cause instanceof IllegalAccessException) {
             tmp.append("Field access if not not allowed");
         } else {
             tmp.append(cause.getMessage());

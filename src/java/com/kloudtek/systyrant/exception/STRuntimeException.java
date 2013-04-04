@@ -38,14 +38,14 @@ public class STRuntimeException extends STException {
 
     public static STRuntimeException getCause(InvocationTargetException e) {
         Throwable cause = e.getCause();
-        if( cause != null ) {
-            if( cause instanceof STRuntimeException ) {
-                return (STRuntimeException)cause;
+        if (cause != null) {
+            if (cause instanceof STRuntimeException) {
+                return (STRuntimeException) cause;
             } else {
                 return new STRuntimeException(cause.getMessage(), cause);
             }
         } else {
-            return new STRuntimeException(e.getMessage(),e);
+            return new STRuntimeException(e.getMessage(), e);
         }
     }
 }

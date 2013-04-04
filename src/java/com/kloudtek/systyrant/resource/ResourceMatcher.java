@@ -27,15 +27,15 @@ public class ResourceMatcher {
 
     public ResourceMatcher(String pkgWithOptionalName) {
         int idx = pkgWithOptionalName.indexOf(':');
-        if( idx != -1 ) {
-            pkg = pkgWithOptionalName.substring(0,idx);
-            name = pkgWithOptionalName.substring(idx+1,pkgWithOptionalName.length());
+        if (idx != -1) {
+            pkg = pkgWithOptionalName.substring(0, idx);
+            name = pkgWithOptionalName.substring(idx + 1, pkgWithOptionalName.length());
         } else {
             pkg = pkgWithOptionalName;
         }
     }
 
-    public static List<ResourceMatcher> convert( List<String> matchers ) {
+    public static List<ResourceMatcher> convert(List<String> matchers) {
         List<ResourceMatcher> list = new ArrayList<>();
         for (String matcher : matchers) {
             list.add(new ResourceMatcher(matcher));

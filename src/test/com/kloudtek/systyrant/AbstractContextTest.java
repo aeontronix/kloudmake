@@ -86,7 +86,7 @@ public class AbstractContextTest {
     }
 
     public Resource createJavaTestResource(String id) throws ResourceCreationException, InvalidAttributeException {
-        return resourceManager.createResource(JTEST, id, null);
+        return resourceManager.createResource(JTEST, id);
     }
 
     public Resource createJavaTestElement(String attr, String val) throws ResourceCreationException, InvalidAttributeException {
@@ -100,7 +100,6 @@ public class AbstractContextTest {
     private Resource createJavaChildTestResource(String id, Resource parent) throws ResourceCreationException {
         return resourceManager.createResource(JTEST, id, parent);
     }
-
 
     public AbstractContextTest register(Class<?> clazz) throws InvalidResourceDefinitionException {
         resourceManager.registerJavaResource(clazz, "test:" + clazz.getSimpleName().toLowerCase().replace("$", ""));
