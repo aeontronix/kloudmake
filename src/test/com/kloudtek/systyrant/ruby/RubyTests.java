@@ -15,15 +15,15 @@ public class RubyTests extends AbstractContextTest {
     @Test
     public void runRubyScript() throws Throwable {
         ctx.runScript(getClass().getResource("runruby.rb"));
-        List<Resource> res = resourceManager.getResources();
+        List<Resource> resources = resourceManager.getResources();
         execute();
-        Assert.assertEquals(res.size(), 2);
-        Assert.assertEquals(res.get(0).getType().toString(), "test:test");
-        Assert.assertEquals(res.get(1).getType().toString(), "test:test");
-        Assert.assertEquals(res.get(1).getId(), "myres");
-        Assert.assertEquals(res.get(1).get("key1"), "val1");
-        Assert.assertEquals(res.get(1).get("key2"), "val2");
-        Assert.assertEquals(res.get(1).get("key3"), "val3");
-        Assert.assertEquals(res.get(1).get("key4"), "val4");
+        Assert.assertEquals(resources.size(), 1);
+        Resource res = resources.get(0);
+        Assert.assertEquals(res.getType().toString(), "test:test");
+        Assert.assertEquals(res.getId(), "myres");
+        Assert.assertEquals(res.get("key1"), "val1");
+        Assert.assertEquals(res.get("key2"), "val2");
+        Assert.assertEquals(res.get("key3"), "val3");
+        Assert.assertEquals(res.get("key4"), "val4");
     }
 }

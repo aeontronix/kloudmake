@@ -1,4 +1,4 @@
-class MyAction < AbstractAction
+class MyAction < Action
   def initialize
     super
     type "PREPARE"
@@ -10,5 +10,4 @@ class MyAction < AbstractAction
   end
 end
 
-newres("test:test")
 newres("test:test", "myres", {"key1" => "val1", "key2" => "val2"}).addAction(MyAction.new())
