@@ -6,28 +6,51 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.service.credstore.CredStore;
-import org.testng.annotations.BeforeMethod;
+import com.kloudtek.util.UnableToDecryptException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
-public class CredStoreTests extends AbstractContextTest {
-    private CredStore credStore;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
-    @BeforeMethod
-    public void init() throws InvalidServiceException {
-//        credStore = ctx.getServiceManager().getService(CredStore.class);
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
+public class CredStoreTests extends AbstractContextTest {
+    public static final String MYID = "myid";
+    public static final String TESTPASSWORD = "TESTPASSWORD";
+
+    @Test
+    public void testCredStorePw() throws InvalidServiceException, IOException, UnableToDecryptException {
+        testObtainPw(false);
     }
 
     @Test
-    public void testCredStore() {
-        for (int i = 91; i < 97; i++) {
-            System.out.print((char) i);
+    public void testCredStoreCryptedPw() throws InvalidServiceException, IOException, UnableToDecryptException {
+        testObtainPw(true);
+    }
+
+    private void testObtainPw(boolean crypt) throws InvalidServiceException, IOException, UnableToDecryptException {
+        CredStore credStore = ctx.getServiceManager().getService(CredStore.class);
+        String pw = credStore.obtainPassword(MYID);
+        System.out.println("Generated password: " + pw);
+        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        if (crypt) {
+            credStore.setCryptPw(TESTPASSWORD);
         }
-        System.out.println();
-        System.out.println((int)'a'); // 97
-        System.out.println((int)'z'); // 122
-        System.out.println((int)'A'); // 65
-        System.out.println((int)'Z'); // 90
-        System.out.println((int)'0'); // 48
-        System.out.println((int)'9'); // 57
+        credStore.save(buf);
+        credStore.close();
+        if (crypt) {
+            credStore.setCryptPw(TESTPASSWORD);
+        }
+        Assert.assertNull(credStore.getPassword(MYID));
+        byte[] data = buf.toByteArray();
+        if (crypt) {
+            assertFalse(new String(data).contains(pw));
+            assertTrue(CredStore.isEncrypted(data));
+        }
+        credStore.load(new ByteArrayInputStream(data));
+        Assert.assertEquals(credStore.getPassword(MYID), pw);
     }
 }

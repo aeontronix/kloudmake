@@ -43,8 +43,10 @@ public class Cli {
     private String ssh;
     @Parameter(description = "SSH Key location (defaults to ~/.ssh/id_rsa)", names = {"-sshkey"})
     private String sshKey = System.getProperty("user.home") + File.separator + ".ssh" + File.separator + "id_rsa";
+    @Parameter(description = "Indicates that the credentials file should be encrypted", names = {"-crypt"})
+    private boolean crypt;
 
-    public void execute() {
+    public int execute() {
         try {
             STContext context = new STContext();
             if (StringUtils.isNotEmpty(ssh)) {
@@ -71,7 +73,7 @@ public class Cli {
                 File sshPrivKeyFile = new File(sshKey);
                 if (!sshPrivKeyFile.exists()) {
                     logger.error("Unable to find key file: " + sshPrivKeyFile.getPath());
-                    return;
+                    return 3;
                 }
                 byte[] sshPrivKey = FileUtils.readFileToByteArray(sshPrivKeyFile);
                 SshHost sshHost = new SshHost(sshPrivKeyFile.getPath(), sshPrivKey, null, null, user, addr, port);
@@ -85,24 +87,30 @@ public class Cli {
             for (String definition : definitions) {
                 context.runScript(URI.create(definition));
             }
-            context.execute();
+            boolean successful = context.execute();
+            return successful ? 0 : 1;
         } catch (Exception e) {
             logger.error("An unexpected error has occured: " + e.getMessage(), e);
+            return 2;
         }
     }
 
     public static void main(String[] args) {
+        System.exit(execute(args));
+    }
+
+    public static int execute(String... args) {
         Cli cli = new Cli();
         JCommander jc = new JCommander(cli, args);
         jc.setProgramName("systyrant");
         if (cli.definitions == null || cli.definitions.isEmpty()) {
             jc.usage();
+            return 5;
         } else {
             configureLogging(cli.debug ? DEBUG : INFO);
-            cli.execute();
+            return cli.execute();
         }
     }
-
 
     @SuppressWarnings("unchecked")
     public static void configureLogging(Level level) {

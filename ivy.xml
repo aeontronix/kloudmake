@@ -36,6 +36,7 @@
         <dependency org="org.apache" name="commons-codec" rev="1.4" conf="core->default"/>
         <dependency org="org.apache" name="commons-beanutils" rev="1.8.0" conf="core->default"/>
         <dependency org="org.apache" name="commons-httpclient" rev="3.1" conf="core->default"/>
+        <dependency org="org.bouncycastle" name="bouncycastle" rev="1.44" conf="core->default,sources"/>
         <dependency org="net.sourceforge" name="jsch" rev="0.1.48" conf="core->default,sources"/>
         <dependency org="net.sourceforge" name="freemarker" rev="2.3.15" conf="core->default"/>
         <dependency org="com.sun" name="jaxb" rev="2.2" conf="core->default,sources"/>
