@@ -8,9 +8,7 @@ import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.dsl.*;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidVariableException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import org.jetbrains.annotations.Nullable;
 
 import javax.script.ScriptException;
@@ -67,6 +65,8 @@ public class CreateResourceStatement extends Statement {
             ArrayList<Resource> resources = new ArrayList<>();
             for (Instance instance : instances) {
                 Resource resource = ctx.getResourceManager().createResource(elementName, instance.id, parent, dslScript.getImports());
+                Resource old = ctx.currentResource();
+                ctx.setCurrentResource(resource);
                 for (Map.Entry<String, Parameter> pe : instance.parameters.entrySet()) {
                     resource.set(pe.getKey(), pe.getValue().eval(ctx, resource));
                 }
@@ -74,9 +74,12 @@ public class CreateResourceStatement extends Statement {
                     children.execute(dslScript, resource);
                 }
                 resources.add(resource);
+                if (old != null) {
+                    ctx.setCurrentResource(old);
+                }
             }
             return resources;
-        } catch (ResourceCreationException | InvalidAttributeException | InvalidVariableException e) {
+        } catch (STRuntimeException e) {
             throw new ScriptException(e);
         }
     }
