@@ -121,9 +121,9 @@ public class FilePermissions {
 
     @Override
     public String toString() {
-        return new StringBuilder().append(ownerRead ? "r" : "").append(ownerWrite ? "w" : "").append(ownerExecute ? "x" : "")
-                .append(groupRead ? "r" : "").append(groupWrite ? "w" : "").append(groupExecute ? "x" : "")
-                .append(otherRead ? "r" : "").append(otherWrite ? "w" : "").append(otherExecute ? "x" : "").toString();
+        return new StringBuilder().append(ownerRead ? "r" : "-").append(ownerWrite ? "w" : "-").append(ownerExecute ? "x" : "-")
+                .append(groupRead ? "r" : "-").append(groupWrite ? "w" : "-").append(groupExecute ? "x" : "-")
+                .append(otherRead ? "r" : "-").append(otherWrite ? "w" : "-").append(otherExecute ? "x" : "-").toString();
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.kloudtek.systyrant.dsl.statement.InvokeMethodStatement;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.RequiresExpression;
 import com.kloudtek.systyrant.resource.ResourceMatcher;
 import org.apache.tools.ant.util.ReflectUtil;
@@ -62,7 +63,7 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, InvalidVariableException {
+    public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("def test { new test2 { 'test': } }");
         assertEquals(script.getDefines().size(), 1);
         DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
@@ -76,7 +77,7 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, InvalidVariableException {
+    public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("def test { new test2 { 'tval': attr1=\"test\", attr2=22 , attr = 'value', attr3 = uid } }");
         assertEquals(script.getDefines().size(), 1);
         DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
@@ -103,28 +104,28 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testSimpleCreateElement() throws InvalidScriptException, InvalidVariableException {
+    public void testSimpleCreateElement() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("new package { 'dfsa' }");
         validateStatements(script, CreateResourceStatement.class);
         validateResourceInstance(script, null, "package", 0, 0, "dfsa");
     }
 
     @Test
-    public void testSimpleCreateElementWithFQName() throws InvalidScriptException, InvalidVariableException {
+    public void testSimpleCreateElementWithFQName() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("new foo.bar:bla { 'dfsa' }");
         validateStatements(script, CreateResourceStatement.class);
         validateResourceInstance(script, "foo.bar", "bla", 0, 0, "dfsa");
     }
 
     @Test
-    public void testAttrValueEscapeAttr() throws InvalidScriptException, InvalidVariableException {
+    public void testAttrValueEscapeAttr() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("new foo.bar:bla { 'df\\'s\\\\a' }");
         validateStatements(script, CreateResourceStatement.class);
         validateResourceInstance(script, "foo.bar", "bla", 0, 0, "df's\\a");
     }
 
     @Test
-    public void testCreateElementWithFQNameImport() throws InvalidScriptException, InvalidVariableException {
+    public void testCreateElementWithFQNameImport() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("new foo.bar:import { 'dfsa' }");
         validateStatements(script, CreateResourceStatement.class);
         validateResourceInstance(script, "foo.bar", "import", 0, 0, "dfsa");
@@ -156,7 +157,7 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testInvokeMethod() throws InvalidScriptException, InvalidVariableException {
+    public void testInvokeMethod() throws InvalidScriptException, STRuntimeException {
         DSLScript script = parser.parse("invokemethod('bla',\"bazz\",'xx',foo='bar',baz=bla)");
         validateStatements(script, InvokeMethodStatement.class);
         InvokeMethodStatement statement = (InvokeMethodStatement) script.getStatements().get(0);
@@ -204,7 +205,7 @@ public class RawDSLParserTest {
         }
     }
 
-    private void validateParams(HashMap<String, Map<String, Parameter>> p, String id, String... params) throws InvalidVariableException {
+    private void validateParams(HashMap<String, Map<String, Parameter>> p, String id, String... params) throws STRuntimeException {
         for (int i = 0; i < params.length; i += 2) {
             assertEquals(p.get(id).get(params[i]).eval(null, null), params[i + 1]);
         }
@@ -219,14 +220,14 @@ public class RawDSLParserTest {
         assertEquals(createEl.getInstances().size(), instanceCount);
     }
 
-    private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) throws InvalidVariableException {
+    private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) throws STRuntimeException {
         CreateResourceStatement statement = (CreateResourceStatement) script.getStatements().get(idx);
         assertEquals(statement.getElementName().getPkg(), pkg);
         assertEquals(statement.getElementName().getName(), name);
         validateResourceInstance(statement, instanceNb, id, params);
     }
 
-    private void validateResourceInstance(CreateResourceStatement createEl, int instanceNb, String id, String... params) throws InvalidVariableException {
+    private void validateResourceInstance(CreateResourceStatement createEl, int instanceNb, String id, String... params) throws STRuntimeException {
         CreateResourceStatement.Instance instance = createEl.getInstances().get(instanceNb);
         if (id == null) {
             assertNull(instance.getId());

@@ -222,10 +222,11 @@ public class FileResource {
 
     @Verify(value = "permissions")
     public boolean checkPermissions() {
-        if (permissions == null) {
-            permissions = "rwxr-xr-x";
+        if (permissions != null) {
+            return finfo != null && !finfo.getPermissions().equals(permissions);
+        } else {
+            return false;
         }
-        return finfo != null && !finfo.getPermissions().equals(permissions);
     }
 
     @Sync("permissions")
@@ -236,10 +237,11 @@ public class FileResource {
 
     @Verify(value = "owner")
     public boolean checkOwner() {
-        if (owner == null) {
-            owner = "root";
+        if (owner != null) {
+            return finfo != null && !owner.equals(finfo.getOwner());
+        } else {
+            return false;
         }
-        return finfo != null && !owner.equals(finfo.getOwner());
     }
 
     @Sync("owner")
@@ -250,10 +252,11 @@ public class FileResource {
 
     @Verify(value = "group")
     public boolean checkGroup() {
-        if (group == null) {
-            group = "root";
+        if (group != null) {
+            return finfo != null && !group.equals(finfo.getGroup());
+        } else {
+            return false;
         }
-        return finfo != null && !group.equals(finfo.getGroup());
     }
 
     @Sync("group")

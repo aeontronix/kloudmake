@@ -7,14 +7,8 @@ package com.kloudtek.systyrant.resource;
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.dsl.AntLRUtils;
-import com.kloudtek.systyrant.dsl.AntlrDSLParser;
-import com.kloudtek.systyrant.dsl.Parameter;
-import com.kloudtek.systyrant.dsl.SystyrantLangParser;
-import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidDependencyException;
-import com.kloudtek.systyrant.exception.InvalidVariableException;
-import com.kloudtek.systyrant.exception.ResourceCreationException;
+import com.kloudtek.systyrant.dsl.*;
+import com.kloudtek.systyrant.exception.*;
 import org.antlr.v4.runtime.RecognitionException;
 
 import java.util.ArrayList;
@@ -42,7 +36,11 @@ public class RequiresExpression {
             throw new InvalidDependencyException("Invalid requires expression: " + expression);
         }
         for (SystyrantLangParser.RequiresTypeContext rtctx : AntLRUtils.nullToEmpty(reqCtx.requiresType())) {
-            requiredDependencies.add(new RequiredDependency(rtctx));
+            try {
+                requiredDependencies.add(new RequiredDependency(rtctx));
+            } catch (InvalidScriptException e) {
+                throw new InvalidDependencyException(e.getMessage(), e);
+            }
         }
     }
 
@@ -80,7 +78,7 @@ public class RequiresExpression {
             return name;
         }
 
-        public RequiredDependency(SystyrantLangParser.RequiresTypeContext reqCtx) {
+        public RequiredDependency(SystyrantLangParser.RequiresTypeContext reqCtx) throws InvalidScriptException {
             name = new FQName(reqCtx.id.getText());
             if (reqCtx.attrs != null) {
                 for (SystyrantLangParser.ParameterAssignmentContext parameterAssignmentContext : reqCtx.attrs.attr.parameterAssignment()) {
@@ -117,7 +115,11 @@ public class RequiresExpression {
 
         public void resolveAttrs(STContext ctx) throws InvalidVariableException {
             for (Map.Entry<String, Parameter> entry : attrs.entrySet()) {
-                attrsResolved.put(entry.getKey(), entry.getValue().eval(ctx, resource));
+                try {
+                    attrsResolved.put(entry.getKey(), entry.getValue().eval(ctx, resource));
+                } catch (STRuntimeException e) {
+                    throw new InvalidVariableException(e.getMessage(), e);
+                }
             }
         }
     }

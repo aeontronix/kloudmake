@@ -23,13 +23,6 @@ import static com.kloudtek.systyrant.Resource.State.PREPARED;
 import static com.kloudtek.systyrant.Stage.EXECUTE;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
-/**
- * Created with IntelliJ IDEA.
- * User: yannick
- * Date: 01/04/13
- * Time: 15:23
- * To change this template use File | Settings | File Templates.
- */
 public class STContextLifecycleExecutor {
     private static final Logger logger = LoggerFactory.getLogger(STContextLifecycleExecutor.class);
     private final STContext context;

@@ -4,7 +4,14 @@
 
 package com.kloudtek.systyrant.service.credstore;
 
+import com.kloudtek.systyrant.Resource;
+import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.Stage;
+import com.kloudtek.systyrant.annotation.Inject;
+import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.annotation.Service;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.util.AESHelper;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnableToDecryptException;
@@ -29,6 +36,8 @@ import static com.kloudtek.util.XmlUtils.createElement;
 public class CredStore implements AutoCloseable {
     public static final byte[] MAGIC;
     public static final int BLOCKSIZE = 16;
+    @Inject
+    private STContext ctx;
     private final SecureRandom rng = new SecureRandom();
     private static final char[] supportedSymbols = new char[]{'!', '@', '$', '%', '^', '&', '*', '(', ')', '-', '=',
             '[', ']', '{', '}', ';', ':', '|', '<', '>', '?'};
@@ -41,6 +50,14 @@ public class CredStore implements AutoCloseable {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("BUG: " + e.getMessage(), e);
         }
+    }
+
+    public static CredStore get(STContext ctx) throws InvalidServiceException {
+        return ctx.getServiceManager().getService(CredStore.class);
+    }
+
+    public CredStore() {
+        System.out.println();
     }
 
     public void close() {
@@ -99,7 +116,18 @@ public class CredStore implements AutoCloseable {
         return obtainPassword(id, size, true, true, true);
     }
 
-    public synchronized String obtainPassword(String id, int size, boolean caps, boolean number, boolean symbols) {
+    @Method(value = "password", stage = {Stage.PREPARE, Stage.EXECUTE})
+    public synchronized String obtainPassword(@Param("id") String id, @Param(value = "size", def = "20") int size,
+                                              @Param(value = "caps", def = "true") boolean caps,
+                                              @Param(value = "number", def = "true") boolean number,
+                                              @Param(value = "symbols", def = "true") boolean symbols) {
+        if (id == null) {
+            Resource resource = ctx.currentResource();
+            if (resource == null) {
+                throw new IllegalArgumentException("id is missing and no resource is in context");
+            }
+            id = resource.getUid();
+        }
         String pw = passwords.get(id);
         if (pw == null) {
             pw = generatePassword(size, caps, number, symbols);

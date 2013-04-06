@@ -12,6 +12,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.host.SshHost;
+import com.kloudtek.systyrant.service.credstore.CredStore;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.validator.internal.util.Version;
@@ -20,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,8 +46,12 @@ public class Cli {
     private String ssh;
     @Parameter(description = "SSH Key location (defaults to ~/.ssh/id_rsa)", names = {"-sshkey"})
     private String sshKey = System.getProperty("user.home") + File.separator + ".ssh" + File.separator + "id_rsa";
-    @Parameter(description = "Indicates that the credentials file should be encrypted", names = {"-crypt"})
+    @Parameter(description = "Credentials file should be encrypted", names = {"-c", "--crypt"})
     private boolean crypt;
+    @Parameter(description = "File where credentials will be store (will default to the first script filename appended with '.creds') ", names = {"-cf", "--credsfile"})
+    private File credsfile;
+    @Parameter(description = "File containing encryption password (also enables encryption as -c)", names = {"-cpw", "--cryptpw"})
+    private File cryptPw;
 
     public int execute() {
         try {
@@ -84,10 +91,24 @@ public class Cli {
                     context.registerLibraries(new File(dir));
                 }
             }
+            CredStore credStore = CredStore.get(context);
+            if (cryptPw != null) {
+                crypt = true;
+                if (cryptPw.exists()) {
+                    logger.error("Encryption password file " + cryptPw + " does not exist");
+                }
+                credStore.setCryptPw(FileUtils.readFileToString(cryptPw));
+            }
+            if (credsfile != null && credsfile.exists()) {
+                credStore.load(new FileInputStream(credsfile));
+            }
             for (String definition : definitions) {
                 context.runScript(URI.create(definition));
             }
             boolean successful = context.execute();
+            if (credsfile != null) {
+                credStore.save(new FileOutputStream(credsfile));
+            }
             return successful ? 0 : 1;
         } catch (Exception e) {
             logger.error("An unexpected error has occured: " + e.getMessage(), e);

@@ -4,15 +4,16 @@
 
 package com.kloudtek.systyrant.service;
 
+import com.kloudtek.systyrant.Parameters;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.dsl.Parameter;
-import com.kloudtek.systyrant.dsl.Parameters;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.MethodInvocationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.util.ReflectionHelper;
+import com.kloudtek.util.StringUtils;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -70,6 +71,15 @@ public class MethodInvoker {
             Class<?> type = paramsMap.get(paramsOrder.get(idx)).type;
             plist[idx] = ConvertUtils.convert(paramValue, type);
         }
+        for (int i = 0; i < plist.length; i++) {
+            if (plist[i] == null) {
+                MethodParam methodParam = paramsMap.get(paramsOrder.get(i));
+                String def = methodParam.def;
+                if (def != null) {
+                    plist[i] = ConvertUtils.convert(def, methodParam.type);
+                }
+            }
+        }
         try {
             Object service = ctx.getServiceManager().getService(serviceName);
             if (service == null) {
@@ -94,6 +104,10 @@ public class MethodInvoker {
                         throw new InvalidServiceException(ReflectionHelper.toString(method) + " has more than one @Method annotation");
                     }
                     name = ((Param) annotation).value();
+                    String defVal = ((Param) annotation).def();
+                    if (StringUtils.isNotEmpty(defVal)) {
+                        def = defVal;
+                    }
                 } else if (annotation instanceof Default) {
                     if (def != null) {
                         throw new InvalidServiceException(ReflectionHelper.toString(method) + " has more than one @Default annotation");

@@ -4,11 +4,11 @@
 
 package com.kloudtek.systyrant.service;
 
+import com.kloudtek.systyrant.Parameters;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.STContextData;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Service;
-import com.kloudtek.systyrant.dsl.Parameters;
 import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;

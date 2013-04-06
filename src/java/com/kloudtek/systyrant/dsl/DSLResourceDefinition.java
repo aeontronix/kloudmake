@@ -41,7 +41,7 @@ public class DSLResourceDefinition {
         name = fqid.anyId().getText();
         SystyrantLangParser.ResourceDefinitionParamsContext resourceDefinitionParamsContext = defineElementContext.resourceDefinitionParams();
         if (resourceDefinitionParamsContext != null) {
-            defaultAttr.putAll(Parameters.assignmentToMap(resourceDefinitionParamsContext.parameterAssignment()));
+            defaultAttr.putAll(Parameter.assignmentToMap(resourceDefinitionParamsContext.parameterAssignment()));
         }
         SystyrantLangParser.ResourceDefinitionStatementsContext resourceDefinitionStatementsContext = defineElementContext.resourceDefinitionStatements();
         if (resourceDefinitionStatementsContext != null) {

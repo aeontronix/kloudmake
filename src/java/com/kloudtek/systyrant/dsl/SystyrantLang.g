@@ -86,13 +86,13 @@ logOp : EQ | NEQ;
 
 binaryOp : a=AND | o=OR;
 
-parameter: ( anyId EQ )? staticOrDynamicValue COMMA?;
+parameter: ( id=anyId EQ )? staticOrDynamicValue COMMA?;
 
 parameterAssignment: paramName=anyId EQ staticOrDynamicValue COMMA?;
 
 staticValue: qstr=QSTRING | uqstr=UQSTRING | nb=NB | id=anyId;
 
-staticOrDynamicValue: staticValue | dynamicValue | invokeMethod;
+staticOrDynamicValue: st=staticValue | dyn=dynamicValue | iv=invokeMethod;
 
 dynamicValue: ASTRING | variableLookupValue;
 

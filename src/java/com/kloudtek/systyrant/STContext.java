@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant;
 
+import com.kloudtek.systyrant.annotation.Inject;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
@@ -193,6 +194,10 @@ public class STContext implements AutoCloseable {
     }
 
     public synchronized void runScript(String pkg, String path, Reader scriptReader) throws IOException, ScriptException {
+        boolean ctxMissing = ctx.get() == null;
+        if (ctxMissing) {
+            ctx.set(this);
+        }
         if (path == null) {
             path = UUID.randomUUID().toString() + ".stl";
         }
@@ -212,6 +217,9 @@ public class STContext implements AutoCloseable {
             scriptEngine.eval(support, bindings);
         }
         scriptEngine.eval(scriptReader, bindings);
+        if (ctxMissing) {
+            ctx.remove();
+        }
     }
 
     public void runDSLScript(String dsl) throws IOException, ScriptException {
@@ -324,6 +332,10 @@ public class STContext implements AutoCloseable {
 
     public Resource currentResource() {
         return data.resourceScope.get();
+    }
+
+    public void setCurrentResource(Resource resource) {
+        data.resourceScope.set(resource);
     }
 
     public List<String> getImports() {
@@ -445,19 +457,37 @@ public class STContext implements AutoCloseable {
         data.fatalExceptions = null;
     }
 
+    public Object invokeMethod(String name, Parameters params) throws STRuntimeException {
+        return data.serviceManager.invokeMethod(name, params);
+    }
+
     public void inject(Object obj) throws InjectException {
         Class<?> cl = obj.getClass();
         while (cl != null) {
             for (Field field : cl.getDeclaredFields()) {
                 Provider provider = field.getAnnotation(Provider.class);
-                if (provider != null) {
-                    ProviderManager pm = data.providersManagementService.getProviderManager(field.getType().asSubclass(ProviderManager.class));
-                    field.setAccessible(true);
-                    try {
+                Class<?> type = field.getType();
+                try {
+                    if (provider != null) {
+                        ProviderManager pm = data.providersManagementService.getProviderManager(type.asSubclass(ProviderManager.class));
+                        if (!field.isAccessible()) {
+                            field.setAccessible(true);
+                        }
                         field.set(obj, pm);
-                    } catch (IllegalAccessException e) {
-                        throw new InjectException("Cannot inject object " + obj.getClass().getName() + "#" + field.getName());
                     }
+                    Inject inject = field.getAnnotation(Inject.class);
+                    if (inject != null) {
+                        if (STContext.class.isAssignableFrom(type)) {
+                            if (!field.isAccessible()) {
+                                field.setAccessible(true);
+                            }
+                            field.set(obj, this);
+                        } else {
+                            throw new InjectException("Cannot inject object " + obj.getClass().getName() + "#" + field.getName());
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new InjectException("Cannot inject object " + obj.getClass().getName() + "#" + field.getName());
                 }
             }
             cl = cl.getSuperclass();
