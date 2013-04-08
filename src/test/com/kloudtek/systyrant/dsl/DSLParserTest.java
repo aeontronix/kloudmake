@@ -112,7 +112,7 @@ public class DSLParserTest extends AbstractContextTest {
         executeDSL("dostuff('foo','bar',a4=ga,a5=true)");
         assertEquals(service.a1, "foo");
         assertEquals(service.a2, "bar");
-        assertNull(service.a3);
+        assertEquals(service.a3, "defvalue");
         assertEquals(service.a4, "ga");
         assertEquals(service.a5, true);
     }
@@ -124,7 +124,7 @@ public class DSLParserTest extends AbstractContextTest {
         execute();
         assertEquals(service.a1, "foo");
         assertEquals(service.a2, "bar");
-        assertNull(service.a3);
+        assertEquals(service.a3, "defvalue");
         assertEquals(service.a4, "ga");
         assertEquals(service.a5, true);
     }

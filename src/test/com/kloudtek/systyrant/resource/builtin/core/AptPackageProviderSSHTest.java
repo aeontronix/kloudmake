@@ -13,6 +13,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import static org.testng.Assert.*;
 
@@ -106,11 +107,17 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
     }
 
     private void removePkg(String pkg) throws STRuntimeException {
-        sshHost.exec(APTCMD + " purge -y " + pkg);
+        apt("purge -y " + pkg);
+    }
+
+    private String apt(String cmd) throws STRuntimeException {
+        HashMap<String, String> env = new HashMap<>();
+        env.put("DEBIAN_FRONTEND", "noninteractive");
+        return sshHost.exec(APTCMD + " " + cmd, null, Host.Logging.YES, env).getOutput();
     }
 
     private void installPkg(String pkg) throws STRuntimeException {
-        sshHost.exec(APTCMD + " install -y " + pkg);
-        sshHost.exec(APTCMD + " upgrade -y " + pkg);
+        apt("install -y " + pkg);
+        apt("upgrade -y " + pkg);
     }
 }

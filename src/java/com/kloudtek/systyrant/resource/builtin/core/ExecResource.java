@@ -32,22 +32,6 @@ public class ExecResource {
     private Long returns;
     private Host.Logging loggingEnum;
 
-    public String getCommand() {
-        return command;
-    }
-
-    public void setCommand(String command) {
-        this.command = command;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
     @Verify
     public boolean testIfAndUnless() throws STRuntimeException {
         try {

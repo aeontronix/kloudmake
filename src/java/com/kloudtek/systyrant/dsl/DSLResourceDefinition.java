@@ -52,7 +52,6 @@ public class DSLResourceDefinition {
                 }
             }
         }
-        System.out.println("~~~~~" + statements);
     }
 
     public String getPkg() {

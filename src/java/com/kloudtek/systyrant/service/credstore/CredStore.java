@@ -56,10 +56,6 @@ public class CredStore implements AutoCloseable {
         return ctx.getServiceManager().getService(CredStore.class);
     }
 
-    public CredStore() {
-        System.out.println();
-    }
-
     public void close() {
         passwords.clear();
         cryptPw = null;

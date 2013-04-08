@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -265,6 +266,21 @@ public class SshHost extends AbstractHost {
     @Override
     public boolean isStarted() {
         return started;
+    }
+
+    @NotNull
+    @Override
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, @Nullable Map<String, String> env) throws STRuntimeException {
+        if (env == null || env.isEmpty()) {
+            return super.exec(command, timeout, expectedRetCode, logging, user, workdir, env);
+        } else {
+            StringBuilder script = new StringBuilder("#!/bin/bash\n\n");
+            for (Map.Entry<String, String> entry : env.entrySet()) {
+                script.append("export ").append(entry.getKey()).append('=').append(entry.getValue()).append('\n');
+            }
+            script.append('\n').append(command);
+            return execScript(script.toString(), ScriptType.BASH, timeout, expectedRetCode, logging, user);
+        }
     }
 
     @Override

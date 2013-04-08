@@ -85,7 +85,7 @@ public class AptPackageProvider implements PackageProvider {
     public void update() throws STRuntimeException {
         Date lastUpdated = (Date) host.getState(APT_UPDATE_TIMESTAMP);
         if (lastUpdated == null) {
-            host.exec("apt-get update");
+            host.exec(APTCMD + " update");
             host.setState(APT_UPDATE_TIMESTAMP, new Date());
         }
     }
