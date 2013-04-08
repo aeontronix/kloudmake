@@ -145,6 +145,14 @@ public class DSLParserTest extends AbstractContextTest {
         assertEquals(child.get("g"), "bla${a}b\\o");
     }
 
+    @Test
+    public void createResourceDefinedByScript() throws Throwable {
+        ctx.runDSLScript("def mytest:mytest { new test:test{} }");
+        ctx.runDSLScript("new mytest:mytest {}");
+        execute();
+        assertEquals(data.resources.size(), 2);
+    }
+
     private static void validateResourcesAttrs(STContext ctx, String uid, String... attrs) {
         Resource resource = findResource(ctx, uid);
         assertNotNull(resource, "Unable to find resource " + uid);

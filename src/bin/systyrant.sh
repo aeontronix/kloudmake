@@ -2,4 +2,11 @@
 
 SYSTYRANT_ANT=/usr/share/systyrant
 
-java -classpath "$SYSTYRANT_ANT/lib/*" com.kloudtek.systyrant.cli.Cli $@
+JOPTS=""
+
+if [ "$1" = "-jdebug" ];
+then
+    JOPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 ${JOPTS}"
+fi
+
+java -classpath "$SYSTYRANT_ANT/lib/*" ${JOPTS} com.kloudtek.systyrant.cli.Cli $@

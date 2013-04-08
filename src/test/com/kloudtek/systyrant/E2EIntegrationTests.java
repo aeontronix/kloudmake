@@ -53,4 +53,20 @@ public class E2EIntegrationTests {
             Assert.assertTrue(FileUtils.readFileToString(creds).contains("myid"));
         }
     }
+
+    @Test
+    public void testDynaLoad() throws IOException {
+        try (TempDir dir = new TempDir("testclienc")) {
+            File results = new File(dir, "results.txt");
+            File libs = new File(dir, "libs");
+            File mod = new File(libs, "mytest/mytest");
+            mod.mkdirs();
+            FileUtils.writeStringToFile(new File(mod, "mytest.stl"), "def mytest { new core:file { path='" + results.getAbsolutePath() + "', content=\"ohyeah\" } }");
+            File stl = new File(dir, "dotest.stl");
+            FileUtils.writeStringToFile(stl, "new mytest:mytest {}");
+            Assert.assertEquals(Cli.execute("-l", libs.getAbsolutePath(), stl.getAbsolutePath()), 0);
+            Assert.assertTrue(results.exists());
+            Assert.assertEquals(FileUtils.readFileToString(results), "ohyeah");
+        }
+    }
 }

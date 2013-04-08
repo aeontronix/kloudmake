@@ -290,6 +290,7 @@ public class ResourceManagerImpl implements ResourceManager {
         try {
             ResourceFinder rfinder = new ResourceFinder(name, importPaths);
             if (!rfinder.found()) {
+                logger.debug("Unable to find pre-loaded resource {}, attempt to load dynamically", name);
                 // dynamically loading matching DSL file
                 if (name.getPkg() != null) {
                     dynaLoad(name.getPkg(), name.getName());
@@ -310,8 +311,10 @@ public class ResourceManagerImpl implements ResourceManager {
     private void dynaLoad(@NotNull String pkg, @NotNull String name) throws ResourceCreationException {
         URL url = null;
         for (Library library : context.getLibraries()) {
+            logger.debug("Attempting to dynamically load script in library {}", library.getLocalLocation());
             url = library.getElementScript(pkg, name);
             if (url != null) {
+                logger.debug("Script found in library {}", library.getLocalLocation());
                 break;
             }
         }

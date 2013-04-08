@@ -47,6 +47,7 @@ public class STContextLifecycleExecutor {
             for (Resource res = data.getUnpreparedResource(); res != null; res = data.getUnpreparedResource()) {
                 data.resourceScope.set(res);
                 try {
+                    logger.debug("Executing PREPARE stage for : {}", res);
                     res.executeActions(Stage.PREPARE, false);
                     res.setState(PREPARED);
                 } catch (STRuntimeException e) {
@@ -56,6 +57,7 @@ public class STContextLifecycleExecutor {
                     fatalFatalException(e);
                     handleResourceFailure(res);
                 }
+                logger.debug("Resources: {}", data.resources);
                 // resolve 'requires' attribute
                 String requiresAttr = res.get("requires");
                 if (isNotEmpty(requiresAttr)) {
@@ -69,12 +71,14 @@ public class STContextLifecycleExecutor {
                 data.resourceScope.remove();
             }
             data.resourceManager.setCreateAllowed(false);
-
+            logger.debug("Finished PREPARE stage");
             if (data.resources.isEmpty()) {
                 return;
             }
 
             validateResourceUniqueness();
+
+            logger.debug("Resources: {}", data.resources);
 
             // add dependency on parent if missing
             for (Resource resource : new ArrayList<>(data.resources)) {
@@ -400,12 +404,9 @@ public class STContextLifecycleExecutor {
                 AutoNotifyGroup group = new AutoNotifyGroup(autoNotify);
                 groups.add(group);
                 groupsMembers.get(group).add(autoNotify);
-                System.out.println("FINDING DEPS OF " + autoNotify);
                 HashSet<Resource> deps = sourceDeps.get(autoNotify);
                 for (AutoNotify otherAU : original) {
-                    System.out.println("CANDIDATE " + otherAU);
                     for (Resource source : otherAU.getSources()) {
-                        System.out.println("COMPARE " + source + " WITH " + deps);
                         if (deps.contains(source)) {
                             depsMap.get(autoNotify).add(otherAU);
                             break;

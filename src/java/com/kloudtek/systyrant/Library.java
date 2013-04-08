@@ -12,6 +12,8 @@ import com.kloudtek.util.XPathUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -26,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class Library {
+    private static final Logger logger = LoggerFactory.getLogger(Library.class);
     private File localLocation;
     private URI localLocationUri;
     private URI locationUri;
@@ -167,7 +170,11 @@ public class Library {
         }
         String path = pkg.replace(".", "/") + "/" + name + ".stl";
         // TODO use reflections as index
-        return classLoader.getResource(path);
+        URL resource = classLoader.getResource(path);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Attempting to get resource {} in library {}", path, localLocation);
+        }
+        return resource;
     }
 
     private static String getPkgName(Class<FileResource> fileResourceClass) {

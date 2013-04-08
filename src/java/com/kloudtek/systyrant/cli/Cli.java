@@ -11,19 +11,24 @@ import ch.qos.logback.core.ConsoleAppender;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.host.SshHost;
 import com.kloudtek.systyrant.service.credstore.CredStore;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.UnableToDecryptException;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.validator.internal.util.Version;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +49,7 @@ public class Cli {
     private boolean debug;
     @Parameter(description = "Use SSH as default host, with the specified address in format of [user@]host[:port]", names = {"-ssh"})
     private String ssh;
-    @Parameter(description = "SSH Key location (defaults to ~/.ssh/id_rsa)", names = {"-sshkey"})
+    @Parameter(description = "SSH Key location", names = {"-sshkey"})
     private String sshKey = System.getProperty("user.home") + File.separator + ".ssh" + File.separator + "id_rsa";
     @Parameter(description = "Credentials file should be encrypted", names = {"-c", "--crypt"})
     private boolean crypt;
@@ -52,6 +57,8 @@ public class Cli {
     private File credsfile;
     @Parameter(description = "File containing encryption password (also enables encryption as -c)", names = {"-cpw", "--cryptpw"})
     private File cryptPw;
+    @Parameter(description = "Enable java remote debugging on port 5005", names = "-jdebug")
+    private boolean jdebug;
 
     public int execute() {
         try {
@@ -86,24 +93,20 @@ public class Cli {
                 SshHost sshHost = new SshHost(sshPrivKeyFile.getPath(), sshPrivKey, null, null, user, addr, port);
                 context.getServiceManager().assignService("host", sshHost);
             }
-            if (moduleDirs != null) {
-                for (String dir : moduleDirs) {
-                    context.registerLibraries(new File(dir));
-                }
-            }
-            CredStore credStore = CredStore.get(context);
-            if (cryptPw != null) {
-                crypt = true;
-                if (cryptPw.exists()) {
-                    logger.error("Encryption password file " + cryptPw + " does not exist");
-                }
-                credStore.setCryptPw(FileUtils.readFileToString(cryptPw));
-            }
-            if (credsfile != null && credsfile.exists()) {
-                credStore.load(new FileInputStream(credsfile));
-            }
+            registerLibs(context);
+            CredStore credStore = configureCredStore(context);
             for (String definition : definitions) {
-                context.runScript(URI.create(definition));
+                try {
+                    context.runScript(URI.create(definition));
+                } catch (IOException e) {
+                    logger.error("Failed to read script " + definition + " : " + e.getMessage(), e);
+                } catch (ScriptException e) {
+                    if (e.getCause() != null) {
+                        logger.error(e.getCause().getMessage(), e);
+                    } else {
+                        logger.error("An error occured while executing script " + definition + " : " + e.getMessage(), e);
+                    }
+                }
             }
             boolean successful = context.execute();
             if (credsfile != null) {
@@ -114,6 +117,38 @@ public class Cli {
             logger.error("An unexpected error has occured: " + e.getMessage(), e);
             return 2;
         }
+    }
+
+    private void registerLibs(STContext context) {
+        if (moduleDirs == null) {
+            moduleDirs = new ArrayList<>();
+        }
+        addLib("/etc/systyrant/libs");
+        addLib("/var/lib/systyrant/libs");
+        for (String dir : moduleDirs) {
+            context.registerLibraries(new File(dir));
+        }
+    }
+
+    private void addLib(String s) {
+        if (new File(s).exists()) {
+            moduleDirs.add(s);
+        }
+    }
+
+    private CredStore configureCredStore(STContext context) throws InvalidServiceException, IOException, UnableToDecryptException {
+        CredStore credStore = CredStore.get(context);
+        if (cryptPw != null) {
+            crypt = true;
+            if (cryptPw.exists()) {
+                logger.error("Encryption password file " + cryptPw + " does not exist");
+            }
+            credStore.setCryptPw(FileUtils.readFileToString(cryptPw));
+        }
+        if (credsfile != null && credsfile.exists()) {
+            credStore.load(new FileInputStream(credsfile));
+        }
+        return credStore;
     }
 
     public static void main(String[] args) {
@@ -145,7 +180,7 @@ public class Cli {
         logger.setLevel(level);
         console.stop();
         PatternLayout pl = new PatternLayout();
-        pl.setPattern("%r %5p [%X{resource}] %m%n)");
+        pl.setPattern("%r %5p [%X{resource}] %m%n%nopex");
         pl.setContext(lc);
         pl.start();
         console.setLayout(pl);

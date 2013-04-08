@@ -2,8 +2,7 @@
   ~ Copyright (c) 2013 KloudTek Ltd
   -->
 
-<project name="systyrant" xmlns:bm="antlib:com.kloudtek.buildmagic"
-        >
+<project name="systyrant" xmlns:bm="antlib:com.kloudtek.buildmagic">
     <property name="ivysettings.url" value="http://s3.amazonaws.com/ivy.kloudtek.com/ivysettings.xml"/>
     <bm:template name="ivy"/>
     <bm:template name="simple-java"/>
@@ -23,18 +22,26 @@
         <copy todir="${build.dir}/dist/bin">
             <fileset dir="${basedir}/src/bin"/>
         </copy>
+        <zip destfile="${artifacts.dir}/systyrant.zip">
+            <zipfileset dir="${build.dir}/dist" prefix="systyrant"/>
+        </zip>
+        <tar destfile="${artifacts.dir}/systyrant.tar">
+            <zipfileset dir="${build.dir}/dist" prefix="systyrant"/>
+        </tar>
+        <bzip2 src="${artifacts.dir}/systyrant.tar" destfile="${artifacts.dir}/systyrant.tar.bz2"/>
     </target>
 
-    <target name="install" depends="dist">
-        <copy todir="/usr/share/systyrant">
-            <fileset dir="${build.dir}/dist"/>
-        </copy>
+    <target name="installer" depends="systyrant-dist" extensionOf="dist">
+        <concat binary="true" destfile="${artifacts.dir}/systyrant-installer.sh">
+            <path location="src/installer/selfextract.sh"/>
+            <path location="${artifacts.dir}/systyrant.tar.bz2"/>
+        </concat>
     </target>
 
     <target name="antlr" extensionOf="pre-compile">
         <mkdir dir="${build.dir}/antlr/"/>
         <copy file="src/java/com/kloudtek/systyrant/dsl/SystyrantLang.g" todir="${build.dir}/antlr"/>
-        <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr.jar" failonerror="true">
+        <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
             <arg value="${build.dir}/antlr/SystyrantLang.g"/>
             <arg value="-package"/>
             <arg value="com.kloudtek.systyrant.dsl"/>
@@ -44,12 +51,9 @@
     </target>
 
     <target name="classes-antlr" depends="antlr" extensionOf="pre-compile">
-        <mkdir dir="${build.dir}/classes-antlr"/>
-        <javac destdir="${build.dir}/classes-antlr" classpath="_deps/build-jar/antlr.jar"
+        <mkdir dir="${build.dir}/classes"/>
+        <javac destdir="${build.dir}/classes" classpath="_deps/build-jar/antlr-complete.jar"
                srcdir="${build.dir}/antlr"/>
-        <augment id="buildmagic.classpath.compile">
-            <path location="${build.dir}/classes-antlr"/>
-        </augment>
     </target>
 
     <target name="reflections" depends="compile" extensionOf="post-compile">
