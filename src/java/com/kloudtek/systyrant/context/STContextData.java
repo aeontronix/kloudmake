@@ -19,15 +19,10 @@ import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.kloudtek.systyrant.Resource.State.NEW;
-import static com.kloudtek.systyrant.Resource.State.PREPARED;
-
 /**
  * This object contains all the belonging to a STContext
  */
 public class STContextData {
-    public static final List<Resource.State> failurePropagationStates = Arrays.asList(NEW, PREPARED);
-
     // Generic
 
     public final ReentrantReadWriteLock executionLock = new ReentrantReadWriteLock();
@@ -94,9 +89,9 @@ public class STContextData {
         return childrens;
     }
 
-    public Resource getUnpreparedResource() {
+    public Resource getUnpreparedResource(Stage stage) {
         for (Resource resource : resources) {
-            if (resource.getState().ordinal() < PREPARED.ordinal()) {
+            if (resource.isExecutable() && !resource.isFailed() && resource.getStage().ordinal() < stage.ordinal()) {
                 return resource;
             }
         }

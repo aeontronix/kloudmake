@@ -58,8 +58,8 @@ public class NotificationTests extends AbstractContextTest {
 
     @Test
     public void testHandleNotificationDefCat() throws Throwable {
-        registerAndCreate(HandleNotificationDefCat.class, "notifdef");
-        createTestResource().set("notify", "type test:notifdef");
+        registerAndCreate(HandleNotificationDefCat.class, "notiftarget");
+        createTestResource("notifier").set("notify", "type test:notiftarget");
         execute();
         assertTrue(findJavaAction(HandleNotificationDefCat.class).handled);
     }

@@ -76,7 +76,7 @@ public interface Resource {
 
     void setExecutable(boolean executable);
 
-    Resource.State getState();
+    Stage getStage();
 
     Map<String, String> getAttributes();
 
@@ -112,7 +112,5 @@ public interface Resource {
 
     FQName getType();
 
-    enum State {
-        NEW, PREPARED, EXECUTED, CLEANEDUP, SKIP, FAILED
-    }
+    boolean isFailed();
 }

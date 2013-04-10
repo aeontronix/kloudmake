@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant.context;
 
 import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class AutoNotify {
 
     public boolean execute(Resource resource) {
         sourcesToExecuted.remove(resource);
-        return target.getState().ordinal() >= Stage.EXECUTE.ordinal() && sourcesToExecuted.isEmpty();
+        return sourcesToExecuted.isEmpty();
     }
 
     public void merge(AutoNotify autoNotify) {

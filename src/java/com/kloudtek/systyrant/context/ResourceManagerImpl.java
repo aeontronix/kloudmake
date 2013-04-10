@@ -511,8 +511,8 @@ public class ResourceManagerImpl implements ResourceManager {
                 }
                 ResourceImpl origin = (ResourceImpl) dependency.getOrigin();
                 for (Resource target : dependency.getTargets()) {
-                    if (target.getState() == Resource.State.FAILED) {
-                        origin.setState(Resource.State.FAILED);
+                    if (target.isFailed()) {
+                        origin.setFailed(true);
                     }
                     origin.dependencies.add(target);
                     ((ResourceImpl) target).dependents.add(origin);

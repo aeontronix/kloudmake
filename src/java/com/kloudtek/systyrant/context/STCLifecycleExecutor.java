@@ -18,14 +18,51 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
-import static com.kloudtek.systyrant.Resource.State.FAILED;
-import static com.kloudtek.systyrant.Resource.State.PREPARED;
 import static com.kloudtek.systyrant.Stage.EXECUTE;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class STCLifecycleExecutor {
+    public boolean execute() throws STRuntimeException {
+        data.executionLock.writeLock().lock();
+        try {
+            data.executing = true;
+            logger.info("Systyrant context execution started");
+
+            prepare();
+
+            buildIndexes();
+
+            executeResources(EXECUTE);
+
+            cleanup();
+
+            boolean successful = isSuccessful();
+
+            if (successful) {
+                logger.info("Systyrant context execution completed");
+            } else {
+                logger.warn("Systyrant context execution completed with some errors");
+            }
+            return successful;
+        } finally {
+            data.resourceManager.setCreateAllowed(true);
+            data.executing = false;
+            context.clearImports();
+            data.clearResourceScope();
+            for (File tempFile : data.tempFiles) {
+                if (!tempFile.delete()) {
+                    logger.warn("Failed to delete temporary file " + tempFile.getPath() + " will attempt to delete on process exit");
+                    tempFile.deleteOnExit();
+                }
+            }
+            data.executionLock.writeLock().unlock();
+        }
+
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(STCLifecycleExecutor.class);
     private final STContext context;
+
     private final STContextData data;
 
     public STCLifecycleExecutor(STContext context, STContextData data) {
@@ -44,32 +81,9 @@ public class STCLifecycleExecutor {
                 ((ResourceImpl) resource).reset();
             }
             data.serviceManager.start();
-            for (Resource res = data.getUnpreparedResource(); res != null; res = data.getUnpreparedResource()) {
-                data.resourceScope.set(res);
-                try {
-                    logger.debug("Executing PREPARE stage for : {}", res);
-                    ((ResourceImpl) res).executeActions(Stage.PREPARE, false);
-                    ((ResourceImpl) res).setState(PREPARED);
-                } catch (STRuntimeException e) {
-                    if (!e.isLogged()) {
-                        logger.error(e.getLocalizedMessage());
-                    }
-                    fatalFatalException(e);
-                    handleResourceFailure(res);
-                }
-                logger.debug("Resources: {}", data.resources);
-                // resolve 'requires' attribute
-                String requiresAttr = res.get("requires");
-                if (isNotEmpty(requiresAttr)) {
-                    res.addRequires(requiresAttr);
-                }
-                for (String requiresExpr : res.getRequires()) {
-                    ArrayList<Resource> resolved = new RequiresExpression(res, requiresExpr).resolveRequires(context);
-                    ((ResourceImpl) res).assignedResolvedRequires(requiresExpr, resolved);
-                }
-                data.resourceManager.resolveDependencies(false);
-                data.resourceScope.remove();
-            }
+
+            executePrepareActions(Stage.PREPARE);
+
             data.resourceManager.setCreateAllowed(false);
             logger.debug("Finished PREPARE stage");
             if (data.resources.isEmpty()) {
@@ -118,6 +132,35 @@ public class STCLifecycleExecutor {
             ResourceSorter.bringResourcesForwardDueToNotification(data);
         } finally {
             data.resourceListLock.writeLock().unlock();
+        }
+    }
+
+    private void executePrepareActions(Stage stage) throws STRuntimeException {
+        for (Resource res = data.getUnpreparedResource(stage); res != null; res = data.getUnpreparedResource(stage)) {
+            data.resourceScope.set(res);
+            try {
+                logger.debug("Executing PREPARE stage for : {}", res);
+                ((ResourceImpl) res).executeActions(stage, false);
+                ((ResourceImpl) res).setStage(stage);
+            } catch (STRuntimeException e) {
+                if (!e.isLogged()) {
+                    logger.error(e.getLocalizedMessage());
+                }
+                fatalFatalException(e);
+                handleResourceFailure(res);
+            }
+            logger.debug("Resources: {}", data.resources);
+            // resolve 'requires' attribute
+            String requiresAttr = res.get("requires");
+            if (isNotEmpty(requiresAttr)) {
+                res.addRequires(requiresAttr);
+            }
+            for (String requiresExpr : res.getRequires()) {
+                ArrayList<Resource> resolved = new RequiresExpression(res, requiresExpr).resolveRequires(context);
+                ((ResourceImpl) res).assignedResolvedRequires(requiresExpr, resolved);
+            }
+            data.resourceManager.resolveDependencies(false);
+            data.resourceScope.remove();
         }
     }
 
@@ -200,50 +243,13 @@ public class STCLifecycleExecutor {
         }
     }
 
-    public boolean execute() throws STRuntimeException {
-        data.executionLock.writeLock().lock();
-        try {
-            data.executing = true;
-            logger.info("Systyrant context execution started");
-
-            prepare();
-
-            buildIndexes();
-
-            executeResources(EXECUTE);
-
-            cleanup();
-
-            boolean successful = isSuccessful();
-
-            if (successful) {
-                logger.info("Systyrant context execution completed");
-            } else {
-                logger.warn("Systyrant context execution completed with some errors");
-            }
-            return successful;
-        } finally {
-            data.resourceManager.setCreateAllowed(true);
-            data.executing = false;
-            context.clearImports();
-            data.clearResourceScope();
-            for (File tempFile : data.tempFiles) {
-                if (!tempFile.delete()) {
-                    logger.warn("Failed to delete temporary file " + tempFile.getPath() + " will attempt to delete on process exit");
-                    tempFile.deleteOnExit();
-                }
-            }
-            data.executionLock.writeLock().unlock();
-        }
-
-    }
-
     private void executeResources(Stage stage) throws STRuntimeException {
+        logger.info("Starting stage {}", stage);
         Map<Resource, List<Resource>> parentchildrens = new HashMap<>();
         for (Map.Entry<Resource, List<Resource>> entry : data.parentToPendingChildrenMap.entrySet()) {
             parentchildrens.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         }
-        for (Resource resource : data.resourceManager) {
+        for (Resource resource : data.resources) {
             data.resourceScope.set(resource);
             executeResourceActions((ResourceImpl) resource, stage, false);
             data.resourceScope.remove();
@@ -272,29 +278,26 @@ public class STCLifecycleExecutor {
                 data.resourceScope.remove();
             }
         }
+        logger.info("Finished stage {}", stage);
     }
 
     private void executeResourceActions(ResourceImpl resource, Stage stage, boolean postChildren) throws STRuntimeException {
-        switch (resource.getState()) {
-            case FAILED:
-                logger.warn("Skipping {} due to a previous error", resource);
-                break;
-            case SKIP:
-                logger.debug("Skipping {} ", resource);
-                break;
-            default:
-                try {
-                    resource.executeActions(stage, postChildren);
-                    resource.setState(stage.getState());
-                } catch (STRuntimeException e) {
-                    if (!e.isLogged()) {
-                        logger.debug(e.getMessage(), e);
-                        logger.error(e.getMessage());
-                    }
-                    fatalFatalException(e);
-                    handleResourceFailure(resource);
+        if (resource.isFailed()) {
+            logger.warn("Skipping {} due to a previous error", resource);
+        } else if (!resource.isExecutable()) {
+            logger.debug("Skipping {} ", resource);
+        } else {
+            try {
+                resource.executeActions(stage, postChildren);
+                resource.setStage(stage);
+            } catch (STRuntimeException e) {
+                if (!e.isLogged()) {
+                    logger.debug(e.getMessage(), e);
+                    logger.error(e.getMessage());
                 }
-                break;
+                fatalFatalException(e);
+                handleResourceFailure(resource);
+            }
         }
     }
 
@@ -343,12 +346,10 @@ public class STCLifecycleExecutor {
         LinkedList<Resource> list = new LinkedList<>();
         list.add(resource);
         while (!list.isEmpty()) {
-            ResourceImpl el = (ResourceImpl) list.removeFirst();
-            el.setState(FAILED);
-            for (Resource dep : getDependentOn(el)) {
-                if (data.failurePropagationStates.contains(dep.getState())) {
-                    list.addLast(dep);
-                }
+            ResourceImpl res = (ResourceImpl) list.removeFirst();
+            res.setFailed(true);
+            for (Resource dep : getDependentOn(res)) {
+                list.addLast(dep);
             }
         }
     }
@@ -378,7 +379,7 @@ public class STCLifecycleExecutor {
 
     private synchronized boolean isSuccessful() {
         for (Resource resource : data.resourceManager) {
-            if (resource.getState() == FAILED) {
+            if (resource.isFailed()) {
                 return false;
             }
         }

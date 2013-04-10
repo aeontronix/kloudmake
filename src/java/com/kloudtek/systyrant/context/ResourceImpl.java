@@ -26,14 +26,15 @@ public class ResourceImpl implements Resource {
     private transient STContext context;
     private ResourceDefinition definition;
     private Resource parent;
-    private boolean executable;
+    private boolean executable = true;
+    private boolean failed;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final HashSet<Resource> childrens = new HashSet<>();
     private List<Action> prepareActions = new ArrayList<>();
     private List<Action> execActions = new ArrayList<>();
     private List<Action> postChildrenExecActions = new ArrayList<>();
     private List<Action> cleanupActions = new ArrayList<>();
-    private State state;
+    private Stage stage;
     private Host hostOverride;
     /**
      * This contains the results of any successful verification (meaning nothing has changed). A global verification
@@ -60,7 +61,8 @@ public class ResourceImpl implements Resource {
     }
 
     public void reset() {
-        state = State.NEW;
+        executable = true;
+        stage = Stage.INIT;
         verification.clear();
         indirectDependencies = null;
         dependencies.clear();
@@ -196,12 +198,21 @@ public class ResourceImpl implements Resource {
         }
     }
 
+    @Override
+    public boolean isFailed() {
+        return failed;
+    }
+
+    public void setFailed(boolean failed) {
+        this.failed = failed;
+    }
+
     // ----------------------------------------------------------------------
     // Notifications
     // ----------------------------------------------------------------------
 
     /**
-     * Add a notification handler to this resource. This can only be done before the {@link com.kloudtek.systyrant.Stage#EXECUTE} stage.
+     * Add a notification handler to this resource. This can only be done before the {@link com.kloudtek.systyrant.Stage#PRE_EXECUTE} stage.
      *
      * @param notificationHandler Handler to add to this resource.
      * @throws InvalidStageException If attempted to add the handler at EXECUTE or later stage.
@@ -209,9 +220,8 @@ public class ResourceImpl implements Resource {
     @Override
     public void addNotificationHandler(NotificationHandler notificationHandler) throws InvalidStageException {
         synchronized (notificationHandlers) {
-            switch (state) {
-                case PREPARED:
-                    throw new InvalidStageException("Notification handlers cannot be added after the ");
+            if (stage.ordinal() > Stage.POST_PREPARE.ordinal()) {
+                throw new InvalidStageException("Notification handlers can only be added during preparation stages");
             }
             notificationHandlers.add(notificationHandler);
         }
@@ -323,12 +333,12 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public State getState() {
-        return state;
+    public Stage getStage() {
+        return stage;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     // ------------------------------------------------------------------------------------------
@@ -531,7 +541,7 @@ public class ResourceImpl implements Resource {
     public void handleNotification(Notification notification) throws STRuntimeException {
         synchronized (notificationHandlers) {
             for (NotificationHandler handler : notificationHandlers) {
-                if (handler.isSameCategory(handler.getCategory()) && (!handler.isOnlyIfAfter() || state.ordinal() >= State.EXECUTED.ordinal())) {
+                if (handler.isSameCategory(handler.getCategory()) && (!handler.isOnlyIfAfter() || stage.ordinal() > Stage.POST_PREPARE.ordinal())) {
                     handler.handleNotification(notification);
                 }
             }

@@ -16,8 +16,6 @@ import org.testng.annotations.Test;
 
 import java.util.List;
 
-import static com.kloudtek.systyrant.Resource.State.EXECUTED;
-import static com.kloudtek.systyrant.Resource.State.FAILED;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
@@ -174,15 +172,15 @@ public class STContextTest extends AbstractContextTest {
         Resource el8 = createTestResource("8");
         Resource el9 = createTestResource("9");
         assertFalse(ctx.execute());
-        assertEquals(el1.getState(), FAILED);
-        assertEquals(el2.getState(), FAILED);
-        assertEquals(el3.getState(), FAILED);
-        assertEquals(el4.getState(), FAILED);
-        assertEquals(el5.getState(), FAILED);
-        assertEquals(el6.getState(), FAILED);
-        assertEquals(el7.getState(), FAILED);
-        assertSame(el8.getState(), EXECUTED);
-        assertSame(el9.getState(), EXECUTED);
+        assertTrue(el1.isFailed());
+        assertTrue(el2.isFailed());
+        assertTrue(el3.isFailed());
+        assertTrue(el4.isFailed());
+        assertTrue(el5.isFailed());
+        assertTrue(el6.isFailed());
+        assertTrue(el7.isFailed());
+        assertFalse(el8.isFailed());
+        assertFalse(el9.isFailed());
     }
 
     @Test
