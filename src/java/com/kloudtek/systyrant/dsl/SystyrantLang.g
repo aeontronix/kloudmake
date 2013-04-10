@@ -50,7 +50,7 @@ invokeMethod: methodName=anyId '(' parameter* ')';
 
 query : queryExpression EOF;
 
-queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch | uid=queryUidMatch | id=queryIdMatch;
+queryExpression : '(' bracketExpr=queryExpression ')' | queryExpression bOp=binaryOp queryExpression | attrMatch=queryAttrMatch | co=queryChildOfMatch | tm=queryTypeMatch | uid=queryUidMatch | id=queryIdMatch | sh=querySameHostMatch;
 
 queryAttrMatch : AT attr=anyId ( nnul=queryAttrMatchNonNull | nul=queryAttrMatchNullOrEmpty );
 
@@ -67,6 +67,8 @@ queryAttrMatchOp : eq=(FEQ |EQS) | lk=( EQ | LIKE ) | rgx=( REGEX | TEQ ) | m=( 
 queryChildOfMatch : CHILDOF s=STAR? exp=queryExpression?;
 
 queryDependsMatch : DEPENDS s=STAR? exp=queryExpression?;
+
+querySameHostMatch : SAMEHOST;
 
 queryTypeMatch : TYPE t=fullyQualifiedIdWithPkg;
 
@@ -116,6 +118,7 @@ NOT: 'not';
 REGEX: 'regex';
 TYPE: 'type';
 EMPTY: 'empty';
+SAMEHOST: 'samehost';
 CHILDOF: 'childof';
 DEPENDS: 'depends';
 IS: 'is';

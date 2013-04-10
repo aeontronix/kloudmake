@@ -38,6 +38,8 @@ public abstract class Expression {
             return new IdExpression(expr.id, baseResource);
         } else if (expr.uid != null) {
             return new UidExpression(expr.uid, baseResource);
+        } else if (expr.sh != null) {
+            return new SameHostExpression(expr.sh, context.currentResource());
         } else {
             throw new InvalidQueryException(expr.getStart().getLine(), expr.getStart().getCharPositionInLine(), query);
         }

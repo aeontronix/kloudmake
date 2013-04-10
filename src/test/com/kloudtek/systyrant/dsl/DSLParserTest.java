@@ -9,7 +9,11 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
+import com.kloudtek.systyrant.context.AbstractAction;
 import com.kloudtek.systyrant.context.AbstractContextTest;
+import com.kloudtek.systyrant.exception.InvalidQueryException;
+import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.host.LocalHost;
 import org.testng.annotations.Test;
 
 import javax.script.ScriptException;
@@ -23,6 +27,35 @@ import static org.testng.Assert.*;
  * Those tests check {@link com.kloudtek.systyrant.dsl.DSLScript} objects produced by DSL code snippets.
  */
 public class DSLParserTest extends AbstractContextTest {
+    @Test
+    public void testSameHost() throws Throwable {
+        LocalHost h1 = new LocalHost();
+        LocalHost h2 = new LocalHost();
+        Resource r1 = createTestResource("match");
+        r1.setHostOverride(h1);
+        Resource r2 = createTestResource();
+        r2.setHostOverride(h1);
+        Resource r3 = createTestResource();
+        r3.setHostOverride(h2);
+        Resource r4 = createTestResource();
+        r4.setHostOverride(h2);
+        r2.addAction(new AbstractAction() {
+            @Override
+            public void execute(STContext context, Resource resource) throws STRuntimeException {
+                try {
+                    List<Resource> samehost = ctx.findResources("samehost");
+                    if (samehost.size() == 1) {
+                        resource.set("found", samehost.iterator().next().getId());
+                    }
+                } catch (InvalidQueryException e) {
+                    throw new STRuntimeException(e);
+                }
+            }
+        });
+        execute();
+        assertEquals(r2.get("found"), "match");
+    }
+
     @Test(expectedExceptions = ScriptException.class, expectedExceptionsMessageRegExp = ".*Unable to find resource.*")
     public void testCreateElementMissingImport() throws Throwable {
         ctx.runDSLScript("new test { 'testid': attr = 'val' }");
