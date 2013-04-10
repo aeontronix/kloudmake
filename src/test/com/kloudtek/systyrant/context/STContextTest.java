@@ -266,7 +266,7 @@ public class STContextTest extends AbstractContextTest {
         resourceManager.createResource("xxx:test3");
         ctx.addImport("xxx");
         execute();
-        assertContainsSame(r1.getDependencies(), r2, r3, r4);
+        assertEquals(r1.getDependencies().size(), 0);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class STContextTest extends AbstractContextTest {
         assertEquals(r4.getAttributes().get("uid"), "xxx:test32");
         assertEquals(r4.getAttributes().get("foo"), "bar");
         assertEquals(r4.getAttributes().get("ba"), "be");
-        assertContainsSame(r1.getDependencies(), r2, r3, r4);
+        assertEquals(r1.getDependencies().size(), 0);
     }
 
 

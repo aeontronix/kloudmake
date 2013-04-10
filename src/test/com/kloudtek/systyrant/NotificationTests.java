@@ -74,6 +74,31 @@ public class NotificationTests extends AbstractContextTest {
     }
 
     @Test
+    public void testNotifyOnlyAfterPositive() throws Throwable {
+        registerAndCreate(NotifyOnlyAfter.class, "notiftarget");
+        createTestResource("notifier").set("notify", "type test:notiftarget").set("before", "type test:notiftarget");
+        execute();
+        assertFalse(findJavaAction(NotifyOnlyAfter.class).handled);
+    }
+
+    @Test
+    public void testNotifyOnlyAfterNegative() throws Throwable {
+        registerAndCreate(NotifyOnlyAfter.class, "notiftarget");
+        createTestResource("notifier").set("notify", "type test:notiftarget").set("after", "type test:notiftarget");
+        execute();
+        assertTrue(findJavaAction(NotifyOnlyAfter.class).handled);
+    }
+
+    public static class NotifyOnlyAfter {
+        private boolean handled;
+
+        @HandleNotification(onlyIfAfter = true)
+        public void handle() {
+            handled = true;
+        }
+    }
+
+    @Test
     public void testNotificationReordering() throws Throwable {
         assert resourceManager.getResources().size() == 0;
         LinkedList<Resource> before = new LinkedList<>();

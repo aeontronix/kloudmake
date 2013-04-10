@@ -2,7 +2,7 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.context;
+package com.kloudtek.systyrant.context.ioc;
 
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;

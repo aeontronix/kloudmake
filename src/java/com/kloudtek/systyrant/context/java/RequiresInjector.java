@@ -6,7 +6,7 @@ package com.kloudtek.systyrant.context.java;
 
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.context.Injector;
+import com.kloudtek.systyrant.context.ioc.Injector;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 
 import java.lang.reflect.Field;

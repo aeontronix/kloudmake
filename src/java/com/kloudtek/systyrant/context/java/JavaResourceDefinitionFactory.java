@@ -6,7 +6,8 @@ package com.kloudtek.systyrant.context.java;
 
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.annotation.*;
-import com.kloudtek.systyrant.context.*;
+import com.kloudtek.systyrant.context.ResourceDefinition;
+import com.kloudtek.systyrant.context.ioc.*;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.jetbrains.annotations.Nullable;

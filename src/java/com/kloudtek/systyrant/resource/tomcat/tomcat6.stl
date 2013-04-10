@@ -1,0 +1,4 @@
+def tomcat6( port = '8080') {
+    new core:package { name="tomcat6" } ->
+    new core:service { name='tomcat6' }
+}

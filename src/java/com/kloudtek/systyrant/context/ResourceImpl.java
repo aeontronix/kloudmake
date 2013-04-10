@@ -18,8 +18,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static com.kloudtek.util.StringUtils.isNotEmpty;
-
 public class ResourceImpl implements Resource {
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
     private Map<String, String> attributes = new HashMap<>();
@@ -167,35 +165,6 @@ public class ResourceImpl implements Resource {
     @Override
     public Set<Resource> getIndirectDependencies() {
         return indirectDependencies;
-    }
-
-    public void prepareForExecution(STContext context) throws InvalidAttributeException {
-        // TODO this needs to move to lifecycle executor
-        indirectDependencies = new HashSet<>(dependencies);
-        for (Resource dep : dependencies) {
-            assert dep.getIndirectDependencies() != null;
-            indirectDependencies.addAll(dep.getDependencies());
-        }
-        String subscribe = get(SUBSCRIBE);
-        if (isNotEmpty(subscribe)) {
-            try {
-                for (Resource res : context.findResources(subscribe)) {
-                    res.addAutoNotification(this);
-                }
-            } catch (InvalidQueryException e) {
-                throw new InvalidAttributeException("Invalid query specified in " + getUid() + " subscribe attribute: " + subscribe);
-            }
-            removeAttribute(SUBSCRIBE);
-        }
-        String notify = get(NOTIFY);
-        if (isNotEmpty(notify)) {
-            try {
-                addAutoNotifications(context.findResources(notify));
-            } catch (InvalidQueryException e) {
-                throw new InvalidAttributeException("Invalid query specified in " + getUid() + " notify attribute: " + notify);
-            }
-            removeAttribute(NOTIFY);
-        }
     }
 
     @Override
@@ -541,7 +510,7 @@ public class ResourceImpl implements Resource {
     public void handleNotification(Notification notification) throws STRuntimeException {
         synchronized (notificationHandlers) {
             for (NotificationHandler handler : notificationHandlers) {
-                if (handler.isSameCategory(handler.getCategory()) && (!handler.isOnlyIfAfter() || stage.ordinal() > Stage.POST_PREPARE.ordinal())) {
+                if (handler.isSameCategory(handler.getCategory()) && (!handler.isOnlyIfAfter() || stage.ordinal() >= Stage.EXECUTE.ordinal())) {
                     handler.handleNotification(notification);
                 }
             }

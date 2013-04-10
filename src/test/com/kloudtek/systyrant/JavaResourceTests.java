@@ -472,7 +472,7 @@ public class JavaResourceTests extends AbstractContextTest {
         assertTrue(obj.executed);
         assertNotNull(obj.copy);
         assertContainsSame(obj.copy, r1, r2);
-        assertContainsSame(resource.getDependencies(), r1, r2);
+        assertEquals(resource.getDependencies().size(), 0);
     }
 
     public static class ResourceRequiresExists {

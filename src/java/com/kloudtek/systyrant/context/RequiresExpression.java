@@ -57,9 +57,6 @@ public class RequiresExpression {
                 }
                 matches.add(newRes);
             }
-            for (Resource match : matches) {
-                resource.addDependency(match);
-            }
             allMatches.addAll(matches);
         }
         return allMatches;

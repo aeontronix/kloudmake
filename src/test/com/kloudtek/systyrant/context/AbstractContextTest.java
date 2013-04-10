@@ -15,11 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.testng.Assert.*;
 
@@ -64,9 +60,7 @@ public class AbstractContextTest {
 
     public Resource createTestResourceWithIndirectDepsSetup(String id) throws ResourceCreationException, InvalidAttributeException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Resource testResource = createTestResource(id);
-        Method prepareForExecution = testResource.getClass().getDeclaredMethod("prepareForExecution", STContext.class);
-        prepareForExecution.setAccessible(true);
-        prepareForExecution.invoke(testResource, ctx);
+        ReflectionHelper.set(testResource, "indirectDependencies", new HashSet<Resource>());
         return testResource;
     }
 
