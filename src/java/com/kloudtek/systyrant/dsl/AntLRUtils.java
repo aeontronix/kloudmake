@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.Parameters;
+import com.kloudtek.systyrant.context.Parameters;
 
 import java.io.StringWriter;
 import java.util.Collections;

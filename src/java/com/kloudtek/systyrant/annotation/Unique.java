@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.annotation;
 
-import com.kloudtek.systyrant.resource.UniqueScope;
+import com.kloudtek.systyrant.UniqueScope;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

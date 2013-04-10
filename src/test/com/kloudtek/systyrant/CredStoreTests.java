@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant;
 
+import com.kloudtek.systyrant.context.AbstractContextTest;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.service.credstore.CredStore;
 import com.kloudtek.util.UnableToDecryptException;

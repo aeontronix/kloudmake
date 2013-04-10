@@ -4,10 +4,10 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Execute;
+import com.kloudtek.systyrant.context.AbstractContextTest;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;

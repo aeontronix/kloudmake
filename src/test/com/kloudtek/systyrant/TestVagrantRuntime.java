@@ -9,9 +9,8 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.LinuxMetadataProvider;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.host.SshHost;
-import com.kloudtek.systyrant.resource.builtin.vagrant.SharedFolder;
-import com.kloudtek.systyrant.resource.builtin.vagrant.VagrantResource;
-import com.kloudtek.systyrant.service.ServiceManager;
+import com.kloudtek.systyrant.resource.vagrant.SharedFolder;
+import com.kloudtek.systyrant.resource.vagrant.VagrantResource;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Method;

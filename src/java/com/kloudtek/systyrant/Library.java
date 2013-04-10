@@ -6,7 +6,7 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
-import com.kloudtek.systyrant.resource.builtin.core.FileResource;
+import com.kloudtek.systyrant.resource.core.FileResource;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.XPathUtils;
 import org.reflections.Reflections;

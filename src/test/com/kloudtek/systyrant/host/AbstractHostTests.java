@@ -5,8 +5,6 @@
 package com.kloudtek.systyrant.host;
 
 import com.jcraft.jsch.JSchException;
-import com.kloudtek.systyrant.ExecutionResult;
-import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.TestVagrantRuntime;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.CryptoUtils;
@@ -28,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.kloudtek.systyrant.FileInfo.Type.*;
+import static com.kloudtek.systyrant.host.FileInfo.Type.*;
 import static com.kloudtek.systyrant.host.Host.Logging.YES;
 import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 import static org.testng.Assert.*;

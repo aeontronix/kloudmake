@@ -4,12 +4,12 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
+import com.kloudtek.systyrant.context.AbstractContextTest;
 import org.testng.annotations.Test;
 
 import javax.script.ScriptException;

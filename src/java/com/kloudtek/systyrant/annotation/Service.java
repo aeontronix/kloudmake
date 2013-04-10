@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.annotation;
 
-import com.kloudtek.systyrant.service.ServiceManager;
+import com.kloudtek.systyrant.ServiceManager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * This annotation can be used to create a new child resource using the Systyrant DSL. It can used on the type, or on a field.
- * If used on a field, that field must be of type {@link com.kloudtek.systyrant.Resource}.
+ * If used on a field, that field must be of type {@link com.kloudtek.systyrant.context.Resource}.
  * ie: <code>
  *
  * @New("core:file {path = '/test'}")

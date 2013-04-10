@@ -7,16 +7,13 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.Inject;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.annotation.Service;
+import com.kloudtek.systyrant.context.*;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
-import com.kloudtek.systyrant.resource.AutoNotify;
-import com.kloudtek.systyrant.resource.Notification;
-import com.kloudtek.systyrant.service.ServiceManager;
-import com.kloudtek.systyrant.service.ServiceManagerImpl;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -44,11 +41,11 @@ public class STContext implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(STContext.class);
     static ThreadLocal<STContext> ctx = new ThreadLocal<>();
     final STContextData data = new STContextData();
-    private STContextLifecycleExecutor lifecycleExecutor = new STContextLifecycleExecutor(this, data);
+    private STCLifecycleExecutor lifecycleExecutor = new STCLifecycleExecutor(this, data);
 
     static {
         try {
-            scriptingSupport.put("rb", IOUtils.toString(STContext.class.getResourceAsStream("ruby/systyrant.rb")));
+            scriptingSupport.put("rb", IOUtils.toString(STContext.class.getResourceAsStream("context/systyrant.rb")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

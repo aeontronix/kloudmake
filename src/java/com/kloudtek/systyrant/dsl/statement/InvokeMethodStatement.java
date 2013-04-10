@@ -4,9 +4,9 @@
 
 package com.kloudtek.systyrant.dsl.statement;
 
-import com.kloudtek.systyrant.Parameters;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.context.Parameters;
 import com.kloudtek.systyrant.dsl.AntLRUtils;
 import com.kloudtek.systyrant.dsl.DSLScript;
 import com.kloudtek.systyrant.dsl.InvalidScriptException;

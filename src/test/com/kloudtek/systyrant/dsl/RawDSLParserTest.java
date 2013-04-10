@@ -7,14 +7,15 @@ package com.kloudtek.systyrant.dsl;
 import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.Stage;
+import com.kloudtek.systyrant.context.RequiresExpression;
+import com.kloudtek.systyrant.context.ResourceImpl;
+import com.kloudtek.systyrant.context.ResourceMatcher;
 import com.kloudtek.systyrant.dsl.statement.CreateResourceStatement;
 import com.kloudtek.systyrant.dsl.statement.InvokeMethodStatement;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidVariableException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.RequiresExpression;
-import com.kloudtek.systyrant.resource.ResourceMatcher;
 import org.apache.tools.ant.util.ReflectUtil;
 import org.testng.annotations.Test;
 
@@ -176,7 +177,7 @@ public class RawDSLParserTest {
 
     @Test
     public void testParseRequiresExpression() throws InvalidDependencyException {
-        Resource res = new Resource(null, null, null, null, null);
+        Resource res = new ResourceImpl(null, null, null, null, null);
         RequiresExpression requiresExpression = new RequiresExpression(res, "test:val( bla = 'asd', ba=\"asdffdsa\", adsf=sfafdsa ), asfd:asds, foobar( x = 'z' )");
         ArrayList<RequiresExpression.RequiredDependency> deps = (ArrayList<RequiresExpression.RequiredDependency>) ReflectUtil.getField(requiresExpression, "requiredDependencies");
         assertEquals(deps.size(), 3);

@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.ruby;
 
-import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
+import com.kloudtek.systyrant.context.AbstractContextTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

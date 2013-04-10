@@ -6,7 +6,7 @@ package com.kloudtek.systyrant;
 
 
 import com.kloudtek.systyrant.annotation.HandleNotification;
-import com.kloudtek.systyrant.resource.*;
+import com.kloudtek.systyrant.context.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.testng.annotations.Test;
 

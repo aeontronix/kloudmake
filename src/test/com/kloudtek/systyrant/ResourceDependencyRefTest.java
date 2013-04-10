@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant;
 
+import com.kloudtek.systyrant.context.AbstractContextTest;
 import com.kloudtek.systyrant.exception.InvalidDependencyException;
 import com.kloudtek.systyrant.exception.InvalidRefException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;

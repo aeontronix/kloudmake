@@ -52,8 +52,8 @@ public class DepLinkedCreateResourceStatement extends Statement {
     }
 
     private void makeDependent(List<Resource> leftResources, List<Resource> rightResources) {
-        for (Resource r : leftResources) {
-            r.addDependencies(rightResources);
+        for (Resource resource : rightResources) {
+            resource.addDependencies(leftResources);
         }
     }
 

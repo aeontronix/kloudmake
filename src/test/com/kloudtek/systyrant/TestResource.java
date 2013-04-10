@@ -5,10 +5,11 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.*;
+import com.kloudtek.systyrant.context.AbstractAction;
+import com.kloudtek.systyrant.context.AbstractContextTest;
+import com.kloudtek.systyrant.context.ResourceRef;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.AbstractAction;
-import com.kloudtek.systyrant.resource.ResourceRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;

@@ -31,7 +31,7 @@ public @interface Resources {
      * Query used to retrieve resources to inject.
      *
      * @return Query string.
-     * @see com.kloudtek.systyrant.resource.query.ResourceQuery
+     * @see com.kloudtek.systyrant.dsl.query.ResourceQuery
      */
     String value();
 }

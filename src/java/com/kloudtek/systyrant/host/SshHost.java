@@ -5,10 +5,8 @@
 package com.kloudtek.systyrant.host;
 
 import com.jcraft.jsch.*;
-import com.kloudtek.systyrant.ExecutionResult;
-import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
+import com.kloudtek.systyrant.resource.core.FilePermissions;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;

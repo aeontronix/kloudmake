@@ -7,11 +7,11 @@ package com.kloudtek.systyrant.dsl;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
+import com.kloudtek.systyrant.context.AbstractAction;
+import com.kloudtek.systyrant.context.ResourceDefinition;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.AbstractAction;
-import com.kloudtek.systyrant.resource.ResourceDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

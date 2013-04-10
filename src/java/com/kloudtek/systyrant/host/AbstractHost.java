@@ -4,10 +4,9 @@
 
 package com.kloudtek.systyrant.host;
 
-import com.kloudtek.systyrant.DelayedLogger;
-import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.util.DelayedLogger;
 import com.kloudtek.util.CryptoUtils;
 import org.apache.commons.exec.*;
 import org.apache.commons.io.output.TeeOutputStream;
@@ -25,8 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.kloudtek.systyrant.DelayedLogger.Severity.*;
 import static com.kloudtek.systyrant.host.Host.Logging.*;
+import static com.kloudtek.systyrant.util.DelayedLogger.Severity.*;
 
 /**
  * Abstract implementation of Host

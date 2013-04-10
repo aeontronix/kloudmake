@@ -4,10 +4,8 @@
 
 package com.kloudtek.systyrant.host;
 
-import com.kloudtek.systyrant.ExecutionResult;
-import com.kloudtek.systyrant.FileInfo;
 import com.kloudtek.systyrant.exception.STRuntimeException;
-import com.kloudtek.systyrant.resource.builtin.core.FilePermissions;
+import com.kloudtek.systyrant.resource.core.FilePermissions;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.TempFile;

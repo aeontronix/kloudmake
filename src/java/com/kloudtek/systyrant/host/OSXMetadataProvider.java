@@ -4,7 +4,6 @@
 
 package com.kloudtek.systyrant.host;
 
-import com.kloudtek.systyrant.ExecutionResult;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
