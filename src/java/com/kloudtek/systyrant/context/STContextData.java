@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class STContextData {
     // Generic
 
+    public Stage stage;
     public final ReentrantReadWriteLock executionLock = new ReentrantReadWriteLock();
     public List<File> tempFiles = new ArrayList<>();
     public List<Class<? extends Exception>> fatalExceptions;

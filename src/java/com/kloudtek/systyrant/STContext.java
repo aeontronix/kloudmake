@@ -246,6 +246,10 @@ public class STContext implements AutoCloseable {
         return scriptEngine;
     }
 
+    public synchronized Stage getStage() {
+        return data.stage;
+    }
+
     public Host host() {
         return data.host;
     }

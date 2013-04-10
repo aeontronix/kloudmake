@@ -19,10 +19,12 @@ import java.io.File;
 import java.util.*;
 
 import static com.kloudtek.systyrant.Stage.EXECUTE;
+import static com.kloudtek.systyrant.Stage.INIT;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class STCLifecycleExecutor {
     public boolean execute() throws STRuntimeException {
+        data.stage = INIT;
         data.executionLock.writeLock().lock();
         try {
             data.executing = true;
@@ -56,8 +58,8 @@ public class STCLifecycleExecutor {
                 }
             }
             data.executionLock.writeLock().unlock();
+            data.stage = null;
         }
-
     }
 
     private static final Logger logger = LoggerFactory.getLogger(STCLifecycleExecutor.class);
@@ -136,6 +138,7 @@ public class STCLifecycleExecutor {
     }
 
     private void executePrepareActions(Stage stage) throws STRuntimeException {
+        data.stage = stage;
         for (Resource res = data.getUnpreparedResource(stage); res != null; res = data.getUnpreparedResource(stage)) {
             data.resourceScope.set(res);
             try {
@@ -244,6 +247,7 @@ public class STCLifecycleExecutor {
     }
 
     private void executeResources(Stage stage) throws STRuntimeException {
+        data.stage = stage;
         logger.info("Starting stage {}", stage);
         Map<Resource, List<Resource>> parentchildrens = new HashMap<>();
         for (Map.Entry<Resource, List<Resource>> entry : data.parentToPendingChildrenMap.entrySet()) {

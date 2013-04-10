@@ -220,7 +220,7 @@ public class ResourceImpl implements Resource {
     @Override
     public void addNotificationHandler(NotificationHandler notificationHandler) throws InvalidStageException {
         synchronized (notificationHandlers) {
-            if (stage.ordinal() > Stage.POST_PREPARE.ordinal()) {
+            if (context.getStage() != null && context.getStage().ordinal() < Stage.PRE_EXECUTE.ordinal()) {
                 throw new InvalidStageException("Notification handlers can only be added during preparation stages");
             }
             notificationHandlers.add(notificationHandler);
