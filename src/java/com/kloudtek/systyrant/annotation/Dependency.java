@@ -15,4 +15,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({TYPE, FIELD})
 public @interface Dependency {
     String value();
+
+    boolean optional() default false;
 }

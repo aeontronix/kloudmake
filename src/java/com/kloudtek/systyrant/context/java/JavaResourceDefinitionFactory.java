@@ -27,9 +27,10 @@ public class JavaResourceDefinitionFactory {
     private static final Logger logger = LoggerFactory.getLogger(JavaResourceDefinitionFactory.class);
 
     public static ResourceDefinition create(@NotNull Class<?> clazz, @Nullable FQName fqname) throws InvalidResourceDefinitionException {
-        HashSet<String> requires = new HashSet<>();
         ResourceDefinition resourceDefinition = new ResourceDefinition(fqname != null ? fqname : new FQName(clazz, null));
-        resourceDefinition.addAction(new ResourceInitAction(clazz, requires));
+        HashSet<String> requires = new HashSet<>();
+        Dependency dep = clazz.getAnnotation(Dependency.class);
+        resourceDefinition.addAction(new ResourceInitAction(clazz, requires, dep));
         Unique uq = clazz.getAnnotation(Unique.class);
         try {
             clazz.newInstance();

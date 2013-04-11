@@ -4,7 +4,11 @@
 
 package com.kloudtek.systyrant.resource.core;
 
+import com.kloudtek.systyrant.FQName;
+import com.kloudtek.systyrant.Resource;
+import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.*;
+import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.FileInfo;
 import com.kloudtek.systyrant.host.Host;
@@ -12,11 +16,13 @@ import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
+import com.kloudtek.util.XmlUtils;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,15 +30,20 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 @STResource
+@Dependency(value = "type core:xmlfile", optional = true)
 public class FileResource {
     private static final Logger logger = LoggerFactory.getLogger(FileResource.class);
     private static final byte[] EMPTYSTRSHA1 = CryptoUtils.sha1(new byte[0]);
+    @Inject
+    private STContext ctx;
     @Attr
     protected String id;
     @Inject
@@ -137,7 +148,52 @@ public class FileResource {
                 throw new STRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
             }
         }
+        findContent();
+        if (finfo != null) {
+            // there is an existing file
+            if (finfo.getType() == FileInfo.Type.FILE) {
+                byte[] existingFileSha1 = host.getFileSha1(path);
+                if (sha1Bytes != null && Arrays.equals(existingFileSha1, sha1Bytes)) {
+                    logger.debug("File {} has the correct content", path);
+                    return false;
+                }
+            } else {
+                if (force) {
+                    delete = true;
+                } else {
+                    logger.error("Unable to create file {} because a directory is present in it's place (use 'force' flag to have it replaced)", path);
+                    throw new STRuntimeException();
+                }
+            }
+        }
+        return true;
+    }
+
+    private void findContent() throws STRuntimeException {
+        try {
+            List<Resource> fragments = new ArrayList<>(ctx.findResources("samehost and type core:xmlfile"));
+            if (!fragments.isEmpty()) {
+                if (isNotEmpty(content) || isNotEmpty(source)) {
+                    throw new STRuntimeException("File " + path + " cannot have fragments as well as content or source specified");
+                }
+                FQName type = checkFragmentType(fragments);
+                if (type.toString().equals("core:xmlfile")) {
+                    XmlFileResource.sort(fragments);
+                    Document document = XmlUtils.createDocument();
+                    for (Resource fragment : fragments) {
+                        XmlFileResource.addToDoc(fragment, document);
+                    }
+                } else {
+                    throw new STRuntimeException("BUG: file fragment type " + type);
+                }
+            }
+        } catch (InvalidQueryException e) {
+            throw new STRuntimeException("BUG: file fragment query invalid");
+        }
         if (isNotEmpty(content)) {
+            if (!isEmpty(source)) {
+                throw new STRuntimeException("File " + path + " cannot have content as well as source specified");
+            }
             byte[] data;
             try {
                 data = content.getBytes("UTF-8");
@@ -160,24 +216,16 @@ public class FileResource {
                 throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
             }
         }
-        if (finfo != null) {
-            // there is an existing file
-            if (finfo.getType() == FileInfo.Type.FILE) {
-                byte[] existingFileSha1 = host.getFileSha1(path);
-                if (sha1Bytes != null && Arrays.equals(existingFileSha1, sha1Bytes)) {
-                    logger.debug("File {} has the correct content", path);
-                    return false;
-                }
-            } else {
-                if (force) {
-                    delete = true;
-                } else {
-                    logger.error("Unable to create file {} because a directory is present in it's place (use 'force' flag to have it replaced)", path);
-                    throw new STRuntimeException();
-                }
+    }
+
+    private FQName checkFragmentType(List<Resource> fragments) throws STRuntimeException {
+        FQName type = fragments.get(0).getType();
+        for (Resource fragment : fragments) {
+            if (!fragment.getType().equals(type)) {
+                throw new STRuntimeException("File " + path + " has multiple fragment types");
             }
         }
-        return true;
+        return type;
     }
 
     @Sync(value = "content", order = 1)

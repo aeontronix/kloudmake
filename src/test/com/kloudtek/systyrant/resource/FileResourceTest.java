@@ -117,12 +117,16 @@ public class FileResourceTest {
         file.set("target", PATH2);
         fileDoesntExist();
         fileExists();
-        assertTrue(context.execute());
+        execute();
 
         verify(adminMock, times(1)).start();
         verify(adminMock, atLeastOnce()).fileExists(PATH);
         verify(adminMock).createSymlink(PATH, PATH2);
         verify(adminMock, times(1)).stop();
+    }
+
+    private void execute() throws STRuntimeException {
+        assertTrue(context.execute());
     }
 
     @Test

@@ -6,8 +6,10 @@ package com.kloudtek.systyrant.context.java;
 
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.annotation.Dependency;
 import com.kloudtek.systyrant.context.AbstractAction;
 import com.kloudtek.systyrant.context.ResourceImpl;
+import com.kloudtek.systyrant.exception.InvalidRefException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
 import java.util.HashSet;
@@ -23,10 +25,12 @@ import static com.kloudtek.systyrant.Action.Type.INIT;
  */
 public class ResourceInitAction extends AbstractAction {
     private final HashSet<String> requires;
+    private final Dependency dependency;
     private Class<?> clazz;
 
-    public ResourceInitAction(Class<?> clazz, HashSet<String> requires) {
+    public ResourceInitAction(Class<?> clazz, HashSet<String> requires, Dependency dependency) {
         this.requires = requires;
+        this.dependency = dependency;
         type = INIT;
         this.clazz = clazz;
     }
@@ -38,8 +42,13 @@ public class ResourceInitAction extends AbstractAction {
             for (String require : requires) {
                 resource.addRequires(require);
             }
+            if (dependency != null) {
+                resource.addDependency(dependency.value(), dependency.optional());
+            }
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new STRuntimeException("Unable to create java resource instance " + e.getMessage(), e);
+            throw new STRuntimeException("Unable to create java resource instance " + clazz.getName() + " : " + e.getMessage(), e);
+        } catch (InvalidRefException e) {
+            throw new STRuntimeException("Invalid @Dependency annotation in " + clazz.getName() + " " + e.getMessage(), e);
         }
     }
 }
