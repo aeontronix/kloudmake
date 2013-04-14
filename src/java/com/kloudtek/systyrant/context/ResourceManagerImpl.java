@@ -286,7 +286,7 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @NotNull
     @Override
-    public ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException {
+    public ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException {
         rlock();
         try {
             ResourceFinder rfinder = new ResourceFinder(name, importPaths);

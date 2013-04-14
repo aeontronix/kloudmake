@@ -112,6 +112,17 @@ public class CredStore implements AutoCloseable {
         return obtainPassword(id, size, true, true, true);
     }
 
+    /**
+     * This function is used to retrieve a password from the credential store. If the password doesn't exist, one will
+     * be generated based on the provided parameters
+     *
+     * @param id      Password id.
+     * @param size    password size.
+     * @param caps    Flag indicating if capital letters are required in the password.
+     * @param number  Flag indicating if numbers are required in the password.
+     * @param symbols Flag indicating if symbos are required in the password.
+     * @return Password
+     */
     @Method(value = "password", stage = {Stage.PREPARE, Stage.EXECUTE})
     public synchronized String obtainPassword(@Param("id") String id, @Param(value = "size", def = "20") int size,
                                               @Param(value = "caps", def = "true") boolean caps,

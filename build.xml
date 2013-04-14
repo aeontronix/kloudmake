@@ -11,6 +11,28 @@
     <target name="_artifacts" depends="artifacts"/>
     <target name="_dist" depends="dist"/>
 
+    <target name="add-tools-to-cp" extensionOf="init">
+        <augment id="buildmagic.classpath.compile">
+            <fileset dir="${java.home}" includes="lib/tools.jar"/>
+        </augment>
+    </target>
+
+    <target name="update-wiki" depends="compile">
+        <property name="wiki.dir" value="${build.dir}/wiki"/>
+        <mkdir dir="${wiki.dir}"/>
+        <javadoc classpathref="buildmagic.classpath.compile" destdir="${wiki.dir}">
+            <doclet name="com.kloudtek.systyrant.util.DocGenerator" path="${build.dir}/classes">
+                <!--<param name="-d" value="_build/"/>-->
+            </doclet>
+            <fileset dir="src/java" excludes="**/DocGenerator.java" includes="**/*.java"/>
+            <fileset dir="${build.dir}/antlr" includes="**/*.java"/>
+            <classpath>
+                <path refid="buildmagic.classpath.compile"/>
+                <path location="${java.home}/lib/tools.jar"/>
+            </classpath>
+        </javadoc>
+    </target>
+
     <target name="systyrant-dist" extensionOf="dist">
         <mkdir dir="${build.dir}/dist/lib"/>
         <mkdir dir="${build.dir}/dist/bin"/>

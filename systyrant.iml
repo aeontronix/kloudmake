@@ -20,6 +20,7 @@
         <jarDirectory url="file://$MODULE_DIR$/_deps/build-jar" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="java-7-tools" level="project" />
     <orderEntry type="module-library" exported="">
       <library name="runtime">
         <CLASSES>
