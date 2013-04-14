@@ -163,7 +163,7 @@ public class DSLParserTest extends AbstractContextTest {
     }
 
     @Test()
-    public void testVariables() throws Throwable {
+    public void testVarSubFromParentsAttrs() throws Throwable {
         ctx.runDSLScript("new test:test(id='parent',attr='val') { new test:test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
         execute();
         Resource parent = ctx.findResourceByUid("parent");
@@ -176,6 +176,22 @@ public class DSLParserTest extends AbstractContextTest {
         assertEquals(child.get("e"), "val");
         assertEquals(child.get("f"), "valbar");
         assertEquals(child.get("g"), "bla${a}b\\o");
+    }
+
+    @Test()
+    public void testVarSubFromAssignedVarInDef() throws Throwable {
+        ctx.runDSLScript("def test:newtest() { $var='hello'; new test:test( id='child', value = $var) {} } new test:newtest {'parent':}");
+        execute();
+        Resource child = ctx.findResourceByUid("parent.child");
+        assertEquals(child.get("value"), "hello");
+    }
+
+    @Test()
+    public void testVarSubFromAssignedVarInPrepare() throws Throwable {
+        ctx.runDSLScript("new test:test() { 'parent': $var='hello'; new test:test( id='child', value = $var) {} }");
+        execute();
+        Resource child = ctx.findResourceByUid("parent.child");
+        assertEquals(child.get("value"), "hello");
     }
 
     @Test

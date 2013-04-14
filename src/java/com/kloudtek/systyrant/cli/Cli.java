@@ -106,6 +106,7 @@ public class Cli {
                     } else {
                         logger.error("An error occured while executing script " + definition + " : " + e.getMessage(), e);
                     }
+                    return 5;
                 }
             }
             boolean successful = context.execute();

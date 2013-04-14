@@ -17,7 +17,7 @@ import java.util.Arrays;
 /**
  * Provides access to a file in the {@link FileStore}
  */
-public abstract class DataFile {
+public abstract class DataFile implements AutoCloseable {
     public abstract InputStream getStream() throws IOException;
 
     public abstract byte[] getSha1() throws IOException;

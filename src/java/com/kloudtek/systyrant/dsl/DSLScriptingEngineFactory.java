@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.dsl;
 
 import com.kloudtek.systyrant.STContext;
+import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
@@ -24,7 +25,7 @@ public class DSLScriptingEngineFactory implements ScriptEngineFactory {
     private List<String> exts = Arrays.asList("stl");
     private STContext ctx;
 
-    public DSLScriptingEngineFactory(STContext ctx) {
+    public DSLScriptingEngineFactory(@NotNull STContext ctx) {
         this.ctx = ctx;
     }
 

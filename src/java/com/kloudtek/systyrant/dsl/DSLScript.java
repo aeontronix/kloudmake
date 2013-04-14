@@ -11,6 +11,8 @@ import com.kloudtek.systyrant.context.ResourceDefinition;
 import com.kloudtek.systyrant.context.ResourceMatcher;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.script.ScriptException;
 import java.util.ArrayList;
@@ -21,18 +23,28 @@ import static com.kloudtek.systyrant.dsl.AntLRUtils.nullToEmpty;
 
 public class DSLScript {
     private STContext ctx;
+    private String source;
     private String defaultPackage;
     private List<ResourceMatcher> imports = new ArrayList<>();
     private List<DSLResourceDefinition> defines = new ArrayList<>();
     private List<Statement> statements = new ArrayList<>();
     private ResourceMatcher defaultPkgMatcher;
 
-    public DSLScript(STContext ctx, String defaultPackage, SystyrantLangParser.StartContext startContext) throws InvalidScriptException {
+    public DSLScript(@NotNull STContext ctx, @Nullable String defaultPackage, @NotNull SystyrantLangParser.StartContext startContext) throws InvalidScriptException {
+        source = ctx.getSourceUrl();
         this.ctx = ctx;
         this.defaultPackage = defaultPackage;
         for (SystyrantLangParser.TopLvlFunctionsContext topLvlFunctionsContext : nullToEmpty(startContext.topLvlFunctions())) {
             parseTopLvlFunction(topLvlFunctionsContext);
         }
+    }
+
+    public STContext getCtx() {
+        return ctx;
+    }
+
+    public String getSource() {
+        return source;
     }
 
     private void parseTopLvlFunction(SystyrantLangParser.TopLvlFunctionsContext topLvlFunctionsContext) throws InvalidScriptException {
@@ -60,6 +72,10 @@ public class DSLScript {
         } else {
             addImport(new ResourceMatcher(importDec, null));
         }
+    }
+
+    public String getSourceUrl() {
+        return source;
     }
 
     public List<ResourceMatcher> getImports() {

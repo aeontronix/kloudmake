@@ -113,4 +113,16 @@ public interface Resource {
     FQName getType();
 
     boolean isFailed();
+
+    Map<String, Object> getVars();
+
+    Object getVar(String name);
+
+    Object getVar(String name, boolean inResourceOnly);
+
+    void setVar(String name, Object value);
+
+    void removeVar(String name);
+
+    String getSourceUrl();
 }

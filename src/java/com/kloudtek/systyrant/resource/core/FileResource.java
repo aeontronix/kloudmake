@@ -16,13 +16,12 @@ import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.XmlUtils;
+import freemarker.template.TemplateException;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -177,15 +176,15 @@ public class FileResource {
                     throw new STRuntimeException("File " + path + " cannot have fragments as well as content or source specified");
                 }
                 FQName type = checkFragmentType(fragments);
-                if (type.toString().equals("core:xmlfile")) {
-                    XmlFileResource.sort(fragments);
-                    Document document = XmlUtils.createDocument();
-                    for (Resource fragment : fragments) {
-                        XmlFileResource.addToDoc(fragment, document);
-                    }
-                } else {
-                    throw new STRuntimeException("BUG: file fragment type " + type);
-                }
+//                if (type.toString().equals("core:xmlfile")) {
+//                    XmlFileResource.sort(fragments);
+//                    Document document = XmlUtils.createDocument();
+//                    for (Resource fragment : fragments) {
+//                        XmlFileResource.addToDoc(fragment, document);
+//                    }
+//                } else {
+//                    throw new STRuntimeException("BUG: file fragment type " + type);
+//                }
             }
         } catch (InvalidQueryException e) {
             throw new STRuntimeException("BUG: file fragment query invalid");
@@ -209,11 +208,13 @@ public class FileResource {
             sha1Bytes = EMPTYSTRSHA1;
         } else {
             try {
-                DataFile dataFile = fileStore.get(path);
+                DataFile dataFile = fileStore.create(source);
                 contentStream = dataFile.getStream();
                 sha1Bytes = dataFile.getSha1();
             } catch (IOException e) {
                 throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
+            } catch (TemplateException e) {
+                throw new STRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
             }
         }
     }

@@ -44,15 +44,11 @@ public class VariableParameter extends Parameter {
     }
 
     public static String resolveVariable(Resource resource, String attr) throws InvalidVariableException {
-        if (resource.getAttributes().containsKey(attr)) {
-            return resource.get(attr);
+        Object var = resource.getVar(attr);
+        if (var != null) {
+            return var.toString();
         } else {
-            Resource parent = resource.getParent();
-            if (parent != null) {
-                return resolveVariable(parent, attr);
-            }
+            throw new InvalidVariableException("Unable to find variable " + attr);
         }
-        throw new InvalidVariableException("Unable to find variable " + attr);
     }
 }
-

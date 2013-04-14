@@ -14,6 +14,7 @@ import com.kloudtek.systyrant.resource.core.FileResource;
 import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.util.CryptoUtils;
+import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
 import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeMethod;
@@ -130,16 +131,20 @@ public class FileResourceTest {
     }
 
     @Test
-    public void testCreateFileFromSource() throws STRuntimeException, IOException {
+    public void testCreateFileFromSource() throws STRuntimeException, IOException, TemplateException {
         file.set("source", PATH);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(DATA.getBytes());
         fileDoesntExist();
         fileExists();
         mockGetFileInfo(FILE, PATH);
-        when(fileStoreMock.get(PATH)).thenReturn(new DataFile() {
+        when(fileStoreMock.create(PATH)).thenReturn(new DataFile() {
             @Override
             public InputStream getStream() throws IOException {
                 return inputStream;
+            }
+
+            @Override
+            public void close() throws Exception {
             }
 
             @Override

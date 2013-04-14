@@ -122,13 +122,23 @@ public class DSLResourceDefinition {
         @Override
         public void execute(STContext context, Resource resource) throws STRuntimeException {
             logger.debug("Executing all DSL statements for " + resource.toString());
-            if (actionStatements != null) {
-                for (Statement statement : actionStatements) {
-                    try {
-                        statement.execute(dslScript, resource);
-                    } catch (ScriptException e) {
-                        throw new STRuntimeException(e.getMessage(), e);
+            String old = context.getSourceUrl();
+            context.setSourceUrl(dslScript.getSourceUrl());
+            try {
+                if (actionStatements != null) {
+                    for (Statement statement : actionStatements) {
+                        try {
+                            statement.execute(dslScript, resource);
+                        } catch (ScriptException e) {
+                            throw new STRuntimeException(e.getMessage(), e);
+                        }
                     }
+                }
+            } finally {
+                if (old != null) {
+                    context.setSourceUrl(old);
+                } else {
+                    context.clearSourceUrl();
                 }
             }
         }

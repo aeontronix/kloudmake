@@ -34,6 +34,7 @@ public class ResourceImpl implements Resource {
     private List<Action> cleanupActions = new ArrayList<>();
     private Stage stage;
     private Host hostOverride;
+    private final String sourceUrl;
     /**
      * This contains the results of any successful verification (meaning nothing has changed). A global verification
      * will be stored as an empty string, and a specific verification will be stored as it's name.
@@ -45,6 +46,7 @@ public class ResourceImpl implements Resource {
     HashSet<Resource> indirectDependencies;
     final HashSet<Resource> dependents = new HashSet<>();
     final HashMap<String, List<Resource>> requires = new HashMap<>();
+    final VariableMap variables = new VariableMap(this);
 
     public ResourceImpl(STContext context, ResourceDefinition definition, String id, String uid, Resource parent) {
         this.context = context;
@@ -56,6 +58,7 @@ public class ResourceImpl implements Resource {
             ((ResourceImpl) parent).childrens.add(this);
         }
         reset();
+        sourceUrl = context.getSourceUrl();
     }
 
     public void reset() {
@@ -64,6 +67,11 @@ public class ResourceImpl implements Resource {
         verification.clear();
         indirectDependencies = null;
         dependencies.clear();
+    }
+
+    @Override
+    public String getSourceUrl() {
+        return sourceUrl;
     }
 
     // ----------------------------------------------------------------------
@@ -365,6 +373,49 @@ public class ResourceImpl implements Resource {
             throw new IllegalArgumentException("attribute id cannot be removed");
         }
         attributes.remove(key.toLowerCase());
+    }
+
+    @Override
+    public Map<String, Object> getVars() {
+        synchronized (variables) {
+            return Collections.unmodifiableMap(variables);
+        }
+    }
+
+    @Override
+    public Object getVar(String name) {
+        synchronized (variables) {
+            return variables.get(name);
+        }
+    }
+
+    @Override
+    public Object getVar(String name, boolean inResourceOnly) {
+        if (inResourceOnly) {
+            synchronized (variables) {
+                if (variables.containsKey(name)) {
+                    return variables.get(name);
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return getVar(name);
+        }
+    }
+
+    @Override
+    public void setVar(String name, Object value) {
+        synchronized (variables) {
+            variables.put(name, value);
+        }
+    }
+
+    @Override
+    public void removeVar(String name) {
+        synchronized (variables) {
+            variables.remove(name);
+        }
     }
 
     @Override

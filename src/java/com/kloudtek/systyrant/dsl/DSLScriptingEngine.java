@@ -7,6 +7,7 @@ package com.kloudtek.systyrant.dsl;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.script.*;
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class DSLScriptingEngine extends AbstractScriptEngine {
     private final STContext ctx;
     private ScriptEngineFactory factory;
 
-    public DSLScriptingEngine(STContext ctx, DSLScriptingEngineFactory factory) {
+    public DSLScriptingEngine(@NotNull STContext ctx, @NotNull DSLScriptingEngineFactory factory) {
         this.ctx = ctx;
         this.factory = factory;
     }

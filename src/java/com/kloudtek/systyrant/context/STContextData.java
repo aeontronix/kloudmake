@@ -48,7 +48,7 @@ public class STContextData {
     public final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
     public ReentrantReadWriteLock resourceListLock = new ReentrantReadWriteLock();
     public List<Resource> resources = new ArrayList<>();
-    public ThreadLocal<Resource> resourceScope = new ThreadLocal<>();
+    public final ThreadLocal<Resource> resourceScope = new ThreadLocal<>();
     public final Map<Resource, List<Resource>> parentToPendingChildrenMap = new HashMap<>();
     public final HashSet<Resource> postChildrenExecuted = new HashSet<>();
     public Resource defaultParent;
@@ -63,6 +63,7 @@ public class STContextData {
     public HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
     public HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
     public HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
+    public final ThreadLocal<String> sourceUrl = new ThreadLocal<>();
 
     // Hosts
 

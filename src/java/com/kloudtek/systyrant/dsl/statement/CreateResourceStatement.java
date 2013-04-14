@@ -64,18 +64,26 @@ public class CreateResourceStatement extends Statement {
         try {
             ArrayList<Resource> resources = new ArrayList<>();
             for (Instance instance : instances) {
-                Resource resource = ctx.getResourceManager().createResource(elementName, instance.id, parent, dslScript.getImports());
-                Resource old = ctx.currentResource();
-                ctx.setCurrentResource(resource);
-                for (Map.Entry<String, Parameter> pe : instance.parameters.entrySet()) {
-                    resource.set(pe.getKey(), pe.getValue().eval(ctx, resource));
-                }
-                for (CreateResourceStatement children : instance.childrens) {
-                    children.execute(dslScript, resource);
-                }
-                resources.add(resource);
-                if (old != null) {
-                    ctx.setCurrentResource(old);
+                String oldSource = ctx.getSourceUrl();
+                ctx.setSourceUrl(dslScript.getSourceUrl());
+                assert ctx.getSourceUrl() != null;
+                try {
+                    Resource resource = ctx.getResourceManager().createResource(elementName, instance.id, parent, dslScript.getImports());
+                    Resource old = ctx.currentResource();
+                    ctx.setCurrentResource(resource);
+                    for (CreateAction action : instance.actions) {
+                        action.execute(dslScript, resource);
+                    }
+                    resources.add(resource);
+                    if (old != null) {
+                        ctx.setCurrentResource(old);
+                    }
+                } finally {
+                    if (oldSource != null) {
+                        ctx.setSourceUrl(oldSource);
+                    } else {
+                        ctx.clearSourceUrl();
+                    }
                 }
             }
             return resources;
@@ -95,36 +103,51 @@ public class CreateResourceStatement extends Statement {
 
     public class Instance {
         private String id;
-        private Map<String, Parameter> parameters = new LinkedHashMap<>();
-        private List<CreateResourceStatement> childrens = new ArrayList<>();
+        private final List<CreateAction> actions = new ArrayList<>();
 
         public Instance(@Nullable String id,
                         @Nullable List<SystyrantLangParser.CreateResourceInstanceElementsContext> resourceInstanceElements,
                         @Nullable Map<String, Parameter> params) throws InvalidScriptException {
             this.id = id;
             if (params != null) {
-                parameters.putAll(params);
-            }
-            for (SystyrantLangParser.CreateResourceInstanceElementsContext elCtx : AntLRUtils.nullToEmpty(resourceInstanceElements)) {
-                SystyrantLangParser.ParameterAssignmentContext param = elCtx.parameterAssignment();
-                if (param != null) {
-                    String paramName = param.paramName.getText().trim().toLowerCase();
-                    Parameter parameter = Parameter.create(param.staticOrDynamicValue());
-                    parameters.put(paramName, parameter);
-                }
-                SystyrantLangParser.CreateResourceInstanceChildContext createChildCtx = elCtx.createResourceInstanceChild();
-                if (createChildCtx != null) {
-                    childrens.add(new CreateResourceStatement(ctx, createChildCtx.createResource()));
+                for (Map.Entry<String, Parameter> entry : params.entrySet()) {
+                    String key = entry.getKey();
+                    Parameter value = entry.getValue();
+                    if (key.equals("id")) {
+                        assignId(value);
+                    } else {
+                        actions.add(new SetAttrAction(key, value));
+                    }
                 }
             }
-            Parameter idParam = parameters.get("id");
-            if (idParam != null) {
-                parameters.remove("id");
-                if (idParam instanceof StaticParameter) {
-                    this.id = idParam.getRawValue();
+            for (SystyrantLangParser.CreateResourceInstanceElementsContext rsCtx : AntLRUtils.nullToEmpty(resourceInstanceElements)) {
+                final CreateAction action;
+                if (rsCtx.aspar != null) {
+                    String paramName = rsCtx.aspar.paramName.getText().trim().toLowerCase();
+                    Parameter parameter = Parameter.create(rsCtx.aspar.staticOrDynamicValue());
+                    if (paramName.equals("id")) {
+                        assignId(parameter);
+                        continue;
+                    } else {
+                        action = new SetAttrAction(paramName, parameter);
+                    }
+                } else if (rsCtx.child != null) {
+                    action = new CreateChildAction(rsCtx.child.createResource());
+                } else if (rsCtx.asvar != null) {
+                    action = new SetVarAction(rsCtx.asvar);
                 } else {
-                    throw new InvalidScriptException("id " + idParam.getRawValue() + " in " + elementName + "must be a static value");
+                    throw new InvalidScriptException("BUG! Unknown statement " + rsCtx.getText());
                 }
+                actions.add(action);
+            }
+        }
+
+        private void assignId(Parameter value) throws InvalidScriptException {
+            if (value instanceof StaticParameter) {
+                this.id = value.getRawValue();
+                return;
+            } else {
+                throw new InvalidScriptException("id " + value.getRawValue() + " in " + elementName + "must be a static value");
             }
         }
 
@@ -132,17 +155,68 @@ public class CreateResourceStatement extends Statement {
             return id;
         }
 
-        public Map<String, Parameter> getParameters() {
-            return parameters;
+        @Override
+        public String toString() {
+            return "instance{" + id + "}";
         }
 
-        public List<CreateResourceStatement> getChildrens() {
-            return childrens;
+        public Parameter getAttrAssignment(String name) {
+            for (CreateAction action : actions) {
+                if (action instanceof SetAttrAction) {
+                    SetAttrAction attrAction = (SetAttrAction) action;
+                    if (attrAction.paramName.equals(name)) {
+                        return attrAction.value;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    public interface CreateAction {
+        void execute(DSLScript dslScript, Resource resource) throws STRuntimeException, ScriptException;
+    }
+
+    public class SetAttrAction implements CreateAction {
+        private String paramName;
+        private Parameter value;
+
+        public SetAttrAction(String paramName, Parameter value) {
+            this.paramName = paramName;
+            this.value = value;
         }
 
         @Override
-        public String toString() {
-            return "instance{" + id + ":" + parameters + "," + childrens + "}";
+        public void execute(DSLScript dslScript, Resource resource) throws STRuntimeException {
+            resource.set(paramName, value.eval(ctx, resource));
+        }
+    }
+
+    public class CreateChildAction implements CreateAction {
+        private final CreateResourceStatement statement;
+
+        public CreateChildAction(SystyrantLangParser.CreateResourceContext createChildCtx) throws InvalidScriptException {
+            statement = new CreateResourceStatement(ctx, createChildCtx);
+        }
+
+        @Override
+        public void execute(DSLScript dslScript, Resource resource) throws STRuntimeException, ScriptException {
+            statement.execute(dslScript, resource);
+        }
+    }
+
+    public class SetVarAction implements CreateAction {
+        private String name;
+        private Parameter value;
+
+        public SetVarAction(SystyrantLangParser.AssignVariableStatementContext asvar) throws InvalidScriptException {
+            name = asvar.var.getText();
+            value = Parameter.create(asvar.val);
+        }
+
+        @Override
+        public void execute(DSLScript dslScript, Resource resource) throws STRuntimeException, ScriptException {
+            resource.setVar(name, value.eval(ctx, resource));
         }
     }
 }

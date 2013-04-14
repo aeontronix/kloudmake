@@ -181,9 +181,20 @@ public class STContext implements AutoCloseable {
         if (!uri.isAbsolute()) {
             uri = new File(uri.getPath()).getAbsoluteFile().toURI();
         }
-        InputStreamReader reader = new InputStreamReader(uri.toURL().openConnection().getInputStream());
-        runScript(pkg, uri.toString(), reader);
-        reader.close();
+        URL url = uri.toURL();
+        String oldSource = data.sourceUrl.get();
+        data.sourceUrl.set(url.toString());
+        try {
+            InputStreamReader reader = new InputStreamReader(url.openConnection().getInputStream());
+            runScript(pkg, uri.toString(), reader);
+            reader.close();
+        } finally {
+            if (oldSource != null) {
+                data.sourceUrl.set(oldSource);
+            } else {
+                data.sourceUrl.remove();
+            }
+        }
     }
 
     public synchronized void runScript(String path, Reader scriptReader) throws IOException, ScriptException {
@@ -219,8 +230,15 @@ public class STContext implements AutoCloseable {
         }
     }
 
-    public void runDSLScript(String dsl) throws IOException, ScriptException {
+    public synchronized void runDSLScript(String dsl) throws IOException, ScriptException {
+        String old = data.sourceUrl.get();
+        data.sourceUrl.set("dynamic:" + UUID.randomUUID().toString());
         runScript(null, new StringReader(dsl));
+        if (old != null) {
+            data.sourceUrl.set(old);
+        } else {
+            data.sourceUrl.remove();
+        }
     }
 
     /**
@@ -273,6 +291,18 @@ public class STContext implements AutoCloseable {
 
     public FileStore files() throws InvalidServiceException {
         return data.serviceManager.getService(FileStore.class);
+    }
+
+    public String getSourceUrl() {
+        return data.sourceUrl.get();
+    }
+
+    public void setSourceUrl(String url) {
+        data.sourceUrl.set(url);
+    }
+
+    public void clearSourceUrl() {
+        data.sourceUrl.remove();
     }
 
     // ------------------------------------------------------------------------------------------

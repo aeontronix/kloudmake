@@ -17,14 +17,15 @@ import java.util.List;
 public class ResourceSorterTest {
     @Test
     public void testSortSuccessful() throws Exception {
-        ResourceImpl seven = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl five = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl three = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl eleven = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl eight = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl two = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl nine = new ResourceImpl(null, null, null, null, null);
-        ResourceImpl ten = new ResourceImpl(null, null, null, null, null);
+        STContext ctx = new STContext();
+        ResourceImpl seven = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl five = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl three = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl eleven = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl eight = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl two = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl nine = new ResourceImpl(ctx, null, null, null, null);
+        ResourceImpl ten = new ResourceImpl(ctx, null, null, null, null);
         seven.dependencies.add(eleven);
         seven.dependencies.add(eight);
         five.dependencies.add(eleven);

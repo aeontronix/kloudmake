@@ -248,7 +248,7 @@ public class STCLifecycleExecutor {
 
     private void executeResources(Stage stage) throws STRuntimeException {
         data.stage = stage;
-        logger.info("Starting stage {}", stage);
+        logger.debug("Starting stage {}", stage);
         Map<Resource, List<Resource>> parentchildrens = new HashMap<>();
         for (Map.Entry<Resource, List<Resource>> entry : data.parentToPendingChildrenMap.entrySet()) {
             parentchildrens.put(entry.getKey(), new ArrayList<>(entry.getValue()));

@@ -4,6 +4,7 @@
 
 package com.kloudtek.systyrant.service.filestore;
 
+import com.kloudtek.systyrant.STContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,16 +17,19 @@ public class FileDefinition {
     private boolean retrievable;
     private boolean template;
     private String encoding = "UTF-8";
+    private String sourceUrl;
 
     public FileDefinition() {
+        sourceUrl = STContext.get().getSourceUrl();
     }
 
     public FileDefinition(String path) {
+        this();
         this.path = path;
     }
 
     public FileDefinition(String path, boolean template) {
-        this.path = path;
+        this(path);
         this.template = template;
     }
 
@@ -124,6 +128,10 @@ public class FileDefinition {
 
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    public String getSourceUrl() {
+        return sourceUrl;
     }
 
     @Override

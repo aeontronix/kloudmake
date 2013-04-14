@@ -6,7 +6,7 @@ start: topLvlFunctions* EOF;
 
 topLvlFunctions: importPkg | includeFile | statement;
 
-statement: ( create=createResource | invoke=invokeMethod | define=resourceDefinition );
+statement: ( create=createResource | invoke=invokeMethod | define=resourceDefinition | asvar=assignVariableStatement );
 
 // Imports & Includes
 
@@ -21,6 +21,10 @@ resourceDefinition: DEF fullyQualifiedId resourceDefinitionParams? ( resourceDef
 resourceDefinitionParams: '(' parameterAssignment* ')';
 
 resourceDefinitionStatements: LCB statement* RCB;
+
+// Assign variable
+
+assignVariableStatement: DOLLAR var=anyId EQ val=staticOrDynamicValue SC;
 
 // Create Resource
 
@@ -38,7 +42,7 @@ createResourceMultipleInstance: createResourceInstanceId? createResourceInstance
 
 createResourceInstanceId: id=string COL ?;
 
-createResourceInstanceElements: parameterAssignment | createResourceInstanceChild;
+createResourceInstanceElements: asvar=assignVariableStatement | aspar=parameterAssignment | child=createResourceInstanceChild;
 
 createResourceInstanceChild: createResource COMMA?;
 
@@ -98,7 +102,7 @@ staticOrDynamicValue: st=staticValue | dyn=dynamicValue | iv=invokeMethod;
 
 dynamicValue: ASTRING | variableLookupValue;
 
-variableLookupValue: '$' anyId;
+variableLookupValue: DOLLAR anyId;
 
 packageName: anyId ( DOT anyId )*;
 
@@ -112,6 +116,7 @@ string: astr=ASTRING | sval=staticValue;
 
 // Lexer
 
+DOLLAR: '$';
 AND: 'and';
 OR: 'or';
 NOT: 'not';
