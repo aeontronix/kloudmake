@@ -4,17 +4,13 @@
 
 package com.kloudtek.systyrant.service.filestore;
 
-import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.annotation.Service;
-import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.TempFile;
-import freemarker.cache.StringTemplateLoader;
-import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -31,8 +27,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 import java.util.*;
 
 import static com.kloudtek.util.StringUtils.*;
@@ -81,33 +75,11 @@ public class FileStore implements Closeable {
         if (isEmpty(u.getScheme())) {
             throw new IllegalArgumentException("Invalid uri " + uri);
         }
-        if (u.getScheme().equals("template")) {
-            return new TemplateDataFile(create(u.getSchemeSpecificPart()));
-        } else if (u.getScheme().equals("libfile")) {
+        if (u.getScheme().equals("libfile")) {
             return new LocalDataFile(u.getSchemeSpecificPart());
         } else {
             return null;
         }
-    }
-
-    public synchronized DataFile get(@NotNull String path, String url) throws IOException {
-        return new FSDataFile(new FileDefinition(path, url, null, true, false));
-    }
-
-    public synchronized DataFile getTemplate(@NotNull String path) throws IOException {
-        return new FSDataFile(new FileDefinition(path, true));
-    }
-
-    public synchronized DataFile getTemplate(String path, String url) throws IOException {
-        return new FSDataFile(new FileDefinition(path, url, null, true, true));
-    }
-
-    public synchronized DataFile get(String path, String url, String sha1, boolean retrievable, boolean template) throws IOException {
-        return new FSDataFile(new FileDefinition(path, url, sha1, retrievable, template));
-    }
-
-    public synchronized DataFile get(@NotNull FileDefinition fileDefinition) throws IOException {
-        return new FSDataFile(fileDefinition);
     }
 
     public synchronized Collection<String> getLocations() {
@@ -137,91 +109,42 @@ public class FileStore implements Closeable {
      * </code>
      *
      * @param path     Path to the file.
-     * @param template If the file is a freemarker template
      * @param encoding encoding
      * @return file url.
-     * @throws STRuntimeException
-     * @throws IOException
      */
     @Method("lfile")
-    public String createLibraryFileUrl(@Param("path") String path, @Param("template") boolean template, @Param("encoding") @Default("UTF-8") String encoding)
-            throws STRuntimeException, IOException {
+    public String createLibraryFileUrl(@Param("path") String path, @Param("encoding") @Default("UTF-8") String encoding) {
         if (!path.startsWith("/")) {
             String sourceUrl = STContext.get().getSourceUrl();
             if (sourceUrl != null) {
                 String urlStr = sourceUrl.toString();
                 int idx = urlStr.lastIndexOf('/');
                 if (idx == -1) {
-                    throw new IOException("Invalid source path (no '/' found): " + path);
+                    throw new IllegalArgumentException("Invalid source path (no '/' found): " + path);
                 }
                 path = urlStr.substring(0, idx + 1) + path;
             }
         }
-        StringBuilder uri = new StringBuilder();
-        if (template) {
-            uri.append("template:");
-        }
-        uri.append("libfile:").append(path);
-        return uri.toString();
+        return "libfile:" + path;
     }
 
+    /**
+     * Create an url to a user file (files which looked up in any of the configured filestore locations).
+     *
+     * @param path        File path.
+     * @param url         Optional URL from where the file can be retrieved
+     * @param sha1        Optional SHA1 checksum (in hex format)
+     * @param retrievable Flag indicating if the file is retrievable using the URL (If a URL is specified and this flag
+     *                    is false, automatic retrieval will not happen and the user will be requested to manually
+     *                    download and put the file in a filestore location).
+     * @param encoding    File encoding.
+     * @return file URL.
+     */
     @Method("ufile")
     public String createUserFileUrl(@Param("path") String path, @Param("url") String url,
                                     @Param("sha1") String sha1, @Param("retrievable") @Default("true") boolean retrievable,
-                                    @Param("template") boolean template, @Param("encoding") @Default("UTF-8") String encoding)
-            throws STRuntimeException {
-        return "ufile:" + path + "?template=" + template + "&encoding=" + urlEncode(encoding);
-    }
-
-    public class TemplateDataFile extends DataFile {
-        private final TempFile tempFile;
-        private final byte[] sha1;
-
-        public TemplateDataFile(DataFile datafile) throws IOException, TemplateException {
-            tempFile = new TempFile("tempf");
-            Template template = getTemplate(datafile);
-            STContext context = STContext.get();
-            HashMap<String, Object> map = new HashMap<>();
-            Resource resource = context.currentResource();
-            map.put("ctx", context);
-            map.put("res", resource);
-            map.put("attrs", resource.getAttributes());
-            map.put("vars", resource.getVars());
-            MessageDigest sha1Digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
-            try (Writer fw = new OutputStreamWriter(new DigestOutputStream(new FileOutputStream(tempFile), sha1Digest))) {
-                template.process(map, fw);
-            }
-            sha1 = sha1Digest.digest();
-        }
-
-        private Template getTemplate(DataFile datafile) throws IOException {
-            try (InputStream stream = datafile.getStream()) {
-                String templatefile = IOUtils.toString(stream);
-                Configuration cfg = new Configuration();
-                StringTemplateLoader loader = new StringTemplateLoader();
-                loader.putTemplate("template", templatefile);
-                cfg.setTemplateLoader(loader);
-                BeansWrapper wrapper = new BeansWrapper();
-                wrapper.setSimpleMapWrapper(true);
-                cfg.setObjectWrapper(wrapper);
-                return cfg.getTemplate("template");
-            }
-        }
-
-        @Override
-        public void close() throws IOException {
-            tempFile.close();
-        }
-
-        @Override
-        public InputStream getStream() throws IOException {
-            return new FileInputStream(tempFile);
-        }
-
-        @Override
-        public byte[] getSha1() throws IOException {
-            return sha1;
-        }
+                                    @Param("encoding") @Default("UTF-8") String encoding) {
+        return "ufile:" + path + "?encoding=" + urlEncode(encoding);
     }
 
     public class LocalDataFile extends DataFile {

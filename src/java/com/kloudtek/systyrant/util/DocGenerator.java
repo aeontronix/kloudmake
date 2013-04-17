@@ -30,7 +30,7 @@ public class DocGenerator {
             root.printNotice("destdir (-d) missing");
             return false;
         }
-        try (BufferedWriter w = new BufferedWriter(new FileWriter(dest + File.separator + "functions.md"))) {
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(dest + File.separator + "Functions.md"))) {
             for (ClassDoc classDoc : root.classes()) {
                 for (MethodDoc methodDoc : classDoc.methods()) {
                     for (AnnotationDesc annotationDesc : methodDoc.annotations()) {

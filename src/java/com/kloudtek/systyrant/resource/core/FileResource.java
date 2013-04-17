@@ -16,21 +16,24 @@ import com.kloudtek.systyrant.service.filestore.DataFile;
 import com.kloudtek.systyrant.service.filestore.FileStore;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.StringUtils;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.security.DigestInputStream;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
@@ -43,12 +46,14 @@ public class FileResource {
     private static final byte[] EMPTYSTRSHA1 = CryptoUtils.sha1(new byte[0]);
     @Inject
     private STContext ctx;
-    @Attr
-    protected String id;
     @Inject
     protected FileStore fileStore;
     @Inject
+    protected Resource resource;
+    @Inject
     protected Host host;
+    @Attr
+    protected String id;
     @Attr
     protected Ensure ensure = Ensure.FILE;
     @Attr
@@ -71,9 +76,13 @@ public class FileResource {
     @Attr
     protected String group;
     @Attr
+    protected boolean template;
+    @Attr
     protected String target;
     @Attr
     protected boolean temporary;
+    @Attr
+    protected String templateResource;
     protected byte[] sha1Bytes;
     protected InputStream contentStream;
     private FileInfo finfo;
@@ -87,7 +96,7 @@ public class FileResource {
     }
 
     @Verify("content")
-    public boolean checkContent() throws STRuntimeException {
+    public boolean checkContent() throws STRuntimeException, InvalidQueryException {
         delete = false;
         finfo = host.fileExists(path) ? host.getFileInfo(path) : null;
         switch (ensure) {
@@ -139,7 +148,7 @@ public class FileResource {
         return true;
     }
 
-    private boolean checkFile() throws STRuntimeException {
+    private boolean checkFile() throws STRuntimeException, InvalidQueryException {
         if (isNotEmpty(sha1)) {
             try {
                 sha1Bytes = Hex.decodeHex(sha1.toCharArray());
@@ -168,28 +177,9 @@ public class FileResource {
         return true;
     }
 
-    private void findContent() throws STRuntimeException {
-        try {
-            List<Resource> fragments = new ArrayList<>(ctx.findResources("samehost and type core:xmlfile"));
-            if (!fragments.isEmpty()) {
-                if (isNotEmpty(content) || isNotEmpty(source)) {
-                    throw new STRuntimeException("File " + path + " cannot have fragments as well as content or source specified");
-                }
-                FQName type = checkFragmentType(fragments);
-//                if (type.toString().equals("core:xmlfile")) {
-//                    XmlFileResource.sort(fragments);
-//                    Document document = XmlUtils.createDocument();
-//                    for (Resource fragment : fragments) {
-//                        XmlFileResource.addToDoc(fragment, document);
-//                    }
-//                } else {
-//                    throw new STRuntimeException("BUG: file fragment type " + type);
-//                }
-            }
-        } catch (InvalidQueryException e) {
-            throw new STRuntimeException("BUG: file fragment query invalid");
-        }
+    private void findContent() throws STRuntimeException, InvalidQueryException {
         if (isNotEmpty(content)) {
+            // Using content attr
             if (!isEmpty(source)) {
                 throw new STRuntimeException("File " + path + " cannot have content as well as source specified");
             }
@@ -204,18 +194,69 @@ public class FileResource {
                 sha1Bytes = CryptoUtils.sha1(data);
             }
         } else if (isEmpty(source)) {
+            // Contact and Source not set
             contentStream = new ByteArrayInputStream(new byte[0]);
             sha1Bytes = EMPTYSTRSHA1;
         } else {
+            // USing source
             try {
                 DataFile dataFile = fileStore.create(source);
-                contentStream = dataFile.getStream();
-                sha1Bytes = dataFile.getSha1();
+                if (template) {
+                    Template templateObj = getTemplate(dataFile);
+                    STContext context = STContext.get();
+                    HashMap<String, Object> map = new HashMap<>();
+                    Resource res;
+                    if (templateResource != null) {
+                        List<Resource> list = context.findResources(templateResource);
+                        if (list.isEmpty()) {
+                            throw new STRuntimeException("Found no matches for templateResource: " + templateResource);
+                        } else if (list.size() > 1) {
+                            throw new STRuntimeException("Found multiple matches for templateResource: " + templateResource);
+                        } else {
+                            res = list.iterator().next();
+                        }
+                    } else {
+                        if (resource.getParent() != null) {
+                            res = resource.getParent();
+                        } else {
+                            res = resource;
+                        }
+                    }
+                    map.put("ctx", context);
+                    map.put("res", res);
+                    map.put("attrs", res.getAttributes());
+                    map.put("vars", res.getVars());
+                    MessageDigest sha1Digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
+                    ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                    try (Writer fw = new OutputStreamWriter(new DigestOutputStream(buf, sha1Digest))) {
+                        templateObj.process(map, fw);
+                    }
+                    contentStream = new ByteArrayInputStream(buf.toByteArray());
+                    sha1Bytes = sha1Digest.digest();
+                } else {
+                    contentStream = dataFile.getStream();
+                    sha1Bytes = dataFile.getSha1();
+                }
             } catch (IOException e) {
                 throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
             } catch (TemplateException e) {
                 throw new STRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
             }
+        }
+    }
+
+
+    private Template getTemplate(DataFile datafile) throws IOException {
+        try (InputStream stream = datafile.getStream()) {
+            String templatefile = IOUtils.toString(stream);
+            Configuration cfg = new Configuration();
+            StringTemplateLoader loader = new StringTemplateLoader();
+            loader.putTemplate("template", templatefile);
+            cfg.setTemplateLoader(loader);
+            BeansWrapper wrapper = new BeansWrapper();
+            wrapper.setSimpleMapWrapper(true);
+            cfg.setObjectWrapper(wrapper);
+            return cfg.getTemplate("template");
         }
     }
 
@@ -267,6 +308,13 @@ public class FileResource {
         }
         assert host.fileExists(path);
         finfo = host.getFileInfo(path);
+    }
+
+    @Cleanup
+    public void closeStream() {
+        if (contentStream != null) {
+            IOUtils.closeQuietly(contentStream);
+        }
     }
 
     @Verify(value = "permissions")

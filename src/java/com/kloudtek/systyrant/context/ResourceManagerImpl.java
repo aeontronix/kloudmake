@@ -130,7 +130,6 @@ public class ResourceManagerImpl implements ResourceManager {
                                    @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException {
         wlock();
         try {
-            assert context.getSourceUrl() != null;
             if (logger.isDebugEnabled()) {
                 logger.debug("Creating resource {}", fqname);
             }

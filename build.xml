@@ -18,8 +18,7 @@
     </target>
 
     <target name="update-wiki" depends="compile">
-        <property name="wiki.dir" value="${build.dir}/wiki"/>
-        <mkdir dir="${wiki.dir}"/>
+        <property name="wiki.dir" value="../systyrant-wiki"/>
         <javadoc classpathref="buildmagic.classpath.compile" destdir="${wiki.dir}">
             <doclet name="com.kloudtek.systyrant.util.DocGenerator" path="${build.dir}/classes">
                 <!--<param name="-d" value="_build/"/>-->
