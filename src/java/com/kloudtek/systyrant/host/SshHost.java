@@ -209,7 +209,18 @@ public class SshHost extends AbstractHost {
             IOUtils.closeQuietly(dataStream);
         }
         try {
+            FileInfo oldFileInfo;
+            if (fileExists(path)) {
+                oldFileInfo = getFileInfo(path);
+            } else {
+                oldFileInfo = null;
+            }
             exec("mv " + tmpfile + " " + path, defaultTimeout, defaultSuccessRetCode, NO, null);
+            if (oldFileInfo != null) {
+                setFileOwner(path, oldFileInfo.getOwner());
+                setFileGroup(path, oldFileInfo.getGroup());
+                setFilePerms(path, new FilePermissions(oldFileInfo.getPermissions()));
+            }
             logger.debug("moved temporary file {} to final destination {}", tmpfile, path);
         } catch (RuntimeException | STRuntimeException e) {
             try {
@@ -277,7 +288,7 @@ public class SshHost extends AbstractHost {
                 script.append("export ").append(entry.getKey()).append('=').append(entry.getValue()).append('\n');
             }
             script.append('\n').append(command);
-            return execScript(script.toString(), ScriptType.BASH, timeout, expectedRetCode, logging, user);
+            return execScript(script.toString(), ScriptType.BASH, timeout != null ? timeout : DEFAULT_TIMEOUT, expectedRetCode, logging, user);
         }
     }
 

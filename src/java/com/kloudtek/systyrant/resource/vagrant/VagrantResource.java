@@ -7,7 +7,6 @@ package com.kloudtek.systyrant.resource.vagrant;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.ServiceManager;
 import com.kloudtek.systyrant.annotation.*;
-import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
@@ -61,7 +60,7 @@ public class VagrantResource {
     }
 
     @Execute
-    public void exec() throws STRuntimeException, InjectException {
+    public void exec() throws STRuntimeException {
         String vagrantfile = "Vagrant::Config.run do |config|\n" +
                 "  config.vm.box = \"" + box + "\"\n" +
                 "end\n";
@@ -102,7 +101,7 @@ public class VagrantResource {
     }
 
     @Execute(postChildren = true)
-    public void postChildrens() throws STRuntimeException, InjectException {
+    public void postChildrens() throws STRuntimeException {
         try {
             resource.setHostOverride(null);
             host = resource.getHost();
@@ -201,7 +200,11 @@ public class VagrantResource {
         private String parse(Pattern pattern) throws STRuntimeException {
             Matcher matcher = pattern.matcher(config);
             if (matcher.find()) {
-                return matcher.group(1);
+                String text = matcher.group(1);
+                if (text.startsWith("\"") && text.endsWith("\"")) {
+                    text = text.substring(1, text.length() - 1);
+                }
+                return text;
             } else {
                 throw new STRuntimeException("Invalid vagrant ssh-config: " + config);
             }

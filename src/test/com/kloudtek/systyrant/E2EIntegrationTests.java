@@ -15,8 +15,8 @@ import java.io.IOException;
 
 public class E2EIntegrationTests {
     @Test(groups = "vagrant")
-    public void testE2E() {
-        cli(new String[]{"-d", "src/test/com/kloudtek/systyrant/e2e.stl"});
+    public void testSetupFullEnv() {
+        cli("-d", "src/test/com/kloudtek/systyrant/e2e.stl");
     }
 
     @Test
@@ -54,6 +54,7 @@ public class E2EIntegrationTests {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void testDynaLoad() throws IOException {
         try (TempDir dir = new TempDir("testclienc")) {
