@@ -465,6 +465,7 @@ public class ResourceManagerImpl implements ResourceManager {
         }
     }
 
+    @SuppressWarnings("SuspiciousMethodCalls")
     @Override
     public void removeDependency(ResourceDependency dependency) {
         synchronized (data.m2mDependencies) {

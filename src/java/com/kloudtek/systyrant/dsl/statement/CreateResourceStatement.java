@@ -145,7 +145,6 @@ public class CreateResourceStatement extends Statement {
         private void assignId(Parameter value) throws InvalidScriptException {
             if (value instanceof StaticParameter) {
                 this.id = value.getRawValue();
-                return;
             } else {
                 throw new InvalidScriptException("id " + value.getRawValue() + " in " + elementName + "must be a static value");
             }

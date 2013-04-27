@@ -52,6 +52,6 @@ public interface Action extends Comparable<Action> {
     String getAlternative();
 
     public enum Type {
-        INIT, PREPARE, EXECUTE, SYNC, POSTCHILDREN_EXECUTE, POSTCHILDREN_SYNC, CLEANUP;
+        INIT, PREPARE, EXECUTE, SYNC, POSTCHILDREN_EXECUTE, POSTCHILDREN_SYNC, CLEANUP
     }
 }

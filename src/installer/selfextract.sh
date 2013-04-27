@@ -10,7 +10,7 @@ else
     COUNT=`awk '/^__SOURCE__/ { print NR + 1; exit 0; }' $0`
     THIS=`pwd`/$0
     rm -rf /usr/share/systyrant/*
-    tail -n+$COUNT $THIS | tar -C /usr/share -xj
+    tail -n+${COUNT} ${THIS} | tar -C /usr/share -xj
 
     chmod +x /usr/share/systyrant/bin/systyrant.sh
     if [ ! -e '/usr/bin/systyrant' ]; then

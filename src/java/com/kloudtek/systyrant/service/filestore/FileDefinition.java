@@ -146,9 +146,8 @@ public class FileDefinition {
         if (encoding != null ? !encoding.equals(that.encoding) : that.encoding != null) return false;
         if (path != null ? !path.equals(that.path) : that.path != null) return false;
         if (sha1 != null ? !sha1.equals(that.sha1) : that.sha1 != null) return false;
-        if (url != null ? !url.equals(that.url) : that.url != null) return false;
+        return !(url != null ? !url.equals(that.url) : that.url != null);
 
-        return true;
     }
 
     @Override
