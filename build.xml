@@ -61,6 +61,14 @@
 
     <target name="antlr" extensionOf="pre-compile">
         <mkdir dir="${build.dir}/antlr/"/>
+        <copy file="src/java/com/kloudtek/systyrant/dsl/SysTyrantDSL.g" todir="${build.dir}/antlr"/>
+        <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
+            <arg value="${build.dir}/antlr/SysTyrantDSL.g"/>
+            <arg value="-package"/>
+            <arg value="com.kloudtek.systyrant.dsl"/>
+            <arg value="-o"/>
+            <arg value="${build.dir}/antlr/com/kloudtek/systyrant/dsl"/>
+        </java>
         <copy file="src/java/com/kloudtek/systyrant/dsl/SystyrantLang.g" todir="${build.dir}/antlr"/>
         <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
             <arg value="${build.dir}/antlr/SystyrantLang.g"/>

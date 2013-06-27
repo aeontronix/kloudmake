@@ -31,7 +31,7 @@ public class RequiresExpression {
         this.resource = resource;
         SystyrantLangParser.RequiresContext reqCtx = null;
         try {
-            reqCtx = AntlrDSLParser.createParser(expression).requires();
+            reqCtx = AntlrDSLParser.createOldParser(expression).requires();
         } catch (RecognitionException e) {
             throw new InvalidDependencyException("Invalid requires expression: " + expression);
         }

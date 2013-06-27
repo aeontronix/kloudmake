@@ -21,7 +21,6 @@
         <dependency org="com.jetbrains" name="annotations" rev="10eap1052" conf="build->default"/>
         <dependency org="org.antlr" name="antlr-ant" rev="1169924912745" conf="build->default"/>
         <dependency org="org.apache" name="ant" rev="1.8.1" conf="build->default"/>
-        <dependency org="net.java" name="javacc" rev="5.0" conf="build->default"/>
         <!-- Test -->
         <dependency org="org.testng" name="testng" rev="6.0.1" conf="test->default"/>
         <dependency org="com.google.code" name="mockito" rev="1.9.0-rc1" conf="test->all"/>
