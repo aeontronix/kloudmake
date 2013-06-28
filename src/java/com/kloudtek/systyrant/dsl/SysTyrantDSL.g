@@ -1,8 +1,22 @@
 grammar SysTyrantDSL;
 
-script: declareres* EOF;
+script: statement* EOF;
 
-declareres: ;
+statement: imp=importStatement | dec=newResStatement | def=defResStatement;
+
+importStatement: IMPORT pkg=pkgName ( COL type=anyId )? SC;
+
+newResStatement: type=resType LCB RCB;
+
+defResStatement: DEF type=resType LCB RCB;
+
+// Common
+
+pkgName: anyId ( DOT anyId )*;
+
+resType: (pkg=pkgName COL)? type=anyId;
+
+anyId: ID | IMPORT | INCLUDE | IMPORT | DEF | SAMEHOST | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF | TYPE | DEPENDS;
 
 // Lexer
 
@@ -44,11 +58,10 @@ DOT: '.';
 
 INCLUDE : 'include';
 DEF : 'def';
-NEW : 'new';
 SC : ';';
 IMPORT : 'import';
-LF: '\n' -> skip;
-WS: [ \r\t]+ -> skip;
+LF: '\n' -> channel(HIDDEN);
+WS: [ \r\t]+ -> channel(HIDDEN);
 NB: ([0-9] | '.')+;
 ID: [a-zA-Z] [a-zA-Z0-9-_]*;
 UQSTRING: [a-zA-Z0-9-_/$%^&*!];
@@ -56,3 +69,8 @@ QSTRING: '\'' ( ESCAPE | ~('\''|'\\') )* '\'';
 ASTRING: '"' ( ESCAPE | ~('"'|'\\') )* '"';
 fragment
 ESCAPE : '\\' . ;
+COMMENT
+    :   ( '//' ~[\r\n]* '\r'? '\n'
+        | '/*' .*? '*/'
+        ) -> skip
+    ;

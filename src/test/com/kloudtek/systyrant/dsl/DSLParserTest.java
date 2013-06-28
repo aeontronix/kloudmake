@@ -58,13 +58,13 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test(expectedExceptions = ScriptException.class, expectedExceptionsMessageRegExp = ".*Unable to find resource.*")
     public void testCreateElementMissingImport() throws Throwable {
-        ctx.runDSLScript("new test { 'testid': attr = 'val' }");
+        ctx.runDSLScript("test { 'testid': attr = 'val' }");
         assertFalse(ctx.execute());
     }
 
     @Test
     public void testDefineResourceWithDefaultAttr() throws Throwable {
-        ctx.runDSLScript("def atest(attr = 'testval') {} new atest {}");
+        ctx.runDSLScript("def atest(attr = 'testval') {} atest {}");
         execute();
         validateResources(ctx, "default:atest:default:atest1");
         validateResourcesAttrs(ctx, "default:atest:default:atest1", "attr", "testval");
@@ -72,7 +72,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElement() throws Throwable {
-        ctx.runDSLScript("import test; new test { \"myid\" : attr = 'val', attr2=val2; }");
+        ctx.runDSLScript("import test; test { \"myid\" : attr = 'val', attr2=val2; }");
         execute();
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -85,7 +85,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElement2() throws Throwable {
-        ctx.runDSLScript("import test; new test(id = 'myid');");
+        ctx.runDSLScript("import test; test(id = 'myid');");
         execute();
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -96,7 +96,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElementFqn() throws Throwable {
-        ctx.runDSLScript("new test:test { \"myid\": attr = 'val' }");
+        ctx.runDSLScript("test:test { \"myid\": attr = 'val' }");
         assertTrue(ctx.execute());
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -108,14 +108,14 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateAutoLoadExplicitelyNamedElement() throws Throwable {
-        ctx.runDSLScript("new com.kloudtek.systyrant.dsl:autoload { \"myid\": attr1 = 'val1' }");
+        ctx.runDSLScript("com.kloudtek.systyrant.dsl:autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
         validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:myid", "test:test:myid.foo");
     }
 
     @Test
     public void testCreateAutoLoadImportedElement() throws Throwable {
-        ctx.runDSLScript("import foo.bar; import com.kloudtek.systyrant.dsl; new autoload { \"myid\": attr1 = 'val1' }");
+        ctx.runDSLScript("import foo.bar; import com.kloudtek.systyrant.dsl; autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
         validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:myid", "test:test:myid.foo");
         validateParent("com.kloudtek.systyrant.dsl:autoload:myid", null);
@@ -153,7 +153,7 @@ public class DSLParserTest extends AbstractContextTest {
     @Test
     public void testInvokeMethodInClass() throws Throwable {
         TestService service = registerService(TestService.class);
-        ctx.runDSLScript("def rtest { dostuff('foo','bar',a4=ga,a5=true) } new rtest {}");
+        ctx.runDSLScript("def rtest { dostuff('foo','bar',a4=ga,a5=true) } rtest {}");
         execute();
         assertEquals(service.a1, "foo");
         assertEquals(service.a2, "bar");
@@ -164,7 +164,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromParentsAttrs() throws Throwable {
-        ctx.runDSLScript("new test:test(id='parent',attr='val') { new test:test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
+        ctx.runDSLScript("test:test(id='parent',attr='val') { test:test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
         execute();
         Resource parent = ctx.findResourceByUid("parent");
         Resource child = ctx.findResourceByUid("parent.child");
@@ -180,7 +180,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromAssignedVarInDef() throws Throwable {
-        ctx.runDSLScript("def test:newtest() { $var='hello'; new test:test( id='child', value = $var) {} } new test:newtest {'parent':}");
+        ctx.runDSLScript("def test:newtest() { $var='hello'; test:test( id='child', value = $var) {} } test:newtest {'parent':}");
         execute();
         Resource child = ctx.findResourceByUid("parent.child");
         assertEquals(child.get("value"), "hello");
@@ -188,7 +188,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromAssignedVarInPrepare() throws Throwable {
-        ctx.runDSLScript("new test:test() { 'parent': $var='hello'; new test:test( id='child', value = $var) {} }");
+        ctx.runDSLScript("test:test() { 'parent': $var='hello'; test:test( id='child', value = $var) {} }");
         execute();
         Resource child = ctx.findResourceByUid("parent.child");
         assertEquals(child.get("value"), "hello");
@@ -196,8 +196,8 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void createResourceDefinedByScript() throws Throwable {
-        ctx.runDSLScript("def mytest:mytest { new test:test{} }");
-        ctx.runDSLScript("new mytest:mytest {}");
+        ctx.runDSLScript("def mytest:mytest { test:test{} }");
+        ctx.runDSLScript("mytest:mytest {}");
         execute();
         assertEquals(data.resources.size(), 2);
     }

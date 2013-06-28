@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.Token;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class InvalidScriptException extends Exception {
+public class InvalidScriptException extends RuntimeException {
     private String location;
     private String token;
 
@@ -39,11 +39,20 @@ public class InvalidScriptException extends Exception {
         super(message);
     }
 
+    public InvalidScriptException(Token offendingToken) {
+        super("[" + location(offendingToken) + "] unexpected token: " + offendingToken.getText());
+        location = location(offendingToken);
+    }
+
     public String getLocation() {
         return location;
     }
 
     public String getToken() {
         return token;
+    }
+
+    public static String location(Token token) {
+        return token.getLine() + ":" + token.getCharPositionInLine();
     }
 }

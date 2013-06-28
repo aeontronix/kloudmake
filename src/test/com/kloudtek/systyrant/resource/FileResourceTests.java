@@ -6,7 +6,6 @@ package com.kloudtek.systyrant.resource;
 
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.context.AbstractContextTest;
-import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.CryptoUtils;
@@ -16,6 +15,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
 
@@ -31,8 +31,9 @@ public class FileResourceTests extends AbstractContextTest {
     private TempDir tempdir;
 
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InjectException, IOException {
+    public void init() throws STRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
         tempdir = new TempDir("frt");
+        super.init();
     }
 
     @AfterMethod

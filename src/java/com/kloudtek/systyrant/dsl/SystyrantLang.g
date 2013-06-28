@@ -2,21 +2,19 @@ grammar SystyrantLang;
 
 // Gramar
 
-start: topLvlFunctions* EOF;
+script: statement* EOF;
 
-topLvlFunctions: importPkg | includeFile | statement;
-
-statement: ( create=createResource | invoke=invokeMethod | define=resourceDefinition | asvar=assignVariableStatement );
+statement: imp=importPkg | incf=includeFile | create=createResource | invoke=invokeMethod | define=resourceDefinition | asvar=assignVariableStatement;
 
 // Imports & Includes
 
-importPkg: IMPORT ( packageName | fullyQualifiedId ) SC;
+importPkg: IMPORT pkg=packageName (COL type=anyId)? SC;
 
 includeFile: INCLUDE string SC;
 
 // Define Resource
 
-resourceDefinition: DEF fullyQualifiedId resourceDefinitionParams? ( resourceDefinitionStatements | SC );
+resourceDefinition: DEF type=fullyQualifiedId resourceDefinitionParams? ( resourceDefinitionStatements | SC );
 
 resourceDefinitionParams: '(' parameterAssignment* ')';
 
@@ -28,7 +26,7 @@ assignVariableStatement: DOLLAR var=anyId EQ val=staticOrDynamicValue SC;
 
 // Create Resource
 
-createResource: ldep=createResource ( rlk=ARWR | llk=ARWL ) rdep=createResource | NEW elname=fullyQualifiedId params=createResourceParams? ( createResourceStatements | SC );
+createResource: ldep=createResource ( rlk=ARWR | llk=ARWL ) rdep=createResource | type=fullyQualifiedId params=createResourceParams? ( createResourceStatements | SC );
 
 createResourceDepLinking: ARWR | ARWL;
 
@@ -110,7 +108,7 @@ fullyQualifiedId: ( packageName ':' )? anyId ;
 
 fullyQualifiedIdWithPkg: packageName ':' anyId ;
 
-anyId: ID | IMPORT | INCLUDE | IMPORT | NEW | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF | TYPE | DEPENDS ;
+anyId: ID | IMPORT | INCLUDE | IMPORT | DEF | SAMEHOST | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF | TYPE | DEPENDS;
 
 string: astr=ASTRING | sval=staticValue;
 
@@ -154,7 +152,6 @@ DOT: '.';
 
 INCLUDE : 'include';
 DEF : 'def';
-NEW : 'new';
 SC : ';';
 IMPORT : 'import';
 LF: '\n' -> skip;

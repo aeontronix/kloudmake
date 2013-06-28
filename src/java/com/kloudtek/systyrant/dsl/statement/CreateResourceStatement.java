@@ -21,7 +21,7 @@ public class CreateResourceStatement extends Statement {
 
     public CreateResourceStatement(STContext ctx, SystyrantLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
         this.ctx = ctx;
-        elementName = new FQName(createElementsContext.elname.getText());
+        elementName = new FQName(createElementsContext.type.getText());
         Map<String, Parameter> params = new LinkedHashMap<>();
         SystyrantLangParser.CreateResourceParamsContext paramsCtx = createElementsContext.params;
         if (paramsCtx != null) {

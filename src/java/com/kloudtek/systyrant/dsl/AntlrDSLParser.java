@@ -18,9 +18,9 @@ public class AntlrDSLParser implements DSLParser {
 
     @Override
     public DSLScript parse(STContext ctx, String pkg, String script) throws InvalidScriptException {
-        SystyrantLangParser parser = createOldParser(script);
+        SystyrantLangParser parser = createParser(script);
         try {
-            return parseRoot(ctx, pkg, parser.start());
+            return parseRoot(ctx, pkg, parser.script());
         } catch (ParseCancellationException e) {
             return handleException(e);
         }
@@ -46,21 +46,43 @@ public class AntlrDSLParser implements DSLParser {
         return parse(STContext.get(), script);
     }
 
-    private DSLScript parseRoot(STContext ctx, String pkg, SystyrantLangParser.StartContext start) throws InvalidScriptException {
+    private DSLScript parseRoot(STContext ctx, String pkg, SystyrantLangParser.ScriptContext start) throws InvalidScriptException {
         return new DSLScript(ctx, pkg, start);
     }
 
-    public static SystyrantLangParser createOldParser(String script) {
+    public static SystyrantLangParser createParser(String script) {
         SystyrantLangLexer lexer = new SystyrantLangLexer(new ANTLRInputStream(script));
         SystyrantLangParser parser = new SystyrantLangParser(new CommonTokenStream(lexer));
-        parser.setErrorHandler(new BailErrorStrategy());
+        parser.setErrorHandler(new ErrorHandler());
         return parser;
     }
 
-    public static SysTyrantDSLParser createParser(String script) {
+    public static SysTyrantDSLParser createAltParser(String script) {
         SysTyrantDSLLexer lexer = new SysTyrantDSLLexer(new ANTLRInputStream(script));
         SysTyrantDSLParser parser = new SysTyrantDSLParser(new CommonTokenStream(lexer));
-        parser.setErrorHandler(new BailErrorStrategy());
+        parser.setErrorHandler(new ErrorHandler());
         return parser;
+    }
+
+    public static class ErrorHandler extends DefaultErrorStrategy {
+        @Override
+        public void recover(Parser recognizer, RecognitionException e) {
+            for (ParserRuleContext context = recognizer.getContext(); context != null; context = context.getParent()) {
+                context.exception = e;
+            }
+            throw new InvalidScriptException(e.getOffendingToken());
+        }
+
+        @Override
+        public Token recoverInline(Parser recognizer) throws RecognitionException {
+            for (ParserRuleContext context = recognizer.getContext(); context != null; context = context.getParent()) {
+                context.exception = new InputMismatchException(recognizer);
+            }
+            throw new InvalidScriptException(recognizer.getCurrentToken());
+        }
+
+        @Override
+        public void sync(Parser recognizer) {
+        }
     }
 }

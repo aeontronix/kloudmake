@@ -30,12 +30,12 @@ public class DSLScript {
     private List<Statement> statements = new ArrayList<>();
     private ResourceMatcher defaultPkgMatcher;
 
-    public DSLScript(@NotNull STContext ctx, @Nullable String defaultPackage, @NotNull SystyrantLangParser.StartContext startContext) throws InvalidScriptException {
+    public DSLScript(@NotNull STContext ctx, @Nullable String defaultPackage, @NotNull SystyrantLangParser.ScriptContext startContext) throws InvalidScriptException {
         source = ctx.getSourceUrl();
         this.ctx = ctx;
         this.defaultPackage = defaultPackage;
-        for (SystyrantLangParser.TopLvlFunctionsContext topLvlFunctionsContext : nullToEmpty(startContext.topLvlFunctions())) {
-            parseTopLvlFunction(topLvlFunctionsContext);
+        for (SystyrantLangParser.StatementContext statementContext : nullToEmpty(startContext.statement())) {
+            parseStatements(statementContext);
         }
     }
 
@@ -47,30 +47,23 @@ public class DSLScript {
         return source;
     }
 
-    private void parseTopLvlFunction(SystyrantLangParser.TopLvlFunctionsContext topLvlFunctionsContext) throws InvalidScriptException {
-        SystyrantLangParser.ImportPkgContext importPkgContext = topLvlFunctionsContext.importPkg();
-        if (importPkgContext != null) {
-            parseImport(importPkgContext);
-        }
-        SystyrantLangParser.StatementContext statementContext = topLvlFunctionsContext.statement();
-        if (statementContext != null) {
-            SystyrantLangParser.ResourceDefinitionContext resourceDefinitionContext = statementContext.resourceDefinition();
-            if (resourceDefinitionContext != null) {
-                defines.add(new DSLResourceDefinition(ctx, this, defaultPackage, resourceDefinitionContext));
-            } else {
-                statements.add(Statement.create(ctx, statementContext));
-            }
+    private void parseStatements(SystyrantLangParser.StatementContext stCtx) throws InvalidScriptException {
+        if (stCtx.imp != null) {
+            parseImport(stCtx.imp);
+        } else if (stCtx.define != null) {
+            defines.add(new DSLResourceDefinition(ctx, this, defaultPackage, stCtx.define));
+        } else {
+            statements.add(Statement.create(ctx, stCtx));
         }
     }
 
     private void parseImport(SystyrantLangParser.ImportPkgContext node) {
-        SystyrantLangParser.FullyQualifiedIdContext fqId = node.fullyQualifiedId();
-        SystyrantLangParser.PackageNameContext pkgName = node.packageName();
-        String importDec = fqId != null ? fqId.getText() : pkgName.getText();
-        if (importDec.contains(":")) {
-            addImport(new ResourceMatcher(new FQName(importDec)));
+        String pkg = node.pkg.getText();
+        String type = node.type != null ? node.type.getText() : null;
+        if (type != null) {
+            addImport(new ResourceMatcher(new FQName(pkg, type)));
         } else {
-            addImport(new ResourceMatcher(importDec, null));
+            addImport(new ResourceMatcher(pkg, null));
         }
     }
 
