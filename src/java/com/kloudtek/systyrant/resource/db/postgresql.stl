@@ -1,4 +1,4 @@
 def postgresql {
-    new core:package { name="postgresql" } ->
-    new core:service { name='postgresql' }
+    new core.package { name="postgresql" } ->
+    new core.service { name='postgresql' }
 }

@@ -33,7 +33,7 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
         Resource test2 = createJavaTestResource("test2");
         Resource test3 = createJavaTestResource("test3");
         test2.addDependency("@id eq test1");
-        test3.addDependency("type test:jtest");
+        test3.addDependency("type test.jtest");
         assertTrue(ctx.execute());
         assertEquals(test2.getDependencies().size(), 1);
         assertEquals(test2.getDependencies().iterator().next(), test1);
@@ -45,14 +45,14 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
     @Test(expectedExceptions = InvalidDependencyException.class, expectedExceptionsMessageRegExp = "Mandatory dependency has not valid targets.*")
     public void testNoMatchesMandatoryDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
         Resource resource = createJavaTestResource();
-        resource.addDependency("type te:tes");
+        resource.addDependency("type te.tes");
         assertTrue(ctx.execute());
     }
 
     @Test
     public void testNoMatchesOptionalDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
         Resource resource = createJavaTestResource();
-        resource.addDependency("type t:tes", true);
+        resource.addDependency("type t.tes", true);
         assertTrue(ctx.execute());
         assertTrue(resource.getDependencies().isEmpty());
     }

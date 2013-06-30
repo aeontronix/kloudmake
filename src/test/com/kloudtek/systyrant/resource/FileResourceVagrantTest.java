@@ -24,7 +24,7 @@ public class FileResourceVagrantTest extends AbstractVagrantTest {
     @Test(groups = "vagrant")
     public void testCreateNonExistingFile() throws STRuntimeException, IOException, ScriptException, ResourceCreationException {
         sshHost.exec("rm -rf /root/testCreateNonExistingFile");
-        ctx.getResourceManager().createResource("core:file").set("path", "/root/testCreateNonExistingFile")
+        ctx.getResourceManager().createResource("core.file").set("path", "/root/testCreateNonExistingFile")
                 .set("content", "hello").set("owner", "uucp").set("group", "fuse").set("permissions", "rwxr-xrw-");
         execute();
         String stats = sshHost.exec("stat -c '%F:%s:%A:%U:%G' /root/testCreateNonExistingFile");

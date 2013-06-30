@@ -11,7 +11,6 @@ import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.context.AbstractAction;
 import com.kloudtek.systyrant.context.AbstractContextTest;
-import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.LocalHost;
 import org.testng.annotations.Test;
@@ -43,11 +42,11 @@ public class DSLParserTest extends AbstractContextTest {
             @Override
             public void execute(STContext context, Resource resource) throws STRuntimeException {
                 try {
-                    List<Resource> samehost = ctx.findResources("samehost");
+                    List<Resource> samehost = ctx.findResources("is samehost");
                     if (samehost.size() == 1) {
                         resource.set("found", samehost.iterator().next().getId());
                     }
-                } catch (InvalidQueryException e) {
+                } catch (InvalidQueryExcesption e) {
                     throw new STRuntimeException(e);
                 }
             }
@@ -66,8 +65,8 @@ public class DSLParserTest extends AbstractContextTest {
     public void testDefineResourceWithDefaultAttr() throws Throwable {
         ctx.runDSLScript("def atest(attr = 'testval') {} atest {}");
         execute();
-        validateResources(ctx, "default:atest:default:atest1");
-        validateResourcesAttrs(ctx, "default:atest:default:atest1", "attr", "testval");
+        validateResources(ctx, "default.atest:default.atest1");
+        validateResourcesAttrs(ctx, "default.atest:default.atest1", "attr", "testval");
     }
 
     @Test
@@ -96,7 +95,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateElementFqn() throws Throwable {
-        ctx.runDSLScript("test:test { \"myid\": attr = 'val' }");
+        ctx.runDSLScript("test.test { \"myid\": attr = 'val' }");
         assertTrue(ctx.execute());
         assertEquals(ctx.getResources().size(), 1);
         Resource resource = ctx.getResources().get(0);
@@ -108,23 +107,23 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void testCreateAutoLoadExplicitelyNamedElement() throws Throwable {
-        ctx.runDSLScript("com.kloudtek.systyrant.dsl:autoload { \"myid\": attr1 = 'val1' }");
+        ctx.runDSLScript("com.kloudtek.systyrant.dsl.autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
-        validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:myid", "test:test:myid.foo");
+        validateResources(ctx, "com.kloudtek.systyrant.dsl.autoload:myid", "test.test:myid.foo");
     }
 
     @Test
     public void testCreateAutoLoadImportedElement() throws Throwable {
         ctx.runDSLScript("import foo.bar; import com.kloudtek.systyrant.dsl; autoload { \"myid\": attr1 = 'val1' }");
         assertTrue(ctx.execute());
-        validateResources(ctx, "com.kloudtek.systyrant.dsl:autoload:myid", "test:test:myid.foo");
-        validateParent("com.kloudtek.systyrant.dsl:autoload:myid", null);
+        validateResources(ctx, "com.kloudtek.systyrant.dsl.autoload:myid", "test.test:myid.foo");
+        validateParent("com.kloudtek.systyrant.dsl.autoload:myid", null);
     }
 
     @Test
     public void testCreateMultipleElements() throws Throwable {
         executeDSLResource("create-resources.stl");
-        String[] res = {"default:test2el:myid1", "test3:test3el:myid2", "test:test:myid1.foo", "test:test:myid2.bar", "default:test2el:myid2.myc1d1", "test:test:myid2.myc1d1.foo"};
+        String[] res = {"default.test2el:myid1", "test3.test3el:myid2", "test.test:myid1.foo", "test.test:myid2.bar", "default.test2el:myid2.myc1d1", "test.test:myid2.myc1d1.foo"};
         validateResources(ctx, res);
         validateResourcesAttrs(ctx, res[0], "attr1", "val1");
         validateResourcesAttrs(ctx, res[1], "attr2", "val2", "attr3", "val2");
@@ -164,7 +163,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromParentsAttrs() throws Throwable {
-        ctx.runDSLScript("test:test(id='parent',attr='val') { test:test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
+        ctx.runDSLScript("test.test(id='parent',attr='val') { test.test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
         execute();
         Resource parent = ctx.findResourceByUid("parent");
         Resource child = ctx.findResourceByUid("parent.child");
@@ -180,7 +179,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromAssignedVarInDef() throws Throwable {
-        ctx.runDSLScript("def test:newtest() { $var='hello'; test:test( id='child', value = $var) {} } test:newtest {'parent':}");
+        ctx.runDSLScript("def test.newtest() { $var='hello'; test.test( id='child', value = $var) {} } test.newtest {'parent':}");
         execute();
         Resource child = ctx.findResourceByUid("parent.child");
         assertEquals(child.get("value"), "hello");
@@ -188,7 +187,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromAssignedVarInPrepare() throws Throwable {
-        ctx.runDSLScript("test:test() { 'parent': $var='hello'; test:test( id='child', value = $var) {} }");
+        ctx.runDSLScript("test.test() { 'parent': $var='hello'; test.test( id='child', value = $var) {} }");
         execute();
         Resource child = ctx.findResourceByUid("parent.child");
         assertEquals(child.get("value"), "hello");
@@ -196,8 +195,8 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test
     public void createResourceDefinedByScript() throws Throwable {
-        ctx.runDSLScript("def mytest:mytest { test:test{} }");
-        ctx.runDSLScript("mytest:mytest {}");
+        ctx.runDSLScript("def mytest.mytest { test.test{} }");
+        ctx.runDSLScript("mytest.mytest {}");
         execute();
         assertEquals(data.resources.size(), 2);
     }

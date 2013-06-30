@@ -70,7 +70,7 @@ queryChildOfMatch : CHILDOF s=STAR? exp=queryExpression?;
 
 queryDependsMatch : DEPENDS s=STAR? exp=queryExpression?;
 
-querySameHostMatch : SAMEHOST;
+querySameHostMatch : IS SAMEHOST;
 
 queryTypeMatch : TYPE t=fullyQualifiedIdWithPkg;
 
@@ -104,9 +104,9 @@ variableLookupValue: DOLLAR anyId;
 
 packageName: anyId ( DOT anyId )*;
 
-fullyQualifiedId: ( packageName ':' )? anyId ;
+fullyQualifiedId: ( packageName '.' )? anyId ;
 
-fullyQualifiedIdWithPkg: packageName ':' anyId ;
+fullyQualifiedIdWithPkg: packageName '.' anyId ;
 
 anyId: ID | IMPORT | INCLUDE | IMPORT | DEF | SAMEHOST | AND | OR | NOT | EQS | LIKE | REGEX | IS | NULL | EMPTY | CHILDOF | TYPE | DEPENDS;
 
@@ -155,7 +155,7 @@ DEF : 'def';
 SC : ';';
 IMPORT : 'import';
 LF: '\n' -> skip;
-WS: [ \r\t]+ -> skip;
+WS: [ \r\t]+ -> channel(HIDDEN);
 NB: ([0-9] | '.')+;
 ID: [a-zA-Z] [a-zA-Z0-9-_]*;
 UQSTRING: [a-zA-Z0-9-_/$%^&*!];

@@ -96,15 +96,15 @@ public class FileStore implements Closeable {
 
     /**
      * <p>This function is used to generate an url to a file contained in a library. This is generally used to generate
-     * an url to be passed as a 'source' attribute to a 'core:file' resource.</p>
+     * an url to be passed as a 'source' attribute to a 'core.file' resource.</p>
      * <p>Relative paths will be relative to the source of the resource being processed. For example if you have the
      * following two files in the same directory: 'tomcat6.stl' and 'tomcat6-server.xml.ftl', and you wanted to refer
      * generate an url to the 'tomcat6-server.xml.ftl' from the stl file, you could do the following:</p>
      * <code>
      * def tomcat6( serverport=8005, httpport = 8080, serverxml='/etc/tomcat6/server.xml' ) {<br/>
-     * new core:package { name="tomcat6" } -&gt;<br/>
-     * new core:file { path = "${serverxml}" , source = lfile('tomcat6.xml.ftl',true) } -&gt;<br/>
-     * new core:service { name='tomcat6' }<br/>
+     * new core.package { name="tomcat6" } -&gt;<br/>
+     * new core.file { path = "${serverxml}" , source = lfile('tomcat6.xml.ftl',true) } -&gt;<br/>
+     * new core.service { name='tomcat6' }<br/>
      * }
      * </code>
      *

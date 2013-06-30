@@ -18,7 +18,7 @@ public class ExecResourceTest extends AbstractContextTest {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
-            ctx.runDSLScript("core:exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' }");
+            ctx.runDSLScript("core.exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' }");
             execute();
             assertEquals(FileUtils.readFileToString(tempFile).trim(), "HELLO");
         } finally {
@@ -31,7 +31,7 @@ public class ExecResourceTest extends AbstractContextTest {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
-            ctx.runDSLScript("core:exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' if='grep F " + tempFile.getPath() + "' }");
+            ctx.runDSLScript("core.exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' if='grep F " + tempFile.getPath() + "' }");
             execute();
             assertEquals(FileUtils.readFileToString(tempFile).trim(), "X");
         } finally {
@@ -44,7 +44,7 @@ public class ExecResourceTest extends AbstractContextTest {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
-            ctx.runDSLScript("core:exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' if='grep X " + tempFile.getPath() + "' }");
+            ctx.runDSLScript("core.exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' if='grep X " + tempFile.getPath() + "' }");
             execute();
             assertEquals(FileUtils.readFileToString(tempFile).trim(), "HELLO");
         } finally {
@@ -57,7 +57,7 @@ public class ExecResourceTest extends AbstractContextTest {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
-            ctx.runDSLScript("core:exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' unless='grep F " + tempFile.getPath() + "' }");
+            ctx.runDSLScript("core.exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' unless='grep F " + tempFile.getPath() + "' }");
             execute();
             assertEquals(FileUtils.readFileToString(tempFile).trim(), "HELLO");
         } finally {
@@ -70,7 +70,7 @@ public class ExecResourceTest extends AbstractContextTest {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
-            ctx.runDSLScript("core:exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' unless='grep X " + tempFile.getPath() + "' }");
+            ctx.runDSLScript("core.exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' unless='grep X " + tempFile.getPath() + "' }");
             execute();
             assertEquals(FileUtils.readFileToString(tempFile).trim(), "X");
         } finally {
@@ -83,7 +83,7 @@ public class ExecResourceTest extends AbstractContextTest {
         File tempFile = File.createTempFile("sec", "tmp");
         try {
             FileUtils.write(tempFile, "X");
-            ctx.runDSLScript("core:exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' if='grep X " + tempFile.getPath() + "' unless='grep X " + tempFile.getPath() + "'}");
+            ctx.runDSLScript("core.exec { command = 'sed -i -e s/X/HELLO/ " + tempFile.getPath() + "' if='grep X " + tempFile.getPath() + "' unless='grep X " + tempFile.getPath() + "'}");
             execute();
             assertEquals(FileUtils.readFileToString(tempFile).trim(), "X");
         } finally {
@@ -94,7 +94,7 @@ public class ExecResourceTest extends AbstractContextTest {
     @Test
     public void simpleExecTimeout() throws Throwable {
         ctx.clearFatalException();
-        ctx.runDSLScript("core:exec { command = 'sleep 3' timeout='1'}");
+        ctx.runDSLScript("core.exec { command = 'sleep 3' timeout='1'}");
         execute(false);
     }
 }

@@ -1,1 +1,1 @@
-def autoload { test:test { "foo": } }
+def autoload { test.test { "foo": } }

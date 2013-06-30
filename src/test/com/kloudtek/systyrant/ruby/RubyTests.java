@@ -19,7 +19,7 @@ public class RubyTests extends AbstractContextTest {
         execute();
         Assert.assertEquals(resources.size(), 1);
         Resource res = resources.get(0);
-        Assert.assertEquals(res.getType().toString(), "test:test");
+        Assert.assertEquals(res.getType().toString(), "test.test");
         Assert.assertEquals(res.getId(), "myres");
         Assert.assertEquals(res.get("key1"), "val1");
         Assert.assertEquals(res.get("key2"), "val2");

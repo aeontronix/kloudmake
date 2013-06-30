@@ -20,9 +20,9 @@ import java.util.*;
 import static org.testng.Assert.*;
 
 public class AbstractContextTest {
-    public static final String JTEST = "test:jtest";
-    public static final String TEST = "test:test";
-    public static final String UNIQUETEST = "test:uniquetest";
+    public static final String JTEST = "test.jtest";
+    public static final String TEST = "test.test";
+    public static final String UNIQUETEST = "test.uniquetest";
     protected STContext ctx;
     protected ResourceManager resourceManager;
     protected STContextData data;
@@ -34,7 +34,7 @@ public class AbstractContextTest {
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, JTEST);
-        ctx.runDSLScript("def test:test {}");
+        ctx.runDSLScript("def test.test {}");
         data = (STContextData) ReflectionHelper.get(ctx, "data");
     }
 
@@ -99,12 +99,12 @@ public class AbstractContextTest {
     }
 
     public AbstractContextTest register(Class<?> clazz) throws InvalidResourceDefinitionException {
-        resourceManager.registerJavaResource(clazz, "test:" + clazz.getSimpleName().toLowerCase().replace("$", ""));
+        resourceManager.registerJavaResource(clazz, "test." + clazz.getSimpleName().toLowerCase().replace("$", ""));
         return this;
     }
 
     public AbstractContextTest register(Class<?> clazz, String name) throws InvalidResourceDefinitionException {
-        resourceManager.registerJavaResource(clazz, "test:" + name);
+        resourceManager.registerJavaResource(clazz, "test." + name);
         return this;
     }
 
@@ -118,18 +118,18 @@ public class AbstractContextTest {
     }
 
     public AbstractContextTest registerAndCreate(Class<?> clazz, String name, String id) throws InvalidResourceDefinitionException, ResourceCreationException, InvalidAttributeException {
-        String fqname = "test:" + name;
+        String fqname = "test." + name;
         resourceManager.registerJavaResource(clazz, fqname);
         resourceManager.createResource(fqname, id);
         return this;
     }
 
     public Resource create(Class<?> clazz) throws ResourceCreationException {
-        return resourceManager.createResource("test:" + clazz.getSimpleName().toLowerCase().replace("$", "."));
+        return resourceManager.createResource("test." + clazz.getSimpleName().toLowerCase().replace("$", "."));
     }
 
     public Resource createChild(Class<?> clazz, Resource parent) throws ResourceCreationException {
-        return resourceManager.createResource("test:" + clazz.getSimpleName().toLowerCase().replace("$", "."), (String) null, parent);
+        return resourceManager.createResource("test." + clazz.getSimpleName().toLowerCase().replace("$", "."), (String) null, parent);
     }
 
     @SuppressWarnings("unchecked")

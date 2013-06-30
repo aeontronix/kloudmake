@@ -15,13 +15,13 @@ import javax.script.ScriptException;
 import java.util.*;
 
 public class CreateResourceStatement extends Statement {
-    private FQName elementName;
+    private FQName type;
     private List<Instance> instances = new ArrayList<>();
     private STContext ctx;
 
     public CreateResourceStatement(STContext ctx, SystyrantLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
         this.ctx = ctx;
-        elementName = new FQName(createElementsContext.type.getText());
+        type = new FQName(createElementsContext.type.getText());
         Map<String, Parameter> params = new LinkedHashMap<>();
         SystyrantLangParser.CreateResourceParamsContext paramsCtx = createElementsContext.params;
         if (paramsCtx != null) {
@@ -68,7 +68,7 @@ public class CreateResourceStatement extends Statement {
                 ctx.setSourceUrl(dslScript.getSourceUrl());
                 assert ctx.getSourceUrl() != null;
                 try {
-                    Resource resource = ctx.getResourceManager().createResource(elementName, instance.id, parent, dslScript.getImports());
+                    Resource resource = ctx.getResourceManager().createResource(type, instance.id, parent, dslScript.getImports());
                     Resource old = ctx.currentResource();
                     ctx.setCurrentResource(resource);
                     for (CreateAction action : instance.actions) {
@@ -92,13 +92,13 @@ public class CreateResourceStatement extends Statement {
         }
     }
 
-    public FQName getElementName() {
-        return elementName;
+    public FQName getType() {
+        return type;
     }
 
     @Override
     public String toString() {
-        return "createres{" + elementName + " : " + instances + "}";
+        return "createres{" + type + " : " + instances + "}";
     }
 
     public class Instance {
@@ -146,7 +146,7 @@ public class CreateResourceStatement extends Statement {
             if (value instanceof StaticParameter) {
                 this.id = value.getRawValue();
             } else {
-                throw new InvalidScriptException("id " + value.getRawValue() + " in " + elementName + "must be a static value");
+                throw new InvalidScriptException("id " + value.getRawValue() + " in " + type + "must be a static value");
             }
         }
 

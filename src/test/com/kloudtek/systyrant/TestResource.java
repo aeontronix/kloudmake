@@ -69,7 +69,7 @@ public class TestResource {
         if (childs != null) {
             for (String id : childs) {
                 try {
-                    Resource child = STHelper.createElement(new FQName("test:test"), id, resource);
+                    Resource child = STHelper.createElement(new FQName("test.test"), id, resource);
                 } catch (ResourceCreationException e) {
                     throw new STRuntimeException(e.getMessage(), e);
                 }

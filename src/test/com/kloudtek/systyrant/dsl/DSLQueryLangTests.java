@@ -305,7 +305,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
     @Test
     public void testChildOfScope() throws Throwable {
         register(ChildOfScope.class, "childofscope");
-        Resource parent = resourceManager.createResource("test:childofscope");
+        Resource parent = resourceManager.createResource("test.childofscope");
         Resource child1 = createChildTestResource(null, parent);
         Resource child2 = createChildTestResource(null, parent);
         createChildTestResource(null, child2);
@@ -356,7 +356,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
     @Test(enabled = false)
     public void testDepOfScope() throws Throwable {
         register(DepOfScope.class, "depsofscope");
-        Resource r1 = resourceManager.createResource("test:depsofscope");
+        Resource r1 = resourceManager.createResource("test.depsofscope");
         Resource r2 = createTestResource();
         r2.addDependency(r1);
         Resource r3 = createTestResource();
@@ -411,11 +411,11 @@ public class DSLQueryLangTests extends AbstractContextTest {
     public void testFindByType() throws Throwable {
         register(FindByType.class, "findbytype");
         createTestResource();
-        Resource r1 = resourceManager.createResource("test:findbytype");
-        Resource r2 = resourceManager.createResource("test:findbytype");
+        Resource r1 = resourceManager.createResource("test.findbytype");
+        Resource r2 = resourceManager.createResource("test.findbytype");
         createTestResource();
         execute();
-        List<Resource> resources = ctx.findResources("type test:findbytype");
+        List<Resource> resources = ctx.findResources("type test.findbytype");
         assertContainsSame(resources, r1, r2);
     }
 

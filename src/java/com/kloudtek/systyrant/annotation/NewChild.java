@@ -16,7 +16,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * If used on a field, that field must be of type {@link com.kloudtek.systyrant.context.Resource}.
  * ie: <code>
  *
- * @New("core:file {path = '/test'}")
+ * @New("core.file {path = '/test'}")
  * public Resource childFileResource
  * </code>
  */

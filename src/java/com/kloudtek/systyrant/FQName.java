@@ -28,7 +28,7 @@ public class FQName {
     public FQName(@NotNull Class<?> clazz, FQName fqname) {
         STResource rsAnno = clazz.getAnnotation(STResource.class);
         boolean annoNameDef = rsAnno != null && isNotEmpty(rsAnno.value());
-        int annoNameSep = rsAnno != null ? rsAnno.value().indexOf(":") : -1;
+        int annoNameSep = rsAnno != null ? rsAnno.value().indexOf(".") : -1;
         if (fqname != null) {
             name = fqname.getName();
         } else {
@@ -63,7 +63,7 @@ public class FQName {
     }
 
     public FQName(@NotNull String fqname) {
-        int idx = fqname.lastIndexOf(":");
+        int idx = fqname.lastIndexOf(".");
         if (idx != -1) {
             pkg = fqname.substring(0, idx);
             name = fqname.substring(idx + 1, fqname.length());
@@ -98,9 +98,9 @@ public class FQName {
             return equals(fqname);
         } else {
             for (String importValue : ctx.getImports()) {
-                boolean fullyQualified = importValue.indexOf(':') != -1;
+                boolean fullyQualified = importValue.indexOf('.') != -1;
                 String fqnameStr = fqname.toString();
-                String compare = fullyQualified ? importValue : importValue + ":" + name;
+                String compare = fullyQualified ? importValue : importValue + "." + name;
                 if (compare.equalsIgnoreCase(fqnameStr)) {
                     return true;
                 }
@@ -114,7 +114,7 @@ public class FQName {
         if (isEmpty(pkg)) {
             return name;
         } else {
-            return pkg + ":" + name;
+            return pkg + "." + name;
         }
     }
 

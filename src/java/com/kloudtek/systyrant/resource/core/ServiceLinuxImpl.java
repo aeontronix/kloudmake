@@ -17,7 +17,7 @@ import static com.kloudtek.systyrant.host.OperatingSystem.LINUX;
 /**
  * This resource is used to install a package.
  */
-@STResource("core:service")
+@STResource("core.service")
 @OnlyIfOperatingSystem(LINUX)
 public class ServiceLinuxImpl {
     private static final Logger logger = LoggerFactory.getLogger(ServiceLinuxImpl.class);

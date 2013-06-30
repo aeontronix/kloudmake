@@ -50,7 +50,7 @@ public class FileFragmentTests extends AbstractContextTest {
     }
 
     private Resource createFile() throws ResourceCreationException, InvalidAttributeException {
-        Resource resource = ctx.getResourceManager().createResource("core:file");
+        Resource resource = ctx.getResourceManager().createResource("core.file");
         resource.set("path", path);
         return resource;
     }
@@ -61,7 +61,7 @@ public class FileFragmentTests extends AbstractContextTest {
             tmp.append(parent).append(".");
         }
         tmp.append(type).append('#').append(counter.incrementAndGet());
-        Resource resource = ctx.getResourceManager().createResource("core:xmlfile", tmp.toString());
+        Resource resource = ctx.getResourceManager().createResource("core.xmlfile", tmp.toString());
         resource.set("path", path);
         resource.set("type", type);
         resource.set("parent", parent);

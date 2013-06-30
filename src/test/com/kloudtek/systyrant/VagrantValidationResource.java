@@ -12,7 +12,7 @@ import com.kloudtek.systyrant.host.OperatingSystem;
 
 import static org.testng.Assert.assertEquals;
 
-@STResource("test:vagrantvalidate")
+@STResource("test.vagrantvalidate")
 public class VagrantValidationResource {
     @Service
     private Host host;

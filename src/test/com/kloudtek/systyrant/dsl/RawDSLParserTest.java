@@ -57,14 +57,19 @@ public class RawDSLParserTest {
 
     @Test
     public void testCreateResourceFQN() throws InvalidScriptException, STRuntimeException {
-        parse("foo:bar {}").dec("foo:bar").run();
-        parse("foo.bar:baz {}").dec("foo.bar:baz").run();
+        parse("foo.bar {}").dec("foo.bar").run();
+        parse("foo.bar.baz {}").dec("foo.bar.baz").run();
     }
 
 //    @Test
 //    public void testSingleCreateResourceWithId() throws InvalidScriptException, STRuntimeException {
 //        parse("foo:bar { 'hello': }").dec("foo:bar").run();
 //    }
+
+    @Test(expectedExceptions = InvalidScriptException.class, expectedExceptionsMessageRegExp = "\\[1:7] unexpected token: :")
+    public void testInvalidDefine() throws InvalidScriptException, STRuntimeException {
+        parse("def bar:foo {}").run();
+    }
 
     @Test(expectedExceptions = InvalidScriptException.class, expectedExceptionsMessageRegExp = "\\[1:5] unexpected token: \\)")
     public void testInvalidCreateResource() throws InvalidScriptException, STRuntimeException {
@@ -126,7 +131,7 @@ public class RawDSLParserTest {
 
     @Test
     public void testDefineWithSingleFQNCreateEl() throws InvalidScriptException {
-        DSLScript script = parser.parse(context, "def test { foo.bar:test2 {} }");
+        DSLScript script = parser.parse(context, "def test { foo.bar.test2 {} }");
         assertEquals(script.getDefines().size(), 1);
         DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
         List<Statement> pst = resourceDefStatement.getStatementsForStage(Stage.PREPARE);
@@ -134,12 +139,12 @@ public class RawDSLParserTest {
         Statement st = pst.get(0);
         assertTrue(st instanceof CreateResourceStatement);
         CreateResourceStatement createEl = (CreateResourceStatement) st;
-        validateResource(createEl, "foo.bar:test2", 1);
+        validateResource(createEl, "foo.bar.test2", 1);
     }
 
     @Test
     public void testSimpleCreateElementWithFQName() throws InvalidScriptException, STRuntimeException {
-        DSLScript script = parser.parse(context, "foo.bar:bla { 'dfsa' }");
+        DSLScript script = parser.parse(context, "foo.bar.bla { 'dfsa' }");
         validateStatements(script, CreateResourceStatement.class);
         validateResourceInstance(script, "foo.bar", "bla", 0, 0, "dfsa");
     }
@@ -166,15 +171,15 @@ public class RawDSLParserTest {
     public void testParseRequiresExpression() throws STRuntimeException, InvalidResourceDefinitionException {
         STContext ctx = new STContext();
         Resource res = new ResourceImpl(ctx, null, null, null, null);
-        RequiresExpression requiresExpression = new RequiresExpression(res, "test:val( bla = 'asd', ba=\"asdffdsa\", adsf=sfafdsa ), asfd:asds, foobar( x = 'z' )");
+        RequiresExpression requiresExpression = new RequiresExpression(res, "test.val( bla = 'asd', ba=\"asdffdsa\", adsf=sfafdsa ), asfd.asds, foobar( x = 'z' )");
         ArrayList<RequiresExpression.RequiredDependency> deps = (ArrayList<RequiresExpression.RequiredDependency>) ReflectUtil.getField(requiresExpression, "requiredDependencies");
         assertEquals(deps.size(), 3);
-        assertEquals(deps.get(0).getName().toString(), "test:val");
+        assertEquals(deps.get(0).getName().toString(), "test.val");
         assertEquals(deps.get(0).getAttrs().size(), 3);
         assertEquals(deps.get(0).getAttrs().get("bla").getRawValue(), "asd");
         assertEquals(deps.get(0).getAttrs().get("ba").getRawValue(), "asdffdsa");
         assertEquals(deps.get(0).getAttrs().get("adsf").getRawValue(), "sfafdsa");
-        assertEquals(deps.get(1).getName().toString(), "asfd:asds");
+        assertEquals(deps.get(1).getName().toString(), "asfd.asds");
         assertEquals(deps.get(1).getAttrs().size(), 0);
         assertEquals(deps.get(2).getName().toString(), "foobar");
         assertEquals(deps.get(2).getAttrs().size(), 1);
@@ -213,14 +218,14 @@ public class RawDSLParserTest {
     }
 
     private static void validateResource(CreateResourceStatement createEl, String fqname, int instanceCount) {
-        assertEquals(createEl.getElementName(), fqname != null ? new FQName(fqname) : fqname);
+        assertEquals(createEl.getType(), fqname != null ? new FQName(fqname) : fqname);
         assertEquals(createEl.getInstances().size(), instanceCount);
     }
 
     private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) throws STRuntimeException {
         CreateResourceStatement statement = (CreateResourceStatement) script.getStatements().get(idx);
-        assertEquals(statement.getElementName().getPkg(), pkg);
-        assertEquals(statement.getElementName().getName(), name);
+        assertEquals(statement.getType().getPkg(), pkg);
+        assertEquals(statement.getType().getName(), name);
         validateResourceInstance(statement, instanceNb, id, params);
     }
 

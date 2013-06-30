@@ -44,7 +44,7 @@ public class FileResourceTests extends AbstractContextTest {
     @Test
     public void testCreateFileUsingContent() throws Throwable {
         File expected = new File(tempdir, "testfile.txt");
-        ctx.getResourceManager().createResource("core:file").set("path", expected.getPath()).set("content", "hello");
+        ctx.getResourceManager().createResource("core.file").set("path", expected.getPath()).set("content", "hello");
         execute();
         assertEquals(FileUtils.readFileToString(expected), "hello");
     }

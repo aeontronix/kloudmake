@@ -26,10 +26,10 @@ public class E2EIntegrationTests {
             FileUtils.writeStringToFile(crypPw, "secretpw");
             File stl = new File(dir, "test.stl");
             File creds = new File(dir, "creds.xml");
-            FileUtils.write(stl, "new core:file { 'myid': path='" + dir.getPath() + File.separator + "pw.txt' content=password() }");
+            FileUtils.write(stl, "core.file { 'myid': path='" + dir.getPath() + File.separator + "pw.txt' content=password() }");
             Assert.assertEquals(Cli.execute("-c", "-cpw", crypPw.getPath(), "-cf", creds.getPath(), stl.getPath()), 0);
             String pw1 = FileUtils.readFileToString(new File(dir, "pw.txt"));
-            FileUtils.write(stl, "new core:file { 'myid': path='" + dir.getPath() + File.separator + "pw2.txt' content=password() }");
+            FileUtils.write(stl, "core.file { 'myid': path='" + dir.getPath() + File.separator + "pw2.txt' content=password() }");
             Assert.assertEquals(Cli.execute("-c", "-cpw", crypPw.getPath(), "-cf", creds.getPath(), stl.getPath()), 0);
             String pw2 = FileUtils.readFileToString(new File(dir, "pw2.txt"));
             Assert.assertEquals(pw1, pw2);
@@ -43,10 +43,10 @@ public class E2EIntegrationTests {
         try (TempDir dir = new TempDir("testclienc")) {
             File stl = new File(dir, "test.stl");
             File creds = new File(dir, "creds.xml");
-            FileUtils.write(stl, "new core:file { 'myid': path='" + dir.getPath() + File.separator + "pw.txt' content=password() }");
+            FileUtils.write(stl, "core.file { 'myid': path='" + dir.getPath() + File.separator + "pw.txt' content=password() }");
             Assert.assertEquals(Cli.execute("-cf", creds.getPath(), stl.getPath()), 0);
             String pw1 = FileUtils.readFileToString(new File(dir, "pw.txt"));
-            FileUtils.write(stl, "new core:file { 'myid': path='" + dir.getPath() + File.separator + "pw2.txt' content=password() }");
+            FileUtils.write(stl, "core.file { 'myid': path='" + dir.getPath() + File.separator + "pw2.txt' content=password() }");
             cli("-cf", creds.getPath(), stl.getPath());
             String pw2 = FileUtils.readFileToString(new File(dir, "pw2.txt"));
             Assert.assertEquals(pw1, pw2);
@@ -62,9 +62,9 @@ public class E2EIntegrationTests {
             File libs = new File(dir, "libs");
             File mod = new File(libs, "mytest/mytest");
             mod.mkdirs();
-            FileUtils.writeStringToFile(new File(mod, "mytest.stl"), "def mytest { new core:file { path='" + results.getAbsolutePath() + "', content=\"ohyeah\" } }");
+            FileUtils.writeStringToFile(new File(mod, "mytest.stl"), "def mytest { core.file { path='" + results.getAbsolutePath() + "', content=\"ohyeah\" } }");
             File stl = new File(dir, "dotest.stl");
-            FileUtils.writeStringToFile(stl, "new mytest:mytest {}");
+            FileUtils.writeStringToFile(stl, "mytest.mytest {}");
             cli("-l", libs.getAbsolutePath(), stl.getAbsolutePath());
             Assert.assertTrue(results.exists());
             Assert.assertEquals(FileUtils.readFileToString(results), "ohyeah");

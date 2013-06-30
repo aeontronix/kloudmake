@@ -22,8 +22,8 @@ import java.io.IOException;
 import static org.testng.Assert.assertEquals;
 
 public class AbstractVagrantTest {
-    public static final String TEST = "test:test";
-    public static final String UNIQUETEST = "test:uniquetest";
+    public static final String TEST = "test.test";
+    public static final String UNIQUETEST = "test.uniquetest";
     public static final String VAGRANTDIR = "_vagrant";
     public static final String TESTDIR = VAGRANTDIR + File.separator + "_vagrant";
     protected STContext ctx;

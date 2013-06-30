@@ -1,11 +1,11 @@
 def test2el {
-    test:test { "foo": }
+    test.test { "foo": }
 }
 
-def test3:test3el {
-    test:test { "bar": }
+def test3.test3el {
+    test.test { "bar": }
 }
 
 test2el{ "myid1" : attr1 = 'val1' }
 
-test3:test3el{ "myid2" : attr2 = 'val2',attr3 = $attr2, test2el{"myc1d1" : attr4 = $attr2} }
+test3.test3el{ "myid2" : attr2 = 'val2',attr3 = $attr2, test2el{"myc1d1" : attr4 = $attr2} }

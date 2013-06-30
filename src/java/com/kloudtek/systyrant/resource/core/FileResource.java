@@ -40,7 +40,7 @@ import static com.kloudtek.util.StringUtils.isEmpty;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 @STResource
-@Dependency(value = "type core:xmlfile", optional = true)
+@Dependency(value = "type core.xmlfile", optional = true)
 public class FileResource {
     private static final Logger logger = LoggerFactory.getLogger(FileResource.class);
     private static final byte[] EMPTYSTRSHA1 = CryptoUtils.sha1(new byte[0]);

@@ -7,7 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Unique;
 
-@STResource(value = "test:uniquetest")
+@STResource(value = "test.uniquetest")
 @Unique
 public class UniqueTestResource {
 }

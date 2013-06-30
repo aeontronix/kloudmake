@@ -59,7 +59,7 @@ public class NotificationTests extends AbstractContextTest {
     @Test
     public void testHandleNotificationDefCat() throws Throwable {
         registerAndCreate(HandleNotificationDefCat.class, "notiftarget");
-        createTestResource("notifier").set("notify", "type test:notiftarget");
+        createTestResource("notifier").set("notify", "type test.notiftarget");
         execute();
         assertTrue(findJavaAction(HandleNotificationDefCat.class).handled);
     }
@@ -76,7 +76,7 @@ public class NotificationTests extends AbstractContextTest {
     @Test
     public void testNotifyOnlyAfterPositive() throws Throwable {
         registerAndCreate(NotifyOnlyAfter.class, "notiftarget");
-        createTestResource("notifier").set("notify", "type test:notiftarget").set("before", "type test:notiftarget");
+        createTestResource("notifier").set("notify", "type test.notiftarget").set("before", "type test.notiftarget");
         execute();
         assertFalse(findJavaAction(NotifyOnlyAfter.class).handled);
     }
@@ -84,7 +84,7 @@ public class NotificationTests extends AbstractContextTest {
     @Test
     public void testNotifyOnlyAfterNegative() throws Throwable {
         registerAndCreate(NotifyOnlyAfter.class, "notiftarget");
-        createTestResource("notifier").set("notify", "type test:notiftarget").set("after", "type test:notiftarget");
+        createTestResource("notifier").set("notify", "type test.notiftarget").set("after", "type test.notiftarget");
         execute();
         assertTrue(findJavaAction(NotifyOnlyAfter.class).handled);
     }
@@ -107,7 +107,7 @@ public class NotificationTests extends AbstractContextTest {
         for (int i = 0; i < 5; i++) {
             before.add(createTestResource("before-1-" + i));
         }
-        Resource res = resourceManager.createResource("test:test2", "target");
+        Resource res = resourceManager.createResource("test.test2", "target");
         TestNotificationHandler notificationHandler = new TestNotificationHandler(true, false, false, null);
         res.addNotificationHandler(notificationHandler);
         for (int i = 0; i < 5; i++) {

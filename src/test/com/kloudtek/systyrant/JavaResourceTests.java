@@ -336,7 +336,7 @@ public class JavaResourceTests extends AbstractContextTest {
     public void testResourceWithTwoJavaImpls() throws Throwable {
         register(ResourceWithTwoJavaImpls1.class, "testmulticlass");
         register(ResourceWithTwoJavaImpls2.class, "testmulticlass");
-        Resource resource = resourceManager.createResource("test:testmulticlass");
+        Resource resource = resourceManager.createResource("test.testmulticlass");
         execute();
         assertTrue(resource.getJavaImpl(ResourceWithTwoJavaImpls1.class).executed);
         assertTrue(resource.getJavaImpl(ResourceWithTwoJavaImpls2.class).executed);
@@ -365,7 +365,7 @@ public class JavaResourceTests extends AbstractContextTest {
         register(MakeResourceHostLinux.class, "onlyifos");
         register(ResourceOnlyWindows.class, "onlyifos");
         register(ResourceOnlyLinux.class, "onlyifos");
-        Resource resource = resourceManager.createResource("test:onlyifos");
+        Resource resource = resourceManager.createResource("test.onlyifos");
         execute();
         assertTrue(resource.getJavaImpl(MakeResourceHostLinux.class).executed);
         assertFalse(resource.getJavaImpl(ResourceOnlyWindows.class).executed);
@@ -408,7 +408,7 @@ public class JavaResourceTests extends AbstractContextTest {
     public void testResourceExcludeUsingMethodLevelOnlyIfOS() throws Throwable {
         register(MakeResourceHostLinux.class, "onlyifmos");
         register(ResourceExcludeUsingMethodLevelOnlyIfOS.class, "onlyifmos");
-        Resource resource = resourceManager.createResource("test:onlyifmos");
+        Resource resource = resourceManager.createResource("test.onlyifmos");
         execute();
         assertTrue(resource.getJavaImpl(MakeResourceHostLinux.class).executed);
     }
@@ -425,7 +425,7 @@ public class JavaResourceTests extends AbstractContextTest {
     public void testResourceUsingCustomOnlyIf() throws Throwable {
         register(CustomerOnlyIf1.class, "onlyifcustom");
         register(CustomerOnlyIf2.class, "onlyifcustom");
-        Resource resource = resourceManager.createResource("test:onlyifcustom");
+        Resource resource = resourceManager.createResource("test.onlyifcustom");
         execute();
         assertTrue(resource.getJavaImpl(CustomerOnlyIf1.class).executed);
     }
@@ -476,7 +476,7 @@ public class JavaResourceTests extends AbstractContextTest {
     }
 
     public static class ResourceRequiresExists {
-        @Requires("test:test(a=c),test:test(a=b)")
+        @Requires("test.test(a=c),test.test(a=b)")
         private List<Resource> req;
         private boolean executed;
         private List<Resource> copy;
