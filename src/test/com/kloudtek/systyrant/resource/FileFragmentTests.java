@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.resource;
 
+import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.context.AbstractContextTest;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import org.apache.commons.io.FileUtils;

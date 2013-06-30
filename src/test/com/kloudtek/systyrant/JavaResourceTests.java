@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.*;
-import com.kloudtek.systyrant.context.AbstractContextTest;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.MissingAlternativeException;
 import com.kloudtek.systyrant.host.Host;

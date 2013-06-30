@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.resource;
 
-import com.kloudtek.systyrant.context.AbstractContextTest;
+import com.kloudtek.systyrant.AbstractContextTest;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 

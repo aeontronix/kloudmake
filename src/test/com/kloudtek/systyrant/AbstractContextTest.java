@@ -2,12 +2,10 @@
  * Copyright (c) 2013 KloudTek Ltd
  */
 
-package com.kloudtek.systyrant.context;
+package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.ResourceManager;
-import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.TestResource;
+import com.kloudtek.systyrant.context.AbstractAction;
+import com.kloudtek.systyrant.context.STContextData;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.testng.annotations.BeforeMethod;

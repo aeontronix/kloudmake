@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.dsl;
 
+import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.context.AbstractContextTest;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
