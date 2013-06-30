@@ -11,6 +11,7 @@ import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.context.AbstractAction;
 import com.kloudtek.systyrant.context.AbstractContextTest;
+import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.LocalHost;
 import org.testng.annotations.Test;
@@ -46,7 +47,7 @@ public class DSLParserTest extends AbstractContextTest {
                     if (samehost.size() == 1) {
                         resource.set("found", samehost.iterator().next().getId());
                     }
-                } catch (InvalidQueryExcesption e) {
+                } catch (InvalidQueryException e) {
                     throw new STRuntimeException(e);
                 }
             }
