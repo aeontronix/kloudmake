@@ -328,10 +328,10 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public void setAttributes(Map<String, Object> attributes) throws InvalidAttributeException {
+    public void setAttributes(Map<Object, Object> attributes) throws InvalidAttributeException {
         logger.debug("Setting {}'s attributes to {}", definition.getFQName(), attributes);
-        for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-            set(entry.getKey(), entry.getValue());
+        for (Map.Entry<Object, Object> entry : attributes.entrySet()) {
+            set(entry.getKey().toString(), entry.getValue());
         }
     }
 
@@ -355,9 +355,9 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public Resource set(@NotNull Map<String, String> attributes) throws InvalidAttributeException {
-        for (Map.Entry<String, String> entry : attributes.entrySet()) {
-            set(entry.getKey(), entry.getValue());
+    public Resource set(@NotNull Map<Object, Object> attributes) throws InvalidAttributeException {
+        for (Map.Entry<Object, Object> entry : attributes.entrySet()) {
+            set(entry.getKey().toString(), entry.getValue());
         }
         return this;
     }

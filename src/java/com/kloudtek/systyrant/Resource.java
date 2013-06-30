@@ -80,11 +80,11 @@ public interface Resource {
 
     Map<String, String> getAttributes();
 
-    void setAttributes(Map<String, Object> attributes) throws InvalidAttributeException;
+    void setAttributes(Map<Object, Object> attributes) throws InvalidAttributeException;
 
     Resource set(@NotNull String key, @Nullable Object valueObj) throws InvalidAttributeException;
 
-    Resource set(@NotNull Map<String, String> attributes) throws InvalidAttributeException;
+    Resource set(@NotNull Map<Object, Object> attributes) throws InvalidAttributeException;
 
     String get(@NotNull String key);
 

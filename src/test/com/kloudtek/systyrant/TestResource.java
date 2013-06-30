@@ -68,7 +68,7 @@ public class TestResource {
         if (childs != null) {
             for (String id : childs) {
                 try {
-                    Resource child = STHelper.createElement(new FQName("test.test"), id, resource);
+                    STContext.get().getResourceManager().createResource("test.test", id, resource);
                 } catch (ResourceCreationException e) {
                     throw new STRuntimeException(e.getMessage(), e);
                 }
@@ -116,7 +116,7 @@ public class TestResource {
             throw new STRuntimeException("Failed execution as requested");
         }
         if (createElementDuringExecute) {
-            STHelper.createElement("test", "test", id + "-exechildren");
+            STContext.get().getResourceManager().createResource("test.test", id + "-exechildren");
         }
     }
 

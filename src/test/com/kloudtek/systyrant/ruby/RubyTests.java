@@ -14,7 +14,7 @@ import java.util.List;
 public class RubyTests extends AbstractContextTest {
     @Test
     public void runRubyScript() throws Throwable {
-        ctx.runScript(getClass().getResource("runruby.rb"));
+        ctx.runScriptFile(getClass().getResource("runruby.rb"));
         List<Resource> resources = resourceManager.getResources();
         execute();
         Assert.assertEquals(resources.size(), 1);

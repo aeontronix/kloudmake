@@ -1,10 +1,12 @@
 require "java"
 java_import com.kloudtek.systyrant.context.AbstractAction
 
-class Action < AbstractAction
+module SysTyrant
+  class Action < AbstractAction
 
-end
+  end
 
-def newres(type, id=nil, attrs=nil, parent=nil)
-  $strm.create(type, id, attrs, parent)
+  def SysTyrant.create(type, id=nil, attrs=nil, parent=nil)
+    $strm.create(type, id, attrs, parent)
+  end
 end

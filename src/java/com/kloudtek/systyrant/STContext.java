@@ -142,11 +142,27 @@ public class STContext implements AutoCloseable {
     // Resource setup / registration
     // ------------------------------------------------------------------------------------------
 
-    public void runScript(String path) throws IOException, ScriptException {
-        runScript(null, path);
+    public void runScriptFile(String path) throws IOException, ScriptException {
+        runScriptFile(null, path);
     }
 
-    public synchronized void runScript(String pkg, String path) throws IOException, ScriptException {
+    public void runScriptFile(@NotNull URL url) throws IOException, ScriptException {
+        runScriptFile(null, url);
+    }
+
+    public void runScriptFile(String pkg, @NotNull URL url) throws IOException, ScriptException {
+        try {
+            runScriptFile(pkg, url.toURI());
+        } catch (URISyntaxException e) {
+            throw new ScriptException("Invalid url: " + url);
+        }
+    }
+
+    public synchronized void runScriptFile(@NotNull URI uri) throws IOException, ScriptException {
+        runScriptFile(null, uri);
+    }
+
+    public synchronized void runScriptFile(String pkg, String path) throws IOException, ScriptException {
         URL script = getClass().getResource(path);
         if (script == null) {
             script = ClassLoader.getSystemResource(path);
@@ -155,89 +171,78 @@ public class STContext implements AutoCloseable {
             throw new IOException("Unable to find script " + path);
         }
         try {
-            runScript(pkg, script.toURI());
+            runScriptFile(pkg, script.toURI());
         } catch (URISyntaxException e) {
             throw new IOException("Invalid path: " + path);
         }
     }
 
-    public void runScript(@NotNull URL url) throws IOException, ScriptException {
-        runScript(null, url);
-    }
-
-    public void runScript(String pkg, @NotNull URL url) throws IOException, ScriptException {
-        try {
-            runScript(pkg, url.toURI());
-        } catch (URISyntaxException e) {
-            throw new ScriptException("Invalid url: " + url);
-        }
-    }
-
-    public synchronized void runScript(@NotNull URI uri) throws IOException, ScriptException {
-        runScript(null, uri);
-    }
-
-    public synchronized void runScript(String pkg, @NotNull URI uri) throws IOException, ScriptException {
+    public synchronized void runScriptFile(String pkg, @NotNull URI uri) throws IOException, ScriptException {
         if (!uri.isAbsolute()) {
             uri = new File(uri.getPath()).getAbsoluteFile().toURI();
         }
         URL url = uri.toURL();
+        try (InputStreamReader reader = new InputStreamReader(url.openConnection().getInputStream())) {
+            runScriptFile(pkg, uri.toString(), reader);
+        }
+    }
+
+    public synchronized void runScript(String uri, Reader scriptReader) throws IOException, ScriptException {
+        runScriptFile(null, uri, scriptReader);
+    }
+
+    public void runScript(String dsl) throws IOException, ScriptException {
+        runScript(dsl, "stl");
+    }
+
+    /**
+     * Run a script.
+     *
+     * @param script Script to run
+     * @param ext    Extension of the script
+     * @throws IOException     If an error occured while reading the script.
+     * @throws ScriptException If there is an error in the script.
+     */
+    public void runScript(String script, String ext) throws IOException, IllegalArgumentException, ScriptException {
+        runScriptFile(null, "dynamic:" + UUID.randomUUID().toString() + "." + ext, new StringReader(script));
+    }
+
+    public synchronized void runScriptFile(String pkg, String uri, Reader scriptReader) throws IOException, ScriptException {
         String oldSource = data.sourceUrl.get();
-        data.sourceUrl.set(url.toString());
+        data.sourceUrl.set(uri);
         try {
-            InputStreamReader reader = new InputStreamReader(url.openConnection().getInputStream());
-            runScript(pkg, uri.toString(), reader);
-            reader.close();
+            if (uri == null) {
+                uri = UUID.randomUUID().toString() + ".stl";
+            }
+            int dotIdx = uri.lastIndexOf('.');
+            if (dotIdx == -1) {
+                throw new IOException("path has no extension: " + uri);
+            }
+            String ext = uri.substring(dotIdx + 1).toLowerCase();
+            ScriptEngine scriptEngine = getScriptEngineByExt(ext);
+            boolean ctxMissing = ctx.get() == null;
+            if (ctxMissing) {
+                ctx.set(this);
+            }
+            Bindings bindings = scriptEngine.getBindings(ENGINE_SCOPE);
+            bindings.put("package", pkg);
+            bindings.put("ctx", this);
+            bindings.put("stsm", getServiceManager());
+            bindings.put("strm", getResourceManager());
+            String support = scriptingSupport.get(ext);
+            if (support != null) {
+                scriptEngine.eval(support, bindings);
+            }
+            scriptEngine.eval(scriptReader, bindings);
+            if (ctxMissing) {
+                ctx.remove();
+            }
         } finally {
             if (oldSource != null) {
                 data.sourceUrl.set(oldSource);
             } else {
                 data.sourceUrl.remove();
             }
-        }
-    }
-
-    public synchronized void runScript(String path, Reader scriptReader) throws IOException, ScriptException {
-        runScript(null, path, scriptReader);
-    }
-
-    public synchronized void runScript(String pkg, String path, Reader scriptReader) throws IOException, ScriptException {
-        boolean ctxMissing = ctx.get() == null;
-        if (ctxMissing) {
-            ctx.set(this);
-        }
-        if (path == null) {
-            path = UUID.randomUUID().toString() + ".stl";
-        }
-        int dotIdx = path.lastIndexOf('.');
-        if (dotIdx == -1) {
-            throw new IOException("path has no extension: " + path);
-        }
-        String ext = path.substring(dotIdx + 1).toLowerCase();
-        ScriptEngine scriptEngine = getScriptEngineByExt(ext);
-        Bindings bindings = scriptEngine.getBindings(ENGINE_SCOPE);
-        bindings.put("package", pkg);
-        bindings.put("ctx", this);
-        bindings.put("stsm", getServiceManager());
-        bindings.put("strm", getResourceManager());
-        String support = scriptingSupport.get(ext);
-        if (support != null) {
-            scriptEngine.eval(support, bindings);
-        }
-        scriptEngine.eval(scriptReader, bindings);
-        if (ctxMissing) {
-            ctx.remove();
-        }
-    }
-
-    public synchronized void runDSLScript(String dsl) throws IOException, ScriptException {
-        String old = data.sourceUrl.get();
-        data.sourceUrl.set("dynamic:" + UUID.randomUUID().toString());
-        runScript(null, new StringReader(dsl));
-        if (old != null) {
-            data.sourceUrl.set(old);
-        } else {
-            data.sourceUrl.remove();
         }
     }
 

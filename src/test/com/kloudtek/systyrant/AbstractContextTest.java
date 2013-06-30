@@ -25,6 +25,31 @@ public class AbstractContextTest {
     protected ResourceManager resourceManager;
     protected STContextData data;
 
+    protected Resource findResource(String uid) {
+        for (Resource resource : ctx.getResourceManager()) {
+            if (resource.toString().equals(uid)) {
+                return resource;
+            }
+        }
+        return null;
+    }
+
+    protected void assertResourceAttrs(String uid, String... attrs) {
+        Resource resource = findResource(uid);
+        assertNotNull(resource, "Unable to find resource " + uid);
+        HashMap<String, String> attr = new HashMap<>(resource.getAttributes());
+        attr.remove("id");
+        attr.remove("uid");
+        for (int i = 0; i < attrs.length; i += 2) {
+            String attrId = attrs[i];
+            assertEquals(resource.get(attrId), attrs[i + 1]);
+            attr.remove(attrId);
+        }
+        if (!attr.isEmpty()) {
+            fail("Unexpected " + uid + " attributes: " + attr.toString());
+        }
+    }
+
     @SuppressWarnings("unchecked")
     @BeforeMethod
     public void init() throws STRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
@@ -32,7 +57,7 @@ public class AbstractContextTest {
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, JTEST);
-        ctx.runDSLScript("def test.test {}");
+        ctx.runScript("def test.test {}");
         data = (STContextData) ReflectionHelper.get(ctx, "data");
     }
 
@@ -142,6 +167,18 @@ public class AbstractContextTest {
         return null;
     }
 
+    public AbstractContextTest execute(String script, String ext) throws Throwable {
+        ctx.runScript(script, ext);
+        execute(true);
+        return this;
+    }
+
+    public AbstractContextTest execute(String script) throws Throwable {
+        ctx.runScript(script);
+        execute(true);
+        return this;
+    }
+
     public AbstractContextTest execute() throws Throwable {
         execute(true);
         return this;
@@ -161,12 +198,12 @@ public class AbstractContextTest {
     }
 
     protected void executeDSLResource(String path) throws Throwable {
-        ctx.runScript(getClass().getResource(path).toURI());
+        ctx.runScriptFile(getClass().getResource(path).toURI());
         execute();
     }
 
     protected void executeDSL(String dsl) throws Throwable {
-        ctx.runDSLScript(dsl);
+        ctx.runScript(dsl);
         execute();
     }
 
@@ -210,6 +247,30 @@ public class AbstractContextTest {
             } else if (aftRes.contains(r)) {
                 fail("Resource " + r + " is before " + before);
             }
+        }
+    }
+
+    public void assertResources(String... elements) {
+        assertEquals(ctx.getResources().size(), elements.length);
+        List<String> found = new ArrayList<>();
+        for (Resource el : ctx.getResources()) {
+            found.add(el.toString());
+        }
+        for (String expected : elements) {
+            assertTrue(found.remove(expected), "Did not find element " + expected);
+        }
+        if (!found.isEmpty()) {
+            fail("Unexcepted resource " + found.iterator().next());
+        }
+    }
+
+    protected void assertResourceParent(String resource, String parent) {
+        Resource actualParent = findResource(resource).getParent();
+        Resource expectedParent = findResource(parent);
+        if (parent != null) {
+            assertEquals(actualParent, expectedParent);
+        } else {
+            assertNull(expectedParent);
         }
     }
 

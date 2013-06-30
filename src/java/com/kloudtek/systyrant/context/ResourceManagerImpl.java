@@ -181,12 +181,10 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public Resource createResource(@NotNull String fqname, String id, Map<String, String> attrs) throws ResourceCreationException, InvalidAttributeException {
+    public Resource createResource(@NotNull String fqname, String id, Map<Object, Object> attrs) throws ResourceCreationException, InvalidAttributeException {
         Resource resource = createResource(fqname, id);
         if (attrs != null) {
-            for (Map.Entry<String, String> entry : attrs.entrySet()) {
-                resource.set(entry.getKey(), entry.getValue());
-            }
+            resource.set(attrs);
         }
         return resource;
     }
@@ -207,6 +205,15 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
+    public Resource createResource(@NotNull String fqname, @Nullable Map<Object, Object> attrs) throws ResourceCreationException, InvalidAttributeException {
+        Resource resource = createResource(fqname);
+        if (attrs != null) {
+            resource.set(attrs);
+        }
+        return resource;
+    }
+
+    @Override
     public Resource createResource(@NotNull FQName fqname, @Nullable Resource parent) throws ResourceCreationException {
         return createResource(fqname, null, parent, null);
     }
@@ -217,7 +224,7 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public Resource create(@NotNull String fqname, @Nullable String id, @Nullable Map<String, String> attrs, @Nullable Resource parent) throws ResourceCreationException, InvalidAttributeException {
+    public Resource create(@NotNull String fqname, @Nullable String id, @Nullable Map<Object, Object> attrs, @Nullable Resource parent) throws ResourceCreationException, InvalidAttributeException {
         Resource resource = createResource(fqname, id, parent);
         if (attrs != null) {
             resource.set(attrs);
@@ -320,7 +327,7 @@ public class ResourceManagerImpl implements ResourceManager {
         }
         if (url != null) {
             try {
-                context.runScript(pkg, url.toURI());
+                context.runScriptFile(pkg, url.toURI());
             } catch (URISyntaxException | ScriptException | IOException e) {
                 throw new ResourceCreationException(e.getMessage(), e);
             }

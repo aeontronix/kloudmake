@@ -20,7 +20,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * This object contains all the belonging to a STContext
+ * STContext data objects.
+ * <p/>
+ * TODO Look into refactoring this into a better structure if it's possible to do without a spider-web nightmare of dependencies *sigh*
  */
 public class STContextData {
     // Generic

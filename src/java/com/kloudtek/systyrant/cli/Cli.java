@@ -97,7 +97,7 @@ public class Cli {
             CredStore credStore = configureCredStore(context);
             for (String definition : definitions) {
                 try {
-                    context.runScript(URI.create(definition));
+                    context.runScriptFile(URI.create(definition));
                 } catch (IOException e) {
                     logger.error("Failed to read script " + definition + " : " + e.getMessage(), e);
                 } catch (ScriptException e) {

@@ -16,7 +16,7 @@ import static org.testng.Assert.*;
 public class DSLDependenciesTests extends AbstractContextTest {
     @Test
     public void testDepRightLinked() throws Throwable {
-        ctx.runDSLScript("import test; test {id='r1'} -> test {id='r2'}");
+        ctx.runScript("import test; test {id='r1'} -> test {id='r2'}");
         execute();
         Resource r1 = ctx.findResourceByUid("r1");
         Resource r2 = ctx.findResourceByUid("r2");
@@ -27,7 +27,7 @@ public class DSLDependenciesTests extends AbstractContextTest {
 
     @Test
     public void testDepRightLinked2() throws Throwable {
-        ctx.runDSLScript("import test; test{id='r1'} -> test {id='r2'} -> test {id='r3'} -> test {id='r4'}");
+        ctx.runScript("import test; test{id='r1'} -> test {id='r2'} -> test {id='r3'} -> test {id='r4'}");
         execute();
         Resource r1 = ctx.findResourceByUid("r1");
         Resource r2 = ctx.findResourceByUid("r2");
@@ -44,7 +44,7 @@ public class DSLDependenciesTests extends AbstractContextTest {
 
     @Test
     public void testDepLeftLinked() throws Throwable {
-        ctx.runDSLScript("import test; test(id='r2') {} <- test(id='r1') {}");
+        ctx.runScript("import test; test(id='r2') {} <- test(id='r1') {}");
         execute();
         Resource r1 = ctx.findResourceByUid("r1");
         Resource r2 = ctx.findResourceByUid("r2");
@@ -55,7 +55,7 @@ public class DSLDependenciesTests extends AbstractContextTest {
 
     @Test
     public void testDepLinkedResources() throws Throwable {
-        ctx.runDSLScript("import test; test(id='r1') {} -> test(id='r2') {} -> test(id='r3') {} <- test(id='r4') {} -> test(id='r5') {}");
+        ctx.runScript("import test; test(id='r1') {} -> test(id='r2') {} -> test(id='r3') {} <- test(id='r4') {} -> test(id='r5') {}");
         execute();
         Resource r1 = ctx.findResourceByUid("r1");
         Resource r2 = ctx.findResourceByUid("r2");

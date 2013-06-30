@@ -43,15 +43,17 @@ public interface ResourceManager extends Iterable<Resource> {
 
     Resource createResource(@NotNull String fqname) throws ResourceCreationException;
 
+    Resource createResource(@NotNull String fqname, Map<Object, Object> attrs) throws ResourceCreationException, InvalidAttributeException;
+
     Resource createResource(@NotNull Object obj) throws ResourceCreationException;
 
     Resource createResource(@NotNull String fqname, String id, @Nullable Resource parent) throws ResourceCreationException;
 
     Resource createResource(@NotNull String fqname, String id) throws ResourceCreationException;
 
-    Resource createResource(@NotNull String fqname, String id, Map<String, String> attrs) throws ResourceCreationException, InvalidAttributeException;
+    Resource createResource(@NotNull String fqname, String id, Map<Object, Object> attrs) throws ResourceCreationException, InvalidAttributeException;
 
-    Resource create(@NotNull String fqname, @Nullable String id, Map<String, String> attrs, Resource parent) throws ResourceCreationException, InvalidAttributeException;
+    Resource create(@NotNull String fqname, @Nullable String id, Map<Object, Object> attrs, Resource parent) throws ResourceCreationException, InvalidAttributeException;
 
     @NotNull
     List<Resource> findResources(@Nullable String pkg, @Nullable String name, @Nullable String id);
