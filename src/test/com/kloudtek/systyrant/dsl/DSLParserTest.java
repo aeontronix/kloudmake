@@ -162,7 +162,7 @@ public class DSLParserTest extends AbstractContextTest {
 
     @Test()
     public void testVarSubFromParentsAttrs() throws Throwable {
-        ctx.runScript("test.test(id='parent',attr='val') { test.test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\") {} }");
+        ctx.runScript("test.test(id='parent',attr='val') { test.test(id='child',a='foo',b=\"${a}\",c='$a',d=$a,e=$attr,f=\"${attr}bar\",g=\"bla\\${a}b\\\\o\",h='${attr}') {} }");
         execute();
         Resource parent = ctx.findResourceByUid("parent");
         Resource child = ctx.findResourceByUid("parent.child");
@@ -174,6 +174,7 @@ public class DSLParserTest extends AbstractContextTest {
         assertEquals(child.get("e"), "val");
         assertEquals(child.get("f"), "valbar");
         assertEquals(child.get("g"), "bla${a}b\\o");
+        assertEquals(child.get("h"), "${attr}");
     }
 
     @Test()
