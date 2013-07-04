@@ -17,6 +17,14 @@
         </augment>
     </target>
 
+    <target name="docs">
+        <mkdir dir="${build.dir}/docs/wiki"/>
+        <xslt style="src/manual/manual-to-md.xsl" in="src/manual/manual.xml" out="${build.dir}/docs/wiki/manual.md"
+              classpath="${deps.dir}/build-jar/saxon9he.jar">
+            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+        </xslt>
+    </target>
+
     <target name="update-wiki" depends="compile">
         <property name="wiki.dir" value="../systyrant-wiki"/>
         <javadoc classpathref="buildmagic.classpath.compile" destdir="${wiki.dir}">

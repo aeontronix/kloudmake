@@ -2,12 +2,26 @@
   ~ Copyright (c) 2013 KloudTek Ltd
   -->
 
-<book>
+<book xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>SysTyrant Manual</title>
-    <bookinfo>
+    <info>
         <author>
-            <firstname>Yannick</firstname>
-            <surname>Menager</surname>
+            <personname>
+                <firstname>Yannick</firstname>
+                <surname>Menager</surname>
+            </personname>
         </author>
-    </bookinfo>
+    </info>
+    <chapter>
+        <title>Introduction</title>
+        <para>SysTyrant is a configuration management tool designed to easily manage even the most complex software
+            stacks.
+        </para>
+        <para>In order to use SysTyrant, you just need to create a script defining resources (which can represent any
+            elements of a software stack ie: an application, a server, etc), and use the SysTyrant command line tool
+            which will
+            perform any required tasks to setup the infrastructure.
+        </para>
+    </chapter>
 </book>
