@@ -8,7 +8,7 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
-import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.Function;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.context.AbstractAction;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
@@ -208,7 +208,7 @@ public class DSLParserTest extends AbstractContextTest {
         private String a4;
         private boolean a5;
 
-        @Method("dostuff")
+        @Function("dostuff")
         public synchronized void registerFile(@Param("a1") String a1, @Param("attr2") @Default("thatsthedef") String a2,
                                               @Default("defvalue") @Param("a3") String a3, @Param("a4") String a4, @Param("a5") boolean a5) {
             this.a1 = a1;

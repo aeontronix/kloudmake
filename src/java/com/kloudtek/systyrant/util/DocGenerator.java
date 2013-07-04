@@ -5,7 +5,7 @@
 package com.kloudtek.systyrant.util;
 
 import com.kloudtek.systyrant.annotation.Default;
-import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.Function;
 import com.kloudtek.systyrant.annotation.Param;
 import com.sun.javadoc.*;
 
@@ -34,31 +34,37 @@ public class DocGenerator {
             for (ClassDoc classDoc : root.classes()) {
                 for (MethodDoc methodDoc : classDoc.methods()) {
                     for (AnnotationDesc annotationDesc : methodDoc.annotations()) {
-                        if (annotationDesc.annotationType().qualifiedName().equals(Method.class.getName())) {
+                        if (annotationDesc.annotationType().qualifiedName().equals(Function.class.getName())) {
                             w.write("### ");
-                            w.write(annoValue(annotationDesc, "value"));
-                            w.write("\n");
+                            String functionName = annoValue(annotationDesc, "value");
+                            if (functionName == null) {
+                                functionName = methodDoc.name();
+                            }
+                            w.write(functionName);
+                            w.write("\n\n");
                             w.write(methodDoc.commentText().replace('\n', ' '));
-                            w.write("\n\nParameters:");
-                            for (Parameter parameter : methodDoc.parameters()) {
-                                w.write("\n-  *" + parameter.name() + "");
-                                AnnotationDesc paramAnno = anno(parameter.annotations(), Param.class);
-                                if (paramAnno != null) {
-                                    String def = annoValue(paramAnno, "def");
-                                    if (def == null) {
-                                        AnnotationDesc defAnno = anno(parameter.annotations(), Default.class);
-                                        if (defAnno != null) {
-                                            def = annoValue(defAnno, "value");
+                            if (methodDoc.parameters().length > 0) {
+                                w.write("\n\nParameters:");
+                                for (Parameter parameter : methodDoc.parameters()) {
+                                    w.write("\n-  *" + parameter.name() + "");
+                                    AnnotationDesc paramAnno = anno(parameter.annotations(), Param.class);
+                                    if (paramAnno != null) {
+                                        String def = annoValue(paramAnno, "def");
+                                        if (def == null) {
+                                            AnnotationDesc defAnno = anno(parameter.annotations(), Default.class);
+                                            if (defAnno != null) {
+                                                def = annoValue(defAnno, "value");
+                                            }
+                                        }
+                                        if (def != null) {
+                                            w.write(" ( default: ");
+                                            w.write(def);
+                                            w.write(" )");
                                         }
                                     }
-                                    if (def != null) {
-                                        w.write(" ( default: ");
-                                        w.write(def);
-                                        w.write(" )");
-                                    }
+                                    w.write("* : ");
+                                    w.write(paramDocs(methodDoc, parameter.name()));
                                 }
-                                w.write("* : ");
-                                w.write(paramDocs(methodDoc, parameter.name()));
                             }
                             w.write("\n\n");
                         }
@@ -90,6 +96,7 @@ public class DocGenerator {
     private static String annoValue(AnnotationDesc annotationDesc, String name) {
         for (AnnotationDesc.ElementValuePair pair : annotationDesc.elementValues()) {
             if (pair.element().name().equals(name)) {
+
                 return pair.value().value().toString();
             }
         }

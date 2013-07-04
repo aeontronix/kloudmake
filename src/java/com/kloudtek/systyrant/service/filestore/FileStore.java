@@ -6,7 +6,7 @@ package com.kloudtek.systyrant.service.filestore;
 
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
-import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.Function;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.util.CryptoUtils;
@@ -112,7 +112,7 @@ public class FileStore implements Closeable {
      * @param encoding encoding
      * @return file url.
      */
-    @Method("lfile")
+    @Function("lfile")
     public String createLibraryFileUrl(@Param("path") String path, @Param("encoding") @Default("UTF-8") String encoding) {
         if (!path.startsWith("/")) {
             String sourceUrl = STContext.get().getSourceUrl();
@@ -140,7 +140,7 @@ public class FileStore implements Closeable {
      * @param encoding    File encoding.
      * @return file URL.
      */
-    @Method("ufile")
+    @Function("ufile")
     public String createUserFileUrl(@Param("path") String path, @Param("url") String url,
                                     @Param("sha1") String sha1, @Param("retrievable") @Default("true") boolean retrievable,
                                     @Param("encoding") @Default("UTF-8") String encoding) {

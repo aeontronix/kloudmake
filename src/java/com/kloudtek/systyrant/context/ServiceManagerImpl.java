@@ -8,7 +8,7 @@ import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.ServiceManager;
 import com.kloudtek.systyrant.Startable;
 import com.kloudtek.systyrant.Stoppable;
-import com.kloudtek.systyrant.annotation.Method;
+import com.kloudtek.systyrant.annotation.Function;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.InjectException;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
@@ -155,9 +155,9 @@ public class ServiceManagerImpl implements ServiceManager {
         synchronized (this) {
             Class<?> clazz = service.getClass();
             for (java.lang.reflect.Method javaMethod : clazz.getDeclaredMethods()) {
-                Method methodAnno = javaMethod.getAnnotation(Method.class);
-                if (methodAnno != null) {
-                    String name1 = (isEmpty(methodAnno.value()) ? javaMethod.getName() : methodAnno.value()).toLowerCase();
+                Function functionAnno = javaMethod.getAnnotation(Function.class);
+                if (functionAnno != null) {
+                    String name1 = (isEmpty(functionAnno.value()) ? javaMethod.getName() : functionAnno.value()).toLowerCase();
                     if (methods.containsKey(name1)) {
                         throw new InvalidServiceException("Service method already registered: " + name1);
                     }

@@ -7,8 +7,8 @@ package com.kloudtek.systyrant.service.credstore;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.Stage;
+import com.kloudtek.systyrant.annotation.Function;
 import com.kloudtek.systyrant.annotation.Inject;
-import com.kloudtek.systyrant.annotation.Method;
 import com.kloudtek.systyrant.annotation.Param;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
@@ -123,7 +123,7 @@ public class CredStore implements AutoCloseable {
      * @param symbols Flag indicating if symbos are required in the password.
      * @return Password
      */
-    @Method(value = "password", stage = {Stage.PREPARE, Stage.EXECUTE})
+    @Function(value = "password", stage = {Stage.PREPARE, Stage.EXECUTE})
     public synchronized String obtainPassword(@Param("id") String id, @Param(value = "size", def = "20") int size,
                                               @Param(value = "caps", def = "true") boolean caps,
                                               @Param(value = "number", def = "true") boolean number,

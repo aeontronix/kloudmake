@@ -100,7 +100,7 @@ public class MethodInvoker {
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Param) {
                     if (name != null) {
-                        throw new InvalidServiceException(ReflectionHelper.toString(method) + " has more than one @Method annotation");
+                        throw new InvalidServiceException(ReflectionHelper.toString(method) + " has more than one @Function annotation");
                     }
                     name = ((Param) annotation).value();
                     String defVal = ((Param) annotation).def();
@@ -115,7 +115,7 @@ public class MethodInvoker {
                 }
             }
             if (name == null) {
-                throw new InvalidServiceException("No @Method specified for " + ReflectionHelper.toString(method));
+                throw new InvalidServiceException("No @Function specified for " + ReflectionHelper.toString(method));
             }
         }
     }

@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 
 public class ReflectionHelper {
     public static String toString(Method method) {
-        return "Method " + method.getDeclaringClass().getName() + "#" + method.getName();
+        return "Function " + method.getDeclaringClass().getName() + "#" + method.getName();
     }
 
     public static String toString(Field field) {
@@ -28,7 +28,7 @@ public class ReflectionHelper {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException e) {
-            throw new STRuntimeException("Method " + ReflectionHelper.toString(method) + " cannot be invoked: " + e.getMessage(), e);
+            throw new STRuntimeException("Function " + ReflectionHelper.toString(method) + " cannot be invoked: " + e.getMessage(), e);
         } catch (InvocationTargetException e) {
             throw STRuntimeException.getCause(e);
         }
