@@ -4,8 +4,6 @@
 
 package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.context.AbstractAction;
-import com.kloudtek.systyrant.context.STContextData;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.testng.annotations.BeforeMethod;
@@ -23,7 +21,6 @@ public class AbstractContextTest {
     public static final String UNIQUETEST = "test.uniquetest";
     protected STContext ctx;
     protected ResourceManager resourceManager;
-    protected STContextData data;
 
     protected Resource findResource(String uid) {
         for (Resource resource : ctx.getResourceManager()) {
@@ -58,7 +55,6 @@ public class AbstractContextTest {
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, JTEST);
         ctx.runScript("def test.test {}");
-        data = (STContextData) ReflectionHelper.get(ctx, "data");
     }
 
     public Resource createTestResource() throws ResourceCreationException {

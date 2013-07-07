@@ -7,7 +7,6 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.Inject;
 import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.annotation.Service;
-import com.kloudtek.systyrant.context.*;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.host.Host;
@@ -15,13 +14,17 @@ import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
 import com.kloudtek.systyrant.provider.ProvidersManagementService;
 import com.kloudtek.systyrant.service.filestore.FileStore;
+import com.kloudtek.systyrant.util.ListHashMap;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.*;
 import java.lang.reflect.Field;
@@ -30,6 +33,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 
@@ -40,12 +44,69 @@ public class STContext implements AutoCloseable {
     private static final HashMap<String, String> scriptingSupport = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(STContext.class);
     static ThreadLocal<STContext> ctx = new ThreadLocal<>();
-    final STContextData data = new STContextData();
-    private STCLifecycleExecutor lifecycleExecutor = new STCLifecycleExecutor(this, data);
+    private STCLifecycleExecutor lifecycleExecutor = new STCLifecycleExecutor(this);
+
+    // Generic
+
+    Stage stage;
+    final ReentrantReadWriteLock executionLock = new ReentrantReadWriteLock();
+    List<File> tempFiles = new ArrayList<>();
+    List<Class<? extends Exception>> fatalExceptions;
+    boolean executing;
+    ThreadLocal<List<String>> importPaths = new ThreadLocal<>();
+    ResourceManager resourceManager;
+    ServiceManager serviceManager;
+    ProvidersManagementService providersManagementService = new ProvidersManagementService();
+
+    // Libraries
+
+    final ReentrantReadWriteLock libraryLock = new ReentrantReadWriteLock();
+    boolean newLibAdded;
+    Reflections reflections;
+    List<Library> libraries = new ArrayList<>();
+    LibraryClassLoader libraryClassloader = new LibraryClassLoader(new URL[0], STContext.class.getClassLoader());
+
+    // Resources
+
+    final ReadWriteLock rootResourceLock = new ReentrantReadWriteLock();
+    ReentrantReadWriteLock resourceListLock = new ReentrantReadWriteLock();
+    List<Resource> resources = new ArrayList<>();
+    final ThreadLocal<Resource> resourceScope = new ThreadLocal<>();
+    final Map<Resource, List<Resource>> parentToPendingChildrenMap = new HashMap<>();
+    final HashSet<Resource> postChildrenExecuted = new HashSet<>();
+    Resource defaultParent;
+    List<ResourceDefinition> resourceDefinitions = new ArrayList<>();
+    HashMap<String, Resource> resourcesUidIndex = new HashMap<>();
+    HashMap<Resource, List<Resource>> parentChildIndex;
+    /**
+     * Flag indicating if element creation is allowed
+     */
+    boolean createAllowed = true;
+    final Map<FQName, ResourceDefinition> resourceDefinitionsFQNIndex = new HashMap<>();
+    HashSet<FQName> uniqueResourcesCreated = new HashSet<>();
+    HashSet<ManyToManyResourceDependency> m2mDependencies = new HashSet<>();
+    HashSet<OneToManyResourceDependency> o2mDependencies = new HashSet<>();
+    final ThreadLocal<String> sourceUrl = new ThreadLocal<>();
+
+    // Hosts
+
+    Host host;
+
+    // Scripting
+
+    ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+    final HashMap<String, ScriptEngine> scriptEnginesByExtCache = new HashMap<>();
+
+    // Notifications
+
+    List<AutoNotify> autoNotifications = new ArrayList<>();
+    ListHashMap<Resource, AutoNotify> autoNotificationsSourceIndex = new ListHashMap<>();
+    ListHashMap<Resource, AutoNotify> autoNotificationsTargetIndex = new ListHashMap<>();
+    final LinkedList<Notification> notificationsPending = new LinkedList<>();
 
     static {
         try {
-            scriptingSupport.put("rb", IOUtils.toString(STContext.class.getResourceAsStream("context/systyrant.rb")));
+            scriptingSupport.put("rb", IOUtils.toString(STContext.class.getResourceAsStream("ruby/systyrant.rb")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -53,16 +114,16 @@ public class STContext implements AutoCloseable {
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
-        data.host.start();
+        host.start();
     }
 
     public STContext(Host host) throws InvalidResourceDefinitionException, STRuntimeException {
-        data.host = host;
-        data.scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
-        data.resourceManager = new ResourceManagerImpl(this, data);
-        data.serviceManager = new ServiceManagerImpl(this, data);
+        this.host = host;
+        scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
+        resourceManager = new ResourceManagerImpl(this);
+        serviceManager = new ServiceManagerImpl(this);
         registerLibrary(new Library());
-        data.providersManagementService.init(data.reflections);
+        providersManagementService.init(reflections);
         inject(host);
     }
 
@@ -95,47 +156,47 @@ public class STContext implements AutoCloseable {
     }
 
     private void registerLibrary(Library library) throws InvalidResourceDefinitionException {
-        data.libraryLock.writeLock().lock();
+        libraryLock.writeLock().lock();
         try {
-            data.newLibAdded = true;
-            data.libraries.add(library);
+            newLibAdded = true;
+            libraries.add(library);
             logger.debug("Adding library {} to the module classloader", library.getLocationUrl());
-            data.libraryClassloader.addURL(library.getLocationUrl());
+            libraryClassloader.addURL(library.getLocationUrl());
             for (Class<?> clazz : library.getResourceDefinitionClasses()) {
-                data.resourceManager.registerJavaResource(clazz);
+                resourceManager.registerJavaResource(clazz);
             }
             Set<Class<?>> services = library.getReflections().getTypesAnnotatedWith(Service.class);
             try {
                 for (Class<?> service : services) {
-                    data.serviceManager.registerService(service);
+                    serviceManager.registerService(service);
                 }
             } catch (InvalidServiceException e) {
                 throw new InvalidResourceDefinitionException(e.getMessage(), e);
             }
-            if (data.reflections != null) {
-                data.reflections.merge(library.getReflections());
+            if (reflections != null) {
+                reflections.merge(library.getReflections());
             } else {
-                data.reflections = library.getReflections();
+                reflections = library.getReflections();
             }
         } finally {
-            data.libraryLock.writeLock().unlock();
+            libraryLock.writeLock().unlock();
         }
     }
 
     public ResourceManager getResourceManager() {
-        return data.resourceManager;
+        return resourceManager;
     }
 
     public ServiceManager getServiceManager() {
-        return data.serviceManager;
+        return serviceManager;
     }
 
     public ProvidersManagementService getProvidersManagementService() {
-        return data.providersManagementService;
+        return providersManagementService;
     }
 
     public List<Library> getLibraries() {
-        return Collections.unmodifiableList(data.libraries);
+        return Collections.unmodifiableList(libraries);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -208,8 +269,8 @@ public class STContext implements AutoCloseable {
     }
 
     public synchronized void runScriptFile(String pkg, String uri, Reader scriptReader) throws IOException, ScriptException {
-        String oldSource = data.sourceUrl.get();
-        data.sourceUrl.set(uri);
+        String oldSource = sourceUrl.get();
+        sourceUrl.set(uri);
         try {
             if (uri == null) {
                 uri = UUID.randomUUID().toString() + ".stl";
@@ -239,9 +300,9 @@ public class STContext implements AutoCloseable {
             }
         } finally {
             if (oldSource != null) {
-                data.sourceUrl.set(oldSource);
+                sourceUrl.set(oldSource);
             } else {
-                data.sourceUrl.remove();
+                sourceUrl.remove();
             }
         }
     }
@@ -256,58 +317,58 @@ public class STContext implements AutoCloseable {
      */
     private ScriptEngine getScriptEngineByExt(String ext) throws IOException {
         ScriptEngine scriptEngine;
-        synchronized (data.scriptEnginesByExtCache) {
-            scriptEngine = data.scriptEnginesByExtCache.get(ext);
+        synchronized (scriptEnginesByExtCache) {
+            scriptEngine = scriptEnginesByExtCache.get(ext);
             if (scriptEngine == null) {
-                scriptEngine = data.scriptEngineManager.getEngineByExtension(ext);
+                scriptEngine = scriptEngineManager.getEngineByExtension(ext);
                 if (scriptEngine == null) {
                     throw new IOException("Unable to run scripts with the extension: " + ext);
                 }
-                data.scriptEnginesByExtCache.put(ext, scriptEngine);
+                scriptEnginesByExtCache.put(ext, scriptEngine);
             }
         }
         return scriptEngine;
     }
 
     public synchronized Stage getStage() {
-        return data.stage;
+        return stage;
     }
 
     public Host host() {
-        return data.host;
+        return host;
     }
 
     public Host getHost() {
-        return data.host;
+        return host;
     }
 
     public void setHost(Host host) throws STRuntimeException {
         if (host == null) {
             throw new IllegalArgumentException("Host cannot be null");
         }
-        data.executionLock.writeLock().lock();
+        executionLock.writeLock().lock();
         try {
-            data.host = host;
+            this.host = host;
             inject(host);
         } finally {
-            data.executionLock.writeLock().unlock();
+            executionLock.writeLock().unlock();
         }
     }
 
     public FileStore files() throws InvalidServiceException {
-        return data.serviceManager.getService(FileStore.class);
+        return serviceManager.getService(FileStore.class);
     }
 
     public String getSourceUrl() {
-        return data.sourceUrl.get();
+        return sourceUrl.get();
     }
 
     public void setSourceUrl(String url) {
-        data.sourceUrl.set(url);
+        sourceUrl.set(url);
     }
 
     public void clearSourceUrl() {
-        data.sourceUrl.remove();
+        sourceUrl.remove();
     }
 
     // ------------------------------------------------------------------------------------------
@@ -327,11 +388,11 @@ public class STContext implements AutoCloseable {
     @Override
     public void close() {
         ctx.remove();
-        data.resourceManager.close();
-        for (Library library : data.libraries) {
+        resourceManager.close();
+        for (Library library : libraries) {
             library.close();
         }
-        data.serviceManager.close();
+        serviceManager.close();
     }
 
     // ------------------------------------------------------------------------------------------
@@ -353,13 +414,13 @@ public class STContext implements AutoCloseable {
     }
 
     public void notify(Resource source, Resource resource, String category) {
-        synchronized (data.notificationsPending) {
-            data.notificationsPending.add(new Notification(category, source, resource));
+        synchronized (notificationsPending) {
+            notificationsPending.add(new Notification(category, source, resource));
         }
     }
 
     public void addAutoNotification(AutoNotify autoNotify) {
-        data.add(autoNotify);
+        add(autoNotify);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -367,15 +428,15 @@ public class STContext implements AutoCloseable {
     // ------------------------------------------------------------------------------------------
 
     public Resource currentResource() {
-        return data.resourceScope.get();
+        return resourceScope.get();
     }
 
     public void setCurrentResource(Resource resource) {
-        data.resourceScope.set(resource);
+        resourceScope.set(resource);
     }
 
     public List<String> getImports() {
-        List<String> list = data.importPaths.get();
+        List<String> list = importPaths.get();
         if (list == null) {
             return Collections.emptyList();
         } else {
@@ -384,16 +445,16 @@ public class STContext implements AutoCloseable {
     }
 
     public void addImport(String value) {
-        List<String> list = data.importPaths.get();
+        List<String> list = importPaths.get();
         if (list == null) {
             list = new ArrayList<>();
-            data.importPaths.set(list);
+            importPaths.set(list);
         }
         list.add(value);
     }
 
     public void clearImports() {
-        data.importPaths.remove();
+        importPaths.remove();
     }
 
     // ------------------------------------------------------------------------------------------
@@ -405,7 +466,7 @@ public class STContext implements AutoCloseable {
     }
 
     public boolean hasResources() {
-        return data.resourceManager.hasResources();
+        return resourceManager.hasResources();
     }
 
     // ------------------------------------------------------------------------------------------
@@ -413,7 +474,7 @@ public class STContext implements AutoCloseable {
     // ------------------------------------------------------------------------------------------
 
     public List<Resource> getResources() {
-        return data.resourceManager.getResources();
+        return resourceManager.getResources();
     }
 
     /**
@@ -430,16 +491,16 @@ public class STContext implements AutoCloseable {
         if (baseResource != null) {
             baseResource = baseResource.getParent();
         }
-        return data.resourceManager.findResources(query, baseResource);
+        return resourceManager.findResources(query, baseResource);
     }
 
     @NotNull
     public List<Resource> findResources(String query, Resource baseResource) throws InvalidQueryException {
-        return data.resourceManager.findResources(query, baseResource);
+        return resourceManager.findResources(query, baseResource);
     }
 
     public Resource findResourceByUid(String uid) {
-        return data.resourceManager.findResourcesByUid(uid);
+        return resourceManager.findResourcesByUid(uid);
     }
 
     // ------------------------------------------------------------------------------------------
@@ -453,48 +514,48 @@ public class STContext implements AutoCloseable {
      * @return ReadWriteLock
      */
     public ReadWriteLock getRootResourceLock() {
-        return data.rootResourceLock;
+        return rootResourceLock;
     }
 
     public ClassLoader getLibraryClassloader() {
-        if (data.libraryClassloader != null) {
-            return data.libraryClassloader;
+        if (libraryClassloader != null) {
+            return libraryClassloader;
         } else {
             return getClass().getClassLoader();
         }
     }
 
     public void registerTempFile(File tempFile) {
-        data.tempFiles.add(tempFile);
+        tempFiles.add(tempFile);
     }
 
     public synchronized Resource getDefaultParent() {
-        return data.defaultParent;
+        return defaultParent;
     }
 
     public synchronized void setDefaultParent(Resource defaultParent) {
-        this.data.defaultParent = defaultParent;
+        this.defaultParent = defaultParent;
     }
 
     public List<Class<? extends Exception>> getFatalExceptions() {
-        return data.fatalExceptions;
+        return fatalExceptions;
     }
 
     public void setFatalExceptions(List<Class<? extends Exception>> fatalExceptions) {
-        this.data.fatalExceptions = fatalExceptions;
+        this.fatalExceptions = fatalExceptions;
     }
 
     @SafeVarargs
     public final void setFatalExceptions(Class<? extends Exception>... fatalExceptions) {
-        this.data.fatalExceptions = fatalExceptions != null ? Arrays.asList(fatalExceptions) : null;
+        this.fatalExceptions = fatalExceptions != null ? Arrays.asList(fatalExceptions) : null;
     }
 
     public void clearFatalException() {
-        data.fatalExceptions = null;
+        fatalExceptions = null;
     }
 
     public Object invokeMethod(String name, Parameters params) throws STRuntimeException {
-        return data.serviceManager.invokeMethod(name, params);
+        return serviceManager.invokeMethod(name, params);
     }
 
     public void inject(Object obj) throws InjectException {
@@ -505,7 +566,7 @@ public class STContext implements AutoCloseable {
                 Class<?> type = field.getType();
                 try {
                     if (provider != null) {
-                        ProviderManager pm = data.providersManagementService.getProviderManager(type.asSubclass(ProviderManager.class));
+                        ProviderManager pm = providersManagementService.getProviderManager(type.asSubclass(ProviderManager.class));
                         if (!field.isAccessible()) {
                             field.setAccessible(true);
                         }
@@ -527,6 +588,87 @@ public class STContext implements AutoCloseable {
                 }
             }
             cl = cl.getSuperclass();
+        }
+    }
+
+
+    List<Resource> getChildrensInternalList(Resource resource) {
+        List<Resource> childrens = parentChildIndex.get(resource);
+        if (childrens == null) {
+            childrens = new ArrayList<>();
+            parentChildIndex.put(resource, childrens);
+        }
+        return childrens;
+    }
+
+    Resource getUnpreparedResource(Stage stage) {
+        for (Resource resource : resources) {
+            if (resource.isExecutable() && !resource.isFailed() && resource.getStage().ordinal() < stage.ordinal()) {
+                return resource;
+            }
+        }
+        return null;
+    }
+
+    void setResourceScope(Resource resource) {
+        resourceScope.set(resource);
+        MDC.put("resource", resource.toString());
+    }
+
+    void clearResourceScope() {
+        resourceScope.remove();
+        MDC.remove("resource");
+    }
+
+    List<AutoNotify> findAutoNotificationBySource(Resource source) {
+        return autoNotificationsSourceIndex.get(source);
+    }
+
+    List<AutoNotify> findAutoNotificationByTarget(Resource target) {
+        return autoNotificationsTargetIndex.get(target);
+    }
+
+    Notification popPendingNotifications() {
+        synchronized (notificationsPending) {
+            if (notificationsPending.isEmpty()) {
+                return null;
+            } else {
+                return notificationsPending.removeFirst();
+            }
+        }
+    }
+
+    void add(AutoNotify autoNotify) {
+        synchronized (autoNotifications) {
+            autoNotifications.add(autoNotify);
+            for (Resource source : autoNotify.getSources()) {
+                autoNotificationsSourceIndex.get(source).add(autoNotify);
+            }
+            autoNotificationsTargetIndex.get(autoNotify.getTarget()).add(autoNotify);
+        }
+    }
+
+    void remove(AutoNotify autoNotify) {
+        synchronized (autoNotifications) {
+            autoNotifications.remove(autoNotify);
+            for (Resource source : autoNotify.getSources()) {
+                autoNotificationsSourceIndex.get(source).remove(autoNotify);
+            }
+            for (ArrayList<AutoNotify> sourceIdxList : autoNotificationsSourceIndex.values()) {
+                sourceIdxList.remove(autoNotify);
+            }
+            for (ArrayList<AutoNotify> targetIdxList : autoNotificationsTargetIndex.values()) {
+                targetIdxList.remove(autoNotify);
+            }
+        }
+    }
+
+    void mergeNotification(AutoNotify autonotify, AutoNotify toMerge) {
+        synchronized (autoNotifications) {
+            remove(toMerge);
+            for (Resource source : toMerge.getSources()) {
+                autoNotificationsSourceIndex.get(source).add(autonotify);
+            }
         }
     }
 }

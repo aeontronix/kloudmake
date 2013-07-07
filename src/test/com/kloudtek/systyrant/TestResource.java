@@ -5,8 +5,6 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.annotation.*;
-import com.kloudtek.systyrant.context.AbstractAction;
-import com.kloudtek.systyrant.context.ResourceRef;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import org.slf4j.Logger;

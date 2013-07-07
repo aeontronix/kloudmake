@@ -4,11 +4,7 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.Stage;
-import com.kloudtek.systyrant.context.AbstractAction;
-import com.kloudtek.systyrant.context.ResourceDefinition;
+import com.kloudtek.systyrant.*;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import com.kloudtek.systyrant.exception.STRuntimeException;

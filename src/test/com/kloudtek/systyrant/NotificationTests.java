@@ -6,7 +6,6 @@ package com.kloudtek.systyrant;
 
 
 import com.kloudtek.systyrant.annotation.HandleNotification;
-import com.kloudtek.systyrant.context.*;
 import com.kloudtek.systyrant.util.ReflectionHelper;
 import org.testng.annotations.Test;
 
@@ -27,9 +26,8 @@ public class NotificationTests extends AbstractContextTest {
         afterDueNotAndDep.addAutoNotification(target);
         ReflectionHelper.set(afterDueNotAndDep, "dependencies", new HashSet<>(Arrays.asList(target)));
         ReflectionHelper.set(afterDueNotAndDep, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
-        STContextData data = (STContextData) ReflectionHelper.get(ctx, "data");
-        ResourceSorter.bringResourcesForwardDueToNotification(data);
-        assertEquals(data.resources.toArray(new Resource[data.resources.size()]), new Resource[]{target, afterDueNotAndDep, beforeDueNot});
+        ResourceSorter.bringResourcesForwardDueToNotification(ctx);
+        assertEquals(ctx.resources.toArray(new Resource[ctx.resources.size()]), new Resource[]{target, afterDueNotAndDep, beforeDueNot});
     }
 
     @Test
@@ -40,20 +38,20 @@ public class NotificationTests extends AbstractContextTest {
         Resource after = createTestResourceWithIndirectDepsSetup("after");
         ReflectionHelper.set(after, "dependencies", new HashSet<>(Arrays.asList(target)));
         ReflectionHelper.set(after, "indirectDependencies", new HashSet<>(Arrays.asList(target)));
-        data.add(new AutoNotify(after, target, null));
+        ctx.add(new AutoNotify(after, target, null));
 
         Resource before = createTestResourceWithIndirectDepsSetup("before");
-        data.add(new AutoNotify(before, target, null));
+        ctx.add(new AutoNotify(before, target, null));
 
         Resource cascadeTarget = createTestResourceWithIndirectDepsSetup("cascadeTarget");
-        data.add(new AutoNotify(cascadeTarget, target, null));
+        ctx.add(new AutoNotify(cascadeTarget, target, null));
         cascadeTarget.addNotificationHandler(new TestNotificationHandler(true, false, false, null));
 
         Resource cascadeSource = createTestResourceWithIndirectDepsSetup("cascadeSource");
-        data.add(new AutoNotify(cascadeSource, cascadeTarget, null));
+        ctx.add(new AutoNotify(cascadeSource, cascadeTarget, null));
 
-        ResourceSorter.bringResourcesForwardDueToNotification(data);
-        assertEquals(data.resources.toArray(new Resource[data.resources.size()]), new Resource[]{before, cascadeSource, cascadeTarget, target, after});
+        ResourceSorter.bringResourcesForwardDueToNotification(ctx);
+        assertEquals(ctx.resources.toArray(new Resource[ctx.resources.size()]), new Resource[]{before, cascadeSource, cascadeTarget, target, after});
     }
 
     @Test

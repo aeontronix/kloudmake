@@ -4,19 +4,21 @@
 
 package com.kloudtek.systyrant.dsl;
 
+import com.kloudtek.systyrant.AbstractAction;
 import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
 import com.kloudtek.systyrant.annotation.Function;
 import com.kloudtek.systyrant.annotation.Param;
-import com.kloudtek.systyrant.context.AbstractAction;
 import com.kloudtek.systyrant.exception.InvalidQueryException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.LocalHost;
+import com.kloudtek.util.ReflectionUtils;
 import org.testng.annotations.Test;
 
 import javax.script.ScriptException;
+import java.util.Collection;
 import java.util.List;
 
 import static org.testng.Assert.*;
@@ -198,7 +200,7 @@ public class DSLParserTest extends AbstractContextTest {
         ctx.runScript("def mytest.mytest { test.test{} }");
         ctx.runScript("mytest.mytest {}");
         execute();
-        assertEquals(data.resources.size(), 2);
+        assertEquals(((Collection<?>) ReflectionUtils.get(ctx, "resources")).size(), 2);
     }
 
     public static class TestService {

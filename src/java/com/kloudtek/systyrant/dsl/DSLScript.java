@@ -4,11 +4,7 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.FQName;
-import com.kloudtek.systyrant.ResourceManager;
-import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.context.ResourceDefinition;
-import com.kloudtek.systyrant.context.ResourceMatcher;
+import com.kloudtek.systyrant.*;
 import com.kloudtek.systyrant.dsl.statement.Statement;
 import com.kloudtek.systyrant.exception.InvalidResourceDefinitionException;
 import org.jetbrains.annotations.NotNull;

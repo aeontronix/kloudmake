@@ -4,7 +4,6 @@
 
 package com.kloudtek.systyrant;
 
-import com.kloudtek.systyrant.context.Parameters;
 import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
