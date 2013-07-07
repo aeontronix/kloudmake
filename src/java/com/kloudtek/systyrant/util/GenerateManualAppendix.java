@@ -12,11 +12,11 @@ import com.sun.javadoc.*;
 import java.io.*;
 import java.lang.annotation.Annotation;
 
-public class DocGenerator {
+public class GenerateManualAppendix {
     public static void main(String[] args) {
         String[] rargs = new String[]{"-d", "_build/", "-sourcepath", "src/java", "-subpackages", "com.kloudtek.systyrant"};
         PrintWriter err = new PrintWriter(System.err);
-        com.sun.tools.javadoc.Main.execute("STDocGen", err, err, err, DocGenerator.class.getName(), rargs);
+        com.sun.tools.javadoc.Main.execute("STDocGen", err, err, err, GenerateManualAppendix.class.getName(), rargs);
     }
 
     public static boolean start(RootDoc root) throws IOException {
@@ -30,23 +30,31 @@ public class DocGenerator {
             root.printNotice("destdir (-d) missing");
             return false;
         }
-        try (BufferedWriter w = new BufferedWriter(new FileWriter(dest + File.separator + "Functions.md"))) {
+        try (BufferedWriter w = new BufferedWriter(new FileWriter(dest + File.separator + "builtin-functions.xml"))) {
+            w.write("<appendix xmlns=\"http://docbook.org/ns/docbook\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+                    "         xsi:schemaLocation=\"http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd\">\n");
+            w.write("\t<title>Built-in functions</title>\n");
             for (ClassDoc classDoc : root.classes()) {
                 for (MethodDoc methodDoc : classDoc.methods()) {
                     for (AnnotationDesc annotationDesc : methodDoc.annotations()) {
                         if (annotationDesc.annotationType().qualifiedName().equals(Function.class.getName())) {
-                            w.write("### ");
                             String functionName = annoValue(annotationDesc, "value");
                             if (functionName == null) {
                                 functionName = methodDoc.name();
                             }
+                            w.write("\t<section>\n");
+                            w.write("\t\t<title>");
                             w.write(functionName);
-                            w.write("\n\n");
-                            w.write(methodDoc.commentText().replace('\n', ' '));
+                            w.write("</title>\n");
+                            w.write("\t\t<para>\n");
+                            w.write(methodDoc.commentText().replace("<p>", "<para>").replace("</p>", "</para>").replace("<br/>","\n"));
+                            w.write("\n\t\t</para>\n");
                             if (methodDoc.parameters().length > 0) {
-                                w.write("\n\nParameters:");
+                                w.write("<para>Parameters:</para>\n");
+                                w.write("<itemizedlist>");
                                 for (Parameter parameter : methodDoc.parameters()) {
-                                    w.write("\n-  *" + parameter.name() + "");
+                                    w.write("<listitem><para>\n<emphasis role='strong'>");
+                                    w.write(parameter.name());
                                     AnnotationDesc paramAnno = anno(parameter.annotations(), Param.class);
                                     if (paramAnno != null) {
                                         String def = annoValue(paramAnno, "def");
@@ -62,15 +70,18 @@ public class DocGenerator {
                                             w.write(" )");
                                         }
                                     }
-                                    w.write("* : ");
+                                    w.write("</emphasis> : ");
                                     w.write(paramDocs(methodDoc, parameter.name()));
+                                    w.write("\n</para></listitem>\n");
                                 }
+                                w.write("</itemizedlist>\n");
                             }
-                            w.write("\n\n");
+                            w.write("\t</section>\n");
                         }
                     }
                 }
             }
+            w.write("</appendix>");
         }
         return true;
     }

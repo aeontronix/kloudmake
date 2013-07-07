@@ -17,4 +17,6 @@
     <xi:include href="manual-scripting.xml"/>
     <xi:include href="manual-credentials.xml"/>
     <xi:include href="manual-executionlifecycle.xml"/>
+    <xi:include href="manual-appendix-commonattrs.xml"/>
+    <xi:include href="../../_build/builtin-functions.xml"/>
 </book>

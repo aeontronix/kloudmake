@@ -26,6 +26,17 @@
     </target>
 
     <target name="manual" depends="compile,docbook-xsl">
+        <javadoc classpathref="buildmagic.classpath.compile" destdir="${build.dir}">
+            <doclet name="com.kloudtek.systyrant.util.GenerateManualAppendix" path="${build.dir}/classes">
+                <!--<param name="-d" value="_build/"/>-->
+            </doclet>
+            <fileset dir="src/java" excludes="**/DocGenerator.java" includes="**/*.java"/>
+            <fileset dir="${build.dir}/antlr" includes="**/*.java"/>
+            <classpath>
+                <path refid="buildmagic.classpath.compile"/>
+                <path location="${java.home}/lib/tools.jar"/>
+            </classpath>
+        </javadoc>
         <delete dir="${build.dir}/docs/manual/chunked"/>
         <delete dir="${build.dir}/docs/manual/allinone"/>
         <delete dir="${build.dir}/docs/manual/epub"/>
@@ -82,21 +93,6 @@
         <copy todir="${basedir}/../systyrant-pages/javadocs">
             <fileset dir="${build.dir}/docs/javadoc"/>
         </copy>
-    </target>
-
-    <target name="update-wiki" depends="compile">
-        <property name="wiki.dir" value="../systyrant-wiki"/>
-        <javadoc classpathref="buildmagic.classpath.compile" destdir="${wiki.dir}">
-            <doclet name="com.kloudtek.systyrant.util.DocGenerator" path="${build.dir}/classes">
-                <!--<param name="-d" value="_build/"/>-->
-            </doclet>
-            <fileset dir="src/java" excludes="**/DocGenerator.java" includes="**/*.java"/>
-            <fileset dir="${build.dir}/antlr" includes="**/*.java"/>
-            <classpath>
-                <path refid="buildmagic.classpath.compile"/>
-                <path location="${java.home}/lib/tools.jar"/>
-            </classpath>
-        </javadoc>
     </target>
 
     <target name="systyrant-dist" extensionOf="dist">

@@ -1,0 +1,81 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
+    <title>Common Attributes</title>
+    <section>
+        <title>id</title>
+        <para>Type: Identifier ( only characters allowed are letters, digits and the following symbols `-_` )</para>
+        <para>
+            Resource identifier. Must be unique among resource siblings (so no two child of a resource can have the
+            same id). For example if you needed a package to be installed before it's service is started, you could use
+        </para>
+        <programlisting language="stl">test.test { "testid":
+  test.test { "testid": } // this won't conflict with the parent resource id since they're not siblings
+}
+
+test:test {
+  test.test { "testid": } // Those two ids would conflict
+  test.test { "testid": } // Those two ids would conflict
+}</programlisting>
+    </section>
+    <section>
+        <title>uid</title>
+        <para>Type: Static String</para>
+        <para>Resource unique identifier. This is automatically generated and cannot be manually specified. It's value is
+            equals to [parent's id].[resource id]</para>
+        <programlisting language="stl">test.test { "a":       // This resource uid would be 'a'
+  test.test { "b":     // This resource uid would be 'a.b'
+    test.test { "c": } // This resource uid would be 'a.b.c'
+  }
+}</programlisting>
+    </section>
+    <section>
+        <title>before</title>
+        <para>Type: Resource Query</para>
+        <para>Specifies resources which this resource should execute before. For example if you needed a package to be installed
+            before it's service is started, you could use</para>
+    </section>
+    <section>
+        <title>after</title>
+        <para>Type: Resource Query</para>
+        <para>Specifies resources which this resource should execute after. For example if you needed a package to be installed
+            before it's service is started, you could use</para>
+        <programlisting language="stl">core.service { after="@id = configfile" }
+core.file { "configfile": path="/etc/myserver.conf", before="@id = myserver" }</programlisting>
+    </section>
+    <section>
+        <title>requires</title>
+        <para>Type: String</para>
+        <para>
+            This can be used to specify a dependency on one or more resources, which will be automatically created if
+            no matching resource is found. The format is a command separated list of resource types with potential attributes
+            equality matching between brackets ( if a resource is created, those attributes will be set in the resource ).
+        </para>
+        <para>
+            Example: this will cause a resource of type test:type1 to be created, as well as a resource of type test.type2 which
+            would have the attribute 'test' assigned as 'bla'. Both would be set as dependencies of the test.test resource.
+        </para>
+        <programlisting language="stl">test.test {
+  requires="test:type1,test:type2(test='bla')"
+}</programlisting>
+        <para>Example: In this example no resource would be created since 'test.type1' already exists.
+            It would be added as a dependency of 'test:test'</para>
+        <programlisting language="stl">test.type1 {}
+test.test {
+  requires="test.type1"
+}</programlisting>
+    </section>
+    <section>
+        <title>notify</title>
+        <para>Type: Resource Query</para>
+        <para>Specified resources this will be notified after this resource is executed.</para>
+    </section>
+    <section>
+        <title>subscribe</title>
+        <para>Type: Resource Query</para>
+        <para>Specified resources which execution will cause this resource to be notified..</para>
+    </section>
+</appendix>
