@@ -95,10 +95,9 @@
             </para>
             <para>
                 <programlisting language="stl">core.file {
-                    "testfile1": path="/tmp/test1.txt" content="Hello World 1";
-                    "testfile2": path="/tmp/test2.txt" content="Hello World 2";
-                    }
-                </programlisting>
+"testfile1": path="/tmp/test1.txt" content="Hello World 1";
+"testfile2": path="/tmp/test2.txt" content="Hello World 2";
+}</programlisting>
             </para>
         </section>
     </chapter>
