@@ -37,12 +37,15 @@
         <xslt style="src/manual/manual-xhtml.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/allinone/manual.xhtml"
               classpathref="cp.build">
-            <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
         </xslt>
         <xslt style="src/manual/manual-xhtml-chunked.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/chunked/index.xhtml" classpathref="cp.build">
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
         </xslt>
+        <replace token="programlisting" value="prettyprint">
+            <fileset dir="${build.dir}/docs/manual/allinone"/>
+            <fileset dir="${build.dir}/docs/manual/chunked"/>
+        </replace>
         <xslt style="src/manual/manual-epub.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/epub/index.xhtml" classpathref="cp.build">
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>

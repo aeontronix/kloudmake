@@ -72,10 +72,9 @@
             <para>
                 This would create a resource of type 'core.file', with the attribute path set to /tmp/test.txt and the
                 attribute content set to "Hello World". If you saves this in a file called `test.stl` and ran the
-                command `systyrant
-                test.stl`, this would create a file /tmp/test.txt and set the content to "Hello World". If the file
-                already existed and had a
-                different content, it would just modify it to the specified content.
+                command `systyrant test.stl`, this would create a file /tmp/test.txt and set the content to "Hello
+                World". If the file
+                already existed and had a different content, it would just modify it to the specified content.
             </para>
             <para>
                 The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
