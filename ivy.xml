@@ -21,11 +21,14 @@
         <dependency org="com.jetbrains" name="annotations" rev="10eap1052" conf="build->default"/>
         <dependency org="org.antlr" name="antlr-ant" rev="1169924912745" conf="build->default"/>
         <dependency org="org.apache" name="ant" rev="1.8.1" conf="build->default"/>
-        <dependency org="net.sourceforge" name="saxon" rev="9.0.2" conf="build->javahe"/>
+        <dependency org="org.apache" name="xalan" rev="2.7.1" conf="build->default"/>
+        <!--<dependency org="net.sourceforge" name="saxon" rev="9.0.2" conf="build->javahe"/>-->
+        <dependency org="net.sourceforge" name="docbook-xsl" rev="1.78.1" conf="build->default"/>
+        <dependency org="net.sf.xslthl" name="xslthl" rev="2.1.0" conf="build->default"/>
         <!-- Test -->
         <dependency org="org.testng" name="testng" rev="6.0.1" conf="test->default"/>
         <dependency org="com.google.code" name="mockito" rev="1.9.0-rc1" conf="test->all"/>
-        <dependency org="org.sl4j" name="sl4j" rev="1.6.6" conf="test->jdk"/>
+        <dependency org="org.slf4j" name="slf4j" rev="1.7.1" conf="test->jdk"/>
         <dependency org="ch.qos" name="logback" rev="1.0.7" conf="test->classic;cli->classic"/>
         <!-- Core -->
         <dependency name="ktutils" rev="1.0.1" conf="core->default"/>
@@ -46,7 +49,7 @@
         <!-- Used for validation -->
         <dependency org="org.hibernate" name="hibernate-validator" rev="4.3.0" conf="core->default"/>
         <!-- Used for logging -->
-        <dependency org="org.sl4j" name="sl4j" rev="1.7.1" conf="core->api,ext"/>
+        <dependency org="org.slf4j" name="slf4j" rev="1.7.1" conf="core->api,ext"/>
         <!-- Needed to support ruby scripts -->
         <dependency org="org.jruby" name="jruby" rev="1.7.0preview2" conf="core->default"/>
         <!-- Used by core -->

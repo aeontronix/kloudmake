@@ -24,4 +24,16 @@
             perform any required tasks to setup the infrastructure.
         </para>
     </chapter>
+    <chapter>
+        <title>XXX</title>
+        <para>SysTyrant is a configuration management tool designed to easily manage even the most complex software
+            stacks.
+        </para>
+        <para>
+            <programlisting language="java"><![CDATA[public class Test {
+   public void test() {
+   }
+}]]></programlisting>
+        </para>
+    </chapter>
 </book>

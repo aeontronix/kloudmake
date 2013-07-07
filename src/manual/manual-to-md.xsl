@@ -26,6 +26,7 @@
     <xsl:template match="db:para">
         <xsl:value-of select="."/>
 
+
     </xsl:template>
 </xsl:stylesheet>
 

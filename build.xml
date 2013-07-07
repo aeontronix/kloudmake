@@ -3,13 +3,19 @@
   -->
 
 <project name="systyrant" xmlns:bm="antlib:com.kloudtek.buildmagic">
-    <property name="ivysettings.url" value="http://s3.amazonaws.com/ivy.kloudtek.com/ivysettings.xml"/>
+    <property name="ivysettings.file" value="ivysettings.xml"/>
+    <!--<property name="ivysettings.url" value="http://s3.amazonaws.com/ivy.kloudtek.com/ivysettings.xml"/>-->
     <bm:template name="ivy"/>
     <bm:template name="simple-java"/>
 
     <target name="_deps" depends="deps"/>
     <target name="_artifacts" depends="artifacts"/>
     <target name="_dist" depends="dist"/>
+    <available file="${build.dir}/docbook-xsl.extracted" property="docbookxslfound"/>
+
+    <path id="cp.build">
+        <fileset dir="${deps.dir}/build-jar" includes="*.jar"/>
+    </path>
 
     <target name="add-tools-to-cp" extensionOf="init">
         <augment id="buildmagic.classpath.compile">
@@ -17,13 +23,38 @@
         </augment>
     </target>
 
-    <target name="docs">
-        <mkdir dir="${build.dir}/docs/wiki"/>
-        <xslt style="src/manual/manual-to-md.xsl" in="src/manual/manual.xml" out="${build.dir}/docs/wiki/manual.md"
-              classpath="${deps.dir}/build-jar/saxon9he.jar">
-            <factory name="net.sf.saxon.TransformerFactoryImpl"/>
+    <target name="docbook-xsl" unless="docbookxslfound">
+        <delete dir="${build.dir}/docbook-xsl"/>
+        <unjar src="${deps.dir}/build-zip/docbook-xsl.zip" dest="${build.dir}/docbook-xsl"/>
+        <touch file="${build.dir}/docbook-xsl.extracted"/>
+    </target>
+
+    <target name="manual" depends="compile,docbook-xsl">
+        <delete dir="${build.dir}/docs/manual-chunked"/>
+        <delete dir="${build.dir}/docs/manual"/>
+        <property name="xslthlcfg" value="file://${build.dir}/docbook-xsl/highlighting/xslthl-config.xml"/>
+        <xslt style="src/manual/manual-xhtml.xsl" in="src/manual/manual.xml" out="${build.dir}/docs/manual/manual.xhtml"
+              classpathref="cp.build">
+            <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
+        </xslt>
+        <xslt style="src/manual/manual-xhtml-chunked.xsl" in="src/manual/manual.xml"
+              out="${build.dir}/docs/manual-chunked/index.xhtml" classpathref="cp.build">
+            <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
         </xslt>
     </target>
+
+    <target name="javadocs">
+        <mkdir dir="${build.dir}/docs/javadoc"/>
+        <javadoc sourcepath="${basedir}/src/java" destdir="${build.dir}/docs/javadoc">
+            <classpath>
+                <fileset dir="${deps.dir}/build-jar" includes="**/*.jar"/>
+                <fileset dir="${deps.dir}/default-jar" includes="**/*.jar"/>
+            </classpath>
+            <sourcepath location="${build.dir}/antlr"/>
+        </javadoc>
+    </target>
+
+    <target name="docs" depends="manual,javadocs"/>
 
     <target name="update-wiki" depends="compile">
         <property name="wiki.dir" value="../systyrant-wiki"/>

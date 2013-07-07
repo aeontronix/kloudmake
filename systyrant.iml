@@ -59,6 +59,16 @@
         <jarDirectory url="file://$MODULE_DIR$/_deps/test-jar" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library name="build-manual-jar">
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/_deps/build-manual-jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/_deps/build-manual-jar" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>
 
