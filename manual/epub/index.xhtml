@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook-epub.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/></head><body><div class="book" title="SysTyrant Manual" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc"><ol><li><a href="#N40019">1. Introduction</a></li><li><a href="#N40046">2. Using the SysTyrant Language (DSL)</a><ol><li><a href="#N4004D">Resource creation</a></li><li><a href="#N40095">String handling</a></li><li><a href="#N400B6">Variables</a></li><li><a href="#N400DE">Functions</a></li><li><a href="#N400F4">Query Language</a><ol><li><a href="#N400FC">Match by Id / Uid</a></li><li><a href="#N40109">Match by Attribute</a></li><li><a href="#N4016F">Match by parent</a></li><li><a href="#N4021D">Match by Type</a></li><li><a href="#N40232">Match by Same Host</a></li></ol></li><li><a href="#N40245">Resource Dependencies</a></li><li><a href="#N40276">Resource refresh</a></li></ol></li><li><a href="#N402BB">3. Using scripting languages</a></li><li><a href="#N40308">4. Credentials Management</a></li><li><a href="#N40311">5. Execution Lifecycle</a></li></ol></nav></div><div class="list-of-tables"><nav epub:type="lot" xmlns:epub="http://www.idpf.org/2007/ops"><h4 class="toc-title">List of Tables</h4><ol><li><a href="#N40191">2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ol></nav></div>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook-epub.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/></head><body><div class="book" title="SysTyrant Manual" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc"><ol><li><a href="#N40019">1. Introduction</a></li><li><a href="#N40046">2. Using the SysTyrant Language (DSL)</a><ol><li><a href="#N4004E">Resource creation</a></li><li><a href="#N4009C">String handling</a></li><li><a href="#N400BD">Variables</a></li><li><a href="#N400E5">Functions</a></li><li><a href="#N4010E">Query Language</a><ol><li><a href="#N40116">Match by Id / Uid</a></li><li><a href="#N40123">Match by Attribute</a></li><li><a href="#N40189">Match by parent</a></li><li><a href="#N40237">Match by Type</a></li><li><a href="#N4024C">Match by Same Host</a></li></ol></li><li><a href="#N4025F">Resource Dependencies</a></li><li><a href="#N40290">Resource refresh</a></li><li><a href="#N402D4">Define custom resources</a></li></ol></li><li><a href="#N402FA">3. Using scripting languages</a></li><li><a href="#N40347">4. Credentials Management</a></li><li><a href="#N40350">5. Execution Lifecycle</a></li></ol></nav></div><div class="list-of-tables"><nav epub:type="lot" xmlns:epub="http://www.idpf.org/2007/ops"><h4 class="toc-title">List of Tables</h4><ol><li><a href="#N401AB">2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ol></nav></div>
     
     
     <section class="chapter" title="Chapter 1. Introduction" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40019"><div class="titlepage"><div><div><h1 class="title">Chapter 1. Introduction</h1></div></div></div>
@@ -36,61 +36,66 @@
 </section>
     <section class="chapter" title="Chapter 2. Using the SysTyrant Language (DSL)" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40046"><div class="titlepage"><div><div><h1 class="title">Chapter 2. Using the SysTyrant Language (DSL)</h1></div></div></div>
     
-    <section class="section" title="Resource creation" epub:type="subchapter" id="N4004D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource creation</h2></div></div></div>
-        
-        <p>
-            Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
-            attributes. Some attributes are common to all resource types like for example id and uid, while other
-            attributes are specific to each resource type.
-        </p>
-        <p>
-            The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
-            be created by just naming the file with an .stl file extension. In order to create a resource using the
-            DSL, you can use the following syntax:
-        </p>
-        <p>
-            </p><pre class="programlisting">core.file { path="/tmp/test.txt" content="Hello World" }</pre><p>
-        </p>
-        <p>
-            This would create a resource of type '<code class="code">core.file</code>' (resource type 'file' in the package 'core',
-            with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
-            this in a file called `test.stl` and run the command <code class="code">systyrant test.stl</code>, this would create
-            a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
-            different content, it would just modify it to the specified content.
-        </p>
-        <p>
-            The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
-        </p>
-        <p>
-            </p><pre class="programlisting">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }</pre><p>
-        </p>
-        <p>
-            This would be the same as specifying
-        </p>
-        <p>
-            </p><pre class="programlisting">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }</pre><p>
-        </p>
-        <p>
-            You can also easily create multiple resources of the same type using the following syntax:
-        </p>
-        <p>
-            </p><pre class="programlisting">core.file {
-    "testfile1": path="/tmp/test1.txt" content="Hello World 1";
-    "testfile2": path="/tmp/test2.txt" content="Hello World 2";
-}</pre><p>
-        </p>
-        <p>
-            If you are repeatedly using resources from a same package, you can having having to type in the package
-            name every time by using the import statement:
-            </p><pre class="programlisting">import core;
+    <section class="section" title="Resource creation" epub:type="subchapter" id="N4004E"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource creation</h2></div></div></div>
+    
+    <p>
+        Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
+        attributes. Some attributes are common to all resource types like for example id and uid, while other
+        attributes are specific to each resource type.
+    </p>
+    <p>
+        The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
+        be created by just naming the file with an .stl file extension. In order to create a resource using the
+        DSL, you can use the following syntax:
+    </p>
+    <p>
+        </p><pre class="programlisting">core.file { path="/tmp/test.txt" content="Hello World" }</pre><p>
+    </p>
+    <p>
+        This would create a resource of type '<code class="code">core.file</code>' (resource type 'file' in the package 'core',
+        with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
+        this in a file called `test.stl` and run the command<code class="code">systyrant test.stl</code>, this would create
+        a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
+        different content, it would just modify it to the specified content.
+    </p>
+    <p>
+        The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
+    </p>
+    <p>
+        </p><pre class="programlisting">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }</pre><p>
+    </p>
+    <p>
+        This would be the same as specifying
+    </p>
+    <p>
+        </p><pre class="programlisting">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }</pre><p>
+    </p>
+    <p>
+        You can also easily create multiple resources of the same type using the following syntax:
+    </p>
+    <pre class="programlisting">core.file {
+    "testfile1": path="/tmp/test1.txt", content="Hello World 1";
+    "testfile2": path="/tmp/test2.txt", content="Hello World 2";
+}</pre>
+    <p>
+        When specifying multiple resources, you can also specify attributes which will apply to all such resources using this syntax:
+    </p>
+    <pre class="programlisting">core.file( content="Hello World" ) {
+    "testfile1": path="/tmp/test1.txt";
+    "testfile2": path="/tmp/test2.txt";
+}</pre>
+    <p>
+        If you are repeatedly using resources from a same package, you can having having to type in the package
+        name every time by using the import statement:
+        </p><pre class="programlisting">import core;
 
 file { path="/tmp/test1.txt" content="Hello World 1"; }
 file { path="/tmp/test2.txt" content="Hello World 2"; }
 package { name="ngynx" }</pre><p>
-        </p>
-        <p>
-            Resources can be created as the children of other resources. For example:
-            </p><pre class="programlisting">core.ssh {
+    </p>
+    <p>
+        Resources can be created as the children of other resources. For example:
+        </p><pre class="programlisting">core.ssh {
     address="server.domain",
     core.file { path="/tmp/test.txt" content="Hello World" },
     core.package {
@@ -98,9 +103,9 @@ package { name="ngynx" }</pre><p>
       "db": name="mysql";
     }
 }</pre><p>
-        </p>
-    </section>
-    <section class="section" title="String handling" epub:type="subchapter" id="N40095"><div class="titlepage"><div><div><h2 class="title" style="clear: both">String handling</h2></div></div></div>
+    </p>
+</section>
+    <section class="section" title="String handling" epub:type="subchapter" id="N4009C"><div class="titlepage"><div><div><h2 class="title" style="clear: both">String handling</h2></div></div></div>
         
         <p>
             Attributes can be specified in three ways:
@@ -116,7 +121,7 @@ package { name="ngynx" }</pre><p>
                 <pre class="programlisting">core.file { testfile: path="/tmp/test.txt" content=HelloWorld }</pre>
             </li></ul></div>
     </section>
-    <section class="section" title="Variables" epub:type="subchapter" id="N400B6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Variables</h2></div></div></div>
+    <section class="section" title="Variables" epub:type="subchapter" id="N400BD"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Variables</h2></div></div></div>
         
         <p>Variables can be created by using the following syntax:</p>
         <pre class="programlisting">core.ssh {
@@ -164,7 +169,7 @@ core.file { path="/tmp/test.txt" content="Hello World" },
     },
 }</pre>
     </section>
-    <section class="section" title="Functions" epub:type="subchapter" id="N400DE"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Functions</h2></div></div></div>
+    <section class="section" title="Functions" epub:type="subchapter" id="N400E5"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Functions</h2></div></div></div>
         
         <p>
             A number of functions are provided for use in the DSL (see Functions).
@@ -178,14 +183,25 @@ core.ssh {
     core.file { path="/tmp/test2.txt" content="It is ${currentDate()}" },
 }</pre><p>
         </p>
+        <p>
+            Functions can take parameters, for example:
+            </p><pre class="programlisting">doStuff('foo','bar','baz')</pre><p>
+            If you don't provide all arguments, they will be passed as their defaults (or null if no default has been set). ie:
+            </p><pre class="programlisting">doStuff('foo','bar','baz')</pre><p>
+            Rather than passing the parameters in their order, you can specifically name each assignment
+            </p><pre class="programlisting">doStuff(p1='foo',p2='bar',p3='baz')
+doStuff(p2='bar',p3='baz',p1='foo')</pre><p>
+            You can also mix both approaches
+            </p><pre class="programlisting">doStuff('foo',p3='baz')</pre><p>
+        </p>
     </section>
-    <section class="section" title="Query Language" epub:type="subchapter" id="N400F4"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Query Language</h2></div></div></div>
+    <section class="section" title="Query Language" epub:type="subchapter" id="N4010E"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Query Language</h2></div></div></div>
         
         <p>
             The resource query language allows you to write a query to retrieve a specific subset of resources that you might need.
             It supports the following matching capabilities:
         </p>
-        <section class="section" title="Match by Id / Uid" epub:type="division" id="N400FC"><div class="titlepage"><div><div><h3 class="title">Match by Id / Uid</h3></div></div></div>
+        <section class="section" title="Match by Id / Uid" epub:type="division" id="N40116"><div class="titlepage"><div><div><h3 class="title">Match by Id / Uid</h3></div></div></div>
             
             <p>
                 When used with an element in scope (so for example as a value for a `depends` attribute), this match by id (or uid if
@@ -211,7 +227,7 @@ foo.bar {
 }</pre><p>
             </p>
         </section>
-        <section class="section" title="Match by Attribute" epub:type="division" id="N40109"><div class="titlepage"><div><div><h3 class="title">Match by Attribute</h3></div></div></div>
+        <section class="section" title="Match by Attribute" epub:type="division" id="N40123"><div class="titlepage"><div><div><h3 class="title">Match by Attribute</h3></div></div></div>
             
             <p>
                 The format for matching by attributes is <code class="code">@[attributename] [operator] [value]</code>.
@@ -252,7 +268,7 @@ foo.bar {
                 <code class="code">@[attributename] is empty</code> and <code class="code">@[attributename] is not empty</code>.
             </p>
         </section>
-        <section class="section" title="Match by parent" epub:type="division" id="N4016F"><div class="titlepage"><div><div><h3 class="title">Match by parent</h3></div></div></div>
+        <section class="section" title="Match by parent" epub:type="division" id="N40189"><div class="titlepage"><div><div><h3 class="title">Match by parent</h3></div></div></div>
             
             <p>
                 You can match by parent by using <code class="code">childof</code> or <code class="code">childof [expression]</code>.
@@ -270,7 +286,7 @@ foo.bar {
                 <code class="code">childof* [expression]</code>.
             </p>
             <p>
-                </p><div class="table" id="N40191"><div class="table-title">Table 2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</div><div class="table-contents">
+                </p><div class="table" id="N401AB"><div class="table-title">Table 2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</div><div class="table-contents">
                     
                     
                     
@@ -278,7 +294,7 @@ foo.bar {
                 </div></div><p>
             </p>
         </section>
-        <section class="section" title="Match by Type" epub:type="division" id="N4021D"><div class="titlepage"><div><div><h3 class="title">Match by Type</h3></div></div></div>
+        <section class="section" title="Match by Type" epub:type="division" id="N40237"><div class="titlepage"><div><div><h3 class="title">Match by Type</h3></div></div></div>
             
             <p>
                 You can match resources of a certain type by using <code class="code">type [fullyqualifiedresourcetype]</code>
@@ -287,7 +303,7 @@ foo.bar {
                 For example to match all resources of type <code class="code">core.file</code> you could use: <code class="code">type core.file</code>
             </p>
         </section>
-        <section class="section" title="Match by Same Host" epub:type="division" id="N40232"><div class="titlepage"><div><div><h3 class="title">Match by Same Host</h3></div></div></div>
+        <section class="section" title="Match by Same Host" epub:type="division" id="N4024C"><div class="titlepage"><div><div><h3 class="title">Match by Same Host</h3></div></div></div>
             
             <p>
                 You can match resources that are in the same host by using <code class="code">is samehost</code> or
@@ -297,7 +313,7 @@ foo.bar {
             will naturally fail if not used by context execution</p>
         </section>
     </section>
-    <section class="section" title="Resource Dependencies" epub:type="subchapter" id="N40245"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource Dependencies</h2></div></div></div>
+    <section class="section" title="Resource Dependencies" epub:type="subchapter" id="N4025F"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource Dependencies</h2></div></div></div>
         
         <p>
             In some cases you might need to have one resource to be executed before another. This can be done by
@@ -334,7 +350,7 @@ new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</p
 &lt;-
 new core:package { id = “httpd” name = “apache-httpd” }</pre>
     </section>
-    <section class="section" title="Resource refresh" epub:type="subchapter" id="N40276"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource refresh</h2></div></div></div>
+    <section class="section" title="Resource refresh" epub:type="subchapter" id="N40290"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource refresh</h2></div></div></div>
         
         <p>
             Resources can support refresh actions. The effect of a refresh will depend on the resource, but for example
@@ -375,8 +391,37 @@ servercfg { config4: notify="@id = myserver", after = "@id = config3" }</pre><p>
             </p><div class="orderedlist" epub:type="list"><ol class="orderedlist" type="1"><li class="listitem" epub:type="list-item">config1 will be executed (no refresh of myserver will occur since it hasn't been executed yet)</li><li class="listitem" epub:type="list-item">myserver will be executed</li><li class="listitem" epub:type="list-item">config2 will be executed</li><li class="listitem" epub:type="list-item">config3 will be executed</li><li class="listitem" epub:type="list-item">myserver will be refreshed</li><li class="listitem" epub:type="list-item">config4 will be executed</li><li class="listitem" epub:type="list-item">myserver will be refreshed</li></ol></div><p>
         </p>
     </section>
+    <section class="section" title="Define custom resources" epub:type="subchapter" id="N402D4"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Define custom resources</h2></div></div></div>
+    
+    <p>
+        In order to define a new attribute, you can use the 'def' keywork. For example to just create a resource called
+        myresource based on the default package (which will be either 'default', or the appropriate package in the case
+        of an auto-loaded dsl):
+    </p>
+    <pre class="programlisting">def myresource {}</pre>
+    <p>
+        You can also use a fully qualified resource name if you wish ( in the format of [packagename].[resourcename] )
+    </p>
+    <pre class="programlisting">def mypkg.myresource {}</pre>
+    <p>
+        Inside the definition, you can specify resources which will be created in the PREPARE stage.
+    </p>
+
+    <pre class="programlisting">def mypkg.myresource {
+  core:file( path = '/test' ) {}
+}</pre>
+    <p>
+        You can specify that certain attributes will be automatically assigned using this syntax. Those resources
+        are available for variable subtitution in resources created.
+    </p>
+    <pre class="programlisting">granparesource( gpattr = "hello" ) {
+  dadresource( dattr = "world" ) {
+    someresource( attr1 = "test", attr2 = $attr1, attr2 = $dattr, attr3 = $gpattr ) {}
+  }
+}</pre>
 </section>
-    <section class="chapter" title="Chapter 3. Using scripting languages" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N402BB"><div class="titlepage"><div><div><h1 class="title">Chapter 3. Using scripting languages</h1></div></div></div>
+</section>
+    <section class="chapter" title="Chapter 3. Using scripting languages" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N402FA"><div class="titlepage"><div><div><h1 class="title">Chapter 3. Using scripting languages</h1></div></div></div>
     
     <p>
         Creating resources using other scripting languages is quite easy, all you need to do is to create a script in the language
@@ -428,10 +473,10 @@ $strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "ng
 </pre><p>
     </p>
 </section>
-    <section class="chapter" title="Chapter 4. Credentials Management" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40308"><div class="titlepage"><div><div><h1 class="title">Chapter 4. Credentials Management</h1></div></div></div>
+    <section class="chapter" title="Chapter 4. Credentials Management" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40347"><div class="titlepage"><div><div><h1 class="title">Chapter 4. Credentials Management</h1></div></div></div>
     
 </section>
-    <section class="chapter" title="Chapter 5. Execution Lifecycle" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40311"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Execution Lifecycle</h1></div></div></div>
+    <section class="chapter" title="Chapter 5. Execution Lifecycle" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40350"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Execution Lifecycle</h1></div></div></div>
     
     <p>
         When a systyrant context is executed, it will go through the following lifecycle stages:
