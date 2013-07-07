@@ -28,10 +28,10 @@ public class ResourceImpl implements Resource {
     private boolean failed;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final HashSet<Resource> childrens = new HashSet<>();
-    private List<Action> prepareActions = new ArrayList<>();
-    private List<Action> execActions = new ArrayList<>();
-    private List<Action> postChildrenExecActions = new ArrayList<>();
-    private List<Action> cleanupActions = new ArrayList<>();
+    private List<Task> prepareTasks = new ArrayList<>();
+    private List<Task> execTasks = new ArrayList<>();
+    private List<Task> postChildrenExecTasks = new ArrayList<>();
+    private List<Task> cleanupTasks = new ArrayList<>();
     private Stage stage;
     private Host hostOverride;
     private final String sourceUrl;
@@ -209,29 +209,29 @@ public class ResourceImpl implements Resource {
     // ----------------------------------------------------------------------
 
     @Override
-    public void addAction(@NotNull Action action) {
-        switch (action.getType()) {
+    public void addAction(@NotNull Task task) {
+        switch (task.getType()) {
             case PREPARE:
-                prepareActions.add(action);
+                prepareTasks.add(task);
                 break;
             case EXECUTE:
             case SYNC:
-                execActions.add(action);
+                execTasks.add(task);
                 break;
             case POSTCHILDREN_EXECUTE:
             case POSTCHILDREN_SYNC:
-                postChildrenExecActions.add(action);
+                postChildrenExecTasks.add(task);
                 break;
             case CLEANUP:
-                cleanupActions.add(action);
+                cleanupTasks.add(task);
         }
     }
 
     public synchronized void sortActions() {
-        Collections.sort(prepareActions);
-        Collections.sort(execActions);
-        Collections.sort(postChildrenExecActions);
-        Collections.sort(cleanupActions);
+        Collections.sort(prepareTasks);
+        Collections.sort(execTasks);
+        Collections.sort(postChildrenExecTasks);
+        Collections.sort(cleanupTasks);
     }
 
     // ----------------------------------------------------------------------
@@ -512,37 +512,37 @@ public class ResourceImpl implements Resource {
     // ----------------------------------------------------------------------
 
     public void executeActions(Stage stage, boolean postChildren) throws STRuntimeException {
-        List<Action> list;
+        List<Task> list;
         switch (stage) {
             case PREPARE:
-                list = prepareActions;
+                list = prepareTasks;
                 break;
             case EXECUTE:
                 if (postChildren) {
-                    list = postChildrenExecActions;
+                    list = postChildrenExecTasks;
                 } else {
-                    list = execActions;
+                    list = execTasks;
                 }
                 break;
             case CLEANUP:
-                list = cleanupActions;
+                list = cleanupTasks;
                 break;
             default:
                 throw new STRuntimeException("BUG: Invalid stage " + stage);
         }
         HashSet<String> supportedAlternatives = new HashSet<>();
         HashSet<String> requiredAlternatives = new HashSet<>();
-        for (Action action : list) {
-            String alternative = action.getAlternative();
+        for (Task task : list) {
+            String alternative = task.getAlternative();
             if (alternative != null) {
                 requiredAlternatives.add(alternative);
             }
-            if (action.supports(context, this)) {
+            if (task.supports(context, this)) {
                 if (alternative != null) {
                     supportedAlternatives.add(alternative);
                 }
-                if (action.checkExecutionRequired(context, this)) {
-                    action.execute(context, this);
+                if (task.checkExecutionRequired(context, this)) {
+                    task.execute(context, this);
                 }
             }
         }

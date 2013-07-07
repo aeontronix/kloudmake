@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.java;
 
-import com.kloudtek.systyrant.AbstractAction;
+import com.kloudtek.systyrant.AbstractTask;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.ResourceImpl;
 import com.kloudtek.systyrant.STContext;
@@ -14,7 +14,7 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 
 import java.util.HashSet;
 
-import static com.kloudtek.systyrant.Action.Type.INIT;
+import static com.kloudtek.systyrant.Task.Type.INIT;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,12 +23,12 @@ import static com.kloudtek.systyrant.Action.Type.INIT;
  * Time: 17:13
  * To change this template use File | Settings | File Templates.
  */
-public class ResourceInitAction extends AbstractAction {
+public class ResourceInitTask extends AbstractTask {
     private final HashSet<String> requires;
     private final Dependency dependency;
     private Class<?> clazz;
 
-    public ResourceInitAction(Class<?> clazz, HashSet<String> requires, Dependency dependency) {
+    public ResourceInitTask(Class<?> clazz, HashSet<String> requires, Dependency dependency) {
         this.requires = requires;
         this.dependency = dependency;
         type = INIT;

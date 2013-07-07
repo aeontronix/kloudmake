@@ -4,7 +4,7 @@
 
 package com.kloudtek.systyrant.java;
 
-import com.kloudtek.systyrant.AbstractAction;
+import com.kloudtek.systyrant.AbstractTask;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.ResourceImpl;
 import com.kloudtek.systyrant.STContext;
@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class JavaAction extends AbstractAction {
+public class JavaTask extends AbstractTask {
     private Class<?> implClass;
     private final List<Injector> injectors;
     @NotNull
@@ -29,13 +29,13 @@ public class JavaAction extends AbstractAction {
     private Method method;
     private Method verifyMethod;
 
-    public JavaAction(int order, Type type, Class<?> implClass, List<Injector> injectors,
-                      @NotNull Set<EnforceOnlyIf> onlyIf, Method method) throws InvalidResourceDefinitionException {
+    public JavaTask(int order, Type type, Class<?> implClass, List<Injector> injectors,
+                    @NotNull Set<EnforceOnlyIf> onlyIf, Method method) throws InvalidResourceDefinitionException {
         this(order, type, implClass, injectors, onlyIf, method, null);
     }
 
-    public JavaAction(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,
-                      @NotNull Set<EnforceOnlyIf> onlyIf, @Nullable Method method, @Nullable Method verifyMethod) throws InvalidResourceDefinitionException {
+    public JavaTask(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,
+                    @NotNull Set<EnforceOnlyIf> onlyIf, @Nullable Method method, @Nullable Method verifyMethod) throws InvalidResourceDefinitionException {
         super(order, type);
         this.implClass = implClass;
         this.injectors = injectors;

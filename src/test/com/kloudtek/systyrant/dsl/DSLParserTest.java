@@ -4,8 +4,8 @@
 
 package com.kloudtek.systyrant.dsl;
 
-import com.kloudtek.systyrant.AbstractAction;
 import com.kloudtek.systyrant.AbstractContextTest;
+import com.kloudtek.systyrant.AbstractTask;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.annotation.Default;
@@ -39,7 +39,7 @@ public class DSLParserTest extends AbstractContextTest {
         r3.setHostOverride(h2);
         Resource r4 = createTestResource();
         r4.setHostOverride(h2);
-        r2.addAction(new AbstractAction() {
+        r2.addAction(new AbstractTask() {
             @Override
             public void execute(STContext context, Resource resource) throws STRuntimeException {
                 try {

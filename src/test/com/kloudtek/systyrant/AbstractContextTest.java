@@ -270,12 +270,12 @@ public class AbstractContextTest {
         }
     }
 
-    public class FailAction extends AbstractAction {
-        public FailAction() {
+    public class FailTask extends AbstractTask {
+        public FailTask() {
             type = Type.EXECUTE;
         }
 
-        public FailAction(Type type) {
+        public FailTask(Type type) {
             this.type = type;
         }
 

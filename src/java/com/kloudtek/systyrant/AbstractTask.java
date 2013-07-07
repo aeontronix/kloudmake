@@ -9,15 +9,15 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
 /**
  * Used to invoke actionsByStage during lifecycle stage processing.
  */
-public abstract class AbstractAction implements Action {
+public abstract class AbstractTask implements Task {
     protected int order;
     protected Type type = Type.EXECUTE;
     protected String alternative;
 
-    protected AbstractAction() {
+    protected AbstractTask() {
     }
 
-    protected AbstractAction(int order, Type type) {
+    protected AbstractTask(int order, Type type) {
         this.order = order;
         this.type = type;
     }
@@ -53,7 +53,7 @@ public abstract class AbstractAction implements Action {
     }
 
     @Override
-    public int compareTo(Action o) {
+    public int compareTo(Task o) {
         return o.getOrder() - order;
     }
 

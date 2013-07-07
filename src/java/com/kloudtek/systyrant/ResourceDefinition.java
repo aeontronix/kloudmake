@@ -25,7 +25,7 @@ public class ResourceDefinition implements AutoCloseable {
     private UniqueScope uniqueScope;
     private boolean created;
     private HashMap<String, String> defaultAttrs = new HashMap<>();
-    private ArrayList<Action> actions = new ArrayList<>();
+    private ArrayList<Task> tasks = new ArrayList<>();
     private ArrayList<NotificationHandler> notificationHandlers = new ArrayList<>();
 
     public ResourceDefinition(@NotNull FQName fqname) {
@@ -66,8 +66,8 @@ public class ResourceDefinition implements AutoCloseable {
         this.uniqueScope = uniqueScope;
     }
 
-    public void addAction(Action action) {
-        actions.add(action);
+    public void addAction(Task task) {
+        tasks.add(task);
     }
 
     public void addNotificationHandler(NotificationHandler handler) {
@@ -95,13 +95,13 @@ public class ResourceDefinition implements AutoCloseable {
             for (Map.Entry<String, String> entry : defaultAttrs.entrySet()) {
                 resource.set(entry.getKey(), entry.getValue());
             }
-            for (Action action : actions) {
-                if (action.getType() == Action.Type.INIT) {
-                    if (action.checkExecutionRequired(context, resource)) {
-                        action.execute(context, resource);
+            for (Task task : tasks) {
+                if (task.getType() == Task.Type.INIT) {
+                    if (task.checkExecutionRequired(context, resource)) {
+                        task.execute(context, resource);
                     }
                 } else {
-                    resource.addAction(action);
+                    resource.addAction(task);
                 }
             }
             for (NotificationHandler notificationHandler : notificationHandlers) {
@@ -136,8 +136,8 @@ public class ResourceDefinition implements AutoCloseable {
         if (!fqname.equals(resourceDefinition.getFQName())) {
             throw new InvalidResourceDefinitionException("Attempted to merge two resources with different FQNames: " + fqname + " and " + resourceDefinition.getFQName());
         }
-        for (Action action : resourceDefinition.actions) {
-            addAction(action);
+        for (Task task : resourceDefinition.tasks) {
+            addAction(task);
         }
         for (NotificationHandler notificationHandler : resourceDefinition.notificationHandlers) {
             addNotificationHandler(notificationHandler);

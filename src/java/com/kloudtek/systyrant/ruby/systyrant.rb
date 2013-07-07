@@ -1,8 +1,8 @@
 require "java"
-java_import com.kloudtek.systyrant.AbstractAction
+java_import com.kloudtek.systyrant.AbstractTask
 
 module SysTyrant
-  class Action < AbstractAction
+  class Task < AbstractTask
 
   end
 

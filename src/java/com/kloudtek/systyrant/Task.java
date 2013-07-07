@@ -6,7 +6,7 @@ package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
-public interface Action extends Comparable<Action> {
+public interface Task extends Comparable<Task> {
     /**
      * Executes the action
      *

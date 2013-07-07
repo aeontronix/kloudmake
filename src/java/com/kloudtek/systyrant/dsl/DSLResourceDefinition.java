@@ -89,17 +89,17 @@ public class DSLResourceDefinition {
         for (Stage stage : Stage.values()) {
             List<Statement> statements = getStatementsForStage(stage);
             if (!statements.isEmpty()) {
-                resourceDefinition.addAction(new DSLAction(dslScript, statements, stage));
+                resourceDefinition.addAction(new DSLTask(dslScript, statements, stage));
             }
         }
         return resourceDefinition;
     }
 
-    public class DSLAction extends AbstractAction {
+    public class DSLTask extends AbstractTask {
         private final List<Statement> actionStatements;
         private final DSLScript dslScript;
 
-        public DSLAction(DSLScript dslScript, List<Statement> actionStatements, Stage stage) {
+        public DSLTask(DSLScript dslScript, List<Statement> actionStatements, Stage stage) {
             this.dslScript = dslScript;
             switch (stage) {
                 case PREPARE:

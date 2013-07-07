@@ -53,7 +53,7 @@ public interface Resource {
 
     void addNotificationHandler(NotificationHandler notificationHandler) throws InvalidStageException;
 
-    void addAction(@NotNull Action action);
+    void addAction(@NotNull Task task);
 
     <X> X getJavaImpl(Class<X> clazz);
 

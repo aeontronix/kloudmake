@@ -294,7 +294,7 @@ public class TestResource {
 
     public static void createChild(Resource parent, String... childrens) {
         for (String children : childrens) {
-            parent.addAction(new CreateChildrenAction(parent, children));
+            parent.addAction(new CreateChildrenTask(parent, children));
         }
     }
 
@@ -307,11 +307,11 @@ public class TestResource {
         throw new STRuntimeException("Unable to find resource");
     }
 
-    public static class CreateChildrenAction extends AbstractAction {
+    public static class CreateChildrenTask extends AbstractTask {
         private String name;
         private final Resource parent;
 
-        public CreateChildrenAction(Resource parent, String id) {
+        public CreateChildrenTask(Resource parent, String id) {
             type = Type.PREPARE;
             this.name = id;
             this.parent = parent;

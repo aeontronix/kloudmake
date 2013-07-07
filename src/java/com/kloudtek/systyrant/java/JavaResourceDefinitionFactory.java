@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static com.kloudtek.systyrant.Action.Type.*;
+import static com.kloudtek.systyrant.Task.Type.*;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class JavaResourceDefinitionFactory {
@@ -30,7 +30,7 @@ public class JavaResourceDefinitionFactory {
         ResourceDefinition resourceDefinition = new ResourceDefinition(fqname != null ? fqname : new FQName(clazz, null));
         HashSet<String> requires = new HashSet<>();
         Dependency dep = clazz.getAnnotation(Dependency.class);
-        resourceDefinition.addAction(new ResourceInitAction(clazz, requires, dep));
+        resourceDefinition.addAction(new ResourceInitTask(clazz, requires, dep));
         Unique uq = clazz.getAnnotation(Unique.class);
         try {
             clazz.newInstance();
@@ -41,8 +41,8 @@ public class JavaResourceDefinitionFactory {
             resourceDefinition.addUniqueScope(uq.value());
         }
         Set<EnforceOnlyIf> onlyIf = EnforceOnlyIf.find(clazz);
-        Set<JavaAction> actions = new HashSet<>();
-        HashMap<String, JavaAction> syncs = new HashMap<>();
+        Set<JavaTask> actions = new HashSet<>();
+        HashMap<String, JavaTask> syncs = new HashMap<>();
         ArrayList<Injector> injectors = new ArrayList<>();
         for (Field field : clazz.getDeclaredFields()) {
             for (Annotation annotation : field.getAnnotations()) {
@@ -57,14 +57,14 @@ public class JavaResourceDefinitionFactory {
             handleCleanupMethods(clazz, actions, method, injectors, onlyIf);
             handleNotificationHandling(clazz, resourceDefinition, method);
         }
-        for (JavaAction javaAction : syncs.values()) {
+        for (JavaTask javaAction : syncs.values()) {
             if (javaAction.getMethod() == null) {
                 throw new InvalidResourceDefinitionException("Resource class verify method missing matching sync: " + ReflectionHelper.toString(javaAction.getVerifyMethod()));
             } else if (javaAction.getVerifyMethod() == null) {
                 throw new InvalidResourceDefinitionException("Resource class verify method missing matching sync: " + ReflectionHelper.toString(javaAction.getMethod()));
             }
         }
-        for (JavaAction action : actions) {
+        for (JavaTask action : actions) {
             resourceDefinition.addAction(action);
         }
         return resourceDefinition;
@@ -77,19 +77,19 @@ public class JavaResourceDefinitionFactory {
         }
     }
 
-    private static void handleCleanupMethods(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
+    private static void handleCleanupMethods(Class<?> clazz, Set<JavaTask> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Cleanup cleanup = method.getAnnotation(Cleanup.class);
         if (cleanup != null) {
             logger.debug("Added CLEANUP method: {} ", method);
-            actions.add(new JavaAction(cleanup.order(), CLEANUP, clazz, injectors, onlyIf, method));
+            actions.add(new JavaTask(cleanup.order(), CLEANUP, clazz, injectors, onlyIf, method));
         }
     }
 
-    private static void handleSyncMethods(Class<?> clazz, Set<JavaAction> actions, Method method, HashMap<String, JavaAction> syncs, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
+    private static void handleSyncMethods(Class<?> clazz, Set<JavaTask> actions, Method method, HashMap<String, JavaTask> syncs, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Sync sync = method.getAnnotation(Sync.class);
         if (sync != null) {
             String syncId = sync.value();
-            JavaAction existing = syncs.get(syncId);
+            JavaTask existing = syncs.get(syncId);
             if (existing != null) {
                 if (existing.getMethod() != null) {
                     throw new InvalidResourceDefinitionException("Duplicated sync methods found: "
@@ -101,7 +101,7 @@ public class JavaResourceDefinitionFactory {
                 existing.setOrder(sync.order());
                 existing.setType(sync.postChildren() ? POSTCHILDREN_SYNC : SYNC);
             } else {
-                JavaAction action = new JavaAction(sync.order(), sync.postChildren() ? POSTCHILDREN_SYNC : SYNC, clazz, injectors, onlyIf, method);
+                JavaTask action = new JavaTask(sync.order(), sync.postChildren() ? POSTCHILDREN_SYNC : SYNC, clazz, injectors, onlyIf, method);
                 actions.add(action);
                 syncs.put(syncId, action);
             }
@@ -109,14 +109,14 @@ public class JavaResourceDefinitionFactory {
         }
     }
 
-    private static void handleVerifyActions(Class<?> clazz, Set<JavaAction> actions, Method method, HashMap<String, JavaAction> syncs, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
+    private static void handleVerifyActions(Class<?> clazz, Set<JavaTask> actions, Method method, HashMap<String, JavaTask> syncs, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Verify verify = method.getAnnotation(Verify.class);
         if (verify != null) {
             String syncId = verify.value();
             if (!method.getReturnType().equals(boolean.class)) {
                 throw new InvalidResourceDefinitionException("Verify method must return a boolean " + ReflectionHelper.toString(method));
             }
-            JavaAction existing = syncs.get(syncId);
+            JavaTask existing = syncs.get(syncId);
             if (existing != null) {
                 if (existing.getVerifyMethod() != null) {
                     throw new InvalidResourceDefinitionException("Duplicated verify methods found: "
@@ -126,7 +126,7 @@ public class JavaResourceDefinitionFactory {
                     existing.setVerifyMethod(method);
                 }
             } else {
-                JavaAction action = new JavaAction(0, SYNC, clazz, injectors, onlyIf, null, method);
+                JavaTask action = new JavaTask(0, SYNC, clazz, injectors, onlyIf, null, method);
                 actions.add(action);
                 syncs.put(syncId, action);
             }
@@ -134,19 +134,19 @@ public class JavaResourceDefinitionFactory {
         }
     }
 
-    private static void handleExecActions(Class<?> clazz, Set<JavaAction> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
+    private static void handleExecActions(Class<?> clazz, Set<JavaTask> actions, Method method, ArrayList<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Execute exec = method.getAnnotation(Execute.class);
         if (exec != null) {
             logger.debug("Adding EXEC method: {}", method);
-            actions.add(new JavaAction(exec.order(), exec.postChildren() ? POSTCHILDREN_EXECUTE : EXECUTE, clazz, injectors, onlyIf, method));
+            actions.add(new JavaTask(exec.order(), exec.postChildren() ? POSTCHILDREN_EXECUTE : EXECUTE, clazz, injectors, onlyIf, method));
         }
     }
 
-    private static void handlePrepareActions(Class<?> clazz, Set<JavaAction> actions, Method method, List<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
+    private static void handlePrepareActions(Class<?> clazz, Set<JavaTask> actions, Method method, List<Injector> injectors, Set<EnforceOnlyIf> onlyIf) throws InvalidResourceDefinitionException {
         Prepare prepareAnno = method.getAnnotation(Prepare.class);
         if (prepareAnno != null) {
             logger.debug("Adding PREPARE method: {}", method);
-            actions.add(new JavaAction(prepareAnno.order(), PREPARE, clazz, injectors, onlyIf, method));
+            actions.add(new JavaTask(prepareAnno.order(), PREPARE, clazz, injectors, onlyIf, method));
         }
     }
 
