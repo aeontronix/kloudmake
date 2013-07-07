@@ -15,25 +15,92 @@
     </info>
     <chapter>
         <title>Introduction</title>
-        <para>SysTyrant is a configuration management tool designed to easily manage even the most complex software
-            stacks.
-        </para>
-        <para>In order to use SysTyrant, you just need to create a script defining resources (which can represent any
-            elements of a software stack ie: an application, a server, etc), and use the SysTyrant command line tool
-            which will
-            perform any required tasks to setup the infrastructure.
-        </para>
-    </chapter>
-    <chapter>
-        <title>XXX</title>
-        <para>SysTyrant is a configuration management tool designed to easily manage even the most complex software
+        <para>
+            SysTyrant is a configuration management tool designed to easily manage even the most complex software
             stacks.
         </para>
         <para>
-            <programlisting language="java"><![CDATA[public class Test {
-   public void test() {
-   }
-}]]></programlisting>
+            In order to use SysTyrant, you just need to create a script defining resources (which can represent any
+            elements of a software stack ie: an application, a server, etc), and use the SysTyrant command line tool
+            which will perform any required tasks to setup the infrastructure.
         </para>
+        <para>
+            Some of the main features of SysTyrant are:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    Has a very powerful and flexible engine designed to easily handle complex enterprise applications.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Support to various languages which include's it's own DSL (Domain Specific Language), Java and as
+                    well as a large number
+                    of other scripting languages like Ruby, Python, Javascript and many others.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Can manage remote servers using SSH (thus without requiring an agent to be deployed on the server.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Automatically creates and manages credentials and cryptographic keys/certificates.
+                </para>
+            </listitem>
+        </itemizedlist>
+    </chapter>
+    <chapter>
+        <title>Resource Creation</title>
+        <section>
+            <title>Using DSL</title>
+            <para>
+                Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
+                attributes. Some attributes are common to all resource types like for example id and uid, while other
+                attributes are specific to each resource type.
+            </para>
+            <para>
+                The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
+                be created by just naming the file with an .stl file extension. In order to create a resource using the
+                DSL, you can use the following syntax:
+            </para>
+            <para>
+                <programlisting language="stl">core.file { path="/tmp/test.txt" content="Hello World" }</programlisting>
+            </para>
+            <para>
+                This would create a resource of type 'core.file', with the attribute path set to /tmp/test.txt and the
+                attribute content set to "Hello World". If you saves this in a file called `test.stl` and ran the
+                command `systyrant
+                test.stl`, this would create a file /tmp/test.txt and set the content to "Hello World". If the file
+                already existed and had a
+                different content, it would just modify it to the specified content.
+            </para>
+            <para>
+                The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
+            </para>
+            <para>
+                <programlisting language="stl">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }
+                </programlisting>
+            </para>
+            <para>
+                This would be the same as specifying
+            </para>
+            <para>
+                <programlisting language="stl">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }
+                </programlisting>
+            </para>
+            <para>
+                You can also easily create multiple resources of the same type using the following syntax:
+            </para>
+            <para>
+                <programlisting language="stl">core.file {
+                    "testfile1": path="/tmp/test1.txt" content="Hello World 1";
+                    "testfile2": path="/tmp/test2.txt" content="Hello World 2";
+                    }
+                </programlisting>
+            </para>
+        </section>
     </chapter>
 </book>

@@ -30,15 +30,21 @@
     </target>
 
     <target name="manual" depends="compile,docbook-xsl">
-        <delete dir="${build.dir}/docs/manual-chunked"/>
-        <delete dir="${build.dir}/docs/manual"/>
+        <delete dir="${build.dir}/docs/manual/chunked"/>
+        <delete dir="${build.dir}/docs/manual/allinone"/>
+        <delete dir="${build.dir}/docs/manual/epub"/>
         <property name="xslthlcfg" value="file://${build.dir}/docbook-xsl/highlighting/xslthl-config.xml"/>
-        <xslt style="src/manual/manual-xhtml.xsl" in="src/manual/manual.xml" out="${build.dir}/docs/manual/manual.xhtml"
+        <xslt style="src/manual/manual-xhtml.xsl" in="src/manual/manual.xml"
+              out="${build.dir}/docs/manual/allinone/manual.xhtml"
               classpathref="cp.build">
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
         </xslt>
         <xslt style="src/manual/manual-xhtml-chunked.xsl" in="src/manual/manual.xml"
-              out="${build.dir}/docs/manual-chunked/index.xhtml" classpathref="cp.build">
+              out="${build.dir}/docs/manual/chunked/index.xhtml" classpathref="cp.build">
+            <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
+        </xslt>
+        <xslt style="src/manual/manual-epub.xsl" in="src/manual/manual.xml"
+              out="${build.dir}/docs/manual/epub/index.xhtml" classpathref="cp.build">
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
         </xslt>
     </target>
