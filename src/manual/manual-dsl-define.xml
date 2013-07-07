@@ -1,0 +1,34 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<section xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
+    <title>Define custom resources</title>
+    <para>
+        In order to define a new attribute, you can use the 'def' keywork. For example to just create a resource called
+        myresource based on the default package (which will be either 'default', or the appropriate package in the case
+        of an auto-loaded dsl):
+    </para>
+    <programlisting language="stl">def myresource {}</programlisting>
+    <para>
+        You can also use a fully qualified resource name if you wish ( in the format of [packagename].[resourcename] )
+    </para>
+    <programlisting language="stl">def mypkg.myresource {}</programlisting>
+    <para>
+        Inside the definition, you can specify resources which will be created in the PREPARE stage.
+    </para>
+
+    <programlisting language="stl">def mypkg.myresource {
+  core:file( path = '/test' ) {}
+}</programlisting>
+    <para>
+        You can specify that certain attributes will be automatically assigned using this syntax. Those resources
+        are available for variable subtitution in resources created.
+    </para>
+    <programlisting language="stl">granparesource( gpattr = "hello" ) {
+  dadresource( dattr = "world" ) {
+    someresource( attr1 = "test", attr2 = $attr1, attr2 = $dattr, attr3 = $gpattr ) {}
+  }
+}</programlisting>
+</section>
