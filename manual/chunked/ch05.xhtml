@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 5. Execution Lifecycle</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><link rel="prev" href="ch04.xhtml" title="Chapter 4. Credentials Management"/><script xmlns="" type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><header><div class="navheader"><table style="width: 100%; "><tr><th style="text-align: center; " colspan="3">Chapter 5. Execution Lifecycle</th></tr><tr><td style="text-align: left; width: 20%; "><a accesskey="p" href="ch04.xhtml">Prev</a> </td><th style="text-align: center; width: 60%; "> </th><td style="text-align: right; width: 20%; "> </td></tr></table><hr/></div></header><section class="chapter" id="N40311"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Execution Lifecycle</h1></div></div></div>
+    
+    <p>
+        When a systyrant context is executed, it will go through the following lifecycle stages:
+    </p>
+    <p>
+        <span class="bold"><strong>Prepare Stage</strong></span>
+    </p>
+    <p>
+        At this stage, it will iterate through every resource and call their PREPARE actions until there are no more
+        unprocessed resources for this stage.
+    </p>
+    <p>
+        After this is done it will:
+        </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Validate all resources attributes</p></li><li class="listitem"><p>For every resource which has no 'id' attribute, it will generate one. It will use the
+                resource's type name with a number (starting at 1, incrementing it until it generates a valid id).
+                So a core.file resource with no id will generate a 'file1' id if there are no sibling resources with
+                that id already.</p></li><li class="listitem"><p>
+                For every resource which has no 'uid' attribute, it will generate one. If the resource has a parent,
+                the uid will be generated in the format of '[parent uid].[resource id]'. If it has no parent then
+                it will just use the resource id.
+            </p></li><li class="listitem">
+                <p>It will re-order the resources based on their dependencies and notifications/subscriptions</p>
+            </li></ul></div><p>
+    </p>
+    <p>
+        <span class="bold"><strong>Execute Stage</strong></span>
+    </p>
+    <p>
+        <span class="emphasis"><em>Note: From this point onwards, resource creations are no longer allowed.</em></span>
+        For each task in the resource it will then:
+        </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Invoke all EXECUTE tasks</p>
+            </li><li class="listitem">
+                <p>Invoke all VERIFY tasks, and for each verify that returns false, execute the respective SYNC tasks.</p>
+            </li><li class="listitem">
+                <p>If the resource has a parent, and this was the last of it's childrens to be executed, it will
+                    invoke any POSTCHILDREN tasks the parent has.</p>
+            </li></ul></div><p>
+    </p>
+    <p>
+        <span class="bold"><strong>Cleanup Stage</strong></span>
+    </p>
+    <p>
+        At this final stage it will invoke each action's CLEANUP actions.
+    </p>
+</section><footer><div class="navfooter"><hr/><table style="width: 100%; "><tr><td style="text-align: left; width: 40%; "><a accesskey="p" href="ch04.xhtml">Prev</a> </td><td style="text-align: center; width: 20%; "> </td><td style="text-align: right; width: 40%; "> </td></tr><tr><td style="vertical-align: top; text-align: left; width: 40%; ">Chapter 4. Credentials Management </td><td style="text-align: center; width: 20%; "><a accesskey="h" href="index.xhtml">Home</a></td><td style="vertical-align: top; text-align: right; width: 40%; "> </td></tr></table></div></footer></body></html>

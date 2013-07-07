@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>String handling</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><link rel="prev" href="ch02.xhtml" title="Chapter 2. Using the SysTyrant Language (DSL)"/><link rel="next" href="ch02s03.xhtml" title="Variables"/><script xmlns="" type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><header><div class="navheader"><table style="width: 100%; "><tr><th style="text-align: center; " colspan="3">String handling</th></tr><tr><td style="text-align: left; width: 20%; "><a accesskey="p" href="ch02.xhtml">Prev</a> </td><th style="text-align: center; width: 60%; ">Chapter 2. Using the SysTyrant Language (DSL)</th><td style="text-align: right; width: 20%; "> <a accesskey="n" href="ch02s03.xhtml">Next</a></td></tr></table><hr/></div></header><section class="section" id="N40095"><div class="titlepage"><div><div><h2 class="title" style="clear: both">String handling</h2></div></div></div>
+        
+        <p>
+            Attributes can be specified in three ways:
+        </p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                With double quotes
+                <pre class="prettyprint">core.file { "testfile": path="/tmp/test.txt" content="HelloWorld" }</pre>
+            </li><li class="listitem">
+                With single quotes
+                <pre class="prettyprint">core.file { 'testfile': path='/tmp/test.txt' content='HelloWorld' }</pre>
+            </li><li class="listitem">
+                Without quotes if if the value only contains letters, numbers and/or the symbols _/$%^&amp;*!]
+                <pre class="prettyprint">core.file { testfile: path="/tmp/test.txt" content=HelloWorld }</pre>
+            </li></ul></div>
+    </section><footer><div class="navfooter"><hr/><table style="width: 100%; "><tr><td style="text-align: left; width: 40%; "><a accesskey="p" href="ch02.xhtml">Prev</a> </td><td style="text-align: center; width: 20%; "><a accesskey="u" href="ch02.xhtml">Up</a></td><td style="text-align: right; width: 40%; "> <a accesskey="n" href="ch02s03.xhtml">Next</a></td></tr><tr><td style="vertical-align: top; text-align: left; width: 40%; ">Chapter 2. Using the SysTyrant Language (DSL) </td><td style="text-align: center; width: 20%; "><a accesskey="h" href="index.xhtml">Home</a></td><td style="vertical-align: top; text-align: right; width: 40%; "> Variables</td></tr></table></div></footer></body></html>

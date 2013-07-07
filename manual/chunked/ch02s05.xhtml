@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Query Language</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><link rel="prev" href="ch02s04.xhtml" title="Functions"/><link rel="next" href="ch02s06.xhtml" title="Resource Dependencies"/><script xmlns="" type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><header><div class="navheader"><table style="width: 100%; "><tr><th style="text-align: center; " colspan="3">Query Language</th></tr><tr><td style="text-align: left; width: 20%; "><a accesskey="p" href="ch02s04.xhtml">Prev</a> </td><th style="text-align: center; width: 60%; ">Chapter 2. Using the SysTyrant Language (DSL)</th><td style="text-align: right; width: 20%; "> <a accesskey="n" href="ch02s06.xhtml">Next</a></td></tr></table><hr/></div></header><section class="section" id="N400F4"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Query Language</h2></div></div></div>
+        
+        <p>
+            The resource query language allows you to write a query to retrieve a specific subset of resources that you might need.
+            It supports the following matching capabilities:
+        </p>
+        <section class="section" id="N400FC"><div class="titlepage"><div><div><h3 class="title">Match by Id / Uid</h3></div></div></div>
+            
+            <p>
+                When used with an element in scope (so for example as a value for a `depends` attribute), this match by id (or uid if
+                the value has a dot in it) for any sibling resources (so resources which have the same parent). For example:
+                </p><pre class="prettyprint">test.test {
+  id='parent',
+  test.test {
+    id='someid',     // This will be matched by the depends='someid' expression
+    test.test {
+      id='otherid'     // This element would have a uid of 'parent.someid.otherid', but it would be matched by
+                       // depends='someid.otherid' since it's declaring element a child of parent1
+    }
+  }
+  test.test {
+    depends='someid'
+  }
+  test.test {
+    depends='someid.otherid'
+  }
+}
+foo.bar {
+  id='someid',  // This will *NOT* be matched by the depends expression since it doesn't share the same parent
+}</pre><p>
+            </p>
+        </section>
+        <section class="section" id="N40109"><div class="titlepage"><div><div><h3 class="title">Match by Attribute</h3></div></div></div>
+            
+            <p>
+                The format for matching by attributes is <code class="code">@[attributename] [operator] [value]</code>.
+            </p>
+            <p>
+                Supported operators are:
+            </p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>
+                        Case sensitive match: <code class="code">==</code> or <code class="code">eq</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        Case insensitive match: <code class="code">=</code> or <code class="code">like</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        Regexp matching: <code class="code">~=</code> or <code class="code">regex</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        Less than matching: <code class="code">&lt;</code> or <code class="code">lt</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        More than matching: <code class="code">&gt;</code> or <code class="code">gt</code>
+                    </p>
+                </li></ul></div>
+            <p>
+                Negation can be used by adding a 'not' before the operator (<code class="code">@[attributename] not [operator] [value]</code>)
+            </p>
+            <p>
+                In order to check if an attribute is null (or not null), you can use the format of
+                <code class="code">@[attributename] is null</code> and <code class="code">@[attributename] is not null</code>.
+            </p>
+            <p>
+                In order to check an attribute is empty (that is either null or an empty string, you can use
+                <code class="code">@[attributename] is empty</code> and <code class="code">@[attributename] is not empty</code>.
+            </p>
+        </section>
+        <section class="section" id="N4016F"><div class="titlepage"><div><div><h3 class="title">Match by parent</h3></div></div></div>
+            
+            <p>
+                You can match by parent by using <code class="code">childof</code> or <code class="code">childof [expression]</code>.
+            </p>
+            <p>
+                When using <code class="code">childof</code> with an expression, it will resolve the expression, and match any
+                resource that is the child of those resources.
+            </p>
+            <p>
+                When used without expression, it will match all childrens of the resource currently being processed
+                (this naturally cannot be used outside an STContext execution).
+            </p>
+            <p>
+                In order to recursively match grandchildrens, you need to use <code class="code">childof*</code> or
+                <code class="code">childof* [expression]</code>.
+            </p>
+            <p>
+                </p><div class="table" id="N40191"><div class="table-title">Table 2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</div><div class="table-contents">
+                    
+                    
+                    
+                    <table style="width: 50%; border-collapse: collapse; border-top: 0.5pt solid ; border-bottom: 0.5pt solid ; border-left: 0.5pt solid ; border-right: 0.5pt solid ; "><colgroup><col style="width: 14%; "/><col style="width: 14%; "/><col style="width: 14%; "/><col style="width: 15%; "/><col style="width: 14%; "/><col style="width: 14%; "/><col style="width: 15%; "/></colgroup><thead><tr><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">Resource</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">Parent</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">Attribute 'foo'</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">childof @foo eq 'zzz'</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">childof</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">childof* @foo eq 'zzz'</th><th style="text-align: left; border-bottom: 0.5pt solid ; ">childof*</th></tr></thead><tbody><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">1</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-bottom: 0.5pt solid ; "> </td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">2</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">1</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">3</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">1</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">zzz</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">4</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">3</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">5</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">3</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; ">6</td><td style="text-align: left; border-right: 0.5pt solid ; ">5</td><td style="text-align: left; border-right: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; ">X</td><td style="text-align: left; ">X</td></tr></tbody></table>
+                </div></div><p><br class="table-break"/>
+            </p>
+        </section>
+        <section class="section" id="N4021D"><div class="titlepage"><div><div><h3 class="title">Match by Type</h3></div></div></div>
+            
+            <p>
+                You can match resources of a certain type by using <code class="code">type [fullyqualifiedresourcetype]</code>
+            </p>
+            <p>
+                For example to match all resources of type <code class="code">core.file</code> you could use: <code class="code">type core.file</code>
+            </p>
+        </section>
+        <section class="section" id="N40232"><div class="titlepage"><div><div><h3 class="title">Match by Same Host</h3></div></div></div>
+            
+            <p>
+                You can match resources that are in the same host by using <code class="code">is samehost</code> or
+                <code class="code">is samehost ([query expression])</code>
+            </p>
+            <p>When using the first version (without a query expression), it will use the resource in scope. This
+            will naturally fail if not used by context execution</p>
+        </section>
+    </section><footer><div class="navfooter"><hr/><table style="width: 100%; "><tr><td style="text-align: left; width: 40%; "><a accesskey="p" href="ch02s04.xhtml">Prev</a> </td><td style="text-align: center; width: 20%; "><a accesskey="u" href="ch02.xhtml">Up</a></td><td style="text-align: right; width: 40%; "> <a accesskey="n" href="ch02s06.xhtml">Next</a></td></tr><tr><td style="vertical-align: top; text-align: left; width: 40%; ">Functions </td><td style="text-align: center; width: 20%; "><a accesskey="h" href="index.xhtml">Home</a></td><td style="vertical-align: top; text-align: right; width: 40%; "> Resource Dependencies</td></tr></table></div></footer></body></html>

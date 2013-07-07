@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 3. Using scripting languages</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><link rel="prev" href="ch02s07.xhtml" title="Resource refresh"/><link rel="next" href="ch04.xhtml" title="Chapter 4. Credentials Management"/><script xmlns="" type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><header><div class="navheader"><table style="width: 100%; "><tr><th style="text-align: center; " colspan="3">Chapter 3. Using scripting languages</th></tr><tr><td style="text-align: left; width: 20%; "><a accesskey="p" href="ch02s07.xhtml">Prev</a> </td><th style="text-align: center; width: 60%; "> </th><td style="text-align: right; width: 20%; "> <a accesskey="n" href="ch04.xhtml">Next</a></td></tr></table><hr/></div></header><section class="chapter" id="N402BB"><div class="titlepage"><div><div><h1 class="title">Chapter 3. Using scripting languages</h1></div></div></div>
+    
+    <p>
+        Creating resources using other scripting languages is quite easy, all you need to do is to create a script in the language
+        of your choice (as long as it's a supported one of course), and use the command line tool to run the script.
+    </p>
+    <p>
+        Non-DSL scripting languages will have automatically the following global variables set:
+    </p>
+    <table style="border: 0; " class="simplelist"><tr><td><span class="strong"><strong>package</strong></span>: Package of the script</td></tr><tr><td><span class="strong"><strong>ctx</strong></span>: SysTyrant Context (the java STContext instance).</td></tr><tr><td><span class="strong"><strong>stsm</strong></span>: SysTyrant Service Manager.</td></tr><tr><td><span class="strong"><strong>strm</strong></span>: SysTyrant Resource Manager.</td></tr></table>
+    <p>
+        Those can then be used to perform any required functions. For example, if you wanted to use ruby to perform the
+        same file creation as described previously, you could create a file named `test.rb` with the following content:
+        </p><pre class="prettyprint">myfileres = $strm.createResource( "core.file", "testfile" )
+myfileres.set( { path =&gt; "/tmp/test.txt", content =&gt; "Hello World" } )
+</pre><p>
+        and then execute the file using <code class="code">systyrant test.rb</code>
+    </p>
+    <p>
+        Additionally some scripting languages will automatically load some wrapper code to facilitate development:
+    </p>
+    <p>
+        Ruby:
+        </p><pre class="prettyprint">require "java"
+java_import com.kloudtek.systyrant.AbstractTask
+
+module SysTyrant
+  class Task &lt; AbstractTask
+
+  end
+
+  def SysTyrant.create(type, id=nil, attrs=nil, parent=nil)
+    $strm.create(type, id, attrs, parent)
+  end
+end
+</pre><p>
+    </p>
+    <p>
+        In ruby, the above function could be written as:
+        </p><pre class="prettyprint">myfileres = SysTyrant.create( 'core.file', "testfile", { path =&gt; '/tmp/test.txt', content =&gt; "Hello World" } )
+</pre><p>
+    </p>
+    <p>
+        Parent / Children relationships can be set on creation by using the parent parameter:
+        </p><pre class="prettyprint">sshresource = SysTyrant.create( "core.ssh", "serverid", { address =&gt; "server.domain" } )
+
+SysTyrant.create( "core.file", "fileid", { path =&gt; "/tmp/test.txt", content =&gt; "Hello World" }, sshresource )
+SysTyrant.create( "core.package", attrs={ name = "mysql" }, parent=sshresource )
+$strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "nginx" } )
+</pre><p>
+    </p>
+</section><footer><div class="navfooter"><hr/><table style="width: 100%; "><tr><td style="text-align: left; width: 40%; "><a accesskey="p" href="ch02s07.xhtml">Prev</a> </td><td style="text-align: center; width: 20%; "> </td><td style="text-align: right; width: 40%; "> <a accesskey="n" href="ch04.xhtml">Next</a></td></tr><tr><td style="vertical-align: top; text-align: left; width: 40%; ">Resource refresh </td><td style="text-align: center; width: 20%; "><a accesskey="h" href="index.xhtml">Home</a></td><td style="vertical-align: top; text-align: right; width: 40%; "> Chapter 4. Credentials Management</td></tr></table></div></footer></body></html>

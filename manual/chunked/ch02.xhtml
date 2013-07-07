@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 2. Using the SysTyrant Language (DSL)</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><link rel="prev" href="ch01.xhtml" title="Chapter 1. Introduction"/><link rel="next" href="ch02s02.xhtml" title="String handling"/><script xmlns="" type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><header><div class="navheader"><table style="width: 100%; "><tr><th style="text-align: center; " colspan="3">Chapter 2. Using the SysTyrant Language (DSL)</th></tr><tr><td style="text-align: left; width: 20%; "><a accesskey="p" href="ch01.xhtml">Prev</a> </td><th style="text-align: center; width: 60%; "> </th><td style="text-align: right; width: 20%; "> <a accesskey="n" href="ch02s02.xhtml">Next</a></td></tr></table><hr/></div></header><section class="chapter" id="N40046"><div class="titlepage"><div><div><h1 class="title">Chapter 2. Using the SysTyrant Language (DSL)</h1></div></div></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="section"><a href="ch02.xhtml#N4004D">Resource creation</a></span></li><li><span class="section"><a href="ch02s02.xhtml">String handling</a></span></li><li><span class="section"><a href="ch02s03.xhtml">Variables</a></span></li><li><span class="section"><a href="ch02s04.xhtml">Functions</a></span></li><li><span class="section"><a href="ch02s05.xhtml">Query Language</a></span><ul><li><span class="section"><a href="ch02s05.xhtml#N400FC">Match by Id / Uid</a></span></li><li><span class="section"><a href="ch02s05.xhtml#N40109">Match by Attribute</a></span></li><li><span class="section"><a href="ch02s05.xhtml#N4016F">Match by parent</a></span></li><li><span class="section"><a href="ch02s05.xhtml#N4021D">Match by Type</a></span></li><li><span class="section"><a href="ch02s05.xhtml#N40232">Match by Same Host</a></span></li></ul></li><li><span class="section"><a href="ch02s06.xhtml">Resource Dependencies</a></span></li><li><span class="section"><a href="ch02s07.xhtml">Resource refresh</a></span></li></ul></div>
+    
+    <section class="section" id="N4004D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource creation</h2></div></div></div>
+        
+        <p>
+            Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
+            attributes. Some attributes are common to all resource types like for example id and uid, while other
+            attributes are specific to each resource type.
+        </p>
+        <p>
+            The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
+            be created by just naming the file with an .stl file extension. In order to create a resource using the
+            DSL, you can use the following syntax:
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file { path="/tmp/test.txt" content="Hello World" }</pre><p>
+        </p>
+        <p>
+            This would create a resource of type '<code class="code">core.file</code>' (resource type 'file' in the package 'core',
+            with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
+            this in a file called `test.stl` and run the command <code class="code">systyrant test.stl</code>, this would create
+            a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
+            different content, it would just modify it to the specified content.
+        </p>
+        <p>
+            The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }</pre><p>
+        </p>
+        <p>
+            This would be the same as specifying
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }</pre><p>
+        </p>
+        <p>
+            You can also easily create multiple resources of the same type using the following syntax:
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file {
+    "testfile1": path="/tmp/test1.txt" content="Hello World 1";
+    "testfile2": path="/tmp/test2.txt" content="Hello World 2";
+}</pre><p>
+        </p>
+        <p>
+            If you are repeatedly using resources from a same package, you can having having to type in the package
+            name every time by using the import statement:
+            </p><pre class="prettyprint">import core;
+
+file { path="/tmp/test1.txt" content="Hello World 1"; }
+file { path="/tmp/test2.txt" content="Hello World 2"; }
+package { name="ngynx" }</pre><p>
+        </p>
+        <p>
+            Resources can be created as the children of other resources. For example:
+            </p><pre class="prettyprint">core.ssh {
+    address="server.domain",
+    core.file { path="/tmp/test.txt" content="Hello World" },
+    core.package {
+      "web": name="nginx";
+      "db": name="mysql";
+    }
+}</pre><p>
+        </p>
+    </section>
+    
+    
+    
+    
+    
+    
+</section><footer><div class="navfooter"><hr/><table style="width: 100%; "><tr><td style="text-align: left; width: 40%; "><a accesskey="p" href="ch01.xhtml">Prev</a> </td><td style="text-align: center; width: 20%; "> </td><td style="text-align: right; width: 40%; "> <a accesskey="n" href="ch02s02.xhtml">Next</a></td></tr><tr><td style="vertical-align: top; text-align: left; width: 40%; ">Chapter 1. Introduction </td><td style="text-align: center; width: 20%; "><a accesskey="h" href="index.xhtml">Home</a></td><td style="vertical-align: top; text-align: right; width: 40%; "> String handling</td></tr></table></div></footer></body></html>

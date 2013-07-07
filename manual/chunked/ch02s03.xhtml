@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Variables</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><link rel="prev" href="ch02s02.xhtml" title="String handling"/><link rel="next" href="ch02s04.xhtml" title="Functions"/><script xmlns="" type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><header><div class="navheader"><table style="width: 100%; "><tr><th style="text-align: center; " colspan="3">Variables</th></tr><tr><td style="text-align: left; width: 20%; "><a accesskey="p" href="ch02s02.xhtml">Prev</a> </td><th style="text-align: center; width: 60%; ">Chapter 2. Using the SysTyrant Language (DSL)</th><td style="text-align: right; width: 20%; "> <a accesskey="n" href="ch02s04.xhtml">Next</a></td></tr></table><hr/></div></header><section class="section" id="N400B6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Variables</h2></div></div></div>
+        
+        <p>Variables can be created by using the following syntax:</p>
+        <pre class="prettyprint">core.ssh {
+address="server.domain',
+$text = "Hello World",
+core.file { path="/tmp/test.txt" content="Hello World" },
+}</pre>
+        <p>
+            This would create a variable $text assigned to the core.ssh resource
+        </p>
+        <p>
+            It is possible to use perform variable substitution in strings by using ${variablename} in either a double
+            quoted string, or a string without quotes:
+            </p><pre class="prettyprint">core.ssh {
+    address='server.domain',
+    $text = "Hello World",
+    core.file {
+        path="/tmp/test1.txt" content="${text}"
+        path="/tmp/test2.txt" content=${text}
+        path='/tmp/test3.txt' content='${text}'
+    },
+}</pre><p>
+        </p>
+        <p>
+            In this example, the files /tmp/test1.txt and /tmp/test2.txt would contain "Hello World", while /tmp/test3.txt would contain '${text}'.
+        </p>
+        <p>
+            Additionally, a variable string declaration can retrieve attributes in any of it's parents (it will follow through all
+            parents until he finds a match).
+        </p>
+        <pre class="prettyprint">core.ssh {
+    address="server.domain",
+    core.file {
+        path="/tmp/address.txt" content=${address}
+    },
+}</pre>
+        <p>
+            In double quoted strings, a slash can be used to escape characters (to create a slash you need to use double slash '\\').
+            For example this following DSL would result in the content string being `server.domain \ ${address}`.
+        </p>
+        <pre class="prettyprint">core.ssh {
+    address="server.domain",
+    core.file {
+        path="/tmp/address.txt" content="${address} \\ \${address} "
+    },
+}</pre>
+    </section><footer><div class="navfooter"><hr/><table style="width: 100%; "><tr><td style="text-align: left; width: 40%; "><a accesskey="p" href="ch02s02.xhtml">Prev</a> </td><td style="text-align: center; width: 20%; "><a accesskey="u" href="ch02.xhtml">Up</a></td><td style="text-align: right; width: 40%; "> <a accesskey="n" href="ch02s04.xhtml">Next</a></td></tr><tr><td style="vertical-align: top; text-align: left; width: 40%; ">String handling </td><td style="text-align: center; width: 20%; "><a accesskey="h" href="index.xhtml">Home</a></td><td style="vertical-align: top; text-align: right; width: 40%; "> Functions</td></tr></table></div></footer></body></html>

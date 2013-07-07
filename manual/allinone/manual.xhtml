@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><script type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><div class="book" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="chapter"><a href="#N40019">1. Introduction</a></span></li><li><span class="chapter"><a href="#N40046">2. Using the SysTyrant Language (DSL)</a></span><ul><li><span class="section"><a href="#N4004D">Resource creation</a></span></li><li><span class="section"><a href="#N40095">String handling</a></span></li><li><span class="section"><a href="#N400B6">Variables</a></span></li><li><span class="section"><a href="#N400DE">Functions</a></span></li><li><span class="section"><a href="#N400F4">Query Language</a></span><ul><li><span class="section"><a href="#N400FC">Match by Id / Uid</a></span></li><li><span class="section"><a href="#N40109">Match by Attribute</a></span></li><li><span class="section"><a href="#N4016F">Match by parent</a></span></li><li><span class="section"><a href="#N4021D">Match by Type</a></span></li><li><span class="section"><a href="#N40232">Match by Same Host</a></span></li></ul></li><li><span class="section"><a href="#N40245">Resource Dependencies</a></span></li><li><span class="section"><a href="#N40276">Resource refresh</a></span></li></ul></li><li><span class="chapter"><a href="#N402BB">3. Using scripting languages</a></span></li><li><span class="chapter"><a href="#N40308">4. Credentials Management</a></span></li><li><span class="chapter"><a href="#N40311">5. Execution Lifecycle</a></span></li></ul></div><div class="list-of-tables"><div class="toc-title">List of Tables</div><ul><li>2.1. <a href="#N40191">Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ul></div>
+    
+    
+    <section class="chapter" id="N40019"><div class="titlepage"><div><div><h1 class="title">Chapter 1. Introduction</h1></div></div></div>
+    
+    <p>
+        SysTyrant is a configuration management tool designed to easily manage even the most complex software
+        stacks.
+    </p>
+    <p>
+        In order to use SysTyrant, you just need to create a script defining resources (which can represent any
+        elements of a software stack ie: an application, a server, etc), and use the SysTyrant command line tool
+        which will perform any required tasks to setup the infrastructure.
+    </p>
+    <p>
+        Some of the main features of SysTyrant are:
+    </p>
+    <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+            <p>
+                Has a very powerful and flexible engine designed to easily handle complex enterprise applications.
+            </p>
+        </li><li class="listitem">
+            <p>
+                Support to various languages which include's it's own DSL (Domain Specific Language), Java and as
+                well as a large number of other scripting languages like Ruby, Python, Javascript and many others.
+            </p>
+        </li><li class="listitem">
+            <p>
+                Can manage remote servers using SSH (thus without requiring an agent to be deployed on the server.
+            </p>
+        </li><li class="listitem">
+            <p>
+                Automatically creates and manages credentials and cryptographic keys/certificates.
+            </p>
+        </li></ul></div>
+</section>
+    <section class="chapter" id="N40046"><div class="titlepage"><div><div><h1 class="title">Chapter 2. Using the SysTyrant Language (DSL)</h1></div></div></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="section"><a href="#N4004D">Resource creation</a></span></li><li><span class="section"><a href="#N40095">String handling</a></span></li><li><span class="section"><a href="#N400B6">Variables</a></span></li><li><span class="section"><a href="#N400DE">Functions</a></span></li><li><span class="section"><a href="#N400F4">Query Language</a></span><ul><li><span class="section"><a href="#N400FC">Match by Id / Uid</a></span></li><li><span class="section"><a href="#N40109">Match by Attribute</a></span></li><li><span class="section"><a href="#N4016F">Match by parent</a></span></li><li><span class="section"><a href="#N4021D">Match by Type</a></span></li><li><span class="section"><a href="#N40232">Match by Same Host</a></span></li></ul></li><li><span class="section"><a href="#N40245">Resource Dependencies</a></span></li><li><span class="section"><a href="#N40276">Resource refresh</a></span></li></ul></div>
+    
+    <section class="section" id="N4004D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource creation</h2></div></div></div>
+        
+        <p>
+            Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
+            attributes. Some attributes are common to all resource types like for example id and uid, while other
+            attributes are specific to each resource type.
+        </p>
+        <p>
+            The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
+            be created by just naming the file with an .stl file extension. In order to create a resource using the
+            DSL, you can use the following syntax:
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file { path="/tmp/test.txt" content="Hello World" }</pre><p>
+        </p>
+        <p>
+            This would create a resource of type '<code class="code">core.file</code>' (resource type 'file' in the package 'core',
+            with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
+            this in a file called `test.stl` and run the command <code class="code">systyrant test.stl</code>, this would create
+            a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
+            different content, it would just modify it to the specified content.
+        </p>
+        <p>
+            The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }</pre><p>
+        </p>
+        <p>
+            This would be the same as specifying
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }</pre><p>
+        </p>
+        <p>
+            You can also easily create multiple resources of the same type using the following syntax:
+        </p>
+        <p>
+            </p><pre class="prettyprint">core.file {
+    "testfile1": path="/tmp/test1.txt" content="Hello World 1";
+    "testfile2": path="/tmp/test2.txt" content="Hello World 2";
+}</pre><p>
+        </p>
+        <p>
+            If you are repeatedly using resources from a same package, you can having having to type in the package
+            name every time by using the import statement:
+            </p><pre class="prettyprint">import core;
+
+file { path="/tmp/test1.txt" content="Hello World 1"; }
+file { path="/tmp/test2.txt" content="Hello World 2"; }
+package { name="ngynx" }</pre><p>
+        </p>
+        <p>
+            Resources can be created as the children of other resources. For example:
+            </p><pre class="prettyprint">core.ssh {
+    address="server.domain",
+    core.file { path="/tmp/test.txt" content="Hello World" },
+    core.package {
+      "web": name="nginx";
+      "db": name="mysql";
+    }
+}</pre><p>
+        </p>
+    </section>
+    <section class="section" id="N40095"><div class="titlepage"><div><div><h2 class="title" style="clear: both">String handling</h2></div></div></div>
+        
+        <p>
+            Attributes can be specified in three ways:
+        </p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                With double quotes
+                <pre class="prettyprint">core.file { "testfile": path="/tmp/test.txt" content="HelloWorld" }</pre>
+            </li><li class="listitem">
+                With single quotes
+                <pre class="prettyprint">core.file { 'testfile': path='/tmp/test.txt' content='HelloWorld' }</pre>
+            </li><li class="listitem">
+                Without quotes if if the value only contains letters, numbers and/or the symbols _/$%^&amp;*!]
+                <pre class="prettyprint">core.file { testfile: path="/tmp/test.txt" content=HelloWorld }</pre>
+            </li></ul></div>
+    </section>
+    <section class="section" id="N400B6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Variables</h2></div></div></div>
+        
+        <p>Variables can be created by using the following syntax:</p>
+        <pre class="prettyprint">core.ssh {
+address="server.domain',
+$text = "Hello World",
+core.file { path="/tmp/test.txt" content="Hello World" },
+}</pre>
+        <p>
+            This would create a variable $text assigned to the core.ssh resource
+        </p>
+        <p>
+            It is possible to use perform variable substitution in strings by using ${variablename} in either a double
+            quoted string, or a string without quotes:
+            </p><pre class="prettyprint">core.ssh {
+    address='server.domain',
+    $text = "Hello World",
+    core.file {
+        path="/tmp/test1.txt" content="${text}"
+        path="/tmp/test2.txt" content=${text}
+        path='/tmp/test3.txt' content='${text}'
+    },
+}</pre><p>
+        </p>
+        <p>
+            In this example, the files /tmp/test1.txt and /tmp/test2.txt would contain "Hello World", while /tmp/test3.txt would contain '${text}'.
+        </p>
+        <p>
+            Additionally, a variable string declaration can retrieve attributes in any of it's parents (it will follow through all
+            parents until he finds a match).
+        </p>
+        <pre class="prettyprint">core.ssh {
+    address="server.domain",
+    core.file {
+        path="/tmp/address.txt" content=${address}
+    },
+}</pre>
+        <p>
+            In double quoted strings, a slash can be used to escape characters (to create a slash you need to use double slash '\\').
+            For example this following DSL would result in the content string being `server.domain \ ${address}`.
+        </p>
+        <pre class="prettyprint">core.ssh {
+    address="server.domain",
+    core.file {
+        path="/tmp/address.txt" content="${address} \\ \${address} "
+    },
+}</pre>
+    </section>
+    <section class="section" id="N400DE"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Functions</h2></div></div></div>
+        
+        <p>
+            A number of functions are provided for use in the DSL (see Functions).
+        </p>
+        <p>
+            For example here's the use of the <code class="code">currentDate()</code> function and of <code class="code">logInfo()</code>:
+            </p><pre class="prettyprint">logInfo('hello world')
+core.ssh {
+    $datestr = currentDate(),
+    core.file { path="/tmp/test1.txt" content="It is ${datestr}" },
+    core.file { path="/tmp/test2.txt" content="It is ${currentDate()}" },
+}</pre><p>
+        </p>
+    </section>
+    <section class="section" id="N400F4"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Query Language</h2></div></div></div>
+        
+        <p>
+            The resource query language allows you to write a query to retrieve a specific subset of resources that you might need.
+            It supports the following matching capabilities:
+        </p>
+        <section class="section" id="N400FC"><div class="titlepage"><div><div><h3 class="title">Match by Id / Uid</h3></div></div></div>
+            
+            <p>
+                When used with an element in scope (so for example as a value for a `depends` attribute), this match by id (or uid if
+                the value has a dot in it) for any sibling resources (so resources which have the same parent). For example:
+                </p><pre class="prettyprint">test.test {
+  id='parent',
+  test.test {
+    id='someid',     // This will be matched by the depends='someid' expression
+    test.test {
+      id='otherid'     // This element would have a uid of 'parent.someid.otherid', but it would be matched by
+                       // depends='someid.otherid' since it's declaring element a child of parent1
+    }
+  }
+  test.test {
+    depends='someid'
+  }
+  test.test {
+    depends='someid.otherid'
+  }
+}
+foo.bar {
+  id='someid',  // This will *NOT* be matched by the depends expression since it doesn't share the same parent
+}</pre><p>
+            </p>
+        </section>
+        <section class="section" id="N40109"><div class="titlepage"><div><div><h3 class="title">Match by Attribute</h3></div></div></div>
+            
+            <p>
+                The format for matching by attributes is <code class="code">@[attributename] [operator] [value]</code>.
+            </p>
+            <p>
+                Supported operators are:
+            </p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>
+                        Case sensitive match: <code class="code">==</code> or <code class="code">eq</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        Case insensitive match: <code class="code">=</code> or <code class="code">like</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        Regexp matching: <code class="code">~=</code> or <code class="code">regex</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        Less than matching: <code class="code">&lt;</code> or <code class="code">lt</code>
+                    </p>
+                </li><li class="listitem">
+                    <p>
+                        More than matching: <code class="code">&gt;</code> or <code class="code">gt</code>
+                    </p>
+                </li></ul></div>
+            <p>
+                Negation can be used by adding a 'not' before the operator (<code class="code">@[attributename] not [operator] [value]</code>)
+            </p>
+            <p>
+                In order to check if an attribute is null (or not null), you can use the format of
+                <code class="code">@[attributename] is null</code> and <code class="code">@[attributename] is not null</code>.
+            </p>
+            <p>
+                In order to check an attribute is empty (that is either null or an empty string, you can use
+                <code class="code">@[attributename] is empty</code> and <code class="code">@[attributename] is not empty</code>.
+            </p>
+        </section>
+        <section class="section" id="N4016F"><div class="titlepage"><div><div><h3 class="title">Match by parent</h3></div></div></div>
+            
+            <p>
+                You can match by parent by using <code class="code">childof</code> or <code class="code">childof [expression]</code>.
+            </p>
+            <p>
+                When using <code class="code">childof</code> with an expression, it will resolve the expression, and match any
+                resource that is the child of those resources.
+            </p>
+            <p>
+                When used without expression, it will match all childrens of the resource currently being processed
+                (this naturally cannot be used outside an STContext execution).
+            </p>
+            <p>
+                In order to recursively match grandchildrens, you need to use <code class="code">childof*</code> or
+                <code class="code">childof* [expression]</code>.
+            </p>
+            <p>
+                </p><div class="table" id="N40191"><div class="table-title">Table 2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</div><div class="table-contents">
+                    
+                    
+                    
+                    <table style="width: 50%; border-collapse: collapse; border-top: 0.5pt solid ; border-bottom: 0.5pt solid ; border-left: 0.5pt solid ; border-right: 0.5pt solid ; "><colgroup><col style="width: 14%; "/><col style="width: 14%; "/><col style="width: 14%; "/><col style="width: 15%; "/><col style="width: 14%; "/><col style="width: 14%; "/><col style="width: 15%; "/></colgroup><thead><tr><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">Resource</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">Parent</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">Attribute 'foo'</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">childof @foo eq 'zzz'</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">childof</th><th style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">childof* @foo eq 'zzz'</th><th style="text-align: left; border-bottom: 0.5pt solid ; ">childof*</th></tr></thead><tbody><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">1</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-bottom: 0.5pt solid ; "> </td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">2</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">1</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">3</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">1</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">zzz</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">4</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">3</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">5</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">3</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; border-bottom: 0.5pt solid ; ">X</td><td style="text-align: left; border-bottom: 0.5pt solid ; ">X</td></tr><tr><td style="text-align: left; border-right: 0.5pt solid ; ">6</td><td style="text-align: left; border-right: 0.5pt solid ; ">5</td><td style="text-align: left; border-right: 0.5pt solid ; ">bar</td><td style="text-align: left; border-right: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; "> </td><td style="text-align: left; border-right: 0.5pt solid ; ">X</td><td style="text-align: left; ">X</td></tr></tbody></table>
+                </div></div><p><br class="table-break"/>
+            </p>
+        </section>
+        <section class="section" id="N4021D"><div class="titlepage"><div><div><h3 class="title">Match by Type</h3></div></div></div>
+            
+            <p>
+                You can match resources of a certain type by using <code class="code">type [fullyqualifiedresourcetype]</code>
+            </p>
+            <p>
+                For example to match all resources of type <code class="code">core.file</code> you could use: <code class="code">type core.file</code>
+            </p>
+        </section>
+        <section class="section" id="N40232"><div class="titlepage"><div><div><h3 class="title">Match by Same Host</h3></div></div></div>
+            
+            <p>
+                You can match resources that are in the same host by using <code class="code">is samehost</code> or
+                <code class="code">is samehost ([query expression])</code>
+            </p>
+            <p>When using the first version (without a query expression), it will use the resource in scope. This
+            will naturally fail if not used by context execution</p>
+        </section>
+    </section>
+    <section class="section" id="N40245"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource Dependencies</h2></div></div></div>
+        
+        <p>
+            In some cases you might need to have one resource to be executed before another. This can be done by
+            declaring a dependency between the two.
+        </p>
+        <p>
+            One way this can be done is by declaring a “before” or an "after" attribute (which value must be a
+            valid resource query expression)
+        </p>
+        <p>
+            For example to have a 'core.file' resource depend on a specific 'core.package' resource you could write:
+        </p>
+        <pre class="prettyprint">new core:package { id = “httpd”, name = “apache-httpd” }
+new core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</pre>
+        <p>
+            This could also be written as
+        </p>
+        <pre class="prettyprint">new core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
+new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
+        <p>
+            Another way to define a dependency is by using either <code class="code">-&gt;</code> or <code class="code">&gt;-</code>
+            between resource creation declarations.
+        </p>
+        <p>
+            So the above example could also be written as
+        </p>
+        <pre class="prettyprint">new core:package { id = “httpd” name = “apache-httpd” }
+-&gt;
+new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
+        <p>
+            or alternatively
+        </p>
+        <pre class="prettyprint">new core:file { path = “/root/myfile1.txt”, content = “Hello World” }
+&lt;-
+new core:package { id = “httpd” name = “apache-httpd” }</pre>
+    </section>
+    <section class="section" id="N40276"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource refresh</h2></div></div></div>
+        
+        <p>
+            Resources can support refresh actions. The effect of a refresh will depend on the resource, but for example
+            when you refresh a <code class="code">core:service</code> that is set as runnable, it will cause the service to be restarted.
+        </p>
+        <p>
+            Refreshing is done using notifications or subscription.
+        </p>
+        <p>
+            A notification can be set by using the common attribute `notify` (the content of which is a resource query
+            expression) to specify which resources should be refreshed after the resource is executed.
+        </p>
+        <p>
+            Alternatively you can use the attribute `subscribe` (the content of which is also resource query expression)
+            on a resource, and this will cause it to be refresh after the execution of any matching resource.
+        </p>
+        <p>
+            A refresh will only occur if the notifying/subscribed resource is executed after the resource has been
+            executed. SysTyrant will try to be as efficient and perform the least refreshes possible. This means:
+            </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    It will attempt to execute the notifying/subscribed resources before the refreshed resource (if
+                    that can be done this will naturally means the refresh will not happen).
+                </li><li class="listitem">
+                    It will only perform one refresh for multiple notifying/subscribed if those resources have no
+                    dependencies on each other (direct or indirect)
+                </li></ul></div><p>
+        </p>
+        <p>
+            So for example:
+            </p><pre class="prettyprint">core:service { myserver: }
+servercfg { config1: notify="@id = myserver" }
+servercfg { config2: notify="@id = myserver", after = "@id = myserver" }
+servercfg { config3: notify="@id = myserver", after = "@id = myserver" }
+servercfg { config4: notify="@id = myserver", after = "@id = config3" }</pre><p>
+        </p>
+        <p>
+            This will result in:
+            </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">config1 will be executed (no refresh of myserver will occur since it hasn't been executed yet)</li><li class="listitem">myserver will be executed</li><li class="listitem">config2 will be executed</li><li class="listitem">config3 will be executed</li><li class="listitem">myserver will be refreshed</li><li class="listitem">config4 will be executed</li><li class="listitem">myserver will be refreshed</li></ol></div><p>
+        </p>
+    </section>
+</section>
+    <section class="chapter" id="N402BB"><div class="titlepage"><div><div><h1 class="title">Chapter 3. Using scripting languages</h1></div></div></div>
+    
+    <p>
+        Creating resources using other scripting languages is quite easy, all you need to do is to create a script in the language
+        of your choice (as long as it's a supported one of course), and use the command line tool to run the script.
+    </p>
+    <p>
+        Non-DSL scripting languages will have automatically the following global variables set:
+    </p>
+    <table style="border: 0; " class="simplelist"><tr><td><span class="strong"><strong>package</strong></span>: Package of the script</td></tr><tr><td><span class="strong"><strong>ctx</strong></span>: SysTyrant Context (the java STContext instance).</td></tr><tr><td><span class="strong"><strong>stsm</strong></span>: SysTyrant Service Manager.</td></tr><tr><td><span class="strong"><strong>strm</strong></span>: SysTyrant Resource Manager.</td></tr></table>
+    <p>
+        Those can then be used to perform any required functions. For example, if you wanted to use ruby to perform the
+        same file creation as described previously, you could create a file named `test.rb` with the following content:
+        </p><pre class="prettyprint">myfileres = $strm.createResource( "core.file", "testfile" )
+myfileres.set( { path =&gt; "/tmp/test.txt", content =&gt; "Hello World" } )
+</pre><p>
+        and then execute the file using <code class="code">systyrant test.rb</code>
+    </p>
+    <p>
+        Additionally some scripting languages will automatically load some wrapper code to facilitate development:
+    </p>
+    <p>
+        Ruby:
+        </p><pre class="prettyprint">require "java"
+java_import com.kloudtek.systyrant.AbstractTask
+
+module SysTyrant
+  class Task &lt; AbstractTask
+
+  end
+
+  def SysTyrant.create(type, id=nil, attrs=nil, parent=nil)
+    $strm.create(type, id, attrs, parent)
+  end
+end
+</pre><p>
+    </p>
+    <p>
+        In ruby, the above function could be written as:
+        </p><pre class="prettyprint">myfileres = SysTyrant.create( 'core.file', "testfile", { path =&gt; '/tmp/test.txt', content =&gt; "Hello World" } )
+</pre><p>
+    </p>
+    <p>
+        Parent / Children relationships can be set on creation by using the parent parameter:
+        </p><pre class="prettyprint">sshresource = SysTyrant.create( "core.ssh", "serverid", { address =&gt; "server.domain" } )
+
+SysTyrant.create( "core.file", "fileid", { path =&gt; "/tmp/test.txt", content =&gt; "Hello World" }, sshresource )
+SysTyrant.create( "core.package", attrs={ name = "mysql" }, parent=sshresource )
+$strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "nginx" } )
+</pre><p>
+    </p>
+</section>
+    <section class="chapter" id="N40308"><div class="titlepage"><div><div><h1 class="title">Chapter 4. Credentials Management</h1></div></div></div>
+    
+</section>
+    <section class="chapter" id="N40311"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Execution Lifecycle</h1></div></div></div>
+    
+    <p>
+        When a systyrant context is executed, it will go through the following lifecycle stages:
+    </p>
+    <p>
+        <span class="bold"><strong>Prepare Stage</strong></span>
+    </p>
+    <p>
+        At this stage, it will iterate through every resource and call their PREPARE actions until there are no more
+        unprocessed resources for this stage.
+    </p>
+    <p>
+        After this is done it will:
+        </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>Validate all resources attributes</p></li><li class="listitem"><p>For every resource which has no 'id' attribute, it will generate one. It will use the
+                resource's type name with a number (starting at 1, incrementing it until it generates a valid id).
+                So a core.file resource with no id will generate a 'file1' id if there are no sibling resources with
+                that id already.</p></li><li class="listitem"><p>
+                For every resource which has no 'uid' attribute, it will generate one. If the resource has a parent,
+                the uid will be generated in the format of '[parent uid].[resource id]'. If it has no parent then
+                it will just use the resource id.
+            </p></li><li class="listitem">
+                <p>It will re-order the resources based on their dependencies and notifications/subscriptions</p>
+            </li></ul></div><p>
+    </p>
+    <p>
+        <span class="bold"><strong>Execute Stage</strong></span>
+    </p>
+    <p>
+        <span class="emphasis"><em>Note: From this point onwards, resource creations are no longer allowed.</em></span>
+        For each task in the resource it will then:
+        </p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Invoke all EXECUTE tasks</p>
+            </li><li class="listitem">
+                <p>Invoke all VERIFY tasks, and for each verify that returns false, execute the respective SYNC tasks.</p>
+            </li><li class="listitem">
+                <p>If the resource has a parent, and this was the last of it's childrens to be executed, it will
+                    invoke any POSTCHILDREN tasks the parent has.</p>
+            </li></ul></div><p>
+    </p>
+    <p>
+        <span class="bold"><strong>Cleanup Stage</strong></span>
+    </p>
+    <p>
+        At this final stage it will invoke each action's CLEANUP actions.
+    </p>
+</section>
+</div></body></html>
