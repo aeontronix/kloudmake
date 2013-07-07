@@ -1,0 +1,5 @@
+import core;
+
+file { path="/tmp/test1.txt" content="Hello World 1"; }
+file { path="/tmp/test2.txt" content="Hello World 2"; }
+package { name="ngynx" }

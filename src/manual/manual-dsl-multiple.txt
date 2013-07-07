@@ -1,0 +1,4 @@
+core.file {
+    "testfile1": path="/tmp/test1.txt" content="Hello World 1";
+    "testfile2": path="/tmp/test2.txt" content="Hello World 2";
+}

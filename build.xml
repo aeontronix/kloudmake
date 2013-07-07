@@ -34,21 +34,27 @@
         <delete dir="${build.dir}/docs/manual/allinone"/>
         <delete dir="${build.dir}/docs/manual/epub"/>
         <property name="xslthlcfg" value="file://${build.dir}/docbook-xsl/highlighting/xslthl-config.xml"/>
-        <xslt style="src/manual/manual-xhtml.xsl" in="src/manual/manual.xml"
+        <xslt style="src/manual/templates/manual-xhtml.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/allinone/manual.xhtml"
               classpathref="cp.build">
+            <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
+            <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration" value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
         </xslt>
-        <xslt style="src/manual/manual-xhtml-chunked.xsl" in="src/manual/manual.xml"
+        <xslt style="src/manual/templates/manual-xhtml-chunked.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/chunked/index.xhtml" classpathref="cp.build">
+            <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
+            <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration" value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
         </xslt>
         <replace token="programlisting" value="prettyprint">
             <fileset dir="${build.dir}/docs/manual/allinone"/>
             <fileset dir="${build.dir}/docs/manual/chunked"/>
         </replace>
-        <xslt style="src/manual/manual-epub.xsl" in="src/manual/manual.xml"
+        <xslt style="src/manual/templates/manual-epub.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/epub/index.xhtml" classpathref="cp.build">
+            <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
+            <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration" value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
         </xslt>
     </target>
 

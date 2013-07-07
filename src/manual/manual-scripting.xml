@@ -1,0 +1,47 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
+    <title>Using scripting languages</title>
+    <para>
+        Creating resources using other scripting languages is quite easy, all you need to do is to create a script in the language
+        of your choice (as long as it's a supported one of course), and use the command line tool to run the script.
+    </para>
+    <para>
+        Non-DSL scripting languages will have automatically the following global variables set:
+    </para>
+    <simplelist>
+        <member><emphasis role="strong">package</emphasis>: Package of the script</member>
+        <member><emphasis role="strong">ctx</emphasis>: SysTyrant Context (the java STContext instance).</member>
+        <member><emphasis role="strong">stsm</emphasis>: SysTyrant Service Manager.</member>
+        <member><emphasis role="strong">strm</emphasis>: SysTyrant Resource Manager.</member>
+    </simplelist>
+    <para>
+        Those can then be used to perform any required functions. For example, if you wanted to use ruby to perform the
+        same file creation as described previously, you could create a file named `test.rb` with the following content:
+        <programlisting language="ruby"><xi:include href="manual-scripting-ruby1.rb"
+                                                    parse="text"/></programlisting>
+        and then execute the file using <code>systyrant test.rb</code>
+    </para>
+    <para>
+        Additionally some scripting languages will automatically load some wrapper code to facilitate development:
+    </para>
+    <para>
+        Ruby:
+        <programlisting language="ruby"><xi:include href="../java/com/kloudtek/systyrant/ruby/systyrant.rb"
+                                                    parse="text" /></programlisting>
+    </para>
+    <para>
+        In ruby, the above function could be written as:
+        <programlisting language="ruby"><xi:include href="manual-scripting-ruby2.rb"
+                                                    parse="text" /></programlisting>
+    </para>
+    <para>
+        Parent / Children relationships can be set on creation by using the parent parameter:
+        <programlisting language="stl"><xi:include href="manual-scripting-parentchild.rb"
+                                                   parse="text"/></programlisting>
+    </para>
+</chapter>

@@ -1,0 +1,8 @@
+core.ssh {
+    address="server.domain",
+    core.file { path="/tmp/test.txt" content="Hello World" },
+    core.package {
+      "web": name="nginx";
+      "db": name="mysql";
+    }
+}
