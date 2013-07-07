@@ -6,52 +6,379 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Using the SysTyrant Language (DSL)</title>
-    <para>
-        Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
-        attributes. Some attributes are common to all resource types like for example id and uid, while other
-        attributes are specific to each resource type.
-    </para>
-    <para>
-        The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
-        be created by just naming the file with an .stl file extension. In order to create a resource using the
-        DSL, you can use the following syntax:
-    </para>
-    <para>
-        <programlisting language="stl">core.file { path="/tmp/test.txt" content="Hello World" }</programlisting>
-    </para>
-    <para>
-        This would create a resource of type '<code>core.file</code>' (resource type 'file' in the package 'core',
-        with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
-        this in a file called `test.stl` and run the command <code>systyrant test.stl</code>, this would create
-        a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
-        different content, it would just modify it to the specified content.
-    </para>
-    <para>
-        The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
-    </para>
-    <para>
-        <programlisting language="stl">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }</programlisting>
-    </para>
-    <para>
-        This would be the same as specifying
-    </para>
-    <para>
-        <programlisting language="stl">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }</programlisting>
-    </para>
-    <para>
-        You can also easily create multiple resources of the same type using the following syntax:
-    </para>
-    <para>
-        <programlisting language="stl"><xi:include href="manual-dsl-multiple.txt" parse="text"/></programlisting>
-    </para>
-    <para>
-        If you are repeatedly using resources from a same package, you can having having to type in the package
-        name every time by using the import statement:
-        <programlisting language="stl"><xi:include href="manual-dsl-import.txt" parse="text"/></programlisting>
-    </para>
-    <para>
-        Resources can be created as the children of other resources. For example:
-        <programlisting language="stl"><xi:include href="manual-dsl-parentchildren.txt"
-                                                   parse="text"/></programlisting>
-    </para>
+    <section>
+        <title>Resource creation</title>
+        <para>
+            Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
+            attributes. Some attributes are common to all resource types like for example id and uid, while other
+            attributes are specific to each resource type.
+        </para>
+        <para>
+            The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
+            be created by just naming the file with an .stl file extension. In order to create a resource using the
+            DSL, you can use the following syntax:
+        </para>
+        <para>
+            <programlisting language="stl">core.file { path="/tmp/test.txt" content="Hello World" }</programlisting>
+        </para>
+        <para>
+            This would create a resource of type '<code>core.file</code>' (resource type 'file' in the package 'core',
+            with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
+            this in a file called `test.stl` and run the command <code>systyrant test.stl</code>, this would create
+            a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
+            different content, it would just modify it to the specified content.
+        </para>
+        <para>
+            The DSL also allows a shortcut to specifying the 'id' attribute using the following syntax:
+        </para>
+        <para>
+            <programlisting language="stl">core.file { "testfile": path="/tmp/test.txt" content="Hello World" }</programlisting>
+        </para>
+        <para>
+            This would be the same as specifying
+        </para>
+        <para>
+            <programlisting language="stl">core.file { id="testfile", path="/tmp/test.txt" content="Hello World" }</programlisting>
+        </para>
+        <para>
+            You can also easily create multiple resources of the same type using the following syntax:
+        </para>
+        <para>
+            <programlisting language="stl"><xi:include href="manual-dsl-multiple.txt" parse="text"/></programlisting>
+        </para>
+        <para>
+            If you are repeatedly using resources from a same package, you can having having to type in the package
+            name every time by using the import statement:
+            <programlisting language="stl"><xi:include href="manual-dsl-import.txt" parse="text"/></programlisting>
+        </para>
+        <para>
+            Resources can be created as the children of other resources. For example:
+            <programlisting language="stl"><xi:include href="manual-dsl-parentchildren.txt"
+                                                       parse="text"/></programlisting>
+        </para>
+    </section>
+    <section>
+        <title>String handling</title>
+        <para>
+            Attributes can be specified in three ways:
+        </para>
+        <itemizedlist>
+            <listitem>
+                With double quotes
+                <programlisting language="stl">core.file { "testfile": path="/tmp/test.txt" content="HelloWorld" }</programlisting>
+            </listitem>
+            <listitem>
+                With single quotes
+                <programlisting language="stl">core.file { 'testfile': path='/tmp/test.txt' content='HelloWorld' }</programlisting>
+            </listitem>
+            <listitem>
+                Without quotes if if the value only contains letters, numbers and/or the symbols _/$%^&amp;*!]
+                <programlisting language="stl">core.file { testfile: path="/tmp/test.txt" content=HelloWorld }</programlisting>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Variables</title>
+        <para>Variables can be created by using the following syntax:</para>
+        <programlisting language="stl">core.ssh {
+address="server.domain',
+$text = "Hello World",
+core.file { path="/tmp/test.txt" content="Hello World" },
+}</programlisting>
+        <para>
+            This would create a variable $text assigned to the core.ssh resource
+        </para>
+        <para>
+            It is possible to use perform variable substitution in strings by using ${variablename} in either a double
+            quoted string, or a string without quotes:
+            <programlisting language="stl">core.ssh {
+    address='server.domain',
+    $text = "Hello World",
+    core.file {
+        path="/tmp/test1.txt" content="${text}"
+        path="/tmp/test2.txt" content=${text}
+        path='/tmp/test3.txt' content='${text}'
+    },
+}</programlisting>
+        </para>
+        <para>
+            In this example, the files /tmp/test1.txt and /tmp/test2.txt would contain "Hello World", while /tmp/test3.txt would contain '${text}'.
+        </para>
+        <para>
+            Additionally, a variable string declaration can retrieve attributes in any of it's parents (it will follow through all
+            parents until he finds a match).
+        </para>
+        <programlisting language="stl">core.ssh {
+    address="server.domain",
+    core.file {
+        path="/tmp/address.txt" content=${address}
+    },
+}</programlisting>
+        <para>
+            In double quoted strings, a slash can be used to escape characters (to create a slash you need to use double slash '\\').
+            For example this following DSL would result in the content string being `server.domain \ ${address}`.
+        </para>
+        <programlisting language="stl">core.ssh {
+    address="server.domain",
+    core.file {
+        path="/tmp/address.txt" content="${address} \\ \${address} "
+    },
+}</programlisting>
+    </section>
+    <section>
+        <title>Functions</title>
+        <para>
+            A number of functions are provided for use in the DSL (see Functions).
+        </para>
+        <para>
+            For example here's the use of the <code>currentDate()</code> function and of <code>logInfo()</code>:
+            <programlisting language="stl">logInfo('hello world')
+core.ssh {
+    $datestr = currentDate(),
+    core.file { path="/tmp/test1.txt" content="It is ${datestr}" },
+    core.file { path="/tmp/test2.txt" content="It is ${currentDate()}" },
+}</programlisting>
+        </para>
+    </section>
+    <section>
+        <title>Query Language</title>
+        <para>
+            The resource query language allows you to write a query to retrieve a specific subset of resources that you might need.
+            It supports the following matching capabilities:
+        </para>
+        <section>
+            <title>Match by Id / Uid</title>
+            <para>
+                When used with an element in scope (so for example as a value for a `depends` attribute), this match by id (or uid if
+                the value has a dot in it) for any sibling resources (so resources which have the same parent). For example:
+                <programlisting language="stl">test.test {
+  id='parent',
+  test.test {
+    id='someid',     // This will be matched by the depends='someid' expression
+    test.test {
+      id='otherid'     // This element would have a uid of 'parent.someid.otherid', but it would be matched by
+                       // depends='someid.otherid' since it's declaring element a child of parent1
+    }
+  }
+  test.test {
+    depends='someid'
+  }
+  test.test {
+    depends='someid.otherid'
+  }
+}
+foo.bar {
+  id='someid',  // This will *NOT* be matched by the depends expression since it doesn't share the same parent
+}</programlisting>
+            </para>
+        </section>
+        <section>
+            <title>Match by Attribute</title>
+            <para>
+                The format for matching by attributes is <code>@[attributename] [operator] [value]</code>.
+            </para>
+            <para>
+                Supported operators are:
+            </para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        Case sensitive match: <code>==</code> or <code>eq</code>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Case insensitive match: <code>=</code> or <code>like</code>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Regexp matching: <code>~=</code> or <code>regex</code>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Less than matching: <code>&lt;</code> or <code>lt</code>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        More than matching: <code>&gt;</code> or <code>gt</code>
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                Negation can be used by adding a 'not' before the operator (<code>@[attributename] not [operator] [value]</code>)
+            </para>
+            <para>
+                In order to check if an attribute is null (or not null), you can use the format of
+                <code>@[attributename] is null</code> and <code>@[attributename] is not null</code>.
+            </para>
+            <para>
+                In order to check an attribute is empty (that is either null or an empty string, you can use
+                <code>@[attributename] is empty</code> and <code>@[attributename] is not empty</code>.
+            </para>
+        </section>
+        <section>
+            <title>Match by parent</title>
+            <para>
+                You can match by parent by using <code>childof</code> or <code>childof [expression]</code>.
+            </para>
+            <para>
+                When using <code>childof</code> with an expression, it will resolve the expression, and match any
+                resource that is the child of those resources.
+            </para>
+            <para>
+                When used without expression, it will match all childrens of the resource currently being processed
+                (this naturally cannot be used outside an STContext execution).
+            </para>
+            <para>
+                In order to recursively match grandchildrens, you need to use <code>childof*</code> or
+                <code>childof* [expression]</code>.
+            </para>
+            <para>
+                <table>
+                    <title>Childof matching example (assumes resource 1 is the resource currently being processed):</title>
+                    <?dbhtml table-width="50%" ?>
+                    <?dbfo table-width="50%" ?>
+                    <tgroup cols="7" align='left' colsep='1' rowsep='1'>
+                        <thead>
+                            <row>
+                                <entry>Resource</entry><entry>Parent</entry><entry>Attribute 'foo'</entry>
+                                <entry>childof @foo eq 'zzz'</entry><entry>childof</entry>
+                                <entry>childof* @foo eq 'zzz'</entry><entry>childof*</entry>
+                            </row>
+                        </thead>
+                        <tbody>
+                            <row>
+                              <entry>1</entry><entry></entry><entry>bar</entry><entry></entry><entry></entry><entry></entry><entry></entry>
+                            </row>
+                            <row>
+                              <entry>2</entry><entry>1</entry><entry>bar</entry><entry></entry><entry>X</entry><entry></entry><entry>X</entry>
+                            </row>
+                            <row>
+                              <entry>3</entry><entry>1</entry><entry>zzz</entry><entry></entry><entry>X</entry><entry></entry><entry>X</entry>
+                            </row>
+                            <row>
+                              <entry>4</entry><entry>3</entry><entry>bar</entry><entry>X</entry><entry></entry><entry>X</entry><entry>X</entry>
+                            </row>
+                            <row>
+                              <entry>5</entry><entry>3</entry><entry>bar</entry><entry>X</entry><entry></entry><entry>X</entry><entry>X</entry>
+                            </row>
+                            <row>
+                              <entry>6</entry><entry>5</entry><entry>bar</entry><entry></entry><entry></entry><entry>X</entry><entry>X</entry>
+                            </row>
+                        </tbody>
+                    </tgroup>
+                </table>
+            </para>
+        </section>
+        <section>
+            <title>Match by Type</title>
+            <para>
+                You can match resources of a certain type by using <code>type [fullyqualifiedresourcetype]</code>
+            </para>
+            <para>
+                For example to match all resources of type <code>core.file</code> you could use: <code>type core.file</code>
+            </para>
+        </section>
+        <section>
+            <title>Match by Same Host</title>
+            <para>
+                You can match resources that are in the same host by using <code>is samehost</code> or
+                <code>is samehost ([query expression])</code>
+            </para>
+            <para>When using the first version (without a query expression), it will use the resource in scope. This
+            will naturally fail if not used by context execution</para>
+        </section>
+    </section>
+    <section>
+        <title>Resource Dependencies</title>
+        <para>
+            In some cases you might need to have one resource to be executed before another. This can be done by
+            declaring a dependency between the two.
+        </para>
+        <para>
+            One way this can be done is by declaring a “before” or an "after" attribute (which value must be a
+            valid resource query expression)
+        </para>
+        <para>
+            For example to have a 'core.file' resource depend on a specific 'core.package' resource you could write:
+        </para>
+        <programlisting language="stl">new core:package { id = “httpd”, name = “apache-httpd” }
+new core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</programlisting>
+        <para>
+            This could also be written as
+        </para>
+        <programlisting language="stl">new core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
+new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</programlisting>
+        <para>
+            Another way to define a dependency is by using either <code>-&gt;</code> or <code>&gt;-</code>
+            between resource creation declarations.
+        </para>
+        <para>
+            So the above example could also be written as
+        </para>
+        <programlisting language="stl">new core:package { id = “httpd” name = “apache-httpd” }
+-&gt;
+new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</programlisting>
+        <para>
+            or alternatively
+        </para>
+        <programlisting language="stl">new core:file { path = “/root/myfile1.txt”, content = “Hello World” }
+&lt;-
+new core:package { id = “httpd” name = “apache-httpd” }</programlisting>
+    </section>
+    <section>
+        <title>Resource refresh</title>
+        <para>
+            Resources can support refresh actions. The effect of a refresh will depend on the resource, but for example
+            when you refresh a <code>core:service</code> that is set as runnable, it will cause the service to be restarted.
+        </para>
+        <para>
+            Refreshing is done using notifications or subscription.
+        </para>
+        <para>
+            A notification can be set by using the common attribute `notify` (the content of which is a resource query
+            expression) to specify which resources should be refreshed after the resource is executed.
+        </para>
+        <para>
+            Alternatively you can use the attribute `subscribe` (the content of which is also resource query expression)
+            on a resource, and this will cause it to be refresh after the execution of any matching resource.
+        </para>
+        <para>
+            A refresh will only occur if the notifying/subscribed resource is executed after the resource has been
+            executed. SysTyrant will try to be as efficient and perform the least refreshes possible. This means:
+            <itemizedlist>
+                <listitem>
+                    It will attempt to execute the notifying/subscribed resources before the refreshed resource (if
+                    that can be done this will naturally means the refresh will not happen).
+                </listitem>
+                <listitem>
+                    It will only perform one refresh for multiple notifying/subscribed if those resources have no
+                    dependencies on each other (direct or indirect)
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>
+            So for example:
+            <programlisting language="stl">core:service { myserver: }
+servercfg { config1: notify="@id = myserver" }
+servercfg { config2: notify="@id = myserver", after = "@id = myserver" }
+servercfg { config3: notify="@id = myserver", after = "@id = myserver" }
+servercfg { config4: notify="@id = myserver", after = "@id = config3" }</programlisting>
+        </para>
+        <para>
+            This will result in:
+            <orderedlist>
+                <listitem>config1 will be executed (no refresh of myserver will occur since it hasn't been executed yet)</listitem>
+                <listitem>myserver will be executed</listitem>
+                <listitem>config2 will be executed</listitem>
+                <listitem>config3 will be executed</listitem>
+                <listitem>myserver will be refreshed</listitem>
+                <listitem>config4 will be executed</listitem>
+                <listitem>myserver will be refreshed</listitem>
+            </orderedlist>
+        </para>
+    </section>
 </chapter>

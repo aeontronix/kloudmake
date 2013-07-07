@@ -13,10 +13,6 @@
     <target name="_dist" depends="dist"/>
     <available file="${build.dir}/docbook-xsl.extracted" property="docbookxslfound"/>
 
-    <path id="cp.build">
-        <fileset dir="${deps.dir}/build-jar" includes="*.jar"/>
-    </path>
-
     <target name="add-tools-to-cp" extensionOf="init">
         <augment id="buildmagic.classpath.compile">
             <fileset dir="${java.home}" includes="lib/tools.jar"/>
@@ -34,14 +30,18 @@
         <delete dir="${build.dir}/docs/manual/allinone"/>
         <delete dir="${build.dir}/docs/manual/epub"/>
         <property name="xslthlcfg" value="file://${build.dir}/docbook-xsl/highlighting/xslthl-config.xml"/>
+        <path id="cp.xslt">
+            <fileset dir="${deps.dir}/build-jar" includes="*.jar"/>
+            <path location="${build.dir}/docbook-xsl/extensions/xalan27.jar"/>
+        </path>
         <xslt style="src/manual/templates/manual-xhtml.xsl" in="src/manual/manual.xml"
               out="${build.dir}/docs/manual/allinone/manual.xhtml"
-              classpathref="cp.build">
+              classpathref="cp.xslt">
             <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration" value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
         </xslt>
         <xslt style="src/manual/templates/manual-xhtml-chunked.xsl" in="src/manual/manual.xml"
-              out="${build.dir}/docs/manual/chunked/index.xhtml" classpathref="cp.build">
+              out="${build.dir}/docs/manual/chunked/index.xhtml" classpathref="cp.xslt">
             <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
             <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration" value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
@@ -51,7 +51,7 @@
             <fileset dir="${build.dir}/docs/manual/chunked"/>
         </replace>
         <xslt style="src/manual/templates/manual-epub.xsl" in="src/manual/manual.xml"
-              out="${build.dir}/docs/manual/epub/index.xhtml" classpathref="cp.build">
+              out="${build.dir}/docs/manual/epub/index.xhtml" classpathref="cp.xslt">
             <factory name="org.apache.xalan.processor.TransformerFactoryImpl"/>
             <sysproperty key="xslthl.config" value="${xslthlcfg}"/>
             <sysproperty key="org.apache.xerces.xni.parser.XMLParserConfiguration" value="org.apache.xerces.parsers.XIncludeParserConfiguration"/>
@@ -70,6 +70,19 @@
     </target>
 
     <target name="docs" depends="manual,javadocs"/>
+
+    <target name="publish-docs" depends="docs">
+        <delete dir="${basedir}/../systyrant-pages/manual"/>
+        <mkdir dir="${basedir}/../systyrant-pages/manual"/>
+        <copy todir="${basedir}/../systyrant-pages/manual">
+            <fileset dir="${build.dir}/docs/manual"/>
+        </copy>
+        <delete dir="${basedir}/../systyrant-pages/javadocs"/>
+        <mkdir dir="${basedir}/../systyrant-pages/javadocs"/>
+        <copy todir="${basedir}/../systyrant-pages/javadocs">
+            <fileset dir="${build.dir}/docs/javadoc"/>
+        </copy>
+    </target>
 
     <target name="update-wiki" depends="compile">
         <property name="wiki.dir" value="../systyrant-wiki"/>

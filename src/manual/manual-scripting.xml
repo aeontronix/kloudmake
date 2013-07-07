@@ -31,7 +31,7 @@
     </para>
     <para>
         Ruby:
-        <programlisting language="ruby"><xi:include href="../java/com/kloudtek/systyrant/ruby/systyrant.rb"
+        <programlisting language="ruby" title="Ruby"><xi:include href="../java/com/kloudtek/systyrant/ruby/systyrant.rb"
                                                     parse="text" /></programlisting>
     </para>
     <para>

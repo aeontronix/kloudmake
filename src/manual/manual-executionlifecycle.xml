@@ -1,0 +1,61 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
+    <title>Execution Lifecycle</title>
+    <para>
+        When a systyrant context is executed, it will go through the following lifecycle stages:
+    </para>
+    <para>
+        <emphasis role="bold">Prepare Stage</emphasis>
+    </para>
+    <para>
+        At this stage, it will iterate through every resource and call their PREPARE actions until there are no more
+        unprocessed resources for this stage.
+    </para>
+    <para>
+        After this is done it will:
+        <itemizedlist>
+            <listitem><para>Validate all resources attributes</para></listitem>
+            <listitem><para>For every resource which has no 'id' attribute, it will generate one. It will use the
+                resource's type name with a number (starting at 1, incrementing it until it generates a valid id).
+                So a core.file resource with no id will generate a 'file1' id if there are no sibling resources with
+                that id already.</para></listitem>
+            <listitem><para>
+                For every resource which has no 'uid' attribute, it will generate one. If the resource has a parent,
+                the uid will be generated in the format of '[parent uid].[resource id]'. If it has no parent then
+                it will just use the resource id.
+            </para></listitem>
+            <listitem>
+                <para>It will re-order the resources based on their dependencies and notifications/subscriptions</para>
+            </listitem>
+        </itemizedlist>
+    </para>
+    <para>
+        <emphasis role="bold">Execute Stage</emphasis>
+    </para>
+    <para>
+        <emphasis>Note: From this point onwards, resource creations are no longer allowed.</emphasis>
+        For each task in the resource it will then:
+        <itemizedlist>
+            <listitem>
+                <para>Invoke all EXECUTE tasks</para>
+            </listitem>
+            <listitem>
+                <para>Invoke all VERIFY tasks, and for each verify that returns false, execute the respective SYNC tasks.</para>
+            </listitem>
+            <listitem>
+                <para>If the resource has a parent, and this was the last of it's childrens to be executed, it will
+                    invoke any POSTCHILDREN tasks the parent has.</para>
+            </listitem>
+        </itemizedlist>
+    </para>
+    <para>
+        <emphasis role="bold">Cleanup Stage</emphasis>
+    </para>
+    <para>
+        At this final stage it will invoke each action's CLEANUP actions.
+    </para>
+</chapter>

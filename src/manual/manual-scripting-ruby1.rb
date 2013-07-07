@@ -1,1 +1,2 @@
-myfileres = $strm.createResource( "core.file", "testfile" ).set( { path => "/tmp/test.txt", content => "Hello World" } )
+myfileres = $strm.createResource( "core.file", "testfile" )
+myfileres.set( { path => "/tmp/test.txt", content => "Hello World" } )

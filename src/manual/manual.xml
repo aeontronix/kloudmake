@@ -7,12 +7,6 @@
       xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>SysTyrant Manual</title>
     <info>
-        <author>
-            <personname>
-                <firstname>Yannick</firstname>
-                <surname>Menager</surname>
-            </personname>
-        </author>
         <copyright>
             <year>2013</year>
             <holder>Kloudtek Ltd</holder>
@@ -21,4 +15,6 @@
     <xi:include href="manual-introduction.xml"/>
     <xi:include href="manual-dsl.xml"/>
     <xi:include href="manual-scripting.xml"/>
+    <xi:include href="manual-credentials.xml"/>
+    <xi:include href="manual-executionlifecycle.xml"/>
 </book>
