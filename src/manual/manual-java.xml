@@ -7,10 +7,9 @@
          xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Using Java</title>
     <section>
-        <title>Overview</title>
+        <title>Annotation-Driven custom resources</title>
         <para>
-            Creating resources uses heavily annotations to inject data into a defined class and to specify logic to
-            execute.
+            The easiest way to create new resources is to use the SysTyrant annotations.
         </para>
         <para>
             In order to create a resource in java, all you need to do is to annotate a java class with the
