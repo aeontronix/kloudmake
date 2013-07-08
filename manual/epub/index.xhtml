@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook-epub.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/></head><body><div class="book" title="SysTyrant Manual" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc"><ol><li><a href="#N40019">1. Introduction</a></li><li><a href="#N40046">2. Using the SysTyrant Language (DSL)</a><ol><li><a href="#N4004E">Resource creation</a></li><li><a href="#N4009C">String handling</a></li><li><a href="#N400BD">Variables</a></li><li><a href="#N400E5">Functions</a></li><li><a href="#N4010E">Query Language</a><ol><li><a href="#N40116">Match by Id / Uid</a></li><li><a href="#N40123">Match by Attribute</a></li><li><a href="#N40189">Match by parent</a></li><li><a href="#N40237">Match by Type</a></li><li><a href="#N4024C">Match by Same Host</a></li></ol></li><li><a href="#N4025F">Resource Dependencies</a></li><li><a href="#N40290">Resource refresh</a></li><li><a href="#N402D4">Define custom resources</a></li></ol></li><li><a href="#N402FA">3. Using scripting languages</a></li><li><a href="#N40347">4. Credentials Management</a></li><li><a href="#N40352">5. Libraries and custom resources auto-load</a></li><li><a href="#N40385">6. Execution Lifecycle</a></li><li><a href="#N403DF">A. Common Attributes</a><ol><li><a href="#N403E6">id</a></li><li><a href="#N403F6">uid</a></li><li><a href="#N40406">before</a></li><li><a href="#N40412">after</a></li><li><a href="#N40422">requires</a></li><li><a href="#N4043C">notify</a></li><li><a href="#N40448">subscribe</a></li></ol></li><li><a href="#N40455">B. Built-in functions</a><ol><li><a href="#N4045C">logDebug</a></li><li><a href="#N40472">logInfo</a></li><li><a href="#N40488">logWarning</a></li><li><a href="#N4049E">logError</a></li><li><a href="#N404B4">currentDate</a></li><li><a href="#N404BD">currentDateTime</a></li><li><a href="#N404C6">password</a></li><li><a href="#N404FC">lfile</a></li><li><a href="#N4051D">ufile</a></li></ol></li></ol></nav></div><div class="list-of-tables"><nav epub:type="lot" xmlns:epub="http://www.idpf.org/2007/ops"><h4 class="toc-title">List of Tables</h4><ol><li><a href="#N401AB">2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ol></nav></div>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook-epub.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/></head><body><div class="book" title="SysTyrant Manual" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><nav xmlns:epub="http://www.idpf.org/2007/ops" epub:type="toc"><ol><li><a href="#N40019">1. Introduction</a></li><li><a href="#N40046">2. Using the SysTyrant Language (DSL)</a><ol><li><a href="#N4004E">Resource creation</a></li><li><a href="#N4009C">String handling</a></li><li><a href="#N400BD">Variables</a></li><li><a href="#N400E5">Functions</a></li><li><a href="#N4010E">Query Language</a><ol><li><a href="#N40116">Match by Id / Uid</a></li><li><a href="#N40123">Match by Attribute</a></li><li><a href="#N40189">Match by parent</a></li><li><a href="#N40237">Match by Type</a></li><li><a href="#N4024C">Match by Same Host</a></li></ol></li><li><a href="#N4025F">Resource Dependencies</a></li><li><a href="#N40290">Resource refresh</a></li><li><a href="#N402D4">Define custom resources</a></li></ol></li><li><a href="#N402FA">3. Using scripting languages</a></li><li><a href="#N40347">4. Using Java</a><ol><li><a href="#N4034E">Overview</a></li><li><a href="#N4038D">Field injection</a></li><li><a href="#N403F6">Resource lifecycle annotations</a></li></ol></li><li><a href="#N4047E">5. Credentials Management</a></li><li><a href="#libraries">6. Libraries and custom resources auto-load</a></li><li><a href="#N404BE">7. Execution Lifecycle</a></li><li><a href="#N40518">8. Host</a></li><li><a href="#N40524">A. Common Attributes</a><ol><li><a href="#N4052B">id</a></li><li><a href="#N4053B">uid</a></li><li><a href="#N4054B">before</a></li><li><a href="#N40557">after</a></li><li><a href="#N40567">requires</a></li><li><a href="#N40581">notify</a></li><li><a href="#N4058D">subscribe</a></li></ol></li><li><a href="#N4059A">B. Built-in functions</a><ol><li><a href="#N405A1">logDebug</a></li><li><a href="#N405B7">logInfo</a></li><li><a href="#N405CD">logWarning</a></li><li><a href="#N405E3">logError</a></li><li><a href="#N405F9">currentDate</a></li><li><a href="#N40602">currentDateTime</a></li><li><a href="#N4060B">password</a></li><li><a href="#N40641">lfile</a></li><li><a href="#N40662">ufile</a></li></ol></li></ol></nav></div><div class="list-of-tables"><nav epub:type="lot" xmlns:epub="http://www.idpf.org/2007/ops"><h4 class="toc-title">List of Tables</h4><ol><li><a href="#N401AB">2.1. Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ol></nav></div>
     
     
     <section class="chapter" title="Chapter 1. Introduction" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40019"><div class="titlepage"><div><div><h1 class="title">Chapter 1. Introduction</h1></div></div></div>
@@ -21,12 +21,12 @@
             </p>
         </li><li class="listitem" epub:type="list-item">
             <p>
-                Support to various languages which include's it's own DSL (Domain Specific Language), Java and as
-                well as a large number of other scripting languages like Ruby, Python, Javascript and many others.
+                Support to various languages including it's own declarative language (DSL), Java and a large number of
+                scripting languages like Ruby, Python, Javascript and many others.
             </p>
         </li><li class="listitem" epub:type="list-item">
             <p>
-                Can manage remote servers using SSH (thus without requiring an agent to be deployed on the server.
+                Can manage remote servers using SSH (thus without requiring an agent to be deployed on the server).
             </p>
         </li><li class="listitem" epub:type="list-item">
             <p>
@@ -139,9 +139,9 @@ core.file { path="/tmp/test.txt" content="Hello World" },
     address='server.domain',
     $text = "Hello World",
     core.file {
-        path="/tmp/test1.txt" content="${text}"
-        path="/tmp/test2.txt" content=${text}
-        path='/tmp/test3.txt' content='${text}'
+        path="/tmp/test1.txt" content="${text}"  // Variable will be substituted
+        path="/tmp/test2.txt" content=${text}    // Variable will be substituted
+        path='/tmp/test3.txt' content='${text}'  // Variable will NOT be substituted since using single quotes
     },
 }</pre><p>
         </p>
@@ -326,13 +326,13 @@ foo.bar {
         <p>
             For example to have a 'core.file' resource depend on a specific 'core.package' resource you could write:
         </p>
-        <pre class="programlisting">new core:package { id = “httpd”, name = “apache-httpd” }
-new core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</pre>
+        <pre class="programlisting">core:package { id = “httpd”, name = “apache-httpd” }
+core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</pre>
         <p>
             This could also be written as
         </p>
-        <pre class="programlisting">new core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
-new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
+        <pre class="programlisting">core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
+core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
         <p>
             Another way to define a dependency is by using either <code class="code">-&gt;</code> or <code class="code">&gt;-</code>
             between resource creation declarations.
@@ -340,15 +340,11 @@ new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</p
         <p>
             So the above example could also be written as
         </p>
-        <pre class="programlisting">new core:package { id = “httpd” name = “apache-httpd” }
--&gt;
-new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
+        <pre class="programlisting">core:package { name = “apache-httpd” } -&gt; core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
         <p>
             or alternatively
         </p>
-        <pre class="programlisting">new core:file { path = “/root/myfile1.txt”, content = “Hello World” }
-&lt;-
-new core:package { id = “httpd” name = “apache-httpd” }</pre>
+        <pre class="programlisting">core:file { path = “/root/myfile1.txt”, content = “Hello World” } &lt;- core:package { id = “httpd” name = “apache-httpd” }</pre>
     </section>
     <section class="section" title="Resource refresh" epub:type="subchapter" id="N40290"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource refresh</h2></div></div></div>
         
@@ -473,11 +469,298 @@ $strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "ng
 </pre><p>
     </p>
 </section>
-    <section class="chapter" title="Chapter 4. Credentials Management" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40347"><div class="titlepage"><div><div><h1 class="title">Chapter 4. Credentials Management</h1></div></div></div>
+    <section class="chapter" title="Chapter 4. Using Java" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40347"><div class="titlepage"><div><div><h1 class="title">Chapter 4. Using Java</h1></div></div></div>
     
-    <p/>
+    <section class="section" title="Overview" epub:type="subchapter" id="N4034E"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Overview</h2></div></div></div>
+        
+        <p>
+            Creating resources uses heavily annotations to inject data into a defined class and to specify logic to
+            execute.
+        </p>
+        <p>
+            In order to create a resource in java, all you need to do is to annotate a java class with the
+            <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/STResource.html" target="_top">com.kloudtek.systyrant.annotation.STResource</a> annotation,
+            jar the compiled classes and place it in the <a class="link" href="#libraries" title="Chapter 6. Libraries and custom resources auto-load">libraries</a> directory.
+        </p>
+        <p>
+            The @STResource annotation supports a value which will be used as the resource type. If not specified it will
+            use the class name (if the class name finishes in 'Resource' that will be stripped off).
+        </p>
+        <pre class="programlisting">package com.mycompany.test;
+@STResource // This will result in a resource com.mycompany.test.sometest
+public void class SomeTest {}</pre>
+        <pre class="programlisting">package com.mycompany.test;
+@STResource("stest") // This will result in a resource com.mycompany.test.stest
+public void class SomeTest {}</pre>
+        <pre class="programlisting">package com.mycompany.test;
+@STResource("stest") // This will result in a resource com.mycompany.test.stest
+public void class SomeTest {}</pre>
+        <p>
+            If the value of @STResource is fully qualified (has dots in it), that will be used as the resource package,
+            otherwise the java package will be used. This can be overriden using the
+            <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/STResource.html" target="_top">STResource</a> resource annotation at package level to override this.
+        </p>
+        <p>
+            So if for example the above resource was located in a package 'com.mycompany.test', and you wanted the
+            SysTyrant resource package be just 'test', you just needed to created the following file
+            <code class="code">package-info.java</code> in that same packages:
+        </p>
+        <pre class="programlisting">@com.kloudtek.systyrant.annotation.STResource("test")
+package com.mycompany.test;</pre>
+        <p>
+            Please note it is possible to have multiple classes with the same resource type. This is especially useful
+            when used in conjunction with <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/OnlyIf.html" target="_top">@OnlyIf</a>
+            annotation. For example:
+        </p>
+        <pre class="programlisting">@STResource("test.test")
+@OnlyIfOperatingSystem( { BSD } )
+public class OnlyBSDResource {}
+
+@STResource("test.test")
+@OnlyIfOperatingSystem( { LINUX } )
+public class OnlyLinuxResource {}</pre>
+    </section>
+    <section class="section" title="Field injection" epub:type="subchapter" id="N4038D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Field injection</h2></div></div></div>
+        
+        <p>
+            Before any such method is invoked, any fields annotated with <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Inject.html" target="_top">@Inject</a>
+            or <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Attr.html" target="_top">@Attr</a> will be injected with the appropriated data.
+        </p>
+        <p>
+            Fields annotated with <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Inject.html" target="_top">@Inject</a> will have the relevant object
+            injected into it before any lifecycle annotated method is invoked. The exact resource injected will depend
+            on the field type:
+        </p>
+        <div class="itemizedlist" epub:type="list"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem" epub:type="list-item">
+                <p><span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/STContext.html" target="_top">STContext</a></strong></span> :
+                    Will result in the context instance being injected (the value of the annotation is ignored).</p>
+            </li><li class="listitem" epub:type="list-item">
+                <p><span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/Resource.html" target="_top">Resource</a></strong></span> :
+                    Will result in the resource with that is associated with this java object to be inject
+                    (the value of the annotation is ignored).</p>
+            </li><li class="listitem" epub:type="list-item">
+                <p><span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/ServiceManager.html" target="_top">ServiceManager</a></strong></span> :
+                    Will result in the ServiceManager instance to be injected (the value of the annotation is ignored).</p>
+            </li><li class="listitem" epub:type="list-item">
+                <p><span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/Host.html" target="_top">Host</a></strong></span> :
+                    Will result in the resource <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/Host.html" target="_top">Host</a> being injected (the value of the annotation is ignored).</p>
+            </li><li class="listitem" epub:type="list-item">
+                <p>Any other type will result in an attribute with an id matching the annotation value (or the field
+                name if the value isn't assigned)</p>
+            </li></ul></div>
+        <p>
+            Fields annotated with <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Attr.html" target="_top">Attr</a> will result in an attribute with an
+            id matching the annotation value (or the field name if the value isn't assigned). Additionally
+            <span class="emphasis"><em>after</em></span> any lifecycle method execution,
+            any change to the @Attr field will have that value copied into the resource attribute.
+        </p>
+        <p>
+            The <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Attr.html" target="_top">@Attr</a> can also be have the parameter <span class="emphasis"><em>def</em></span>
+            which indicates a default value for that attribute (that is assigned when the resource is created).
+        </p>
+        <pre class="programlisting">@STResource
+public class SomeResource {
+    @Attr("path")
+    private String filePath;
+    @Attr
+    private String owner;
+    @Attr(value="color", def="blue")
+    private String color;
+    @Attr(def="100")
+    private int weight;
+}</pre>
+    </section>
+    <section class="section" title="Resource lifecycle annotations" epub:type="subchapter" id="N403F6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource lifecycle annotations</h2></div></div></div>
+        
+        <p>
+            Any method with the following annotations will be executed during their respective lifecycle stage:
+            <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Prepare.html" target="_top">Prepare</a>,
+            <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/PreExecute.html" target="_top">PreExecute</a>,
+            <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Execute.html" target="_top">Execute</a>,
+            <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Cleanup.html" target="_top">Cleanup</a>,
+        </p>
+        <p>
+            If any of those annotations has the annotation parameter <span class="emphasis"><em>postChildren</em></span> set to 'true',
+            the method will be executed only after all the resource's childrens have completed the relevant stage.
+        </p>
+        <p>
+            The above lifecycle annotations are used to perform methods that do not change the system. For methods that
+            will change the environment, you should use the annotations <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Verify.html" target="_top">Verify</a>
+            and <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Sync.html" target="_top">Sync</a>.
+        </p>
+        <pre class="programlisting">@STResource("world.sky")
+public class SkyResource {
+  @Attr(def="blue")
+  private String color;
+
+  @Verify
+  public boolean checkCurrentSkyColor() {
+    return Sky.color().equals(color);
+  }
+
+  @Sync
+  public void setSkyColor() {
+    Sky.setColor(color);
+  }
+}</pre>
+        <p>
+            The method annotated with <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Verify.html" target="_top">Verify</a> should return a boolean that
+            indicates if the method annotated with <a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Sync.html" target="_top">Sync</a> should be executed (
+            if true it will be executed, if false it will not be executed).
+        </p>
+        <p>
+            Various annotations can be also used in conjunction to specify that the annotated method should only be
+            executed if certain conditions are fulfilled:
+        </p>
+        <p>
+            <span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/OnlyIfOperatingSystem.html" target="_top">@OnlyIfOperatingSystem</a></strong></span>
+        </p>
+        <p>
+            This annotation require that the host of the resource runs the specified Operating System. This annotation
+            can be used on the class or on specific lifecycle methods.
+        </p>
+        <pre class="programlisting">@STResource("test.myres")
+@OnlyIfOperatingSystem( { LINUX , BSD } )
+public class MyResourceLinuxAndBSDImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}
+
+@STResource("test.myres")
+@OnlyIfOperatingSystem( WINDOWS )
+public class MyResourceWindowsImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}
+
+@STResource("test.someres")
+public class SomeResource {
+  @Execute
+  @OnlyIfOperatingSystem( LINUX )
+  public void doLinuxSpecificStuff() {
+    doStuff();
+  }
+}</pre>
+        <p>
+            <span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/OnlyIfArch.html" target="_top">@OnlyIfArch</a></strong></span>
+        </p>
+        <p>
+            This annotation is used to specify that the action should only run if the host's architecture match what is specified (ie. i386, amd64)
+        </p>
+        <pre class="programlisting">@STResource("test.myres")
+public class MyResourceLinuxAndBSDImpl {
+  @Execute
+  @OnlyIfArch( I386 )
+  public void do32BitStuff() {
+    ...
+  }
+
+  @Execute
+  @OnlyIfArch( AMD64 )
+  public void do64BitStuff() {
+    ...
+  }
+}</pre>
+        <p>
+            <span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/OnlyIf.html" target="_top">@OnlyIf</a></strong></span>
+        </p>
+        <p>
+            This annotation must be used in a method that returns a boolean. The result of that method will indicate if
+            lifecycle methods in that class should be executed (if it returns true), or not (if it returns false)
+        </p>
+        <pre class="programlisting">@STResource
+public class SomeResource {
+  @Execute
+  public void thisWillOnlyBeExecutedIfSkyIsBlue() {
+    // this will only be executed if the method checkIfSkyIsBlue() returns true
+    setColorSky("green");
+  }
+
+  @OnlyIf
+  public boolean checkIfSkyIsBlue() {
+    return Sky.color().equals("blue");
+  }
+}</pre>
+        <p>
+            <span class="bold"><strong><a class="ulink" href="http://kloudtek.github.io/systyrant/javadocs/index.html?com/kloudtek/systyrant/annotation/Alternative.html" target="_top">@Alternative</a></strong></span>
+        </p>
+        <p>
+            This annotation allows you to specify that a specific action is an alternative, and that at least one should
+            be executed (causing an error if none is executed).
+        </p>
+        <p>
+            In the following example, we've got two classes MyResourceLinuxAndBSDImpl (which supports Linux and BSD
+            hosts) and MyResourceWindowsImpl (which supports Windows). Because of the @Alternative annotation, if you
+            attempted to create a resource on an operating system is neither Linux, BSD or Windows, the execution would fail.
+        </p>
+        <pre class="programlisting">@STResource("test.myres")
+@OnlyIfOperatingSystem( { LINUX , BSD } )
+@Alternative
+public class MyResourceLinuxAndBSDImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}
+
+@STResource("test.myres")
+@OnlyIfOperatingSystem( WINDOWS )
+@Alternative
+public class MyResourceWindowsImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}</pre>
+        <p>
+            Additionally, alternatives can have a value allowing different set of alternatives to be assigned to a
+            resource. In the following example we've got four methods that have @Alternative annotations. Two which are
+            related to the Operating System, and two which are related to the architecture. In order for the resource to
+            execute successfully, one of the two Operating Systems but apply (so it must be run on either Linux or
+            Windows) AND one of the two architecture must also apply (so it must be run on i386 or amd64). Just having
+            one of the four won't be sufficient.
+        </p>
+        <pre class="programlisting">@STResource("test.myres")
+public class MyResource {
+  @OnlyIfOperatingSystem( LINUX )
+  @Alternative("os")
+  @Execute
+  public void handleWindows() {
+    ...
+  }
+
+  @OnlyIfOperatingSystem( WINDOWS )
+  @Alternative("os")
+  @Execute
+  public void handleWindows() {
+    ...
+  }
+
+  @OnlyIfArch( I386 )
+  @Alternative("arch")
+  @Execute
+  public void handleI386() {
+    ...
+  }
+
+  @OnlyIfArch( AMD64 )
+  @Alternative("arch")
+  @Execute
+  public void handleAmd64 {
+    ...
+  }
+}</pre>
+    </section>
 </section>
-    <section class="chapter" title="Chapter 5. Libraries and custom resources auto-load" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40352"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Libraries and custom resources auto-load</h1></div></div></div>
+    <section class="chapter" title="Chapter 5. Credentials Management" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N4047E"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Credentials Management</h1></div></div></div>
+    
+    <p>TODO</p>
+</section>
+    <section class="chapter" title="Chapter 6. Libraries and custom resources auto-load" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="libraries"><div class="titlepage"><div><div><h1 class="title">Chapter 6. Libraries and custom resources auto-load</h1></div></div></div>
     
     <p>
         In order to better allow reuse and distribution of custom resource types, systyrant support the concept of libraries.
@@ -498,12 +781,12 @@ $strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "ng
          [package name with any dot changed into a slash]/[resource type name].stl
     </p>
     <p>
-        For example, if you attempted to instantiate a resource of type <code class="code">mycompany.customres.SomeResource</code> and it couldn't
+        For example, if you attempted to instantiate a resource of type <code class="code">mycompany.customres.someResource</code> and it couldn't
         find a corresponding java resource, it would attempt to find and run the file
-        <code class="code">mycompany/customres/SomeResource.stl</code>.
+        <code class="code">mycompany/customres/someResource.stl</code>.
     </p>
 </section>
-    <section class="chapter" title="Chapter 6. Execution Lifecycle" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40385"><div class="titlepage"><div><div><h1 class="title">Chapter 6. Execution Lifecycle</h1></div></div></div>
+    <section class="chapter" title="Chapter 7. Execution Lifecycle" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N404BE"><div class="titlepage"><div><div><h1 class="title">Chapter 7. Execution Lifecycle</h1></div></div></div>
     
     <p>
         When a systyrant context is executed, it will go through the following lifecycle stages:
@@ -550,9 +833,13 @@ $strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "ng
         At this final stage it will invoke each action's CLEANUP actions.
     </p>
 </section>
-    <section class="appendix" title="Appendix A. Common Attributes" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="appendix" id="N403DF"><div class="titlepage"><div><div><h1 class="title">Appendix A. Common Attributes</h1></div></div></div>
+    <section class="chapter" title="Chapter 8. Host" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="chapter" id="N40518"><div class="titlepage"><div><div><h1 class="title">Chapter 8. Host</h1></div></div></div>
     
-    <section class="section" title="id" epub:type="division" id="N403E6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">id</h2></div></div></div>
+    <p>TODO</p>
+</section>
+    <section class="appendix" title="Appendix A. Common Attributes" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="appendix" id="N40524"><div class="titlepage"><div><div><h1 class="title">Appendix A. Common Attributes</h1></div></div></div>
+    
+    <section class="section" title="id" epub:type="division" id="N4052B"><div class="titlepage"><div><div><h2 class="title" style="clear: both">id</h2></div></div></div>
         
         <p>Type: Identifier ( only characters allowed are letters, digits and the following symbols `-_` )</p>
         <p>
@@ -568,7 +855,7 @@ test:test {
   test.test { "testid": } // Those two ids would conflict
 }</pre>
     </section>
-    <section class="section" title="uid" epub:type="division" id="N403F6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">uid</h2></div></div></div>
+    <section class="section" title="uid" epub:type="division" id="N4053B"><div class="titlepage"><div><div><h2 class="title" style="clear: both">uid</h2></div></div></div>
         
         <p>Type: Static String</p>
         <p>Resource unique identifier. This is automatically generated and cannot be manually specified. It's value is
@@ -579,13 +866,13 @@ test:test {
   }
 }</pre>
     </section>
-    <section class="section" title="before" epub:type="division" id="N40406"><div class="titlepage"><div><div><h2 class="title" style="clear: both">before</h2></div></div></div>
+    <section class="section" title="before" epub:type="division" id="N4054B"><div class="titlepage"><div><div><h2 class="title" style="clear: both">before</h2></div></div></div>
         
         <p>Type: Resource Query</p>
         <p>Specifies resources which this resource should execute before. For example if you needed a package to be installed
             before it's service is started, you could use</p>
     </section>
-    <section class="section" title="after" epub:type="division" id="N40412"><div class="titlepage"><div><div><h2 class="title" style="clear: both">after</h2></div></div></div>
+    <section class="section" title="after" epub:type="division" id="N40557"><div class="titlepage"><div><div><h2 class="title" style="clear: both">after</h2></div></div></div>
         
         <p>Type: Resource Query</p>
         <p>Specifies resources which this resource should execute after. For example if you needed a package to be installed
@@ -593,7 +880,7 @@ test:test {
         <pre class="programlisting">core.service { after="@id = configfile" }
 core.file { "configfile": path="/etc/myserver.conf", before="@id = myserver" }</pre>
     </section>
-    <section class="section" title="requires" epub:type="division" id="N40422"><div class="titlepage"><div><div><h2 class="title" style="clear: both">requires</h2></div></div></div>
+    <section class="section" title="requires" epub:type="division" id="N40567"><div class="titlepage"><div><div><h2 class="title" style="clear: both">requires</h2></div></div></div>
         
         <p>Type: String</p>
         <p>
@@ -615,20 +902,20 @@ test.test {
   requires="test.type1"
 }</pre>
     </section>
-    <section class="section" title="notify" epub:type="division" id="N4043C"><div class="titlepage"><div><div><h2 class="title" style="clear: both">notify</h2></div></div></div>
+    <section class="section" title="notify" epub:type="division" id="N40581"><div class="titlepage"><div><div><h2 class="title" style="clear: both">notify</h2></div></div></div>
         
         <p>Type: Resource Query</p>
         <p>Specified resources this will be notified after this resource is executed.</p>
     </section>
-    <section class="section" title="subscribe" epub:type="division" id="N40448"><div class="titlepage"><div><div><h2 class="title" style="clear: both">subscribe</h2></div></div></div>
+    <section class="section" title="subscribe" epub:type="division" id="N4058D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">subscribe</h2></div></div></div>
         
         <p>Type: Resource Query</p>
         <p>Specified resources which execution will cause this resource to be notified..</p>
     </section>
 </section>
-    <section class="appendix" title="Appendix B. Built-in functions" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="appendix" id="N40455"><div class="titlepage"><div><div><h1 class="title">Appendix B. Built-in functions</h1></div></div></div>
+    <section class="appendix" title="Appendix B. Built-in functions" xmlns:epub="http://www.idpf.org/2007/ops" epub:type="appendix" id="N4059A"><div class="titlepage"><div><div><h1 class="title">Appendix B. Built-in functions</h1></div></div></div>
 	
-	<section class="section" title="logDebug" epub:type="division" id="N4045C"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logDebug</h2></div></div></div>
+	<section class="section" title="logDebug" epub:type="division" id="N405A1"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logDebug</h2></div></div></div>
 		
 		<p>
 Log a debug message.
@@ -638,7 +925,7 @@ Log a debug message.
 <span class="strong"><strong>message</strong></span> : Message to log
 </p></li></ul></div>
 	</section>
-	<section class="section" title="logInfo" epub:type="division" id="N40472"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logInfo</h2></div></div></div>
+	<section class="section" title="logInfo" epub:type="division" id="N405B7"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logInfo</h2></div></div></div>
 		
 		<p>
 Log an informational message.
@@ -648,7 +935,7 @@ Log an informational message.
 <span class="strong"><strong>message</strong></span> : Message to log
 </p></li></ul></div>
 	</section>
-	<section class="section" title="logWarning" epub:type="division" id="N40488"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logWarning</h2></div></div></div>
+	<section class="section" title="logWarning" epub:type="division" id="N405CD"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logWarning</h2></div></div></div>
 		
 		<p>
 Log a warning message
@@ -658,7 +945,7 @@ Log a warning message
 <span class="strong"><strong>message</strong></span> : Message to log
 </p></li></ul></div>
 	</section>
-	<section class="section" title="logError" epub:type="division" id="N4049E"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logError</h2></div></div></div>
+	<section class="section" title="logError" epub:type="division" id="N405E3"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logError</h2></div></div></div>
 		
 		<p>
 Log an error message
@@ -668,19 +955,19 @@ Log an error message
 <span class="strong"><strong>message</strong></span> : Message to log
 </p></li></ul></div>
 	</section>
-	<section class="section" title="currentDate" epub:type="division" id="N404B4"><div class="titlepage"><div><div><h2 class="title" style="clear: both">currentDate</h2></div></div></div>
+	<section class="section" title="currentDate" epub:type="division" id="N405F9"><div class="titlepage"><div><div><h2 class="title" style="clear: both">currentDate</h2></div></div></div>
 		
 		<p>
 Return the current date in ISO8601 format (yyyy-MM-dd)
 		</p>
 	</section>
-	<section class="section" title="currentDateTime" epub:type="division" id="N404BD"><div class="titlepage"><div><div><h2 class="title" style="clear: both">currentDateTime</h2></div></div></div>
+	<section class="section" title="currentDateTime" epub:type="division" id="N40602"><div class="titlepage"><div><div><h2 class="title" style="clear: both">currentDateTime</h2></div></div></div>
 		
 		<p>
 Return the current date and time in ISO8601 format (yyyy-MM-dd'T'HH:mm:ssZZ)
 		</p>
 	</section>
-	<section class="section" title="password" epub:type="division" id="N404C6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">password</h2></div></div></div>
+	<section class="section" title="password" epub:type="division" id="N4060B"><div class="titlepage"><div><div><h2 class="title" style="clear: both">password</h2></div></div></div>
 		
 		<p>
 This function is used to retrieve a password from the credential store. If the password doesn't exist, one will
@@ -699,7 +986,7 @@ This function is used to retrieve a password from the credential store. If the p
 <span class="strong"><strong>symbols ( default: true )</strong></span> : Flag indicating if symbos are required in the password.
 </p></li></ul></div>
 	</section>
-	<section class="section" title="lfile" epub:type="division" id="N404FC"><div class="titlepage"><div><div><h2 class="title" style="clear: both">lfile</h2></div></div></div>
+	<section class="section" title="lfile" epub:type="division" id="N40641"><div class="titlepage"><div><div><h2 class="title" style="clear: both">lfile</h2></div></div></div>
 		
 		<p>
 This function is used to generate an url to a file contained in a library. This is generally used to generate
@@ -713,7 +1000,7 @@ This function is used to generate an url to a file contained in a library. This 
 <span class="strong"><strong>encoding ( default: UTF-8 )</strong></span> : encoding
 </p></li></ul></div>
 	</section>
-	<section class="section" title="ufile" epub:type="division" id="N4051D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">ufile</h2></div></div></div>
+	<section class="section" title="ufile" epub:type="division" id="N40662"><div class="titlepage"><div><div><h2 class="title" style="clear: both">ufile</h2></div></div></div>
 		
 		<p>
 Create an url to a user file (files which looked up in any of the configured filestore locations).

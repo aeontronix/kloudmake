@@ -103,9 +103,9 @@ core.file { path="/tmp/test.txt" content="Hello World" },
     address='server.domain',
     $text = "Hello World",
     core.file {
-        path="/tmp/test1.txt" content="${text}"
-        path="/tmp/test2.txt" content=${text}
-        path='/tmp/test3.txt' content='${text}'
+        path="/tmp/test1.txt" content="${text}"  // Variable will be substituted
+        path="/tmp/test2.txt" content=${text}    // Variable will be substituted
+        path='/tmp/test3.txt' content='${text}'  // Variable will NOT be substituted since using single quotes
     },
 }</pre><p>
         </p>
@@ -290,13 +290,13 @@ foo.bar {
         <p>
             For example to have a 'core.file' resource depend on a specific 'core.package' resource you could write:
         </p>
-        <pre class="prettyprint">new core:package { id = “httpd”, name = “apache-httpd” }
-new core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</pre>
+        <pre class="prettyprint">core:package { id = “httpd”, name = “apache-httpd” }
+core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</pre>
         <p>
             This could also be written as
         </p>
-        <pre class="prettyprint">new core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
-new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
+        <pre class="prettyprint">core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
+core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
         <p>
             Another way to define a dependency is by using either <code class="code">-&gt;</code> or <code class="code">&gt;-</code>
             between resource creation declarations.
@@ -304,15 +304,11 @@ new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</p
         <p>
             So the above example could also be written as
         </p>
-        <pre class="prettyprint">new core:package { id = “httpd” name = “apache-httpd” }
--&gt;
-new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
+        <pre class="prettyprint">core:package { name = “apache-httpd” } -&gt; core:file { path = “/root/myfile1.txt”, content = “Hello World” }</pre>
         <p>
             or alternatively
         </p>
-        <pre class="prettyprint">new core:file { path = “/root/myfile1.txt”, content = “Hello World” }
-&lt;-
-new core:package { id = “httpd” name = “apache-httpd” }</pre>
+        <pre class="prettyprint">core:file { path = “/root/myfile1.txt”, content = “Hello World” } &lt;- core:package { id = “httpd” name = “apache-httpd” }</pre>
     </section>
     <section class="section" id="N40290"><div class="titlepage"><div><div><h2 class="title" style="clear: both">Resource refresh</h2></div></div></div>
         
