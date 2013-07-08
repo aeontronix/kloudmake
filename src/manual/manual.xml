@@ -15,8 +15,11 @@
     <xi:include href="manual-introduction.xml"/>
     <xi:include href="manual-dsl.xml"/>
     <xi:include href="manual-scripting.xml"/>
+    <xi:include href="manual-java.xml"/>
     <xi:include href="manual-credentials.xml"/>
+    <xi:include href="manual-libraries.xml"/>
     <xi:include href="manual-executionlifecycle.xml"/>
+    <xi:include href="manual-host.xml"/>
     <xi:include href="manual-appendix-commonattrs.xml"/>
     <xi:include href="../../_build/builtin-functions.xml"/>
 </book>

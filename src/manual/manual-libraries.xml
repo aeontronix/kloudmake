@@ -1,0 +1,35 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<chapter id="libraries" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
+    <title>Libraries and custom resources auto-load</title>
+    <para>
+        In order to better allow reuse and distribution of custom resource types, systyrant support the concept of libraries.
+        A library is a zip file, a jar file or a directory that is deployed in one of the libraries directories in systyrant.
+    </para>
+    <para>
+        By default SysTyrant will look for libraries under the following directories:
+    </para>
+    <itemizedlist>
+        <listitem><para>/etc/systyrant/libs</para></listitem>
+        <listitem><para>/var/lib/systyrant/libs</para></listitem>
+        <listitem><para>~/.systyrant/libs</para></listitem>
+    </itemizedlist>
+    <para>
+        It's also possible to specify additional locations by using the command line's <code>-l</code> optional parameter.
+    </para>
+    <para>
+        Any java custom resources or functions located in a library will be automatically identified and loaded.
+    </para>
+    <para>
+        When a non-java resource type is used, SysTyrant will attempt to find and run a script file under the following path:
+         [package name with any dot changed into a slash]/[resource type name].stl
+    </para>
+    <para>
+        For example, if you attempted to instantiate a resource of type <code>mycompany.customres.someResource</code> and it couldn't
+        find a corresponding java resource, it would attempt to find and run the file
+        <code>mycompany/customres/someResource.stl</code>.
+    </para>
+</chapter>

@@ -7,10 +7,8 @@ package com.kloudtek.systyrant.inject;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
 import com.kloudtek.systyrant.ServiceManager;
-import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.exception.FieldInjectionException;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
-import com.kloudtek.systyrant.exception.InvalidServiceException;
 import com.kloudtek.systyrant.host.Host;
 
 import java.lang.reflect.Field;
@@ -33,8 +31,6 @@ public class GenericInjector extends AttrInjector {
             type = Type.SERVICEMANAGER;
         } else if (Host.class.isAssignableFrom(fieldType)) {
             type = Type.HOST;
-        } else if (fieldType.getAnnotation(Service.class) != null) {
-            type = Type.SERVICE;
         } else {
             type = Type.ATTR;
         }
@@ -54,17 +50,6 @@ public class GenericInjector extends AttrInjector {
                 break;
             case HOST:
                 inject(obj, resource.getHost());
-                break;
-            case SERVICE:
-                try {
-                    Object service = ctx.getServiceManager().getService(fieldType);
-                    if (service == null) {
-                        throw new FieldInjectionException(field, "Unable to find object to inject");
-                    }
-                    inject(obj, service);
-                } catch (InvalidServiceException e) {
-                    throw new FieldInjectionException(field, e.getMessage(), e);
-                }
                 break;
             case ATTR:
                 super.inject(resource, obj, ctx);

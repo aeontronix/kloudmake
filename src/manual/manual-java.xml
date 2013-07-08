@@ -1,0 +1,299 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
+    <title>Using Java</title>
+    <section>
+        <title>Overview</title>
+        <para>
+            Creating resources uses heavily annotations to inject data into a defined class and to specify logic to
+            execute.
+        </para>
+        <para>
+            In order to create a resource in java, all you need to do is to annotate a java class with the
+            <link xlink:href="@annourl@/STResource.html">com.kloudtek.systyrant.annotation.STResource</link> annotation,
+            jar the compiled classes and place it in the <link linkend="libraries">libraries</link> directory.
+        </para>
+        <para>
+            The @STResource annotation supports a value which will be used as the resource type. If not specified it will
+            use the class name (if the class name finishes in 'Resource' that will be stripped off).
+        </para>
+        <programlisting language="java">package com.mycompany.test;
+@STResource // This will result in a resource com.mycompany.test.sometest
+public void class SomeTest {}</programlisting>
+        <programlisting language="java">package com.mycompany.test;
+@STResource("stest") // This will result in a resource com.mycompany.test.stest
+public void class SomeTest {}</programlisting>
+        <programlisting language="java">package com.mycompany.test;
+@STResource("stest") // This will result in a resource com.mycompany.test.stest
+public void class SomeTest {}</programlisting>
+        <para>
+            If the value of @STResource is fully qualified (has dots in it), that will be used as the resource package,
+            otherwise the java package will be used. This can be overriden using the
+            <link xlink:href="@annourl@/STResource.html">STResource</link> resource annotation at package level to override this.
+        </para>
+        <para>
+            So if for example the above resource was located in a package 'com.mycompany.test', and you wanted the
+            SysTyrant resource package be just 'test', you just needed to created the following file
+            <code>package-info.java</code> in that same packages:
+        </para>
+        <programlisting language="java">@com.kloudtek.systyrant.annotation.STResource("test")
+package com.mycompany.test;</programlisting>
+        <para>
+            Please note it is possible to have multiple classes with the same resource type. This is especially useful
+            when used in conjunction with <link xlink:href="@annourl@/OnlyIf.html">@OnlyIf</link>
+            annotation. For example:
+        </para>
+        <programlisting language="java">@STResource("test.test")
+@OnlyIfOperatingSystem( { BSD } )
+public class OnlyBSDResource {}
+
+@STResource("test.test")
+@OnlyIfOperatingSystem( { LINUX } )
+public class OnlyLinuxResource {}</programlisting>
+    </section>
+    <section>
+        <title>Field injection</title>
+        <para>
+            Before any such method is invoked, any fields annotated with <link xlink:href="@annourl@/Inject.html">@Inject</link>
+            or <link xlink:href="@annourl@/Attr.html">@Attr</link> will be injected with the appropriated data.
+        </para>
+        <para>
+            Fields annotated with <link xlink:href="@annourl@/Inject.html">@Inject</link> will have the relevant object
+            injected into it before any lifecycle annotated method is invoked. The exact resource injected will depend
+            on the field type:
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para><emphasis role="bold"><link xlink:href="@jdocurl@/STContext.html">STContext</link></emphasis> :
+                    Will result in the context instance being injected (the value of the annotation is ignored).</para>
+            </listitem>
+            <listitem>
+                <para><emphasis role="bold"><link xlink:href="@jdocurl@/Resource.html">Resource</link></emphasis> :
+                    Will result in the resource with that is associated with this java object to be inject
+                    (the value of the annotation is ignored).</para>
+            </listitem>
+            <listitem>
+                <para><emphasis role="bold"><link xlink:href="@jdocurl@/ServiceManager.html">ServiceManager</link></emphasis> :
+                    Will result in the ServiceManager instance to be injected (the value of the annotation is ignored).</para>
+            </listitem>
+            <listitem>
+                <para><emphasis role="bold"><link xlink:href="@jdocurl@/Host.html">Host</link></emphasis> :
+                    Will result in the resource <link xlink:href="@jdocurl@/Host.html">Host</link> being injected (the value of the annotation is ignored).</para>
+            </listitem>
+            <listitem>
+                <para>Any other type will result in an attribute with an id matching the annotation value (or the field
+                name if the value isn't assigned)</para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            Fields annotated with <link xlink:href="@annourl@/Attr.html">Attr</link> will result in an attribute with an
+            id matching the annotation value (or the field name if the value isn't assigned). Additionally
+            <emphasis>after</emphasis> any lifecycle method execution,
+            any change to the @Attr field will have that value copied into the resource attribute.
+        </para>
+        <para>
+            The <link xlink:href="@annourl@/Attr.html">@Attr</link> can also be have the parameter <emphasis>def</emphasis>
+            which indicates a default value for that attribute (that is assigned when the resource is created).
+        </para>
+        <programlisting language="java">@STResource
+public class SomeResource {
+    @Attr("path")
+    private String filePath;
+    @Attr
+    private String owner;
+    @Attr(value="color", def="blue")
+    private String color;
+    @Attr(def="100")
+    private int weight;
+}</programlisting>
+    </section>
+    <section>
+        <title>Resource lifecycle annotations</title>
+        <para>
+            Any method with the following annotations will be executed during their respective lifecycle stage:
+            <link xlink:href="@annourl@/Prepare.html">Prepare</link>,
+            <link xlink:href="@annourl@/PreExecute.html">PreExecute</link>,
+            <link xlink:href="@annourl@/Execute.html">Execute</link>,
+            <link xlink:href="@annourl@/Cleanup.html">Cleanup</link>,
+        </para>
+        <para>
+            If any of those annotations has the annotation parameter <emphasis>postChildren</emphasis> set to 'true',
+            the method will be executed only after all the resource's childrens have completed the relevant stage.
+        </para>
+        <para>
+            The above lifecycle annotations are used to perform methods that do not change the system. For methods that
+            will change the environment, you should use the annotations <link xlink:href="@annourl@/Verify.html">Verify</link>
+            and <link xlink:href="@annourl@/Sync.html">Sync</link>.
+        </para>
+        <programlisting language="java">@STResource("world.sky")
+public class SkyResource {
+  @Attr(def="blue")
+  private String color;
+
+  @Verify
+  public boolean checkCurrentSkyColor() {
+    return Sky.color().equals(color);
+  }
+
+  @Sync
+  public void setSkyColor() {
+    Sky.setColor(color);
+  }
+}</programlisting>
+        <para>
+            The method annotated with <link xlink:href="@annourl@/Verify.html">Verify</link> should return a boolean that
+            indicates if the method annotated with <link xlink:href="@annourl@/Sync.html">Sync</link> should be executed (
+            if true it will be executed, if false it will not be executed).
+        </para>
+        <para>
+            Various annotations can be also used in conjunction to specify that the annotated method should only be
+            executed if certain conditions are fulfilled:
+        </para>
+        <para>
+            <emphasis role="bold"><link xlink:href="@annourl@/OnlyIfOperatingSystem.html">@OnlyIfOperatingSystem</link></emphasis>
+        </para>
+        <para>
+            This annotation require that the host of the resource runs the specified Operating System. This annotation
+            can be used on the class or on specific lifecycle methods.
+        </para>
+        <programlisting language="java">@STResource("test.myres")
+@OnlyIfOperatingSystem( { LINUX , BSD } )
+public class MyResourceLinuxAndBSDImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}
+
+@STResource("test.myres")
+@OnlyIfOperatingSystem( WINDOWS )
+public class MyResourceWindowsImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}
+
+@STResource("test.someres")
+public class SomeResource {
+  @Execute
+  @OnlyIfOperatingSystem( LINUX )
+  public void doLinuxSpecificStuff() {
+    doStuff();
+  }
+}</programlisting>
+        <para>
+            <emphasis role="bold"><link xlink:href="@annourl@/OnlyIfArch.html">@OnlyIfArch</link></emphasis>
+        </para>
+        <para>
+            This annotation is used to specify that the action should only run if the host's architecture match what is specified (ie. i386, amd64)
+        </para>
+        <programlisting language="java">@STResource("test.myres")
+public class MyResourceLinuxAndBSDImpl {
+  @Execute
+  @OnlyIfArch( I386 )
+  public void do32BitStuff() {
+    ...
+  }
+
+  @Execute
+  @OnlyIfArch( AMD64 )
+  public void do64BitStuff() {
+    ...
+  }
+}</programlisting>
+        <para>
+            <emphasis role="bold"><link xlink:href="@annourl@/OnlyIf.html">@OnlyIf</link></emphasis>
+        </para>
+        <para>
+            This annotation must be used in a method that returns a boolean. The result of that method will indicate if
+            lifecycle methods in that class should be executed (if it returns true), or not (if it returns false)
+        </para>
+        <programlisting language="java">@STResource
+public class SomeResource {
+  @Execute
+  public void thisWillOnlyBeExecutedIfSkyIsBlue() {
+    // this will only be executed if the method checkIfSkyIsBlue() returns true
+    setColorSky("green");
+  }
+
+  @OnlyIf
+  public boolean checkIfSkyIsBlue() {
+    return Sky.color().equals("blue");
+  }
+}</programlisting>
+        <para>
+            <emphasis role="bold"><link xlink:href="@annourl@/Alternative.html">@Alternative</link></emphasis>
+        </para>
+        <para>
+            This annotation allows you to specify that a specific action is an alternative, and that at least one should
+            be executed (causing an error if none is executed).
+        </para>
+        <para>
+            In the following example, we've got two classes MyResourceLinuxAndBSDImpl (which supports Linux and BSD
+            hosts) and MyResourceWindowsImpl (which supports Windows). Because of the @Alternative annotation, if you
+            attempted to create a resource on an operating system is neither Linux, BSD or Windows, the execution would fail.
+        </para>
+        <programlisting language="java">@STResource("test.myres")
+@OnlyIfOperatingSystem( { LINUX , BSD } )
+@Alternative
+public class MyResourceLinuxAndBSDImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}
+
+@STResource("test.myres")
+@OnlyIfOperatingSystem( WINDOWS )
+@Alternative
+public class MyResourceWindowsImpl {
+  @Execute
+  public void doStuff() {
+    doSomeStuff();
+  }
+}</programlisting>
+        <para>
+            Additionally, alternatives can have a value allowing different set of alternatives to be assigned to a
+            resource. In the following example we've got four methods that have @Alternative annotations. Two which are
+            related to the Operating System, and two which are related to the architecture. In order for the resource to
+            execute successfully, one of the two Operating Systems but apply (so it must be run on either Linux or
+            Windows) AND one of the two architecture must also apply (so it must be run on i386 or amd64). Just having
+            one of the four won't be sufficient.
+        </para>
+        <programlisting language="java">@STResource("test.myres")
+public class MyResource {
+  @OnlyIfOperatingSystem( LINUX )
+  @Alternative("os")
+  @Execute
+  public void handleWindows() {
+    ...
+  }
+
+  @OnlyIfOperatingSystem( WINDOWS )
+  @Alternative("os")
+  @Execute
+  public void handleWindows() {
+    ...
+  }
+
+  @OnlyIfArch( I386 )
+  @Alternative("arch")
+  @Execute
+  public void handleI386() {
+    ...
+  }
+
+  @OnlyIfArch( AMD64 )
+  @Alternative("arch")
+  @Execute
+  public void handleAmd64 {
+    ...
+  }
+}</programlisting>
+    </section>
+</chapter>

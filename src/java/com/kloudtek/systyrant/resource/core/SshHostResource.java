@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant.resource.core;
 
 import com.kloudtek.systyrant.ServiceManager;
+import com.kloudtek.systyrant.annotation.Attr;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Service;
@@ -20,8 +21,11 @@ public class SshHostResource {
     @Service
     private ServiceManager serviceManager;
     @NotEmpty
+    @Attr
     private String address;
+    @Attr
     private Integer port;
+    @Attr
     private String key;
     private SshHost sshHost;
 

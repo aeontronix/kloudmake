@@ -45,9 +45,9 @@ core.file { path="/tmp/test.txt" content="Hello World" },
     address='server.domain',
     $text = "Hello World",
     core.file {
-        path="/tmp/test1.txt" content="${text}"
-        path="/tmp/test2.txt" content=${text}
-        path='/tmp/test3.txt' content='${text}'
+        path="/tmp/test1.txt" content="${text}"  // Variable will be substituted
+        path="/tmp/test2.txt" content=${text}    // Variable will be substituted
+        path='/tmp/test3.txt' content='${text}'  // Variable will NOT be substituted since using single quotes
     },
 }</programlisting>
         </para>
@@ -266,13 +266,13 @@ foo.bar {
         <para>
             For example to have a 'core.file' resource depend on a specific 'core.package' resource you could write:
         </para>
-        <programlisting language="stl">new core:package { id = “httpd”, name = “apache-httpd” }
-new core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</programlisting>
+        <programlisting language="stl">core:package { id = “httpd”, name = “apache-httpd” }
+core:file { id="file", path = “/root/myfile1.txt”, content = “Hello World”, after = “@id = httpd” }</programlisting>
         <para>
             This could also be written as
         </para>
-        <programlisting language="stl">new core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
-new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</programlisting>
+        <programlisting language="stl">core:package { id = “httpd”, name = “apache-httpd”, before = "@id = file" }
+core:file { path = “/root/myfile1.txt”, content = “Hello World” }</programlisting>
         <para>
             Another way to define a dependency is by using either <code>-&gt;</code> or <code>&gt;-</code>
             between resource creation declarations.
@@ -280,15 +280,11 @@ new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</p
         <para>
             So the above example could also be written as
         </para>
-        <programlisting language="stl">new core:package { id = “httpd” name = “apache-httpd” }
--&gt;
-new core:file { path = “/root/myfile1.txt”, content = “Hello World” }</programlisting>
+        <programlisting language="stl">core:package { name = “apache-httpd” } -&gt; core:file { path = “/root/myfile1.txt”, content = “Hello World” }</programlisting>
         <para>
             or alternatively
         </para>
-        <programlisting language="stl">new core:file { path = “/root/myfile1.txt”, content = “Hello World” }
-&lt;-
-new core:package { id = “httpd” name = “apache-httpd” }</programlisting>
+        <programlisting language="stl">core:file { path = “/root/myfile1.txt”, content = “Hello World” } &lt;- core:package { id = “httpd” name = “apache-httpd” }</programlisting>
     </section>
     <section>
         <title>Resource refresh</title>
