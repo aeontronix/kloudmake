@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><script type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><div class="book" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="chapter"><a href="#N40019">1. Introduction</a></span></li><li><span class="chapter"><a href="#N40046">2. Using the SysTyrant Language (DSL)</a></span><ul><li><span class="section"><a href="#N4004E">Resource creation</a></span></li><li><span class="section"><a href="#N4009C">String handling</a></span></li><li><span class="section"><a href="#N400BD">Variables</a></span></li><li><span class="section"><a href="#N400E5">Functions</a></span></li><li><span class="section"><a href="#N4010E">Query Language</a></span><ul><li><span class="section"><a href="#N40116">Match by Id / Uid</a></span></li><li><span class="section"><a href="#N40123">Match by Attribute</a></span></li><li><span class="section"><a href="#N40189">Match by parent</a></span></li><li><span class="section"><a href="#N40237">Match by Type</a></span></li><li><span class="section"><a href="#N4024C">Match by Same Host</a></span></li></ul></li><li><span class="section"><a href="#N4025F">Resource Dependencies</a></span></li><li><span class="section"><a href="#N40290">Resource refresh</a></span></li><li><span class="section"><a href="#N402D4">Define custom resources</a></span></li></ul></li><li><span class="chapter"><a href="#N402FA">3. Using scripting languages</a></span></li><li><span class="chapter"><a href="#N40347">4. Credentials Management</a></span></li><li><span class="chapter"><a href="#N40350">5. Execution Lifecycle</a></span></li></ul></div><div class="list-of-tables"><div class="toc-title">List of Tables</div><ul><li>2.1. <a href="#N401AB">Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ul></div>
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml"><head><title>SysTyrant Manual</title><link href="docbook.css" type="text/css" rel="stylesheet"/><meta content="DocBook XSL Stylesheets V1.78.1" name="generator"/><script type="text/javascript" src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"/></head><body><div class="book" id="N40003"><div class="titlepage"><div><div><h1 class="title">SysTyrant Manual</h1></div><div><p class="copyright">Copyright © 2013 Kloudtek Ltd</p></div></div><hr/></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="chapter"><a href="#N40019">1. Introduction</a></span></li><li><span class="chapter"><a href="#N40046">2. Using the SysTyrant Language (DSL)</a></span><ul><li><span class="section"><a href="#N4004E">Resource creation</a></span></li><li><span class="section"><a href="#N4009C">String handling</a></span></li><li><span class="section"><a href="#N400BD">Variables</a></span></li><li><span class="section"><a href="#N400E5">Functions</a></span></li><li><span class="section"><a href="#N4010E">Query Language</a></span><ul><li><span class="section"><a href="#N40116">Match by Id / Uid</a></span></li><li><span class="section"><a href="#N40123">Match by Attribute</a></span></li><li><span class="section"><a href="#N40189">Match by parent</a></span></li><li><span class="section"><a href="#N40237">Match by Type</a></span></li><li><span class="section"><a href="#N4024C">Match by Same Host</a></span></li></ul></li><li><span class="section"><a href="#N4025F">Resource Dependencies</a></span></li><li><span class="section"><a href="#N40290">Resource refresh</a></span></li><li><span class="section"><a href="#N402D4">Define custom resources</a></span></li></ul></li><li><span class="chapter"><a href="#N402FA">3. Using scripting languages</a></span></li><li><span class="chapter"><a href="#N40347">4. Credentials Management</a></span></li><li><span class="chapter"><a href="#N40352">5. Libraries and custom resources auto-load</a></span></li><li><span class="chapter"><a href="#N40385">6. Execution Lifecycle</a></span></li><li><span class="appendix"><a href="#N403DF">A. Common Attributes</a></span><ul><li><span class="section"><a href="#N403E6">id</a></span></li><li><span class="section"><a href="#N403F6">uid</a></span></li><li><span class="section"><a href="#N40406">before</a></span></li><li><span class="section"><a href="#N40412">after</a></span></li><li><span class="section"><a href="#N40422">requires</a></span></li><li><span class="section"><a href="#N4043C">notify</a></span></li><li><span class="section"><a href="#N40448">subscribe</a></span></li></ul></li><li><span class="appendix"><a href="#N40455">B. Built-in functions</a></span><ul><li><span class="section"><a href="#N4045C">logDebug</a></span></li><li><span class="section"><a href="#N40472">logInfo</a></span></li><li><span class="section"><a href="#N40488">logWarning</a></span></li><li><span class="section"><a href="#N4049E">logError</a></span></li><li><span class="section"><a href="#N404B4">currentDate</a></span></li><li><span class="section"><a href="#N404BD">currentDateTime</a></span></li><li><span class="section"><a href="#N404C6">password</a></span></li><li><span class="section"><a href="#N404FC">lfile</a></span></li><li><span class="section"><a href="#N4051D">ufile</a></span></li></ul></li></ul></div><div class="list-of-tables"><div class="toc-title">List of Tables</div><ul><li>2.1. <a href="#N401AB">Childof matching example (assumes resource 1 is the resource currently being processed):</a></li></ul></div>
     
     
     <section class="chapter" id="N40019"><div class="titlepage"><div><div><h1 class="title">Chapter 1. Introduction</h1></div></div></div>
@@ -475,8 +475,35 @@ $strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "ng
 </section>
     <section class="chapter" id="N40347"><div class="titlepage"><div><div><h1 class="title">Chapter 4. Credentials Management</h1></div></div></div>
     
+    <p/>
 </section>
-    <section class="chapter" id="N40350"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Execution Lifecycle</h1></div></div></div>
+    <section class="chapter" id="N40352"><div class="titlepage"><div><div><h1 class="title">Chapter 5. Libraries and custom resources auto-load</h1></div></div></div>
+    
+    <p>
+        In order to better allow reuse and distribution of custom resource types, systyrant support the concept of libraries.
+        A library is a zip file, a jar file or a directory that is deployed in one of the libraries directories in systyrant.
+    </p>
+    <p>
+        By default SysTyrant will look for libraries under the following directories:
+    </p>
+    <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>/etc/systyrant/libs</p></li><li class="listitem"><p>/var/lib/systyrant/libs</p></li><li class="listitem"><p>~/.systyrant/libs</p></li></ul></div>
+    <p>
+        It's also possible to specify additional locations by using the command line's <code class="code">-l</code> optional parameter.
+    </p>
+    <p>
+        Any java custom resources or functions located in a library will be automatically identified and loaded.
+    </p>
+    <p>
+        When a non-java resource type is used, SysTyrant will attempt to find and run a script file under the following path:
+         [package name with any dot changed into a slash]/[resource type name].stl
+    </p>
+    <p>
+        For example, if you attempted to instantiate a resource of type <code class="code">mycompany.customres.SomeResource</code> and it couldn't
+        find a corresponding java resource, it would attempt to find and run the file
+        <code class="code">mycompany/customres/SomeResource.stl</code>.
+    </p>
+</section>
+    <section class="chapter" id="N40385"><div class="titlepage"><div><div><h1 class="title">Chapter 6. Execution Lifecycle</h1></div></div></div>
     
     <p>
         When a systyrant context is executed, it will go through the following lifecycle stages:
@@ -522,5 +549,189 @@ $strm.createResource( "core.package", "web", sshresource ).set( { name =&gt; "ng
     <p>
         At this final stage it will invoke each action's CLEANUP actions.
     </p>
+</section>
+    <section class="appendix" id="N403DF"><div class="titlepage"><div><div><h1 class="title">Appendix A. Common Attributes</h1></div></div></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="section"><a href="#N403E6">id</a></span></li><li><span class="section"><a href="#N403F6">uid</a></span></li><li><span class="section"><a href="#N40406">before</a></span></li><li><span class="section"><a href="#N40412">after</a></span></li><li><span class="section"><a href="#N40422">requires</a></span></li><li><span class="section"><a href="#N4043C">notify</a></span></li><li><span class="section"><a href="#N40448">subscribe</a></span></li></ul></div>
+    
+    <section class="section" id="N403E6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">id</h2></div></div></div>
+        
+        <p>Type: Identifier ( only characters allowed are letters, digits and the following symbols `-_` )</p>
+        <p>
+            Resource identifier. Must be unique among resource siblings (so no two child of a resource can have the
+            same id). For example if you needed a package to be installed before it's service is started, you could use
+        </p>
+        <pre class="prettyprint">test.test { "testid":
+  test.test { "testid": } // this won't conflict with the parent resource id since they're not siblings
+}
+
+test:test {
+  test.test { "testid": } // Those two ids would conflict
+  test.test { "testid": } // Those two ids would conflict
+}</pre>
+    </section>
+    <section class="section" id="N403F6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">uid</h2></div></div></div>
+        
+        <p>Type: Static String</p>
+        <p>Resource unique identifier. This is automatically generated and cannot be manually specified. It's value is
+            equals to [parent's id].[resource id]</p>
+        <pre class="prettyprint">test.test { "a":       // This resource uid would be 'a'
+  test.test { "b":     // This resource uid would be 'a.b'
+    test.test { "c": } // This resource uid would be 'a.b.c'
+  }
+}</pre>
+    </section>
+    <section class="section" id="N40406"><div class="titlepage"><div><div><h2 class="title" style="clear: both">before</h2></div></div></div>
+        
+        <p>Type: Resource Query</p>
+        <p>Specifies resources which this resource should execute before. For example if you needed a package to be installed
+            before it's service is started, you could use</p>
+    </section>
+    <section class="section" id="N40412"><div class="titlepage"><div><div><h2 class="title" style="clear: both">after</h2></div></div></div>
+        
+        <p>Type: Resource Query</p>
+        <p>Specifies resources which this resource should execute after. For example if you needed a package to be installed
+            before it's service is started, you could use</p>
+        <pre class="prettyprint">core.service { after="@id = configfile" }
+core.file { "configfile": path="/etc/myserver.conf", before="@id = myserver" }</pre>
+    </section>
+    <section class="section" id="N40422"><div class="titlepage"><div><div><h2 class="title" style="clear: both">requires</h2></div></div></div>
+        
+        <p>Type: String</p>
+        <p>
+            This can be used to specify a dependency on one or more resources, which will be automatically created if
+            no matching resource is found. The format is a command separated list of resource types with potential attributes
+            equality matching between brackets ( if a resource is created, those attributes will be set in the resource ).
+        </p>
+        <p>
+            Example: this will cause a resource of type test:type1 to be created, as well as a resource of type test.type2 which
+            would have the attribute 'test' assigned as 'bla'. Both would be set as dependencies of the test.test resource.
+        </p>
+        <pre class="prettyprint">test.test {
+  requires="test:type1,test:type2(test='bla')"
+}</pre>
+        <p>Example: In this example no resource would be created since 'test.type1' already exists.
+            It would be added as a dependency of 'test:test'</p>
+        <pre class="prettyprint">test.type1 {}
+test.test {
+  requires="test.type1"
+}</pre>
+    </section>
+    <section class="section" id="N4043C"><div class="titlepage"><div><div><h2 class="title" style="clear: both">notify</h2></div></div></div>
+        
+        <p>Type: Resource Query</p>
+        <p>Specified resources this will be notified after this resource is executed.</p>
+    </section>
+    <section class="section" id="N40448"><div class="titlepage"><div><div><h2 class="title" style="clear: both">subscribe</h2></div></div></div>
+        
+        <p>Type: Resource Query</p>
+        <p>Specified resources which execution will cause this resource to be notified..</p>
+    </section>
+</section>
+    <section class="appendix" id="N40455"><div class="titlepage"><div><div><h1 class="title">Appendix B. Built-in functions</h1></div></div></div><div class="toc"><div class="toc-title">Table of Contents</div><ul class="toc"><li><span class="section"><a href="#N4045C">logDebug</a></span></li><li><span class="section"><a href="#N40472">logInfo</a></span></li><li><span class="section"><a href="#N40488">logWarning</a></span></li><li><span class="section"><a href="#N4049E">logError</a></span></li><li><span class="section"><a href="#N404B4">currentDate</a></span></li><li><span class="section"><a href="#N404BD">currentDateTime</a></span></li><li><span class="section"><a href="#N404C6">password</a></span></li><li><span class="section"><a href="#N404FC">lfile</a></span></li><li><span class="section"><a href="#N4051D">ufile</a></span></li></ul></div>
+	
+	<section class="section" id="N4045C"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logDebug</h2></div></div></div>
+		
+		<p>
+Log a debug message.
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>message</strong></span> : Message to log
+</p></li></ul></div>
+	</section>
+	<section class="section" id="N40472"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logInfo</h2></div></div></div>
+		
+		<p>
+Log an informational message.
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>message</strong></span> : Message to log
+</p></li></ul></div>
+	</section>
+	<section class="section" id="N40488"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logWarning</h2></div></div></div>
+		
+		<p>
+Log a warning message
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>message</strong></span> : Message to log
+</p></li></ul></div>
+	</section>
+	<section class="section" id="N4049E"><div class="titlepage"><div><div><h2 class="title" style="clear: both">logError</h2></div></div></div>
+		
+		<p>
+Log an error message
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>message</strong></span> : Message to log
+</p></li></ul></div>
+	</section>
+	<section class="section" id="N404B4"><div class="titlepage"><div><div><h2 class="title" style="clear: both">currentDate</h2></div></div></div>
+		
+		<p>
+Return the current date in ISO8601 format (yyyy-MM-dd)
+		</p>
+	</section>
+	<section class="section" id="N404BD"><div class="titlepage"><div><div><h2 class="title" style="clear: both">currentDateTime</h2></div></div></div>
+		
+		<p>
+Return the current date and time in ISO8601 format (yyyy-MM-dd'T'HH:mm:ssZZ)
+		</p>
+	</section>
+	<section class="section" id="N404C6"><div class="titlepage"><div><div><h2 class="title" style="clear: both">password</h2></div></div></div>
+		
+		<p>
+This function is used to retrieve a password from the credential store. If the password doesn't exist, one will
+ be generated based on the provided parameters
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>id</strong></span> : Password id.
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>size ( default: 20 )</strong></span> : password size.
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>caps ( default: true )</strong></span> : Flag indicating if capital letters are required in the password.
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>number ( default: true )</strong></span> : Flag indicating if numbers are required in the password.
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>symbols ( default: true )</strong></span> : Flag indicating if symbos are required in the password.
+</p></li></ul></div>
+	</section>
+	<section class="section" id="N404FC"><div class="titlepage"><div><div><h2 class="title" style="clear: both">lfile</h2></div></div></div>
+		
+		<p>
+This function is used to generate an url to a file contained in a library. This is generally used to generate
+ an url to be passed as a 'source' attribute to a 'core.file' resource. For example:
+ <code class="code">core.file { path = "/etc/tomcat/server.xml" , source = lfile('tomcat6.xml.ftl') }</code>
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>path</strong></span> : Path to the file.
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>encoding ( default: UTF-8 )</strong></span> : encoding
+</p></li></ul></div>
+	</section>
+	<section class="section" id="N4051D"><div class="titlepage"><div><div><h2 class="title" style="clear: both">ufile</h2></div></div></div>
+		
+		<p>
+Create an url to a user file (files which looked up in any of the configured filestore locations).
+		</p>
+<p>Parameters:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p>
+<span class="strong"><strong>path</strong></span> : File path.
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>url</strong></span> : Optional URL from where the file can be retrieved
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>sha1</strong></span> : Optional SHA1 checksum (in hex format)
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>retrievable ( default: true )</strong></span> : Flag indicating if the file is retrievable using the URL (If a URL is specified and this flag
+                    is false, automatic retrieval will not happen and the user will be requested to manually
+                    download and put the file in a filestore location).
+</p></li><li class="listitem"><p>
+<span class="strong"><strong>encoding ( default: UTF-8 )</strong></span> : File encoding.
+</p></li></ul></div>
+	</section>
 </section>
 </div></body></html>
