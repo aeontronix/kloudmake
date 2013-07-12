@@ -19,6 +19,18 @@ public interface Host extends Stoppable, Startable {
 
     boolean isStarted();
 
+    /**
+     * This method is used to execute a shell script
+     * @param script Shell script to execute
+     * @param type Script type
+     * @param timeout How long to wait for execution before timing out (in millis)
+     * @param expectedRetCode Optional expected return code (If specified and the return code is different, it will
+     *                        throw a STRuntimeException
+     * @param logging Specify if the script output should be logged all the time, never or only if the script fails
+     * @param user Use to run the script as
+     * @return Execution result
+     * @throws STRuntimeException If an error occurs while running the script.
+     */
     ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
 
     String exec(String command) throws STRuntimeException;

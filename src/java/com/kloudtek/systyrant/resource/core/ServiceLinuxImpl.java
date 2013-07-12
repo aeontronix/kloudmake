@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import static com.kloudtek.systyrant.host.OperatingSystem.LINUX;
 
 /**
- * This resource is used to install a package.
+ * This resource is used to install a package on a linux system.
  */
 @STResource("core.service")
 @OnlyIfOperatingSystem(LINUX)

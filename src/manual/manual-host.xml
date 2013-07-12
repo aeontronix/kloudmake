@@ -3,7 +3,43 @@
   -->
 
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
          xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Host</title>
-    <para>TODO</para>
+    <para>
+        The Host is one of the principal concepts in Systyrant, as it provides an abstraction layer that allows to
+        perform operations in the host machine SysTyrant is running against.
+    </para>
+    <para>
+        SysTyrant currently provides two different host implementations:
+    </para>
+    <para>
+        <link xlink:href="@jdocurl@/Host/LocalHost.html">LocalHost</link> : This is the default implementation, which
+        provides access to the operating system SysTyrant is running under.
+    </para>
+    <para>
+        <link xlink:href="@jdocurl@/Host/SshHost.html">SshHost</link> : This host implementation allows to perform all
+        operations on a remote server using SSH. It supports the use of sudo if a non-root user needs to be used.
+    </para>
+    <para>
+        When running SysTyrant, a host is assigned to the <link xlink:href="@jdocurl@/STContext.html">context</link>,
+        and will be the default host for all resources.
+    </para>
+    <para>
+        In addition, each resource can have an <link
+            xlink:href="@jdocurl@/Resource.html#setHostOverride%28com.kloudtek.systyrant.host.Host%29">host override</link>
+        which will be valid for that host and any children (unless a children itself has an host override).
+    </para>
+    <para>
+        The host is normally accessed by using the current resource's <link
+            xlink:href="@jdocurl@/STContext.html#get%28%29">getHost()</link>, or in the case of annotation-driven custom
+        java resources, by using the <link linkend="java-anno-inject-host">@Inject</link> annotation.
+        method
+    </para>
+    <para>
+        The host object provides various functions to read/write files, as well as the ability to execute commands.
+        Additionally it also provides access to a <link
+            xlink:href="@jdocurl@/host/AbstractHost.html#getMetadata%28%29">host metadata</link> which provides various
+        host details (operating system, architecture, etc.)
+    </para>
 </chapter>
