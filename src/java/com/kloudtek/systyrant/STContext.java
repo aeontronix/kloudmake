@@ -529,6 +529,10 @@ public class STContext implements AutoCloseable {
         }
     }
 
+    public Reflections getLibraryReflections() {
+        return reflections;
+    }
+
     public void registerTempFile(File tempFile) {
         tempFiles.add(tempFile);
     }

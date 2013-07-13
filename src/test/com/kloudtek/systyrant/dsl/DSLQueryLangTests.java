@@ -353,6 +353,30 @@ public class DSLQueryLangTests extends AbstractContextTest {
         assertContainsSame(childs, child1, child2, child3);
     }
 
+    @Test
+    public void testBrackets1() throws Throwable {
+        createTestResource();
+        Resource r1 = createTestResource("r1").set("k", "1");
+        Resource r2 = createTestResource("r2").set("k", "2");
+        Resource r3 = createTestResource("r3");
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("( @id eq 'r1' or @id eq 'r2' ) and @k eq '2'");
+        assertContainsSame(childs, r2);
+    }
+
+    @Test
+    public void testBrackets2() throws Throwable {
+        createTestResource();
+        Resource r1 = createTestResource("r1").set("k", "1");
+        Resource r2 = createTestResource("r2").set("k", "2");
+        Resource r3 = createTestResource("r3");
+        createTestResource();
+        execute();
+        List<Resource> childs = ctx.findResources("@id eq 'r1' or ( @id eq 'r2' and @k eq '2' )");
+        assertContainsSame(childs, r1, r2);
+    }
+
     @Test(enabled = false)
     public void testDepOfScope() throws Throwable {
         register(DepOfScope.class, "depsofscope");

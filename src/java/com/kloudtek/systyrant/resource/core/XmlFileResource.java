@@ -5,9 +5,11 @@
 package com.kloudtek.systyrant.resource.core;
 
 import com.kloudtek.systyrant.annotation.Attr;
+import com.kloudtek.systyrant.annotation.FileFragment;
 import com.kloudtek.systyrant.annotation.STResource;
 
 @STResource
+@FileFragment(fileContentClass = FileContentXmlImpl.class)
 public class XmlFileResource {
     @Attr(required = true)
     private String path;

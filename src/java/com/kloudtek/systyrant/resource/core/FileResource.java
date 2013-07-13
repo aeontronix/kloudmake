@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
@@ -167,79 +167,106 @@ public class FileResource {
 
     private void loadContent() throws STRuntimeException, InvalidQueryException {
         // find all file fragments
-        List<Resource> fragments = new ArrayList<>();
-        // If there are no file fragments, then let's create a binary file content object
-        if (fragments.isEmpty()) {
-            fileContent = new FileContentBinaryImpl();
+        StringBuffer query = new StringBuffer("is samehost and ( ");
+        Iterator<FileFragmentDef> fileFragIt = fileStore.getFileFragmentDefs().iterator();
+        while (fileFragIt.hasNext()) {
+            FileFragmentDef fileFragmentDef = fileFragIt.next();
+            query.append("type ").append(fileFragmentDef.getResourceType());
+            if (fileFragIt.hasNext()) {
+                query.append(" or ");
+            }
         }
-        if (isNotEmpty(contentStr)) {
-            // Content attribute set is set, let's use that
-            if (!isEmpty(source)) {
-                throw new STRuntimeException("File " + path + " cannot have content as well as source specified");
-            }
-            byte[] data;
-            try {
-                data = contentStr.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException("BUG: UTF-8 not supported WTF ?!: " + e.getMessage(), e);
-            }
-            fileContent.init(new ByteArrayInputStream(data), CryptoUtils.sha1(data));
-        } else if (isEmpty(source)) {
-            // Contact and Source not set, using the content currently in the file
-            fileContent.init(host.readFile(path), host.getFileSha1(path));
-        } else {
-            // Using source
-            try {
-                DataFile dataFile = fileStore.create(source);
-                if (template) {
-                    Template templateObj = getTemplate(dataFile);
-                    STContext context = STContext.get();
-                    HashMap<String, Object> map = new HashMap<>();
-                    Resource res;
-                    if (templateResource != null) {
-                        List<Resource> list = context.findResources(templateResource);
-                        if (list.isEmpty()) {
-                            throw new STRuntimeException("Found no matches for templateResource: " + templateResource);
-                        } else if (list.size() > 1) {
-                            throw new STRuntimeException("Found multiple matches for templateResource: " + templateResource);
-                        } else {
-                            res = list.iterator().next();
-                        }
-                    } else {
-                        if (resource.getParent() != null) {
-                            res = resource.getParent();
-                        } else {
-                            res = resource;
-                        }
-                    }
-                    map.put("ctx", context);
-                    map.put("res", res);
-                    map.put("attrs", res.getAttributes());
-                    map.put("vars", res.getVars());
-                    MessageDigest sha1Digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
-                    ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                    try (Writer fw = new OutputStreamWriter(new DigestOutputStream(buf, sha1Digest))) {
-                        templateObj.process(map, fw);
-                    }
-                    fileContent.init(new ByteArrayInputStream(buf.toByteArray()), sha1Digest.digest());
-                } else {
-                    if (isNotEmpty(sha1)) {
+        query.append(" ) and @path eq '").append(path).append("'");
+        List<Resource> fragments = ctx.findResources(query.toString(), resource);
+        // If there are no file fragments, then let's create a binary file content object
+        try {
+            if (fragments.isEmpty()) {
+                fileContent = new FileContentBinaryImpl();
+            } else {
+                FQName type = null;
+                for (Resource fragment : fragments) {
+                    if (fileContent == null) {
                         try {
-                            if (!Arrays.equals(Hex.decodeHex(sha1.toCharArray()), dataFile.getSha1())) {
-                                throw new STRuntimeException("File found in the file store does not match specified sha1: " +
-                                        sha1 + " was instead " + Hex.encodeHex(dataFile.getSha1()));
-                            }
-                        } catch (DecoderException e) {
-                            throw new STRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
+                            type = fragment.getType();
+                            fileContent = fileStore.getFileFragmentDef(type).getFileContentClass().newInstance();
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new STRuntimeException("Unable to instantiate file content class" + fileStore
+                                    .getFileFragmentDef(type).getFileContentClass());
                         }
+                    } else if (!type.equals(fragment.getType())) {
+                        throw new STRuntimeException("Found file fragments of different types for file " + id);
                     }
-                    fileContent.init(dataFile.getStream(), dataFile.getSha1());
                 }
-            } catch (IOException e) {
-                throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
-            } catch (TemplateException e) {
-                throw new STRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
             }
+            if (isNotEmpty(contentStr)) {
+                // Content attribute set is set, let's use that
+                if (!isEmpty(source)) {
+                    throw new STRuntimeException("File " + path + " cannot have content as well as source specified");
+                }
+                byte[] data;
+                try {
+                    data = contentStr.getBytes("UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException("BUG: UTF-8 not supported WTF ?!: " + e.getMessage(), e);
+                }
+                fileContent.init(id, new ByteArrayInputStream(data), CryptoUtils.sha1(data));
+            } else if (isEmpty(source)) {
+                // Contact and Source not set, using the content currently in the file
+                fileContent.init(id, host.readFile(path), host.getFileSha1(path));
+            } else {
+                // Using source
+                try {
+                    DataFile dataFile = fileStore.create(source);
+                    if (template) {
+                        Template templateObj = getTemplate(dataFile);
+                        STContext context = STContext.get();
+                        HashMap<String, Object> map = new HashMap<>();
+                        Resource res;
+                        if (templateResource != null) {
+                            List<Resource> list = context.findResources(templateResource);
+                            if (list.isEmpty()) {
+                                throw new STRuntimeException("Found no matches for templateResource: " + templateResource);
+                            } else if (list.size() > 1) {
+                                throw new STRuntimeException("Found multiple matches for templateResource: " + templateResource);
+                            } else {
+                                res = list.iterator().next();
+                            }
+                        } else {
+                            if (resource.getParent() != null) {
+                                res = resource.getParent();
+                            } else {
+                                res = resource;
+                            }
+                        }
+                        map.put("ctx", context);
+                        map.put("res", res);
+                        map.put("attrs", res.getAttributes());
+                        map.put("vars", res.getVars());
+                        MessageDigest sha1Digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
+                        ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                        try (Writer fw = new OutputStreamWriter(new DigestOutputStream(buf, sha1Digest))) {
+                            templateObj.process(map, fw);
+                        }
+                        fileContent.init(id, new ByteArrayInputStream(buf.toByteArray()), sha1Digest.digest());
+                    } else {
+                        if (isNotEmpty(sha1)) {
+                            try {
+                                if (!Arrays.equals(Hex.decodeHex(sha1.toCharArray()), dataFile.getSha1())) {
+                                    throw new STRuntimeException("File found in the file store does not match specified sha1: " +
+                                            sha1 + " was instead " + Hex.encodeHex(dataFile.getSha1()));
+                                }
+                            } catch (DecoderException e) {
+                                throw new STRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
+                            }
+                        }
+                        fileContent.init(id, dataFile.getStream(), dataFile.getSha1());
+                    }
+                } catch (TemplateException e) {
+                    throw new STRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
+                }
+            }
+        } catch (IOException e) {
+            throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
         }
         // Merge fragments into file content
         if (!fragments.isEmpty()) {

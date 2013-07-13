@@ -47,11 +47,23 @@ public class FileFragmentTests extends AbstractContextTest {
         createFile();
         execute();
         String xml = FileUtils.readFileToString(tempFile);
+        System.out.println();
+    }
+
+    @Test
+    public void testMultipleConflictingTypesOnFile() {
+        // TODO
+    }
+
+    @Test
+    public void testTwoFileWithDifferentFragmentTypes() {
+        // TODO
     }
 
     private Resource createFile() throws ResourceCreationException, InvalidAttributeException {
         Resource resource = ctx.getResourceManager().createResource("core.file");
         resource.set("path", path);
+        resource.set("content", "<test>\n\t<testchild/>\n</test>");
         return resource;
     }
 

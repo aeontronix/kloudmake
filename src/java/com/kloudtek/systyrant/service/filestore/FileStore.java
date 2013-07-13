@@ -4,11 +4,12 @@
 
 package com.kloudtek.systyrant.service.filestore;
 
+import com.kloudtek.systyrant.FQName;
 import com.kloudtek.systyrant.STContext;
-import com.kloudtek.systyrant.annotation.Default;
-import com.kloudtek.systyrant.annotation.Function;
-import com.kloudtek.systyrant.annotation.Param;
-import com.kloudtek.systyrant.annotation.Service;
+import com.kloudtek.systyrant.Startable;
+import com.kloudtek.systyrant.annotation.*;
+import com.kloudtek.systyrant.exception.STRuntimeException;
+import com.kloudtek.systyrant.resource.core.FileFragmentDef;
 import com.kloudtek.util.CryptoUtils;
 import com.kloudtek.util.TempFile;
 import freemarker.template.Configuration;
@@ -44,11 +45,15 @@ import static com.kloudtek.util.StringUtils.*;
  * </dl>
  */
 @Service
-public class FileStore implements Closeable {
+public class FileStore implements Startable, Closeable {
+    @Inject
+    private STContext context;
     private static final Logger logger = LoggerFactory.getLogger(FileStore.class);
     private LinkedHashSet<String> locations = new LinkedHashSet<>();
     private HttpClient httpClient = new HttpClient();
     private List<TempFile> temporaryFiles = new LinkedList<>();
+    private List<FileFragmentDef> fileFragmentDefs = new ArrayList<>();
+    private HashMap<FQName, FileFragmentDef> fileFragmentDefsTypeIndex = new HashMap<>();
 
     public static void main(String[] args) {
         new FileStore();
@@ -60,6 +65,22 @@ public class FileStore implements Closeable {
     }
 
     @Override
+    public synchronized void start() throws STRuntimeException {
+        fileFragmentDefs.clear();
+        fileFragmentDefsTypeIndex.clear();
+        Set<Class<?>> fileFragmentsClasses = context.getLibraryReflections().getTypesAnnotatedWith(FileFragment.class);
+        for (Class<?> clazz : fileFragmentsClasses) {
+            if (clazz.getAnnotation(STResource.class) == null) {
+                throw new STRuntimeException("Class " + clazz.getName() + " is annotated with @FileFragment but not @STResource");
+            }
+            FQName type = new FQName(clazz);
+            FileFragmentDef def = new FileFragmentDef(clazz.getAnnotation(FileFragment.class).fileContentClass(), type);
+            fileFragmentDefs.add(def);
+            fileFragmentDefsTypeIndex.put(type, def);
+        }
+    }
+
+    @Override
     public synchronized void close() {
         for (TempFile file : temporaryFiles) {
             try {
@@ -68,6 +89,14 @@ public class FileStore implements Closeable {
                 logger.warn("Error deleting temporary file " + file.getAbsolutePath(), e);
             }
         }
+    }
+
+    public List<FileFragmentDef> getFileFragmentDefs() {
+        return fileFragmentDefs;
+    }
+
+    public FileFragmentDef getFileFragmentDef(FQName type) {
+        return fileFragmentDefsTypeIndex.get(type);
     }
 
     public synchronized DataFile create(@NotNull String uri) throws IOException, TemplateException {
