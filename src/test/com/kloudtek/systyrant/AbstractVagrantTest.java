@@ -57,7 +57,7 @@ public class AbstractVagrantTest {
         SharedFolder testFolder = new SharedFolder(true, true, "test", TESTDIR, "/test");
         Resource testDirRes = resourceManager.createResource(testFolder);
         ctx.setDefaultParent(vagrant);
-        sshHost = VagrantResource.createSshHost(new LocalHost(), VAGRANTDIR);
+        sshHost = VagrantResource.initHost(sshHost, new LocalHost(), VAGRANTDIR);
         ctx.inject(sshHost);
 //        try {
 //            Field field = AbstractHost.class.getDeclaredField("hostProviderManager");

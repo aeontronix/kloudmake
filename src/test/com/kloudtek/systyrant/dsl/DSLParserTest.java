@@ -39,7 +39,7 @@ public class DSLParserTest extends AbstractContextTest {
         r3.setHostOverride(h2);
         Resource r4 = createTestResource();
         r4.setHostOverride(h2);
-        r2.addAction(new AbstractTask() {
+        r2.addTask(new AbstractTask() {
             @Override
             public void execute(STContext context, Resource resource) throws STRuntimeException {
                 try {

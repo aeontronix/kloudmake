@@ -28,7 +28,7 @@ import static com.kloudtek.systyrant.host.Host.Logging.*;
 import static com.kloudtek.systyrant.util.DelayedLogger.Severity.*;
 
 /**
- * Abstract implementation of Host
+ * Mandatory abstract implementation for host implementations
  */
 public abstract class AbstractHost implements Host {
     private static final Logger logger = LoggerFactory.getLogger(AbstractHost.class);
@@ -74,15 +74,19 @@ public abstract class AbstractHost implements Host {
         started = false;
     }
 
-    public void doStart() throws STRuntimeException {
-    }
+    public abstract void doStart() throws STRuntimeException;
 
-    public void doStop() {
-    }
+    public abstract void doStop();
 
     @Override
     public synchronized boolean isStarted() {
         return started;
+    }
+
+    protected synchronized void checkStarted() throws STRuntimeException {
+        if( ! started ) {
+            throw new STRuntimeException("Host is not started");
+        }
     }
 
     @Override

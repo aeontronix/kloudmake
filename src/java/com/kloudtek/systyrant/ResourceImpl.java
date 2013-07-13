@@ -28,10 +28,7 @@ public class ResourceImpl implements Resource {
     private boolean failed;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final HashSet<Resource> childrens = new HashSet<>();
-    private List<Task> prepareTasks = new ArrayList<>();
-    private List<Task> execTasks = new ArrayList<>();
-    private List<Task> postChildrenExecTasks = new ArrayList<>();
-    private List<Task> cleanupTasks = new ArrayList<>();
+    private ArrayList<Task> tasks = new ArrayList<>();
     private Stage stage;
     private Host hostOverride;
     private final String sourceUrl;
@@ -189,7 +186,7 @@ public class ResourceImpl implements Resource {
     // ----------------------------------------------------------------------
 
     /**
-     * Add a notification handler to this resource. This can only be done before the {@link com.kloudtek.systyrant.Stage#PRE_EXECUTE} stage.
+     * Add a notification handler to this resource. This can only be done before the {@link com.kloudtek.systyrant.Stage#EXECUTE} stage.
      *
      * @param notificationHandler Handler to add to this resource.
      * @throws InvalidStageException If attempted to add the handler at EXECUTE or later stage.
@@ -197,8 +194,8 @@ public class ResourceImpl implements Resource {
     @Override
     public void addNotificationHandler(NotificationHandler notificationHandler) throws InvalidStageException {
         synchronized (notificationHandlers) {
-            if (context.getStage() != null && context.getStage().ordinal() < Stage.PRE_EXECUTE.ordinal()) {
-                throw new InvalidStageException("Notification handlers can only be added during preparation stages");
+            if (context.getStage() != null && context.getStage().ordinal() < Stage.EXECUTE.ordinal()) {
+                throw new InvalidStageException("Notification handlers can only be added prior to execution stages");
             }
             notificationHandlers.add(notificationHandler);
         }
@@ -209,29 +206,12 @@ public class ResourceImpl implements Resource {
     // ----------------------------------------------------------------------
 
     @Override
-    public void addAction(@NotNull Task task) {
-        switch (task.getType()) {
-            case PREPARE:
-                prepareTasks.add(task);
-                break;
-            case EXECUTE:
-            case SYNC:
-                execTasks.add(task);
-                break;
-            case POSTCHILDREN_EXECUTE:
-            case POSTCHILDREN_SYNC:
-                postChildrenExecTasks.add(task);
-                break;
-            case CLEANUP:
-                cleanupTasks.add(task);
-        }
+    public void addTask(@NotNull Task task) {
+        tasks.add(task);
     }
 
-    public synchronized void sortActions() {
-        Collections.sort(prepareTasks);
-        Collections.sort(execTasks);
-        Collections.sort(postChildrenExecTasks);
-        Collections.sort(cleanupTasks);
+    public synchronized void sortTasks() {
+        Collections.sort(tasks);
     }
 
     // ----------------------------------------------------------------------
@@ -273,14 +253,12 @@ public class ResourceImpl implements Resource {
         if (this.hostOverride != null && this.hostOverride != hostOverride) {
             this.hostOverride.stop();
         }
+        if( context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal() ) {
+            throw new STRuntimeException("Host overrides cannot be changed after the prepare stage");
+        }
         this.hostOverride = hostOverride;
         if (hostOverride != null) {
             context.inject(hostOverride);
-            synchronized (hostOverride) {
-                if (!hostOverride.isStarted()) {
-                    hostOverride.start();
-                }
-            }
         }
     }
 
@@ -511,38 +489,22 @@ public class ResourceImpl implements Resource {
     // Processing Methods
     // ----------------------------------------------------------------------
 
-    public void executeActions(Stage stage, boolean postChildren) throws STRuntimeException {
-        List<Task> list;
-        switch (stage) {
-            case PREPARE:
-                list = prepareTasks;
-                break;
-            case EXECUTE:
-                if (postChildren) {
-                    list = postChildrenExecTasks;
-                } else {
-                    list = execTasks;
-                }
-                break;
-            case CLEANUP:
-                list = cleanupTasks;
-                break;
-            default:
-                throw new STRuntimeException("BUG: Invalid stage " + stage);
-        }
+    public void executeTasks(Stage stage, boolean postChildren) throws STRuntimeException {
         HashSet<String> supportedAlternatives = new HashSet<>();
         HashSet<String> requiredAlternatives = new HashSet<>();
-        for (Task task : list) {
-            String alternative = task.getAlternative();
-            if (alternative != null) {
-                requiredAlternatives.add(alternative);
-            }
-            if (task.supports(context, this)) {
+        for (Task task : tasks) {
+            if( task.getStage() == stage && task.isPostChildren() == postChildren ) {
+                String alternative = task.getAlternative();
                 if (alternative != null) {
-                    supportedAlternatives.add(alternative);
+                    requiredAlternatives.add(alternative);
                 }
-                if (task.checkExecutionRequired(context, this)) {
-                    task.execute(context, this);
+                if (task.supports(context, this)) {
+                    if (alternative != null) {
+                        supportedAlternatives.add(alternative);
+                    }
+                    if (task.checkExecutionRequired(context, this)) {
+                        task.execute(context, this);
+                    }
                 }
             }
         }

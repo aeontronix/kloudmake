@@ -162,6 +162,7 @@ public class RawDSLParserTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testParseRequiresExpression() throws STRuntimeException, InvalidResourceDefinitionException {
         STContext ctx = new STContext();
         Resource res = new ResourceImpl(ctx, null, null, null, null);

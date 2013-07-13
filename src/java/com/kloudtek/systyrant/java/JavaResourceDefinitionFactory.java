@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static com.kloudtek.systyrant.Task.Type.*;
+import static com.kloudtek.systyrant.Stage.*;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class JavaResourceDefinitionFactory {
@@ -81,7 +81,7 @@ public class JavaResourceDefinitionFactory {
         Cleanup cleanup = method.getAnnotation(Cleanup.class);
         if (cleanup != null) {
             logger.debug("Added CLEANUP method: {} ", method);
-            actions.add(new JavaTask(cleanup.order(), CLEANUP, clazz, injectors, onlyIf, method));
+            actions.add(new JavaTask(cleanup.order(), CLEANUP, false, clazz, injectors, onlyIf, method));
         }
     }
 
@@ -99,9 +99,10 @@ public class JavaResourceDefinitionFactory {
                     existing.setMethod(method);
                 }
                 existing.setOrder(sync.order());
-                existing.setType(sync.postChildren() ? POSTCHILDREN_SYNC : SYNC);
+                existing.setPostChildren(sync.postChildren());
+                existing.setStage(sync.stage());
             } else {
-                JavaTask action = new JavaTask(sync.order(), sync.postChildren() ? POSTCHILDREN_SYNC : SYNC, clazz, injectors, onlyIf, method);
+                JavaTask action = new JavaTask(sync.order(), sync.stage(), sync.postChildren(), clazz, injectors, onlyIf, method);
                 actions.add(action);
                 syncs.put(syncId, action);
             }
@@ -126,7 +127,7 @@ public class JavaResourceDefinitionFactory {
                     existing.setVerifyMethod(method);
                 }
             } else {
-                JavaTask action = new JavaTask(0, SYNC, clazz, injectors, onlyIf, null, method);
+                JavaTask action = new JavaTask(0, EXECUTE, false, clazz, injectors, onlyIf, null, method);
                 actions.add(action);
                 syncs.put(syncId, action);
             }
@@ -138,7 +139,7 @@ public class JavaResourceDefinitionFactory {
         Execute exec = method.getAnnotation(Execute.class);
         if (exec != null) {
             logger.debug("Adding EXEC method: {}", method);
-            actions.add(new JavaTask(exec.order(), exec.postChildren() ? POSTCHILDREN_EXECUTE : EXECUTE, clazz, injectors, onlyIf, method));
+            actions.add(new JavaTask(exec.order(), EXECUTE, exec.postChildren(), clazz, injectors, onlyIf, method));
         }
     }
 
@@ -146,7 +147,7 @@ public class JavaResourceDefinitionFactory {
         Prepare prepareAnno = method.getAnnotation(Prepare.class);
         if (prepareAnno != null) {
             logger.debug("Adding PREPARE method: {}", method);
-            actions.add(new JavaTask(prepareAnno.order(), PREPARE, clazz, injectors, onlyIf, method));
+            actions.add(new JavaTask(prepareAnno.order(), PREPARE, false, clazz, injectors, onlyIf, method));
         }
     }
 

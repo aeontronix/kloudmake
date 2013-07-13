@@ -96,12 +96,12 @@ public class ResourceDefinition implements AutoCloseable {
                 resource.set(entry.getKey(), entry.getValue());
             }
             for (Task task : tasks) {
-                if (task.getType() == Task.Type.INIT) {
+                if (task.getStage() == Stage.INIT) {
                     if (task.checkExecutionRequired(context, resource)) {
                         task.execute(context, resource);
                     }
                 } else {
-                    resource.addAction(task);
+                    resource.addTask(task);
                 }
             }
             for (NotificationHandler notificationHandler : notificationHandlers) {

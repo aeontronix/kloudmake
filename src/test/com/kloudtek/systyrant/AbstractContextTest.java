@@ -272,16 +272,15 @@ public class AbstractContextTest {
 
     public class FailTask extends AbstractTask {
         public FailTask() {
-            type = Type.EXECUTE;
         }
 
-        public FailTask(Type type) {
-            this.type = type;
+        public FailTask(Stage stage) {
+            this.stage = stage;
         }
 
         @Override
         public void execute(STContext context, Resource resource) throws STRuntimeException {
-            throw new STRuntimeException();
+            throw new STRuntimeException("Failing Task for test purpose");
         }
 
         @Override

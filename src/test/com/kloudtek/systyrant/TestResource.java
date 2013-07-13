@@ -133,15 +133,15 @@ public class TestResource {
         assertNotNull(prepared);
         assertNotNull(verifyGlobalTS);
         if (verifyGlobal) {
-            assertNull(syncGlobalTS);
+            assertNotNull(syncGlobalTS,"Sync global was executed on resource "+id+" when it shouldn't have been");
         } else {
-            assertNotNull(syncGlobalTS);
+            assertNull(syncGlobalTS,"Sync global was not executed on resource "+id+" when it should have been");
         }
         assertNotNull(verifySpecificTS);
         if (verifySpecific) {
-            assertNull(syncSpecificTS);
-        } else {
             assertNotNull(syncSpecificTS);
+        } else {
+            assertNull(syncSpecificTS);
         }
         assertNotNull(executed);
     }
@@ -294,7 +294,7 @@ public class TestResource {
 
     public static void createChild(Resource parent, String... childrens) {
         for (String children : childrens) {
-            parent.addAction(new CreateChildrenTask(parent, children));
+            parent.addTask(new CreateChildrenTask(parent, children));
         }
     }
 
@@ -312,7 +312,7 @@ public class TestResource {
         private final Resource parent;
 
         public CreateChildrenTask(Resource parent, String id) {
-            type = Type.PREPARE;
+            stage = Stage.PREPARE;
             this.name = id;
             this.parent = parent;
         }

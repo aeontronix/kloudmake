@@ -36,9 +36,23 @@ public interface Task extends Comparable<Task> {
      */
     boolean supports(STContext context, Resource resource) throws STRuntimeException;
 
+    /**
+     * Get the order ranking (if two tasks are in the same stage, the higher order one will run first)
+     * @return
+     */
     int getOrder();
 
-    Type getType();
+    /**
+     * Get at which stage this task will run
+     * @return Stage the action will run.
+     */
+    Stage getStage();
+
+    /**
+     * If this flag is true, the execution of this task will be delayed until all it's childrens have completed the stage
+     * @return
+     */
+    boolean isPostChildren();
 
     /**
      * Return the alternative id.
@@ -50,8 +64,4 @@ public interface Task extends Comparable<Task> {
      * @see #supports(com.kloudtek.systyrant.STContext, Resource)
      */
     String getAlternative();
-
-    public enum Type {
-        INIT, PREPARE, EXECUTE, SYNC, POSTCHILDREN_EXECUTE, POSTCHILDREN_SYNC, CLEANUP
-    }
 }

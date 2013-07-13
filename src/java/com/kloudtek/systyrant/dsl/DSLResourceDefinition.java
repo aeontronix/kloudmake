@@ -101,17 +101,7 @@ public class DSLResourceDefinition {
 
         public DSLTask(DSLScript dslScript, List<Statement> actionStatements, Stage stage) {
             this.dslScript = dslScript;
-            switch (stage) {
-                case PREPARE:
-                    type = Type.PREPARE;
-                    break;
-                case EXECUTE:
-                    type = Type.EXECUTE;
-                    break;
-                case CLEANUP:
-                    type = Type.CLEANUP;
-                    break;
-            }
+            this.stage = stage;
             this.actionStatements = actionStatements;
         }
 

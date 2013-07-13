@@ -14,9 +14,26 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.Map;
 
+/**
+ * <p>The host is an abstraction layer to access the operating system of the host you wish to perform tasks against.</p>
+ * <p>
+ *     Each context has it's own default host ({@link com.kloudtek.systyrant.STContext#getHost()}), and each resource
+ *     can have a host override ({@link com.kloudtek.systyrant.Resource#setHostOverride(Host)}) which applies to itself
+ *     and any of it's childrens.
+ * </p>
+ * <p>
+ *     Hosts are only usable after they have been started ({@link #isStarted()} will return false). The Context's host
+ *     is started when the context is executed, and host overrides are started during that resource's execute stage (before
+ *     any tasks are executed).
+ * </p>
+ */
 public interface Host extends Stoppable, Startable {
     public static final int DEFAULT_TIMEOUT = 300000;
 
+    /**
+     * Returns if the host has been started.
+     * @return True is the host has started and is usable, or false otherwise.
+     */
     boolean isStarted();
 
     /**

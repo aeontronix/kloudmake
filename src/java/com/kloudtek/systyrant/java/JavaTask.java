@@ -4,10 +4,7 @@
 
 package com.kloudtek.systyrant.java;
 
-import com.kloudtek.systyrant.AbstractTask;
-import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.ResourceImpl;
-import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.*;
 import com.kloudtek.systyrant.annotation.Alternative;
 import com.kloudtek.systyrant.exception.*;
 import com.kloudtek.systyrant.inject.Injector;
@@ -29,14 +26,14 @@ public class JavaTask extends AbstractTask {
     private Method method;
     private Method verifyMethod;
 
-    public JavaTask(int order, Type type, Class<?> implClass, List<Injector> injectors,
+    public JavaTask(int order, Stage stage, boolean postChildren, Class<?> implClass, List<Injector> injectors,
                     @NotNull Set<EnforceOnlyIf> onlyIf, Method method) throws InvalidResourceDefinitionException {
-        this(order, type, implClass, injectors, onlyIf, method, null);
+        this(order, stage, postChildren, implClass, injectors, onlyIf, method, null );
     }
 
-    public JavaTask(int order, @NotNull Type type, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,
+    public JavaTask(int order, @NotNull Stage stage, boolean postChildren, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,
                     @NotNull Set<EnforceOnlyIf> onlyIf, @Nullable Method method, @Nullable Method verifyMethod) throws InvalidResourceDefinitionException {
-        super(order, type);
+        super(order, stage, postChildren);
         this.implClass = implClass;
         this.injectors = injectors;
         this.onlyIf.addAll(onlyIf);

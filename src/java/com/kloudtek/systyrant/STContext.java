@@ -114,7 +114,6 @@ public class STContext implements AutoCloseable {
 
     public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
-        host.start();
     }
 
     public STContext(Host host) throws InvalidResourceDefinitionException, STRuntimeException {
@@ -347,6 +346,9 @@ public class STContext implements AutoCloseable {
             throw new IllegalArgumentException("Host cannot be null");
         }
         executionLock.writeLock().lock();
+        if( stage != null && stage.ordinal() >= Stage.EXECUTE.ordinal() ) {
+            throw new STRuntimeException("The context host can only be changed before the execution stage");
+        }
         try {
             this.host = host;
             inject(host);
@@ -378,8 +380,10 @@ public class STContext implements AutoCloseable {
     public boolean execute() throws STRuntimeException {
         STContext.ctx.set(this);
         try {
+            host.start();
             return lifecycleExecutor.execute();
         } finally {
+            host.stop();
             STContext.ctx.remove();
         }
     }
@@ -601,9 +605,9 @@ public class STContext implements AutoCloseable {
         return childrens;
     }
 
-    Resource getUnpreparedResource(Stage stage) {
+    Resource getUnpreparedResource() {
         for (Resource resource : resources) {
-            if (resource.isExecutable() && !resource.isFailed() && resource.getStage().ordinal() < stage.ordinal()) {
+            if (resource.isExecutable() && !resource.isFailed() && resource.getStage().ordinal() < Stage.PREPARE.ordinal()) {
                 return resource;
             }
         }

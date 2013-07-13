@@ -26,11 +26,12 @@ public class STContextTest extends AbstractContextTest {
         execute();
     }
 
-
-    @Test(dependsOnMethods = "testSimpleElementCreation", expectedExceptions = ResourceCreationException.class)
+    @Test(
+//            dependsOnMethods = "testSimpleElementCreation",
+            expectedExceptions = ResourceCreationException.class)
     public void testCreateElementDuringExecutionStage() throws Throwable {
         Resource test1 = createTestResource("test1");
-        test1.addAction(new AbstractTask() {
+        test1.addTask(new AbstractTask() {
             @Override
             public void execute(STContext context, Resource resource) throws STRuntimeException {
                 try {
@@ -160,12 +161,12 @@ public class STContextTest extends AbstractContextTest {
     public void testFailurePropagation() throws InvalidAttributeException, STRuntimeException, ResourceCreationException {
         ctx.clearFatalException();
         Resource el1 = createTestResource("1");
-        el1.addAction(new FailTask(Task.Type.EXECUTE));
+        el1.addTask(new FailTask(Stage.EXECUTE));
         Resource el2 = createTestResource("2", el1);
         Resource el3 = createTestResource("3", el2);
         Resource el4 = createTestResource("4", el3);
         Resource el5 = createTestResource("5");
-        el5.addAction(new FailTask(Task.Type.PREPARE));
+        el5.addTask(new FailTask(Stage.PREPARE));
         Resource el6 = createTestResource("6", el5);
         Resource el7 = createTestResource("7", el6);
         Resource el8 = createTestResource("8");
@@ -225,8 +226,8 @@ public class STContextTest extends AbstractContextTest {
     public void testVerifyNoChange() throws Throwable {
         Resource res = createTestResource("x");
         Task task = Mockito.mock(Task.class);
-        when(task.getType()).thenReturn(Task.Type.EXECUTE);
-        res.addAction(task);
+        when(task.getStage()).thenReturn(Stage.EXECUTE);
+        res.addTask(task);
         when(task.supports(ctx, res)).thenReturn(true);
         when(task.checkExecutionRequired(ctx, res)).thenReturn(false);
         execute();
@@ -238,8 +239,8 @@ public class STContextTest extends AbstractContextTest {
     public void testVerifyChanged() throws Throwable {
         Resource res = createTestResource("x");
         Task task = Mockito.mock(Task.class);
-        when(task.getType()).thenReturn(Task.Type.EXECUTE);
-        res.addAction(task);
+        when(task.getStage()).thenReturn(Stage.EXECUTE);
+        res.addTask(task);
         when(task.supports(ctx, res)).thenReturn(true);
         when(task.checkExecutionRequired(ctx, res)).thenReturn(true);
         execute();

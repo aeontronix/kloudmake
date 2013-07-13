@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.*;
 
-import static com.kloudtek.systyrant.Stage.EXECUTE;
-import static com.kloudtek.systyrant.Stage.INIT;
+import static com.kloudtek.systyrant.Stage.*;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class STCLifecycleExecutor {
@@ -33,7 +32,7 @@ public class STCLifecycleExecutor {
 
             buildIndexes();
 
-            executeResources(EXECUTE);
+            executeResources();
 
             cleanup();
 
@@ -71,7 +70,6 @@ public class STCLifecycleExecutor {
     public void prepare() throws STRuntimeException {
         context.resourceListLock.writeLock().lock();
         try {
-            context.host.start();
             if (context.newLibAdded) {
                 context.providersManagementService.init(context.reflections);
             }
@@ -80,7 +78,7 @@ public class STCLifecycleExecutor {
             }
             context.serviceManager.start();
 
-            executePrepareActions(Stage.PREPARE);
+            executePrepareActions();
 
             context.resourceManager.setCreateAllowed(false);
             logger.debug("Finished PREPARE stage");
@@ -116,7 +114,7 @@ public class STCLifecycleExecutor {
                     }
                 }
                 // Sort resource's actions
-                ((ResourceImpl) resource).sortActions();
+                ((ResourceImpl) resource).sortTasks();
             }
             // Sort according to dependencies
             ResourceSorter.sort(context.resources);
@@ -133,14 +131,14 @@ public class STCLifecycleExecutor {
         }
     }
 
-    private void executePrepareActions(Stage stage) throws STRuntimeException {
-        context.stage = stage;
-        for (Resource res = context.getUnpreparedResource(stage); res != null; res = context.getUnpreparedResource(stage)) {
+    private void executePrepareActions() throws STRuntimeException {
+        context.stage = PREPARE;
+        for (Resource res = context.getUnpreparedResource(); res != null; res = context.getUnpreparedResource()) {
             context.resourceScope.set(res);
             try {
                 logger.debug("Executing PREPARE stage for : {}", res);
-                ((ResourceImpl) res).executeActions(stage, false);
-                ((ResourceImpl) res).setStage(stage);
+                ((ResourceImpl) res).executeTasks(PREPARE, false);
+                ((ResourceImpl) res).setStage(PREPARE);
             } catch (STRuntimeException e) {
                 if (!e.isLogged()) {
                     logger.error(e.getLocalizedMessage());
@@ -242,17 +240,23 @@ public class STCLifecycleExecutor {
         }
     }
 
-    private void executeResources(Stage stage) throws STRuntimeException {
-        context.stage = stage;
-        logger.debug("Starting stage {}", stage);
+    private void executeResources() throws STRuntimeException {
+        context.stage = EXECUTE;
+        logger.debug("Starting stage EXECUTE");
         Map<Resource, List<Resource>> parentchildrens = new HashMap<>();
         for (Map.Entry<Resource, List<Resource>> entry : context.parentToPendingChildrenMap.entrySet()) {
             parentchildrens.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         }
         for (Resource resource : context.resources) {
             context.resourceScope.set(resource);
-            executeResourceActions((ResourceImpl) resource, stage, false);
+            // start the host override
+            if (resource.getHostOverride() != null) {
+                resource.getHostOverride().start();
+            }
+            // execute tasks which aren't post-children
+            executeResourceTasks((ResourceImpl) resource, EXECUTE, false);
             context.resourceScope.remove();
+            // checking this is the last of a set of siblings, if that is the case execute the parent's post-childrens tasks
             for (Resource parent = resource.getParent(), child = resource; parent != null; parent = parent.getParent()) {
                 List<Resource> childsofchild = parentchildrens.get(child);
                 List<Resource> siblings = parentchildrens.get(parent);
@@ -260,7 +264,7 @@ public class STCLifecycleExecutor {
                     siblings.remove(child);
                     if (siblings.isEmpty()) {
                         context.resourceScope.set(parent);
-                        executeResourceActions((ResourceImpl) parent, stage, true);
+                        executeResourceTasks((ResourceImpl) parent, EXECUTE, true);
                         context.resourceScope.remove();
                     }
                 }
@@ -278,17 +282,17 @@ public class STCLifecycleExecutor {
                 context.resourceScope.remove();
             }
         }
-        logger.info("Finished stage {}", stage);
+        logger.info("Finished stage EXECUTE");
     }
 
-    private void executeResourceActions(ResourceImpl resource, Stage stage, boolean postChildren) throws STRuntimeException {
+    private void executeResourceTasks(ResourceImpl resource, Stage stage, boolean postChildren) throws STRuntimeException {
         if (resource.isFailed()) {
             logger.warn("Skipping {} due to a previous error", resource);
         } else if (!resource.isExecutable()) {
             logger.debug("Skipping {} ", resource);
         } else {
             try {
-                resource.executeActions(stage, postChildren);
+                resource.executeTasks(stage, postChildren);
                 resource.setStage(stage);
             } catch (STRuntimeException e) {
                 if (!e.isLogged()) {
@@ -332,14 +336,16 @@ public class STCLifecycleExecutor {
         for (Resource resource : context.resourceManager) {
             context.setResourceScope(resource);
             try {
-                ((ResourceImpl) resource).executeActions(Stage.CLEANUP, false);
+                ((ResourceImpl) resource).executeTasks(Stage.CLEANUP, false);
             } catch (STRuntimeException e) {
                 logger.warn("Error occured during cleanup: " + e.getMessage(), e);
+            }
+            if (resource.getHostOverride() != null) {
+                resource.getHostOverride().stop();
             }
             context.clearResourceScope();
         }
         context.serviceManager.stop();
-        context.host.stop();
     }
 
     private void handleResourceFailure(Resource resource) {
@@ -388,7 +394,7 @@ public class STCLifecycleExecutor {
 
     private class AutoNotifyList {
         private final List<AutoNotify> original;
-        private LinkedList<AutoNotify> pending = new LinkedList();
+        private LinkedList<AutoNotify> pending = new LinkedList<>();
         private HashSet<AutoNotifyGroup> groups = new HashSet<>();
         private SetHashMap<AutoNotifyGroup, AutoNotify> groupsMembers = new SetHashMap<>();
         private SetHashMap<AutoNotify, AutoNotify> depsMap = new SetHashMap<>();

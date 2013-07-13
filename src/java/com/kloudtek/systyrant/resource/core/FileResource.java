@@ -46,7 +46,7 @@ public class FileResource {
     private static final byte[] EMPTYSTRSHA1 = CryptoUtils.sha1(new byte[0]);
     @Inject
     private STContext ctx;
-    @Inject
+    @Service
     protected FileStore fileStore;
     @Inject
     protected Resource resource;
@@ -198,7 +198,7 @@ public class FileResource {
             contentStream = new ByteArrayInputStream(new byte[0]);
             sha1Bytes = EMPTYSTRSHA1;
         } else {
-            // USing source
+            // Using source
             try {
                 DataFile dataFile = fileStore.create(source);
                 if (template) {

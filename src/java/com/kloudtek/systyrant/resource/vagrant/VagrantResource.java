@@ -59,6 +59,12 @@ public class VagrantResource {
         this.sharedFolders = sharedFolders;
     }
 
+    @Prepare
+    public void init() throws STRuntimeException {
+        sshHost = new SshHost();
+        resource.setHostOverride(sshHost);
+    }
+
     @Execute
     public void exec() throws STRuntimeException {
         String vagrantfile = "Vagrant::Config.run do |config|\n" +
@@ -74,12 +80,11 @@ public class VagrantResource {
             host.writeToFile(vagrantFilePath, vagrantfile);
         }
         changeStatus(ensure);
-        sshHost = createSshHost(host, dir);
-        resource.setHostOverride(sshHost);
+        initHost(sshHost,host, dir);
     }
 
-    public static SshHost createSshHost(Host h, String vagrantDir) throws STRuntimeException {
-        SshConfig sshConfig = new SshConfig(h.exec("vagrant ssh-config", vagrantDir));
+    public static SshHost initHost(SshHost sshHost, Host current, String vagrantDir) throws STRuntimeException {
+        SshConfig sshConfig = new SshConfig(current.exec("vagrant ssh-config", vagrantDir));
         logger.debug("Vagrant VM SSH config: {}", sshConfig);
         File pkeyFile = new File(sshConfig.getPkey());
         if (pkeyFile.exists() || pkeyFile.isFile()) {
@@ -89,7 +94,6 @@ public class VagrantResource {
             } catch (IOException e) {
                 throw new STRuntimeException("Error loading vagrant keyfile " + sshConfig.getPkey() + ": " + e.getMessage(), e);
             }
-            SshHost sshHost = new SshHost();
             sshHost.setAddress(sshConfig.getHostname());
             sshHost.setPort(sshConfig.getPort());
             sshHost.setLoginUser(sshConfig.getUser());

@@ -6,7 +6,10 @@
          xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Execution Lifecycle</title>
     <para>
-        When a systyrant context is executed, it will go through the following lifecycle stages:
+        When a resource is created, all tasks assigned to the INIT stage are immediately executed.
+    </para>
+    <para>
+        When the systyrant context is executed, it will go through the following lifecycle stages:
     </para>
     <para>
         <emphasis role="bold">Prepare Stage</emphasis>
@@ -37,7 +40,10 @@
         <emphasis role="bold">Execute Stage</emphasis>
     </para>
     <para>
-        <emphasis>Note: From this point onwards, resource creations are no longer allowed.</emphasis>
+        <emphasis>Note: From this point onwards, resource creations are no longer allowed, nor can the context host or
+        resource host overrides be changed.</emphasis>
+    </para>
+    <para>
         For each task in the resource it will then:
         <itemizedlist>
             <listitem>

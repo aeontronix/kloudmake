@@ -11,19 +11,26 @@ import com.kloudtek.systyrant.exception.STRuntimeException;
  */
 public abstract class AbstractTask implements Task {
     protected int order;
-    protected Type type = Type.EXECUTE;
+    protected Stage stage = Stage.EXECUTE;
+    protected boolean postChildren;
     protected String alternative;
 
     protected AbstractTask() {
     }
 
-    protected AbstractTask(int order, Type type) {
+    protected AbstractTask(int order, Stage stage) {
         this.order = order;
-        this.type = type;
+        this.stage = stage;
     }
 
-    public void type(String type) {
-        this.type = Type.valueOf(type.toUpperCase());
+    protected AbstractTask(int order, Stage stage, boolean postChildren) {
+        this.order = order;
+        this.stage = stage;
+        this.postChildren = postChildren;
+    }
+
+    public void type(Stage stage) {
+        this.stage = stage;
     }
 
     public void order(int order) {
@@ -40,16 +47,25 @@ public abstract class AbstractTask implements Task {
     }
 
     @Override
-    public Type getType() {
-        return type;
+    public Stage getStage() {
+        return stage;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     public void setOrder(int order) {
         this.order = order;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    @Override
+    public boolean isPostChildren() {
+        return postChildren;
+    }
+
+    public void setPostChildren(boolean postChildren) {
+        this.postChildren = postChildren;
     }
 
     @Override

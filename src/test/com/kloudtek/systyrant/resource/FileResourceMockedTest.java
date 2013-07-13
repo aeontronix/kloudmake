@@ -135,6 +135,7 @@ public class FileResourceMockedTest {
 
     @Test
     public void testCreateFileFromSource() throws STRuntimeException, IOException, TemplateException {
+        context.setFatalExceptions(Exception.class);
         file.set("source", PATH);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(DATA.getBytes());
         fileDoesntExist();

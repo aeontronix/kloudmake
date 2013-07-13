@@ -47,7 +47,7 @@ public abstract class AbstractHostTests {
     }
 
     @BeforeClass
-    public void setup() throws IOException, JSchException {
+    public void setup() throws IOException, JSchException, STRuntimeException {
         if (type == Type.LOCAL) {
             setup(LocalHost.createStandalone(), System.getProperty("user.name"));
         } else {
@@ -56,8 +56,8 @@ public abstract class AbstractHostTests {
         }
     }
 
-    private void setup(Host admin, String fileUser) throws IOException {
-        this.host = admin;
+    private void setup(Host host, String fileUser) throws IOException, STRuntimeException {
+        this.host = host;
         this.fileUser = fileUser;
         String os = System.getProperty("os.name");
         switch (os) {
@@ -74,11 +74,12 @@ public abstract class AbstractHostTests {
             }
         }
 
-        if (admin instanceof LocalHost) {
+        if (host instanceof LocalHost) {
             testPath = realTestDir.getAbsolutePath();
         } else {
             testPath = "/tmp";
         }
+        host.start();
     }
 
     @BeforeMethod

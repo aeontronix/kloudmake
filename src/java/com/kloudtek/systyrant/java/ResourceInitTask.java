@@ -4,17 +4,12 @@
 
 package com.kloudtek.systyrant.java;
 
-import com.kloudtek.systyrant.AbstractTask;
-import com.kloudtek.systyrant.Resource;
-import com.kloudtek.systyrant.ResourceImpl;
-import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.*;
 import com.kloudtek.systyrant.annotation.Dependency;
 import com.kloudtek.systyrant.exception.InvalidRefException;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 
 import java.util.HashSet;
-
-import static com.kloudtek.systyrant.Task.Type.INIT;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,7 +26,7 @@ public class ResourceInitTask extends AbstractTask {
     public ResourceInitTask(Class<?> clazz, HashSet<String> requires, Dependency dependency) {
         this.requires = requires;
         this.dependency = dependency;
-        type = INIT;
+        stage = Stage.INIT;
         this.clazz = clazz;
     }
 

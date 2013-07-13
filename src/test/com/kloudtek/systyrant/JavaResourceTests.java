@@ -166,13 +166,15 @@ public class JavaResourceTests extends AbstractContextTest {
         }
     }
 
-    @Test(dependsOnMethods = "testAction")
+    @Test(
+//            dependsOnMethods = "testAction"
+    )
     public void testInjectServiceWithInject() throws Throwable {
         registerAndCreate(InjectServiceWithInjectAnno.class).execute();
     }
 
     public static class InjectServiceWithInjectAnno {
-        @Inject
+        @Service
         private FileStore filestoreserv;
         @Inject
         private Host hostserv;
