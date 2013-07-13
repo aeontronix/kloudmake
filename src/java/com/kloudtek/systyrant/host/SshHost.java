@@ -183,12 +183,21 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public byte[] readFile(String path) throws STRuntimeException {
+    public byte[] readFileData(String path) throws STRuntimeException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
             // TODO handle files non-root user can't read
             sftpChannel.get(path, buf);
             return buf.toByteArray();
+        } catch (SftpException e) {
+            throw new STRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public InputStream readFile(String path) throws STRuntimeException {
+        try {
+            return sftpChannel.get(path);
         } catch (SftpException e) {
             throw new STRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
         }

@@ -97,7 +97,9 @@ public interface Host extends Stoppable, Startable {
      */
     byte[] getFileSha1(String path) throws STRuntimeException;
 
-    byte[] readFile(String path) throws STRuntimeException;
+    byte[] readFileData(String path) throws STRuntimeException;
+
+    InputStream readFile(String path) throws STRuntimeException;
 
     String readTextFile(String path, String encoding) throws STRuntimeException;
 

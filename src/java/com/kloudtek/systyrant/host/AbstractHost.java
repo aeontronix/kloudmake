@@ -210,7 +210,7 @@ public abstract class AbstractHost implements Host {
 
     @Override
     public String readTextFile(String path, String encoding) throws STRuntimeException {
-        return new String(readFile(path), Charset.forName(encoding));
+        return new String(readFileData(path), Charset.forName(encoding));
     }
 
     @Override

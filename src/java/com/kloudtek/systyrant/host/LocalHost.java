@@ -158,10 +158,20 @@ public class LocalHost extends AbstractHost {
     }
 
     @Override
-    public byte[] readFile(String path) throws STRuntimeException {
+    public byte[] readFileData(String path) throws STRuntimeException {
         checkStarted();
         try {
             return FileUtils.readFileToByteArray(new File(path));
+        } catch (IOException e) {
+            throw new STRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public InputStream readFile(String path) throws STRuntimeException {
+        checkStarted();
+        try {
+            return new FileInputStream(path);
         } catch (IOException e) {
             throw new STRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
         }

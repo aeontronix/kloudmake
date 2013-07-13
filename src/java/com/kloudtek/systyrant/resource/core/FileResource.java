@@ -29,9 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +59,8 @@ public class FileResource {
     @Attr
     @NotEmpty
     protected String path;
-    @Attr
-    protected String content;
+    @Attr(value = "content")
+    protected String contentStr;
     @Attr
     protected String source;
     @Attr
@@ -83,8 +83,7 @@ public class FileResource {
     protected boolean temporary;
     @Attr
     protected String templateResource;
-    protected byte[] sha1Bytes;
-    protected InputStream contentStream;
+    protected FileContent fileContent;
     private FileInfo finfo;
     private boolean delete;
 
@@ -115,7 +114,25 @@ public class FileResource {
                 }
                 break;
             case FILE:
-                return checkFile();
+                loadContent();
+                if (finfo != null) {
+                    // there is an existing file
+                    if (finfo.getType() == FileInfo.Type.FILE) {
+                        byte[] existingFileSha1 = host.getFileSha1(path);
+                        if (Arrays.equals(existingFileSha1, fileContent.getSha1())) {
+                            logger.debug("File {} has the correct content", path);
+                            return false;
+                        }
+                    } else {
+                        if (force) {
+                            delete = true;
+                        } else {
+                            logger.error("Unable to create file {} because a directory is present in it's place (use 'force' flag to have it replaced)", path);
+                            throw new STRuntimeException();
+                        }
+                    }
+                }
+                break;
             case SYMLINK:
                 if (StringUtils.isEmpty(target)) {
                     throw new STRuntimeException("file " + id + " is SYMLINK but target is not set");
@@ -148,55 +165,28 @@ public class FileResource {
         return true;
     }
 
-    private boolean checkFile() throws STRuntimeException, InvalidQueryException {
-        if (isNotEmpty(sha1)) {
-            try {
-                sha1Bytes = Hex.decodeHex(sha1.toCharArray());
-            } catch (DecoderException e) {
-                throw new STRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
-            }
+    private void loadContent() throws STRuntimeException, InvalidQueryException {
+        // find all file fragments
+        List<Resource> fragments = new ArrayList<>();
+        // If there are no file fragments, then let's create a binary file content object
+        if( fragments.isEmpty() ) {
+            fileContent = new FileContentBinaryImpl();
         }
-        findContent();
-        if (finfo != null) {
-            // there is an existing file
-            if (finfo.getType() == FileInfo.Type.FILE) {
-                byte[] existingFileSha1 = host.getFileSha1(path);
-                if (sha1Bytes != null && Arrays.equals(existingFileSha1, sha1Bytes)) {
-                    logger.debug("File {} has the correct content", path);
-                    return false;
-                }
-            } else {
-                if (force) {
-                    delete = true;
-                } else {
-                    logger.error("Unable to create file {} because a directory is present in it's place (use 'force' flag to have it replaced)", path);
-                    throw new STRuntimeException();
-                }
-            }
-        }
-        return true;
-    }
-
-    private void findContent() throws STRuntimeException, InvalidQueryException {
-        if (isNotEmpty(content)) {
-            // Using content attr
+        if (isNotEmpty(contentStr)) {
+            // Content attribute set is set, let's use that
             if (!isEmpty(source)) {
                 throw new STRuntimeException("File " + path + " cannot have content as well as source specified");
             }
             byte[] data;
             try {
-                data = content.getBytes("UTF-8");
+                data = contentStr.getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException("BUG: UTF-8 not supported WTF ?!: " + e.getMessage(), e);
             }
-            contentStream = new ByteArrayInputStream(data);
-            if (sha1Bytes == null) {
-                sha1Bytes = CryptoUtils.sha1(data);
-            }
+            fileContent.init(new ByteArrayInputStream(data), CryptoUtils.sha1(data));
         } else if (isEmpty(source)) {
-            // Contact and Source not set
-            contentStream = new ByteArrayInputStream(new byte[0]);
-            sha1Bytes = EMPTYSTRSHA1;
+            // Contact and Source not set, using the content currently in the file
+            fileContent.init(host.readFile(path), host.getFileSha1(path));
         } else {
             // Using source
             try {
@@ -231,11 +221,19 @@ public class FileResource {
                     try (Writer fw = new OutputStreamWriter(new DigestOutputStream(buf, sha1Digest))) {
                         templateObj.process(map, fw);
                     }
-                    contentStream = new ByteArrayInputStream(buf.toByteArray());
-                    sha1Bytes = sha1Digest.digest();
+                    fileContent.init(new ByteArrayInputStream(buf.toByteArray()), sha1Digest.digest());
                 } else {
-                    contentStream = dataFile.getStream();
-                    sha1Bytes = dataFile.getSha1();
+                    if (isNotEmpty(sha1)) {
+                        try {
+                            if (!Arrays.equals(Hex.decodeHex(sha1.toCharArray()), dataFile.getSha1())) {
+                                throw new STRuntimeException("File found in the file store does not match specified sha1: " +
+                                        sha1 + " was instead " + Hex.encodeHex(dataFile.getSha1()));
+                            }
+                        } catch (DecoderException e) {
+                            throw new STRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
+                        }
+                    }
+                    fileContent.init(dataFile.getStream(), dataFile.getSha1());
                 }
             } catch (IOException e) {
                 throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
@@ -243,8 +241,11 @@ public class FileResource {
                 throw new STRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
             }
         }
+        // Merge fragments into file content
+        if( ! fragments.isEmpty() ) {
+            fileContent.merge(fragments);
+        }
     }
-
 
     private Template getTemplate(DataFile datafile) throws IOException {
         try (InputStream stream = datafile.getStream()) {
@@ -282,20 +283,15 @@ public class FileResource {
                 logger.info("Created directory {}", path);
                 break;
             case FILE:
-                MessageDigest digest = CryptoUtils.digest(CryptoUtils.Algorithm.SHA1);
-                if (sha1Bytes == null) {
-                    contentStream = new DigestInputStream(contentStream, digest);
-                }
-                // TODO this is probably slightly insecure (might be readable by others), to fix later
+                InputStream contentStream = fileContent.getStream();
+                // TODO this is slightly insecure (file will be readable by others for a few milliseconds), FIX IT
                 host.writeToFile(path, contentStream);
-                if (sha1Bytes == null) {
-                    sha1Bytes = digest.digest();
-                }
-                logger.info("Updated file {} with content {sha1:{}}", path, Hex.encodeHexString(sha1Bytes));
+                logger.info("Updated file {} with content {sha1:{}}", path, Hex.encodeHexString(fileContent.getSha1()));
+                fileContent.close();
                 break;
             case SYMLINK:
                 host.createSymlink(path, target);
-                logger.info("Created symlink {} targetting {}", path, target);
+                logger.info("Created symlink {} targeting {}", path, target);
                 break;
             case ABSENT:
                 if (host.fileExists(path)) {
@@ -308,13 +304,6 @@ public class FileResource {
         }
         assert host.fileExists(path);
         finfo = host.getFileInfo(path);
-    }
-
-    @Cleanup
-    public void closeStream() {
-        if (contentStream != null) {
-            IOUtils.closeQuietly(contentStream);
-        }
     }
 
     @Verify(value = "permissions")
