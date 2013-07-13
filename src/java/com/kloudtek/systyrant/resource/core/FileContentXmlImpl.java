@@ -7,16 +7,17 @@ package com.kloudtek.systyrant.resource.core;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.util.CryptoUtils;
+import com.kloudtek.util.UnexpectedException;
+import com.kloudtek.util.XPathUtils;
 import com.kloudtek.util.XmlUtils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.validation.constraints.NotNull;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.*;
 import java.util.Collection;
 
 /**
@@ -52,11 +53,46 @@ public class FileContentXmlImpl implements FileContent {
     }
 
     @Override
-    public void merge(Collection<Resource> fragments) {
+    public void merge(Collection<Resource> fragments) throws STRuntimeException {
+        for (Resource fragment : fragments) {
+            String uid = fragment.getUid();
+            String type = fragment.get("type").toLowerCase();
+            String val = fragment.get("xml");
+            String xpath = fragment.get("xpath");
+            try {
+                Node node = XPathUtils.evalXPathNode(xpath, xml);
+                Node xmlFragment = null;
+                if (val != null) {
+                    xmlFragment = xml.importNode(XmlUtils.parse(new StringReader(val)).getDocumentElement(), true);
+                } else {
+                    if (!type.equals("delete")) {
+                        throw new STRuntimeException("Missing xml attribute in file fragment " + uid + " : " + type);
+                    }
+                }
+                switch (type) {
+                    case "insert":
+                        node.appendChild(xmlFragment);
+                        break;
+                    case "replace":
+                        node.getParentNode().replaceChild(xmlFragment, node);
+                        break;
+                    case "delete":
+                        node.getParentNode().removeChild(node);
+                        break;
+                    default:
+                        throw new STRuntimeException("Invalid type in file fragment " + uid + " : " + type);
+                }
+            } catch (XPathExpressionException e) {
+                throw new STRuntimeException("Invalid xpath value in file fragment " + uid + " : " + xpath);
+            } catch (SAXException e) {
+                throw new STRuntimeException("Invalid xml value in file fragment " + uid + " : " + xml);
+            } catch (IOException e) {
+                throw new UnexpectedException(e);
+            }
+        }
         try (ByteArrayOutputStream buf = new ByteArrayOutputStream()) {
             XmlUtils.serialize(xml, buf, true, true);
             byte[] data = buf.toByteArray();
-            System.out.println(new String(data));
             sha1 = CryptoUtils.sha1(data);
             stream = new ByteArrayInputStream(data);
         } catch (IOException e) {

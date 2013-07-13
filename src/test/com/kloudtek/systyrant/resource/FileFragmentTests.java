@@ -8,17 +8,24 @@ import com.kloudtek.systyrant.AbstractContextTest;
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.exception.InvalidAttributeException;
 import com.kloudtek.systyrant.exception.ResourceCreationException;
+import com.kloudtek.util.XPathUtils;
+import com.kloudtek.util.XmlUtils;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.io.StringReader;
+
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 
 public class FileFragmentTests extends AbstractContextTest {
-    private static final AtomicInteger counter = new AtomicInteger();
     private File tempFile;
     private String path;
 
@@ -38,47 +45,70 @@ public class FileFragmentTests extends AbstractContextTest {
 
     @Test
     public void testCreateXmlFileFromFragments() throws Throwable {
-        createXmlFragment("grangrandchild", "root.child.grandchild", "@bla = 'ble'", "hello='world'");
-        createXmlFragment("grandchild", "root.child", "@hello = 'world'", "bla='ble'");
-        createXmlFragment("grandchild", "root.child", "@foo = 'bar'", null);
-        createXmlFragment("child", "root", null, "hello='world'");
-        createXmlFragment("child", "root", null, "foo='bar'");
-        createXmlFragment("root", null, null, null);
-        createFile();
+        createFile(path);
+        createXmlFragment(path, "insert", "/test", "<testinsert/>");
+        createXmlFragment(path, "replace", "/test/testchild", "<testreplace/>");
+        createXmlFragment(path, "delete", "/test/deleteme", null);
         execute();
-        String xml = FileUtils.readFileToString(tempFile);
-        System.out.println();
+        String xmlStr = FileUtils.readFileToString(tempFile);
+        System.out.println(xmlStr);
+        Document xmlDoc = XmlUtils.parse(new StringReader(xmlStr));
+        assertNotNull(XPathUtils.evalXPathElement("/test/testinsert", xmlDoc));
+        assertNotNull(XPathUtils.evalXPathElement("/test/testreplace", xmlDoc));
+        assertNull(XPathUtils.evalXPathElement("/test/deleteme", xmlDoc));
+    }
+
+
+    @Test
+    public void testTwoXmlFiles() throws Throwable {
+        createFile(path);
+        createXmlFragment(path, "insert", "/test", "<testinsert1/>");
+        File tempFile2 = File.createTempFile("filefragtest", "tmp");
+        String path2 = tempFile2.getPath();
+        try {
+            createFile(path2);
+            createXmlFragment(path2, "insert", "/test", "<testinsert2/>");
+        } finally {
+            tempFile2.delete();
+        }
+        execute();
+        String xmlStr = FileUtils.readFileToString(this.tempFile);
+        System.out.println(xmlStr);
+        Document xmlDoc = XmlUtils.parse(new StringReader(xmlStr));
+        assertNotNull(XPathUtils.evalXPathElement("/test/testinsert1", xmlDoc));
+        assertNull(XPathUtils.evalXPathElement("/test/testinsert2", xmlDoc));
+        xmlStr = FileUtils.readFileToString(tempFile2);
+        System.out.println(xmlStr);
+        xmlDoc = XmlUtils.parse(new StringReader(xmlStr));
+        assertNotNull(XPathUtils.evalXPathElement("/test/testinsert2", xmlDoc));
+        assertNull(XPathUtils.evalXPathElement("/test/testinsert1", xmlDoc));
     }
 
     @Test
     public void testMultipleConflictingTypesOnFile() {
-        // TODO
     }
 
     @Test
-    public void testTwoFileWithDifferentFragmentTypes() {
-        // TODO
+    public void testTwoFileWithDifferentFragmentTypes() throws IOException, SAXException, XPathExpressionException, ResourceCreationException, InvalidAttributeException {
     }
 
-    private Resource createFile() throws ResourceCreationException, InvalidAttributeException {
+    @Test
+    public void testTwoFilesSameNamesDifferentHosts() throws IOException, SAXException, XPathExpressionException, ResourceCreationException, InvalidAttributeException {
+    }
+
+    private Resource createFile(String path) throws ResourceCreationException, InvalidAttributeException {
         Resource resource = ctx.getResourceManager().createResource("core.file");
         resource.set("path", path);
-        resource.set("content", "<test>\n\t<testchild/>\n</test>");
+        resource.set("content", "<test>\n<testchild/>\n<deleteme/></test>");
         return resource;
     }
 
-    private Resource createXmlFragment(String type, String parent, String xpath, String attributes) throws ResourceCreationException, InvalidAttributeException {
-        StringBuilder tmp = new StringBuilder();
-        if (parent != null) {
-            tmp.append(parent).append(".");
-        }
-        tmp.append(type).append('#').append(counter.incrementAndGet());
-        Resource resource = ctx.getResourceManager().createResource("core.xmlfile", tmp.toString());
+    private Resource createXmlFragment(String path, String type, String xpath, String xml) throws ResourceCreationException, InvalidAttributeException {
+        Resource resource = ctx.getResourceManager().createResource("core.xmlfile");
         resource.set("path", path);
         resource.set("type", type);
-        resource.set("parent", parent);
         resource.set("xpath", xpath);
-        resource.set("attributes", attributes);
+        resource.set("xml", xml);
         return resource;
     }
 

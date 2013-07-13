@@ -9,18 +9,14 @@ import com.kloudtek.systyrant.annotation.FileFragment;
 import com.kloudtek.systyrant.annotation.STResource;
 
 @STResource
-@FileFragment(fileContentClass = FileContentXmlImpl.class)
-public class XmlFileResource {
+@FileFragment(fileContentClass = FileContentPropertyFileImpl.class)
+public class PropertyFileResource {
     @Attr(required = true)
     private String path;
-    @Attr(required = true, def = "insert")
-    private Type type = Type.INSERT;
     @Attr(required = true)
     private String xpath;
-    @Attr
-    private String xml;
-
-    public enum Type {
-        INSERT, REPLACE, DELETE
-    }
+    @Attr(required = true)
+    private String key;
+    @Attr(required = true)
+    private String value;
 }
