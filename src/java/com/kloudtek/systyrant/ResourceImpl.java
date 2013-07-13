@@ -253,7 +253,7 @@ public class ResourceImpl implements Resource {
         if (this.hostOverride != null && this.hostOverride != hostOverride) {
             this.hostOverride.stop();
         }
-        if( context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal() ) {
+        if (context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal()) {
             throw new STRuntimeException("Host overrides cannot be changed after the prepare stage");
         }
         this.hostOverride = hostOverride;
@@ -493,7 +493,7 @@ public class ResourceImpl implements Resource {
         HashSet<String> supportedAlternatives = new HashSet<>();
         HashSet<String> requiredAlternatives = new HashSet<>();
         for (Task task : tasks) {
-            if( task.getStage() == stage && task.isPostChildren() == postChildren ) {
+            if (task.getStage() == stage && task.isPostChildren() == postChildren) {
                 String alternative = task.getAlternative();
                 if (alternative != null) {
                     requiredAlternatives.add(alternative);

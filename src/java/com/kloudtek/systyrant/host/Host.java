@@ -17,14 +17,14 @@ import java.util.Map;
 /**
  * <p>The host is an abstraction layer to access the operating system of the host you wish to perform tasks against.</p>
  * <p>
- *     Each context has it's own default host ({@link com.kloudtek.systyrant.STContext#getHost()}), and each resource
- *     can have a host override ({@link com.kloudtek.systyrant.Resource#setHostOverride(Host)}) which applies to itself
- *     and any of it's childrens.
+ * Each context has it's own default host ({@link com.kloudtek.systyrant.STContext#getHost()}), and each resource
+ * can have a host override ({@link com.kloudtek.systyrant.Resource#setHostOverride(Host)}) which applies to itself
+ * and any of it's childrens.
  * </p>
  * <p>
- *     Hosts are only usable after they have been started ({@link #isStarted()} will return false). The Context's host
- *     is started when the context is executed, and host overrides are started during that resource's execute stage (before
- *     any tasks are executed).
+ * Hosts are only usable after they have been started ({@link #isStarted()} will return false). The Context's host
+ * is started when the context is executed, and host overrides are started during that resource's execute stage (before
+ * any tasks are executed).
  * </p>
  */
 public interface Host extends Stoppable, Startable {
@@ -32,19 +32,21 @@ public interface Host extends Stoppable, Startable {
 
     /**
      * Returns if the host has been started.
+     *
      * @return True is the host has started and is usable, or false otherwise.
      */
     boolean isStarted();
 
     /**
      * This method is used to execute a shell script
-     * @param script Shell script to execute
-     * @param type Script type
-     * @param timeout How long to wait for execution before timing out (in millis)
+     *
+     * @param script          Shell script to execute
+     * @param type            Script type
+     * @param timeout         How long to wait for execution before timing out (in millis)
      * @param expectedRetCode Optional expected return code (If specified and the return code is different, it will
      *                        throw a STRuntimeException
-     * @param logging Specify if the script output should be logged all the time, never or only if the script fails
-     * @param user Use to run the script as
+     * @param logging         Specify if the script output should be logged all the time, never or only if the script fails
+     * @param user            Use to run the script as
      * @return Execution result
      * @throws STRuntimeException If an error occurs while running the script.
      */

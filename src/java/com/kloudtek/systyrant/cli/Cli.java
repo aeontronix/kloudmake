@@ -126,7 +126,7 @@ public class Cli {
         }
         addLib("/etc/systyrant/libs");
         addLib("/var/lib/systyrant/libs");
-        addLib(System.getProperty("user.home")+"/.systyrant/libs");
+        addLib(System.getProperty("user.home") + "/.systyrant/libs");
         for (String dir : moduleDirs) {
             context.registerLibraries(new File(dir));
         }

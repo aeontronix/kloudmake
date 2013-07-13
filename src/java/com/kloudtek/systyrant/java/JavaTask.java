@@ -28,7 +28,7 @@ public class JavaTask extends AbstractTask {
 
     public JavaTask(int order, Stage stage, boolean postChildren, Class<?> implClass, List<Injector> injectors,
                     @NotNull Set<EnforceOnlyIf> onlyIf, Method method) throws InvalidResourceDefinitionException {
-        this(order, stage, postChildren, implClass, injectors, onlyIf, method, null );
+        this(order, stage, postChildren, implClass, injectors, onlyIf, method, null);
     }
 
     public JavaTask(int order, @NotNull Stage stage, boolean postChildren, @NotNull Class<?> implClass, @NotNull List<Injector> injectors,

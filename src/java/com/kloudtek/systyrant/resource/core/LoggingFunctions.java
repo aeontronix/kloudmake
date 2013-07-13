@@ -16,6 +16,7 @@ public class LoggingFunctions {
 
     /**
      * Log a debug message.
+     *
      * @param message Message to log
      */
     @Function
@@ -25,6 +26,7 @@ public class LoggingFunctions {
 
     /**
      * Log an informational message.
+     *
      * @param message Message to log
      */
     @Function
@@ -34,6 +36,7 @@ public class LoggingFunctions {
 
     /**
      * Log a warning message
+     *
      * @param message Message to log
      */
     @Function
@@ -43,6 +46,7 @@ public class LoggingFunctions {
 
     /**
      * Log an error message
+     *
      * @param message Message to log
      */
     @Function

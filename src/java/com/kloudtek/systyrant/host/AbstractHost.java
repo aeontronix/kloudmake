@@ -84,7 +84,7 @@ public abstract class AbstractHost implements Host {
     }
 
     protected synchronized void checkStarted() throws STRuntimeException {
-        if( ! started ) {
+        if (!started) {
             throw new STRuntimeException("Host is not started");
         }
     }

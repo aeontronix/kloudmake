@@ -80,7 +80,7 @@ public class VagrantResource {
             host.writeToFile(vagrantFilePath, vagrantfile);
         }
         changeStatus(ensure);
-        initHost(sshHost,host, dir);
+        initHost(sshHost, host, dir);
     }
 
     public static SshHost initHost(SshHost sshHost, Host current, String vagrantDir) throws STRuntimeException {

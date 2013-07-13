@@ -169,7 +169,7 @@ public class FileResource {
         // find all file fragments
         List<Resource> fragments = new ArrayList<>();
         // If there are no file fragments, then let's create a binary file content object
-        if( fragments.isEmpty() ) {
+        if (fragments.isEmpty()) {
             fileContent = new FileContentBinaryImpl();
         }
         if (isNotEmpty(contentStr)) {
@@ -242,7 +242,7 @@ public class FileResource {
             }
         }
         // Merge fragments into file content
-        if( ! fragments.isEmpty() ) {
+        if (!fragments.isEmpty()) {
             fileContent.merge(fragments);
         }
     }

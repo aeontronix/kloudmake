@@ -47,7 +47,7 @@ public class GenerateManualAppendix {
                             w.write(functionName);
                             w.write("</title>\n");
                             w.write("\t\t<para>\n");
-                            w.write(methodDoc.commentText().replace("<p>", "<para>").replace("</p>", "</para>").replace("<br/>","\n"));
+                            w.write(methodDoc.commentText().replace("<p>", "<para>").replace("</p>", "</para>").replace("<br/>", "\n"));
                             w.write("\n\t\t</para>\n");
                             if (methodDoc.parameters().length > 0) {
                                 w.write("<para>Parameters:</para>\n");

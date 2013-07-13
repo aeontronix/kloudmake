@@ -346,7 +346,7 @@ public class STContext implements AutoCloseable {
             throw new IllegalArgumentException("Host cannot be null");
         }
         executionLock.writeLock().lock();
-        if( stage != null && stage.ordinal() >= Stage.EXECUTE.ordinal() ) {
+        if (stage != null && stage.ordinal() >= Stage.EXECUTE.ordinal()) {
             throw new STRuntimeException("The context host can only be changed before the execution stage");
         }
         try {

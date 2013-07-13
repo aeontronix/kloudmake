@@ -38,18 +38,21 @@ public interface Task extends Comparable<Task> {
 
     /**
      * Get the order ranking (if two tasks are in the same stage, the higher order one will run first)
+     *
      * @return
      */
     int getOrder();
 
     /**
      * Get at which stage this task will run
+     *
      * @return Stage the action will run.
      */
     Stage getStage();
 
     /**
      * If this flag is true, the execution of this task will be delayed until all it's childrens have completed the stage
+     *
      * @return
      */
     boolean isPostChildren();
