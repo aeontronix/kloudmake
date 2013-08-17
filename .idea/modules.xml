@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/systyrant.iml" filepath="$PROJECT_DIR$/systyrant.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../systyrant-enterprise/systyrant-enterprise.iml" filepath="$PROJECT_DIR$/../systyrant-enterprise/systyrant-enterprise.iml" />
       <module fileurl="file://$PROJECT_DIR$/systyrant-wiki.iml" filepath="$PROJECT_DIR$/systyrant-wiki.iml" />
     </modules>
   </component>

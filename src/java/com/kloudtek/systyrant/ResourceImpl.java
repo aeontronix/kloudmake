@@ -5,6 +5,7 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.host.AutoStartHostWrapper;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.util.VariableMap;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -251,12 +252,12 @@ public class ResourceImpl implements Resource {
     @Override
     public synchronized void setHostOverride(Host hostOverride) throws STRuntimeException {
         if (this.hostOverride != null && this.hostOverride != hostOverride) {
-            this.hostOverride.stop();
+            this.hostOverride.close();
         }
         if (context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal()) {
             throw new STRuntimeException("Host overrides cannot be changed after the prepare stage");
         }
-        this.hostOverride = hostOverride;
+        this.hostOverride = new AutoStartHostWrapper(hostOverride);
         if (hostOverride != null) {
             context.inject(hostOverride);
         }

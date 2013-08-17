@@ -1,4 +1,6 @@
+import core;
+
 def postgresql {
-    new core.package { name="postgresql" } ->
-    new core.service { name='postgresql' }
+    package { name="postgresql" } ->
+    service { name='postgresql' }
 }

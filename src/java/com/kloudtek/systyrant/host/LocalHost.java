@@ -34,7 +34,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
-        checkStarted();
         try {
             try (TempFile temp = new TempFile("sts")) {
                 FileUtils.write(temp, script);
@@ -52,7 +51,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public boolean fileExists(String path) throws STRuntimeException {
-        checkStarted();
         return new File(path).exists();
     }
 
@@ -67,7 +65,6 @@ public class LocalHost extends AbstractHost {
     @NotNull
     @Override
     public FileInfo getFileInfo(String path) throws STRuntimeException {
-        checkStarted();
         FileInfo fileInfo = new FileInfo(path);
         try {
             File file = new File(path);
@@ -97,7 +94,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public boolean mkdir(String path) throws STRuntimeException {
-        checkStarted();
         File file = new File(path);
         if (!file.exists()) {
             if (!file.mkdir()) {
@@ -111,7 +107,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public boolean mkdirs(String path) throws STRuntimeException {
-        checkStarted();
         File file = new File(path);
         if (!file.exists()) {
             if (!file.mkdirs()) {
@@ -125,7 +120,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public byte[] getFileSha1(String path) throws STRuntimeException {
-        checkStarted();
         try (FileInputStream is = new FileInputStream(path)) {
             return CryptoUtils.sha1(is);
         } catch (IOException e) {
@@ -135,7 +129,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void writeToFile(String path, byte[] data) throws STRuntimeException {
-        checkStarted();
         try {
             try (FileOutputStream w = new FileOutputStream(path)) {
                 w.write(data);
@@ -147,7 +140,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void writeToFile(String path, InputStream data) throws STRuntimeException {
-        checkStarted();
         try {
             try (FileOutputStream w = new FileOutputStream(path)) {
                 IOUtils.copy(data, w);
@@ -159,7 +151,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public byte[] readFileData(String path) throws STRuntimeException {
-        checkStarted();
         try {
             return FileUtils.readFileToByteArray(new File(path));
         } catch (IOException e) {
@@ -169,7 +160,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public InputStream readFile(String path) throws STRuntimeException {
-        checkStarted();
         try {
             return new FileInputStream(path);
         } catch (IOException e) {
@@ -179,7 +169,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void deleteFile(String path, boolean recursive) throws STRuntimeException {
-        checkStarted();
         File file = new File(path);
         if (file.exists()) {
             if (file.isFile() || !recursive) {
@@ -198,7 +187,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void createSymlink(String path, String target) throws STRuntimeException {
-        checkStarted();
         try {
             Files.createSymbolicLink(new File(path).toPath(), new File(target).toPath());
         } catch (IOException e) {
@@ -208,7 +196,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void setFileOwner(String path, String owner) throws STRuntimeException {
-        checkStarted();
         try {
             UserPrincipalLookupService lookupService = FileSystems.getDefault().getUserPrincipalLookupService();
             Files.setOwner(new File(path).toPath(), lookupService.lookupPrincipalByName(owner));
@@ -219,7 +206,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void setFileGroup(String path, String group) throws STRuntimeException {
-        checkStarted();
         try {
             Path jpath = new File(path).toPath();
             PosixFileAttributeView view = Files.getFileAttributeView(jpath, PosixFileAttributeView.class);
@@ -232,7 +218,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public void setFilePerms(String path, FilePermissions perms) throws STRuntimeException {
-        checkStarted();
         try {
             Files.setPosixFilePermissions(Paths.get(path), PosixFilePermissions.fromString(perms.toString()));
         } catch (IOException e) {
@@ -242,7 +227,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public String createTempDir() throws STRuntimeException {
-        checkStarted();
         try {
             File tempFile = File.createTempFile("sttmpdir", "tmp");
             if (!tempFile.delete()) {
@@ -261,7 +245,6 @@ public class LocalHost extends AbstractHost {
 
     @Override
     public String createTempFile() throws STRuntimeException {
-        checkStarted();
         try {
             String tmpfile = File.createTempFile("sttmpdir", "tmp").getPath();
             tempFiles.add(tmpfile);
@@ -279,14 +262,6 @@ public class LocalHost extends AbstractHost {
     @Override
     protected boolean execSupportsWorkDir() {
         return true;
-    }
-
-    @Override
-    public void doStart() throws STRuntimeException {
-    }
-
-    @Override
-    public void doStop() {
     }
 
     @Override

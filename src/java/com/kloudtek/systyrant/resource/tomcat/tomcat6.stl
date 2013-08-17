@@ -1,5 +1,5 @@
 def tomcat6( serverport=8005, httpport = 8080, serverxml='/etc/tomcat6/server.xml' ) {
-    new core.package { name="tomcat6" } ->
-    new core.file { path = "${serverxml}" , source = lfile('tomcat6.xml.ftl',true) } ->
-    new core.service { name='tomcat6' }
+    core.package { name="tomcat6" } ->
+    core.file { path = "${serverxml}" , source = lfile('tomcat6.xml.ftl',true) } ->
+    core.service { name='tomcat6' }
 }

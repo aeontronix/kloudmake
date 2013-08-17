@@ -51,6 +51,8 @@ public class Cli {
     private String ssh;
     @Parameter(description = "SSH Key location", names = {"-sshkey"})
     private String sshKey = System.getProperty("user.home") + File.separator + ".ssh" + File.separator + "id_rsa";
+    @Parameter(description = "Inlined DSL", names = {"-e"})
+    private String inlined;
     @Parameter(description = "Credentials file should be encrypted", names = {"-c", "--crypt"})
     private boolean crypt;
     @Parameter(description = "File where credentials will be store (will default to the first script filename appended with '.creds') ", names = {"-cf", "--credsfile"})
@@ -95,18 +97,23 @@ public class Cli {
             }
             registerLibs(context);
             CredStore credStore = configureCredStore(context);
-            for (String definition : definitions) {
-                try {
-                    context.runScriptFile(URI.create(definition));
-                } catch (IOException e) {
-                    logger.error("Failed to read script " + definition + " : " + e.getMessage(), e);
-                } catch (ScriptException e) {
-                    if (e.getCause() != null) {
-                        logger.error(e.getCause().getMessage(), e);
-                    } else {
-                        logger.error("An error occured while executing script " + definition + " : " + e.getMessage(), e);
+            if (inlined != null) {
+                context.runScript(inlined);
+            }
+            if (definitions != null) {
+                for (String definition : definitions) {
+                    try {
+                        context.runScriptFile(URI.create(definition));
+                    } catch (IOException e) {
+                        logger.error("Failed to read script " + definition + " : " + e.getMessage(), e);
+                    } catch (ScriptException e) {
+                        if (e.getCause() != null) {
+                            logger.error(e.getCause().getMessage(), e);
+                        } else {
+                            logger.error("An error occured while executing script " + definition + " : " + e.getMessage(), e);
+                        }
+                        return 5;
                     }
-                    return 5;
                 }
             }
             boolean successful = context.execute();
@@ -161,7 +168,7 @@ public class Cli {
         Cli cli = new Cli();
         JCommander jc = new JCommander(cli, args);
         jc.setProgramName("systyrant");
-        if (cli.definitions == null || cli.definitions.isEmpty()) {
+        if ((cli.definitions == null || cli.definitions.isEmpty()) && StringUtils.isEmpty(cli.inlined)) {
             jc.usage();
             return 5;
         } else {

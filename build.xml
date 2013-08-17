@@ -133,7 +133,7 @@
     </target>
 
     <target name="installer" depends="systyrant-dist" extensionOf="dist">
-        <concat binary="true" destfile="${artifacts.dir}/systyrant-installer.sh">
+        <concat binary="true" destfile="${artifacts.dir}/systyrant-installer.sh" overwrite="true">
             <path location="src/installer/selfextract.sh"/>
             <path location="${artifacts.dir}/systyrant.tar.bz2"/>
         </concat>

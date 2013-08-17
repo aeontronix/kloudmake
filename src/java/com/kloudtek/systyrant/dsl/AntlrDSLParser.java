@@ -9,8 +9,6 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 public class AntlrDSLParser implements DSLParser {
-
-
     @Override
     public DSLScript parse(STContext ctx, String script) throws InvalidScriptException {
         return parse(ctx, null, script);

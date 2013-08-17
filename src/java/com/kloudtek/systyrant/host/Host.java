@@ -4,8 +4,6 @@
 
 package com.kloudtek.systyrant.host;
 
-import com.kloudtek.systyrant.Startable;
-import com.kloudtek.systyrant.Stoppable;
 import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.resource.core.FilePermissions;
 import org.jetbrains.annotations.NotNull;
@@ -27,13 +25,23 @@ import java.util.Map;
  * any tasks are executed).
  * </p>
  */
-public interface Host extends Stoppable, Startable {
+public interface Host {
     public static final int DEFAULT_TIMEOUT = 300000;
 
     /**
-     * Returns if the host has been started.
+     * Start this host.
+     */
+    void start() throws STRuntimeException;
+
+    /**
+     * Shutdown and release resources.
+     */
+    void close();
+
+    /**
+     * Checks if this host has been started.
      *
-     * @return True is the host has started and is usable, or false otherwise.
+     * @return True if the host is started, or false otherwise.
      */
     boolean isStarted();
 
@@ -72,7 +80,7 @@ public interface Host extends Stoppable, Startable {
 
     boolean fileExists(String path) throws STRuntimeException;
 
-    String getFilePathSeparator();
+    String getFilePathSeparator() throws STRuntimeException;
 
     /**
      * Retrieve file details.
@@ -137,7 +145,7 @@ public interface Host extends Stoppable, Startable {
 
     Map<String, Object> getState();
 
-    HostProvider getMetadata();
+    HostProvider getMetadata() throws STRuntimeException;
 
     public enum Logging {
         NO, YES, ON_ERROR

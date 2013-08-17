@@ -45,17 +45,24 @@ public abstract class AbstractHost implements Host {
     protected boolean handleQuoting = false;
     protected boolean started;
 
-    @Override
-    public synchronized final void start() throws STRuntimeException {
-        started = true;
-        doStart();
+    /**
+     * {@inheritDoc}
+     */
+    public synchronized void start() throws STRuntimeException {
+        if (started) {
+            return;
+        }
         if (hostProvider == null) {
             hostProvider = hostProviderManager.find(this);
         }
+        started = true;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public synchronized final void stop() {
+    public synchronized void close() {
         for (String tempDir : tempDirs) {
             try {
                 deleteFile(tempDir, true);
@@ -70,23 +77,15 @@ public abstract class AbstractHost implements Host {
                 logger.warn("Failed to delete temporary directory " + tempFile);
             }
         }
-        doStop();
         started = false;
     }
 
-    public abstract void doStart() throws STRuntimeException;
-
-    public abstract void doStop();
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public synchronized boolean isStarted() {
+    public boolean isStarted() {
         return started;
-    }
-
-    protected synchronized void checkStarted() throws STRuntimeException {
-        if (!started) {
-            throw new STRuntimeException("Host is not started");
-        }
     }
 
     @Override

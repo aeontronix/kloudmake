@@ -7,6 +7,7 @@ package com.kloudtek.systyrant;
 import com.kloudtek.systyrant.annotation.Execute;
 import com.kloudtek.systyrant.annotation.STResource;
 import com.kloudtek.systyrant.annotation.Service;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.OperatingSystem;
 
@@ -19,7 +20,7 @@ public class VagrantValidationResource {
     private boolean validated;
 
     @Execute
-    public void validate() {
+    public void validate() throws STRuntimeException {
         assertEquals(host.getMetadata().getOperatingSystem(), OperatingSystem.LINUX);
         validated = true;
     }

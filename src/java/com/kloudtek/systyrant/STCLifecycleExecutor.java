@@ -249,10 +249,6 @@ public class STCLifecycleExecutor {
         }
         for (Resource resource : context.resources) {
             context.resourceScope.set(resource);
-            // start the host override
-            if (resource.getHostOverride() != null) {
-                resource.getHostOverride().start();
-            }
             // execute tasks which aren't post-children
             executeResourceTasks((ResourceImpl) resource, EXECUTE, false);
             context.resourceScope.remove();
@@ -341,7 +337,7 @@ public class STCLifecycleExecutor {
                 logger.warn("Error occured during cleanup: " + e.getMessage(), e);
             }
             if (resource.getHostOverride() != null) {
-                resource.getHostOverride().stop();
+                resource.getHostOverride().close();
             }
             context.clearResourceScope();
         }

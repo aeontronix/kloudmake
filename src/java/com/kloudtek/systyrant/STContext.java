@@ -9,6 +9,7 @@ import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
+import com.kloudtek.systyrant.host.AutoStartHostWrapper;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
@@ -297,6 +298,10 @@ public class STContext implements AutoCloseable {
             if (ctxMissing) {
                 ctx.remove();
             }
+        } catch (ScriptException e) {
+            ScriptException scriptException = new ScriptException(e.getMessage(), uri, e.getLineNumber(), e.getColumnNumber());
+            scriptException.initCause(e);
+            throw scriptException;
         } finally {
             if (oldSource != null) {
                 sourceUrl.set(oldSource);
@@ -338,6 +343,12 @@ public class STContext implements AutoCloseable {
     }
 
     public Host getHost() {
+        executionLock.readLock().lock();
+        try {
+
+        } finally {
+            executionLock.readLock().unlock();
+        }
         return host;
     }
 
@@ -346,12 +357,15 @@ public class STContext implements AutoCloseable {
             throw new IllegalArgumentException("Host cannot be null");
         }
         executionLock.writeLock().lock();
-        if (stage != null && stage.ordinal() >= Stage.EXECUTE.ordinal()) {
-            throw new STRuntimeException("The context host can only be changed before the execution stage");
-        }
         try {
-            this.host = host;
+            if (stage != null && stage.ordinal() >= Stage.EXECUTE.ordinal()) {
+                throw new STRuntimeException("The context host can only be changed before the execution stage");
+            }
+            if (this.host != null) {
+                this.host.close();
+            }
             inject(host);
+            this.host = new AutoStartHostWrapper(host);
         } finally {
             executionLock.writeLock().unlock();
         }
@@ -380,10 +394,9 @@ public class STContext implements AutoCloseable {
     public boolean execute() throws STRuntimeException {
         STContext.ctx.set(this);
         try {
-            host.start();
             return lifecycleExecutor.execute();
         } finally {
-            host.stop();
+            host.close();
             STContext.ctx.remove();
         }
     }

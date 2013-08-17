@@ -41,7 +41,7 @@ public class VagrantResource {
     private ServiceManager serviceManager;
     @Inject
     private Resource resource;
-    @Resources("childof and type vagrant:sharedfolder")
+    @Resources("childof and type vagrant.sharedfolder")
     private Collection<SharedFolder> sharedFolders;
     private SshHost sshHost;
 

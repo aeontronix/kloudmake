@@ -6,6 +6,7 @@
     <pkg>com.kloudtek.systyrant.resource.core</pkg>
     <pkg>com.kloudtek.systyrant.resource.db</pkg>
     <pkg>com.kloudtek.systyrant.resource.vagrant</pkg>
+    <pkg>com.kloudtek.systyrant.resource.intellij</pkg>
     <pkg>com.kloudtek.systyrant.service.credstore</pkg>
     <pkg>com.kloudtek.systyrant.service.filestore</pkg>
     <pkg>com.kloudtek.systyrant.host</pkg>

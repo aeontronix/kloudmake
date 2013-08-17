@@ -6,14 +6,11 @@ package com.kloudtek.systyrant.java;
 
 import com.kloudtek.systyrant.Resource;
 import com.kloudtek.systyrant.STContext;
+import com.kloudtek.systyrant.exception.STRuntimeException;
 import com.kloudtek.systyrant.host.OperatingSystem;
 
 /**
- * Created with IntelliJ IDEA.
- * User: yannick
- * Date: 24/03/13
- * Time: 17:12
- * To change this template use File | Settings | File Templates.
+ * Class that implements @OnlyIfOS annotation
  */
 public class EnforceOnlyIfOS extends EnforceOnlyIf {
     private OperatingSystem[] operatingSystems;
@@ -23,7 +20,7 @@ public class EnforceOnlyIfOS extends EnforceOnlyIf {
     }
 
     @Override
-    public boolean execAllowed(STContext context, Resource resource) {
+    public boolean execAllowed(STContext context, Resource resource) throws STRuntimeException {
         OperatingSystem hostOS = resource.getHost().getMetadata().getOperatingSystem();
         for (OperatingSystem os : operatingSystems) {
             if (!hostOS.equals(os)) {

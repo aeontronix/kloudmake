@@ -73,13 +73,11 @@ public abstract class AbstractHostTests {
                 throw new IOException("Unable to create test dir");
             }
         }
-
         if (host instanceof LocalHost) {
             testPath = realTestDir.getAbsolutePath();
         } else {
             testPath = "/tmp";
         }
-        host.start();
     }
 
     @BeforeMethod

@@ -123,10 +123,8 @@ public class FileResourceMockedTest {
         fileExists();
         execute();
 
-        verify(adminMock, times(1)).start();
         verify(adminMock, atLeastOnce()).fileExists(PATH);
-        verify(adminMock).createSymlink(PATH, PATH2);
-        verify(adminMock, times(1)).stop();
+        verify(adminMock, times(1)).createSymlink(PATH, PATH2);
     }
 
     private void execute() throws STRuntimeException {

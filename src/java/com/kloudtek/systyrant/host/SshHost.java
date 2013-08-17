@@ -41,7 +41,6 @@ public class SshHost extends AbstractHost {
     private byte[] passphrase;
     private String loginUser;
     private String defaultUser = "root";
-    private boolean started;
 
     public SshHost() {
         handleQuoting = true;
@@ -64,7 +63,8 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public void doStart() throws STRuntimeException {
+    public synchronized void start() throws STRuntimeException {
+        super.start();
         try {
             jsch = new JSch();
             jsch.addIdentity(keyName, privKey, pubKey, passphrase);
@@ -77,17 +77,16 @@ public class SshHost extends AbstractHost {
             sftpChannel.connect();
             executor = new SshExecutor(session);
             rootUser = loginUser.equals("root");
-            started = true;
         } catch (JSchException e) {
             throw new STRuntimeException(e.getMessage(), e);
         }
     }
 
     @Override
-    public void doStop() {
+    public synchronized void close() {
         sftpChannel.disconnect();
         session.disconnect();
-        started = false;
+        super.close();
     }
 
     @Override
