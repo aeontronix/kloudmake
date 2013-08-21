@@ -5,7 +5,6 @@
 package com.kloudtek.systyrant;
 
 import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.host.AutoStartHostWrapper;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.util.VariableMap;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -32,6 +31,7 @@ public class ResourceImpl implements Resource {
     private ArrayList<Task> tasks = new ArrayList<>();
     private Stage stage;
     private Host hostOverride;
+    private Host childrensHostOverride;
     private final String sourceUrl;
     /**
      * This contains the results of any successful verification (meaning nothing has changed). A global verification
@@ -237,6 +237,8 @@ public class ResourceImpl implements Resource {
     public Host getHost() {
         if (hostOverride != null) {
             return hostOverride;
+        } else if (parent != null && parent.getChildrensHostOverride() != null) {
+            return parent.getChildrensHostOverride();
         } else if (parent != null) {
             return parent.getHost();
         } else {
@@ -257,9 +259,28 @@ public class ResourceImpl implements Resource {
         if (context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal()) {
             throw new STRuntimeException("Host overrides cannot be changed after the prepare stage");
         }
-        this.hostOverride = new AutoStartHostWrapper(hostOverride);
+        this.hostOverride = hostOverride;
         if (hostOverride != null) {
             context.inject(hostOverride);
+        }
+    }
+
+    @Override
+    public Host getChildrensHostOverride() {
+        return childrensHostOverride;
+    }
+
+    @Override
+    public void setChildrensHostOverride(Host childrensHostOverride) throws STRuntimeException {
+        if (this.childrensHostOverride != null && this.childrensHostOverride != childrensHostOverride) {
+            this.childrensHostOverride.close();
+        }
+        if (context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal()) {
+            throw new STRuntimeException("Children host overrides cannot be changed after the prepare stage");
+        }
+        this.childrensHostOverride = childrensHostOverride;
+        if (childrensHostOverride != null) {
+            context.inject(childrensHostOverride);
         }
     }
 

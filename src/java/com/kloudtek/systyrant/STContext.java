@@ -9,7 +9,6 @@ import com.kloudtek.systyrant.annotation.Provider;
 import com.kloudtek.systyrant.annotation.Service;
 import com.kloudtek.systyrant.dsl.DSLScriptingEngineFactory;
 import com.kloudtek.systyrant.exception.*;
-import com.kloudtek.systyrant.host.AutoStartHostWrapper;
 import com.kloudtek.systyrant.host.Host;
 import com.kloudtek.systyrant.host.LocalHost;
 import com.kloudtek.systyrant.provider.ProviderManager;
@@ -365,7 +364,8 @@ public class STContext implements AutoCloseable {
                 this.host.close();
             }
             inject(host);
-            this.host = new AutoStartHostWrapper(host);
+//            this.host = new AutoStartHostWrapper(host);
+            this.host = host;
         } finally {
             executionLock.writeLock().unlock();
         }

@@ -243,11 +243,16 @@ public class STCLifecycleExecutor {
     private void executeResources() throws STRuntimeException {
         context.stage = EXECUTE;
         logger.debug("Starting stage EXECUTE");
+        // initializing context host
+        context.getHost().start();
         Map<Resource, List<Resource>> parentchildrens = new HashMap<>();
         for (Map.Entry<Resource, List<Resource>> entry : context.parentToPendingChildrenMap.entrySet()) {
             parentchildrens.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         }
         for (Resource resource : context.resources) {
+            if (resource.getHostOverride() != null) {
+                resource.getHostOverride().start();
+            }
             context.resourceScope.set(resource);
             // execute tasks which aren't post-children
             executeResourceTasks((ResourceImpl) resource, EXECUTE, false);
@@ -277,6 +282,11 @@ public class STCLifecycleExecutor {
                 ((ResourceImpl) target).handleNotification(notification);
                 context.resourceScope.remove();
             }
+            // start children override host
+            if (resource.getChildrensHostOverride() != null) {
+                resource.getChildrensHostOverride().start();
+            }
+
         }
         logger.info("Finished stage EXECUTE");
     }

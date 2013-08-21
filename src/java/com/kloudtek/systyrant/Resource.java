@@ -63,6 +63,10 @@ public interface Resource {
 
     void setHostOverride(Host hostOverride) throws STRuntimeException;
 
+    Host getChildrensHostOverride();
+
+    void setChildrensHostOverride(Host childrensHostOverride) throws STRuntimeException;
+
     ResourceDefinition getDefinition();
 
     String getName();

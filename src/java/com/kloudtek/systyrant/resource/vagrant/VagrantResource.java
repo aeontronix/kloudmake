@@ -62,7 +62,7 @@ public class VagrantResource {
     @Prepare
     public void init() throws STRuntimeException {
         sshHost = new SshHost();
-        resource.setHostOverride(sshHost);
+        resource.setChildrensHostOverride(sshHost);
     }
 
     @Execute
@@ -107,8 +107,6 @@ public class VagrantResource {
     @Execute(postChildren = true)
     public void postChildrens() throws STRuntimeException {
         try {
-            resource.setHostOverride(null);
-            host = resource.getHost();
             if (after != null) {
                 changeStatus(after);
             }

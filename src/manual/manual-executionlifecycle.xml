@@ -19,7 +19,14 @@
         unprocessed resources for this stage.
     </para>
     <para>
-        After this is done it will:
+        The validation stage exists exclusively to allow the creation / initialization of hosts. The Host
+        implementations
+        cannot be accessed at that stage (but on the other hand this is the only time where host overrides can be
+        assigned
+        to resources).
+    </para>
+    <para>
+    After this is done it will:
         <itemizedlist>
             <listitem><para>Validate all resources attributes</para></listitem>
             <listitem><para>For every resource which has no 'id' attribute, it will generate one. It will use the
