@@ -1,7 +1,6 @@
-<#-- @ftlvariable name="vars.httpport" type="java.lang.Number" -->
-<#-- @ftlvariable name="vars.serverport" type="java.lang.Number" -->
-
-<?xml version='1.0' encoding='utf-8'?>
+<#-- @ftlvariable name="vars.httpport" type="java.lang.Number" --><#--
+     @ftlvariable name="vars.serverport" type="java.lang.Number"
+--><?xml version='1.0' encoding='utf-8'?>
 
 <Server port="${vars['serverport']}" shutdown="SHUTDOWN">
 
