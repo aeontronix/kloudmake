@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Standalone Tests" type="TestNG" factoryName="TestNG">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-    <module name="systyrant" />
+    <module name="kloudmake" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" value="" />
-    <option name="SUITE_NAME" value="$PROJECT_DIR$/src/test/com/kloudtek/systyrant/testng-standalone.xml" />
+    <option name="SUITE_NAME" value="$PROJECT_DIR$/src/test/com/kloudtek/kloudmake/testng-standalone.xml" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />

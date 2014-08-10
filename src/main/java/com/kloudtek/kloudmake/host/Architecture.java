@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2013 KloudTek Ltd
+ */
+
+package com.kloudtek.kloudmake.host;
+
+/**
+ * Enumeration of CPU architectures
+ */
+public enum Architecture {
+    I386, AMD64, ARM, IA64, ARMEL, MIPS, POWERPC, SPARC, HPPA, M68K, SH
+}

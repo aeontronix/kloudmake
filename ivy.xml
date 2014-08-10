@@ -5,7 +5,7 @@
 
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-    <info organisation="com.kloudtek" module="systyrant"/>
+    <info organisation="com.kloudtek" module="kloudmake"/>
     <configurations>
         <conf name="default" extends="core,cli"/>
         <conf name="core"/>
@@ -14,7 +14,7 @@
         <conf name="test" visibility="private"/>
     </configurations>
     <publications>
-        <artifact name="systyrant" conf="core"/>
+        <artifact name="kloudmake" conf="core"/>
     </publications>
     <dependencies>
         <!-- Build -->

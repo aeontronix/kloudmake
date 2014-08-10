@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SYSTYRANT_ANT=/usr/share/systyrant
+SYSTYRANT_ANT=/usr/share/kloudmake
 
 JOPTS=""
 
@@ -9,4 +9,4 @@ then
     JOPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 ${JOPTS}"
 fi
 
-java -classpath "${SYSTYRANT_ANT}/lib/*" ${JOPTS} com.kloudtek.systyrant.cli.Cli $@
+java -classpath "${SYSTYRANT_ANT}/lib/*" ${JOPTS} com.kloudtek.kloudmake.cli.Cli $@

@@ -2,10 +2,10 @@
   ~ Copyright (c) 2013 KloudTek Ltd
   -->
 
-<project name="systyrant" xmlns:bm="antlib:com.kloudtek.buildmagic">
+<project name="kloudmake" xmlns:bm="antlib:com.kloudtek.buildmagic">
     <property name="ivysettings.file" value="ivysettings.xml"/>
-    <property name="docs.url" value="http://kloudtek.github.io/systyrant"/>
-    <property name="javadoc.url" value="${docs.url}/javadocs/index.html?com/kloudtek/systyrant"/>
+    <property name="docs.url" value="http://kloudtek.github.io/kloudmake"/>
+    <property name="javadoc.url" value="${docs.url}/javadocs/index.html?com/kloudtek/kloudmake"/>
     <property name="anno.url" value="${javadoc.url}/annotation"/>
     <!--<property name="ivysettings.url" value="http://s3.amazonaws.com/ivy.kloudtek.com/ivysettings.xml"/>-->
     <bm:template name="ivy"/>
@@ -30,10 +30,10 @@
 
     <target name="manual" depends="compile,docbook-xsl">
         <javadoc classpathref="buildmagic.classpath.compile" destdir="${build.dir}">
-            <doclet name="com.kloudtek.systyrant.util.GenerateManualAppendix" path="${build.dir}/classes">
+            <doclet name="com.kloudtek.kloudmake.util.GenerateManualAppendix" path="${build.dir}/classes">
                 <!--<param name="-d" value="_build/"/>-->
             </doclet>
-            <fileset dir="src/java" excludes="**/DocGenerator.java" includes="**/*.java"/>
+            <fileset dir="src/main/java" excludes="**/DocGenerator.java" includes="**/*.java"/>
             <fileset dir="${build.dir}/antlr" includes="**/*.java"/>
             <classpath>
                 <path refid="buildmagic.classpath.compile"/>
@@ -46,7 +46,7 @@
         <mkdir dir="${build.dir}/manualxml"/>
         <copy todir="${build.dir}/manualxml">
             <fileset dir="src/manual" includes="*"/>
-            <fileset dir="src/java/com/kloudtek/systyrant/ruby/" includes="*.rb"/>
+            <fileset dir="src/main/java/com/kloudtek/kloudmake/ruby/" includes="*.rb"/>
             <filterset>
                 <filter token="docsurl" value="${docs.url}"/>
                 <filter token="jdocurl" value="${javadoc.url}"/>
@@ -100,19 +100,19 @@
     <target name="docs" depends="manual,javadocs"/>
 
     <target name="publish-docs" depends="docs">
-        <delete dir="${basedir}/../systyrant-pages/manual"/>
-        <mkdir dir="${basedir}/../systyrant-pages/manual"/>
-        <copy todir="${basedir}/../systyrant-pages/manual">
+        <delete dir="${basedir}/../kloudmake-pages/manual"/>
+        <mkdir dir="${basedir}/../kloudmake-pages/manual"/>
+        <copy todir="${basedir}/../kloudmake-pages/manual">
             <fileset dir="${build.dir}/docs/manual"/>
         </copy>
-        <delete dir="${basedir}/../systyrant-pages/javadocs"/>
-        <mkdir dir="${basedir}/../systyrant-pages/javadocs"/>
-        <copy todir="${basedir}/../systyrant-pages/javadocs">
+        <delete dir="${basedir}/../kloudmake-pages/javadocs"/>
+        <mkdir dir="${basedir}/../kloudmake-pages/javadocs"/>
+        <copy todir="${basedir}/../kloudmake-pages/javadocs">
             <fileset dir="${build.dir}/docs/javadoc"/>
         </copy>
     </target>
 
-    <target name="systyrant-dist" extensionOf="dist">
+    <target name="kloudmake-dist" extensionOf="dist">
         <mkdir dir="${build.dir}/dist/lib"/>
         <mkdir dir="${build.dir}/dist/bin"/>
         <copy todir="${build.dir}/dist/lib">
@@ -123,39 +123,39 @@
         <copy todir="${build.dir}/dist/bin">
             <fileset dir="${basedir}/src/bin"/>
         </copy>
-        <zip destfile="${artifacts.dir}/systyrant.zip">
-            <zipfileset dir="${build.dir}/dist" prefix="systyrant"/>
+        <zip destfile="${artifacts.dir}/kloudmake.zip">
+            <zipfileset dir="${build.dir}/dist" prefix="kloudmake"/>
         </zip>
-        <tar destfile="${artifacts.dir}/systyrant.tar">
-            <zipfileset dir="${build.dir}/dist" prefix="systyrant"/>
+        <tar destfile="${artifacts.dir}/kloudmake.tar">
+            <zipfileset dir="${build.dir}/dist" prefix="kloudmake"/>
         </tar>
-        <bzip2 src="${artifacts.dir}/systyrant.tar" destfile="${artifacts.dir}/systyrant.tar.bz2"/>
+        <bzip2 src="${artifacts.dir}/kloudmake.tar" destfile="${artifacts.dir}/kloudmake.tar.bz2"/>
     </target>
 
-    <target name="installer" depends="systyrant-dist" extensionOf="dist">
-        <concat binary="true" destfile="${artifacts.dir}/systyrant-installer.sh" overwrite="true">
+    <target name="installer" depends="kloudmake-dist" extensionOf="dist">
+        <concat binary="true" destfile="${artifacts.dir}/kloudmake-installer.sh" overwrite="true">
             <path location="src/installer/selfextract.sh"/>
-            <path location="${artifacts.dir}/systyrant.tar.bz2"/>
+            <path location="${artifacts.dir}/kloudmake.tar.bz2"/>
         </concat>
     </target>
 
     <target name="antlr" extensionOf="pre-compile">
         <mkdir dir="${build.dir}/antlr/"/>
-        <copy file="src/java/com/kloudtek/systyrant/dsl/SysTyrantDSL.g" todir="${build.dir}/antlr"/>
+        <copy file="src/main/antlr4/com/kloudtek/kloudmake/dsl/KloudmakeDSL.g4" todir="${build.dir}/antlr"/>
         <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
-            <arg value="${build.dir}/antlr/SysTyrantDSL.g"/>
+            <arg value="${build.dir}/antlr/KloudmakeDSL.g"/>
             <arg value="-package"/>
-            <arg value="com.kloudtek.systyrant.dsl"/>
+            <arg value="com.kloudtek.kloudmake.dsl"/>
             <arg value="-o"/>
-            <arg value="${build.dir}/antlr/com/kloudtek/systyrant/dsl"/>
+            <arg value="${build.dir}/antlr/com/kloudtek/kloudmake/dsl"/>
         </java>
-        <copy file="src/java/com/kloudtek/systyrant/dsl/SystyrantLang.g" todir="${build.dir}/antlr"/>
+        <copy file="src/main/antlr4/com/kloudtek/kloudmake/dsl/KloudmakeLang.g4" todir="${build.dir}/antlr"/>
         <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
-            <arg value="${build.dir}/antlr/SystyrantLang.g"/>
+            <arg value="${build.dir}/antlr/KloudmakeLang.g"/>
             <arg value="-package"/>
-            <arg value="com.kloudtek.systyrant.dsl"/>
+            <arg value="com.kloudtek.kloudmake.dsl"/>
             <arg value="-o"/>
-            <arg value="${build.dir}/antlr/com/kloudtek/systyrant/dsl"/>
+            <arg value="${build.dir}/antlr/com/kloudtek/kloudmake/dsl"/>
         </java>
     </target>
 
@@ -167,9 +167,9 @@
 
     <target name="reflections" depends="compile" extensionOf="post-compile">
         <taskdef classpath="${build.dir}/classes" name="reflections"
-                 classname="com.kloudtek.systyrant.util.GenerateReflectionsTask">
+                 classname="com.kloudtek.kloudmake.util.GenerateReflectionsTask">
             <classpath refid="buildmagic.classpath.compile"/>
         </taskdef>
-        <reflections classes="${build.dir}/classes" pkgs="com.kloudtek.systyrant"/>
+        <reflections classes="${build.dir}/classes" pkgs="com.kloudtek.kloudmake"/>
     </target>
 </project>

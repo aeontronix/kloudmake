@@ -6,16 +6,16 @@
       xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Introduction</title>
     <para>
-        SysTyrant is a configuration management tool designed to easily manage even the most complex software
+        Kloudmake is a configuration management tool designed to easily manage even the most complex software
         stacks.
     </para>
     <para>
-        In order to use SysTyrant, you just need to create a script defining resources (which can represent any
-        elements of a software stack ie: an application, a server, etc), and use the SysTyrant command line tool
+        In order to use Kloudmake, you just need to create a script defining resources (which can represent any
+        elements of a software stack ie: an application, a server, etc), and use the Kloudmake command line tool
         which will perform any required tasks to setup the infrastructure.
     </para>
     <para>
-        Some of the main features of SysTyrant are:
+        Some of the main features of Kloudmake are:
     </para>
     <itemizedlist>
         <listitem>

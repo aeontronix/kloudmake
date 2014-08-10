@@ -7,12 +7,12 @@
          xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Resource creation</title>
     <para>
-        Resources are the primary concept of SysTyrant, each resource has a type (ie core.file), and a number of
+        Resources are the primary concept of Kloudmake, each resource has a type (ie core.file), and a number of
         attributes. Some attributes are common to all resource types like for example id and uid, while other
         attributes are specific to each resource type.
     </para>
     <para>
-        The easiest way to define resources is to use SysTyrant's DSL to define the resources. Those scripts can
+        The easiest way to define resources is to use Kloudmake's DSL to define the resources. Those scripts can
         be created by just naming the file with an .stl file extension. In order to create a resource using the
         DSL, you can use the following syntax:
     </para>
@@ -22,7 +22,7 @@
     <para>
         This would create a resource of type '<code>core.file</code>' (resource type 'file' in the package 'core',
         with the attribute path set to /tmp/test.txt and the attribute content set to "Hello World". If you save
-        this in a file called `test.stl` and run the command<code>systyrant test.stl</code>, this would create
+        this in a file called `test.stl` and run the command<code>kloudmake test.stl</code>, this would create
         a file /tmp/test.txt and set the content to "Hello World". If the file already exists and has a
         different content, it would just modify it to the specified content.
     </para>

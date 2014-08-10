@@ -1,0 +1,21 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Kloudmake Test Suite" verbose="1">
+    <test name="Engine">
+        <packages>
+            <package name="com.kloudtek.kloudmake"/>
+            <package name="com.kloudtek.kloudmake.context"/>
+            <package name="com.kloudtek.kloudmake.dsl"/>
+            <package name="com.kloudtek.kloudmake.host"/>
+        </packages>
+    </test>
+    <test name="Core Modules">
+        <packages>
+            <package name="com.kloudtek.kloudmake.resource"/>
+        </packages>
+    </test>
+</suite>

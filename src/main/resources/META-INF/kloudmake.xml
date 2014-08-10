@@ -1,0 +1,13 @@
+<!--
+  ~ Copyright (c) 2013 KloudTek Ltd
+  -->
+
+<kloudmake>
+    <pkg>com.kloudtek.kloudmake.resource.core</pkg>
+    <pkg>com.kloudtek.kloudmake.resource.db</pkg>
+    <pkg>com.kloudtek.kloudmake.resource.vagrant</pkg>
+    <pkg>com.kloudtek.kloudmake.resource.intellij</pkg>
+    <pkg>com.kloudtek.kloudmake.service.credstore</pkg>
+    <pkg>com.kloudtek.kloudmake.service.filestore</pkg>
+    <pkg>com.kloudtek.kloudmake.host</pkg>
+</kloudmake>

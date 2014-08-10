@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="kloudmake:jar">
+    <output-path>$PROJECT_DIR$/../kloudmake-enterprise/vagrant/kloudmake</output-path>
+    <root id="root">
+      <element id="archive" name="kloudmake.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="kloudmake" />
+      </element>
+      <element id="library" level="module" name="runtime" module-name="kloudmake" />
+    </root>
+  </artifact>
+</component>

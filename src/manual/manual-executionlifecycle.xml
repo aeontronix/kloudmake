@@ -9,7 +9,7 @@
         When a resource is created, all tasks assigned to the INIT stage are immediately executed.
     </para>
     <para>
-        When the systyrant context is executed, it will go through the following lifecycle stages:
+        When the kloudmake context is executed, it will go through the following lifecycle stages:
     </para>
     <para>
         <emphasis role="bold">Prepare Stage</emphasis>

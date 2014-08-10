@@ -15,23 +15,23 @@
     </para>
     <simplelist>
         <member><emphasis role="strong">package</emphasis>: Package of the script</member>
-        <member><emphasis role="strong">ctx</emphasis>: SysTyrant Context (the java STContext instance).</member>
-        <member><emphasis role="strong">stsm</emphasis>: SysTyrant Service Manager.</member>
-        <member><emphasis role="strong">strm</emphasis>: SysTyrant Resource Manager.</member>
+        <member><emphasis role="strong">ctx</emphasis>: Kloudmake Context (the java STContext instance).</member>
+        <member><emphasis role="strong">stsm</emphasis>: Kloudmake Service Manager.</member>
+        <member><emphasis role="strong">strm</emphasis>: Kloudmake Resource Manager.</member>
     </simplelist>
     <para>
         Those can then be used to perform any required functions. For example, if you wanted to use ruby to perform the
         same file creation as described previously, you could create a file named `test.rb` with the following content:
         <programlisting language="ruby"><xi:include href="manual-scripting-ruby1.rb"
                                                     parse="text"/></programlisting>
-        and then execute the file using <code>systyrant test.rb</code>
+        and then execute the file using <code>kloudmake test.rb</code>
     </para>
     <para>
         Additionally some scripting languages will automatically load some wrapper code to facilitate development:
     </para>
     <para>
         Ruby:
-        <programlisting language="ruby" title="Ruby"><xi:include href="../java/com/kloudtek/systyrant/ruby/systyrant.rb"
+        <programlisting language="ruby" title="Ruby"><xi:include href="../main/resources/com/kloudtek/kloudmake/ruby/kloudmake.rb"
                                                     parse="text" /></programlisting>
     </para>
     <para>

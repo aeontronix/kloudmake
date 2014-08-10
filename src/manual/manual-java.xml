@@ -11,11 +11,11 @@
         <section>
             <title>Overview</title>
             <para>
-                The easiest way to create new resources is to use the SysTyrant annotations.
+                The easiest way to create new resources is to use the Kloudmake annotations.
             </para>
             <para>
                 In order to create a resource in java, all you need to do is to annotate a java class with the
-                <link xlink:href="@annourl@/STResource.html">com.kloudtek.systyrant.annotation.STResource</link> annotation,
+                <link xlink:href="@annourl@/STResource.html">com.kloudtek.kloudmake.annotation.STResource</link> annotation,
                 jar the compiled classes and place it in the <link linkend="libraries">libraries</link> directory.
             </para>
             <para>
@@ -38,11 +38,11 @@ public void class SomeTest {}</programlisting>
             </para>
             <para>
                 So if for example the above resource was located in a package 'com.mycompany.test', and you wanted the
-                SysTyrant resource package be just 'test', you just needed to created the following file
+                Kloudmake resource package be just 'test', you just needed to created the following file
                 <code>package-info.java</code> in that same packages:
             </para>
-            <programlisting language="java">@com.kloudtek.systyrant.annotation.STResource("test")
-package com.mycompany.test;</programlisting>
+            <programlisting language="java">@com.kloudtek.kloudmake.annotation.STResource("test")
+                package com.mycompany.test;</programlisting>
             <para>
                 Please note it is possible to have multiple classes with the same resource type. This is especially useful
                 when used in conjunction with <link xlink:href="@annourl@/OnlyIf.html">@OnlyIf</link>

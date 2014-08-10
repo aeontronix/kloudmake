@@ -7,27 +7,27 @@
          xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Host</title>
     <para>
-        The Host is one of the principal concepts in Systyrant, as it provides an abstraction layer that allows to
-        perform operations in the host machine SysTyrant is running against.
+        The Host is one of the principal concepts in Kloudmake, as it provides an abstraction layer that allows to
+        perform operations in the host machine Kloudmake is running against.
     </para>
     <para>
-        SysTyrant currently provides two different host implementations:
+        Kloudmake currently provides two different host implementations:
     </para>
     <para>
         <link xlink:href="@jdocurl@/Host/LocalHost.html">LocalHost</link> : This is the default implementation, which
-        provides access to the operating system SysTyrant is running under.
+        provides access to the operating system Kloudmake is running under.
     </para>
     <para>
         <link xlink:href="@jdocurl@/Host/SshHost.html">SshHost</link> : This host implementation allows to perform all
         operations on a remote server using SSH. It supports the use of sudo if a non-root user needs to be used.
     </para>
     <para>
-        When running SysTyrant, a host is assigned to the <link xlink:href="@jdocurl@/STContext.html">context</link>,
+        When running Kloudmake, a host is assigned to the <link xlink:href="@jdocurl@/STContext.html">context</link>,
         and will be the default host for all resources.
     </para>
     <para>
         In addition, each resource can have an <link
-            xlink:href="@jdocurl@/Resource.html#setHostOverride%28com.kloudtek.systyrant.host.Host%29">host override</link>
+            xlink:href="@jdocurl@/Resource.html#setHostOverride%28com.kloudtek.kloudmake.host.Host%29">host override</link>
         which will be valid for that host and any children (unless a children itself has an host override).
     </para>
     <para>

@@ -2,23 +2,23 @@
 
 if [ "$1" = "-u" ];
 then
-    echo "Un-installing SysTyrant"
-    rm -rf /usr/share/systyrant
-    rm -f /usr/bin/systyrant
+    echo "Un-installing Kloudmake"
+    rm -rf /usr/share/kloudmake
+    rm -f /usr/bin/kloudmake
 else
-    echo "Installing SysTyrant"
+    echo "Installing Kloudmake"
     COUNT=`awk '/^__SOURCE__/ { print NR + 1; exit 0; }' $0`
     THIS=`pwd`/$0
-    rm -rf /usr/share/systyrant/*
+    rm -rf /usr/share/kloudmake/*
     tail -n+${COUNT} ${THIS} | tar -C /usr/share -xj
 
-    chmod +x /usr/share/systyrant/bin/systyrant.sh
-    if [ ! -e '/usr/bin/systyrant' ]; then
-        echo "Creating symlink /usr/bin/systyrant"
-        ln -s /usr/share/systyrant/bin/systyrant.sh /usr/bin/systyrant
+    chmod +x /usr/share/kloudmake/bin/kloudmake.sh
+    if [ ! -e '/usr/bin/kloudmake' ]; then
+        echo "Creating symlink /usr/bin/kloudmake"
+        ln -s /usr/share/kloudmake/bin/kloudmake.sh /usr/bin/kloudmake
     fi
-    mkdir -p /usr/share/systyrant/libs/
-    mkdir -p /var/lib/systyrant/libs/
+    mkdir -p /usr/share/kloudmake/libs/
+    mkdir -p /var/lib/kloudmake/libs/
 fi
 
 

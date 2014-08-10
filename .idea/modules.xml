@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/systyrant.iml" filepath="$PROJECT_DIR$/systyrant.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../systyrant-enterprise/systyrant-enterprise.iml" filepath="$PROJECT_DIR$/../systyrant-enterprise/systyrant-enterprise.iml" />
-      <module fileurl="file://$PROJECT_DIR$/systyrant-wiki.iml" filepath="$PROJECT_DIR$/systyrant-wiki.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kloudmake.iml" filepath="$PROJECT_DIR$/kloudmake.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../kloudmake-enterprise/kloudmake-enterprise.iml" filepath="$PROJECT_DIR$/../kloudmake-enterprise/kloudmake-enterprise.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kloudmake-wiki.iml" filepath="$PROJECT_DIR$/kloudmake-wiki.iml" />
     </modules>
   </component>
 </project>
