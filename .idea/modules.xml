@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/cli/cli.iml" filepath="$PROJECT_DIR$/cli/cli.iml" />
+      <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/kloudmake.iml" filepath="$PROJECT_DIR$/kloudmake.iml" />
       <module fileurl="file://$PROJECT_DIR$/../kloudmake-enterprise/kloudmake-enterprise.iml" filepath="$PROJECT_DIR$/../kloudmake-enterprise/kloudmake-enterprise.iml" />
       <module fileurl="file://$PROJECT_DIR$/kloudmake-wiki.iml" filepath="$PROJECT_DIR$/kloudmake-wiki.iml" />
