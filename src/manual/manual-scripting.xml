@@ -31,7 +31,7 @@
     </para>
     <para>
         Ruby:
-        <programlisting language="ruby" title="Ruby"><xi:include href="../main/resources/com/kloudtek/kloudmake/ruby/kloudmake.rb"
+        <programlisting language="ruby" title="Ruby"><xi:include href="../../core-impl/src/main/resources/com/kloudtek/kloudmake/ruby/kloudmake.rb"
                                                     parse="text" /></programlisting>
     </para>
     <para>

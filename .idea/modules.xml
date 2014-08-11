@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/core-api/kloudmake-core-api.iml" filepath="$PROJECT_DIR$/core-api/kloudmake-core-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/../kloudmake-enterprise/kloudmake-enterprise.iml" filepath="$PROJECT_DIR$/../kloudmake-enterprise/kloudmake-enterprise.iml" />
       <module fileurl="file://$PROJECT_DIR$/kloudmake-wiki.iml" filepath="$PROJECT_DIR$/kloudmake-wiki.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lang-ruby/lang-ruby.iml" filepath="$PROJECT_DIR$/lang-ruby/lang-ruby.iml" />
     </modules>
   </component>
 </project>

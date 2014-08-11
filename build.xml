@@ -46,7 +46,7 @@
         <mkdir dir="${build.dir}/manualxml"/>
         <copy todir="${build.dir}/manualxml">
             <fileset dir="src/manual" includes="*"/>
-            <fileset dir="src/main/java/com/kloudtek/kloudmake/ruby/" includes="*.rb"/>
+            <fileset dir="core-impl/src/main/java/com/kloudtek/kloudmake/ruby/" includes="*.rb"/>
             <filterset>
                 <filter token="docsurl" value="${docs.url}"/>
                 <filter token="jdocurl" value="${javadoc.url}"/>
@@ -141,7 +141,7 @@
 
     <target name="antlr" extensionOf="pre-compile">
         <mkdir dir="${build.dir}/antlr/"/>
-        <copy file="src/main/antlr4/com/kloudtek/kloudmake/dsl/KloudmakeDSL.g4" todir="${build.dir}/antlr"/>
+        <copy file="core-impl/src/main/antlr4/com/kloudtek/kloudmake/dsl/KloudmakeDSL.g4" todir="${build.dir}/antlr"/>
         <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
             <arg value="${build.dir}/antlr/KloudmakeDSL.g"/>
             <arg value="-package"/>
@@ -149,7 +149,7 @@
             <arg value="-o"/>
             <arg value="${build.dir}/antlr/com/kloudtek/kloudmake/dsl"/>
         </java>
-        <copy file="src/main/antlr4/com/kloudtek/kloudmake/dsl/KloudmakeLang.g4" todir="${build.dir}/antlr"/>
+        <copy file="core-impl/src/main/antlr4/com/kloudtek/kloudmake/dsl/KloudmakeLang.g4" todir="${build.dir}/antlr"/>
         <java classname="org.antlr.v4.Tool" classpath="_deps/build-jar/antlr-complete.jar" failonerror="true">
             <arg value="${build.dir}/antlr/KloudmakeLang.g"/>
             <arg value="-package"/>
