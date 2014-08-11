@@ -9,7 +9,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.kloudtek.kloudmake</groupId>
     <artifactId>kloudmake</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${kloudmake.version}</version>
+
+    <properties>
+        <kloudmake.version>1.0-SNAPSHOT</kloudmake.version>
+        <reflections.version>0.9.9-RC2</reflections.version>
+    </properties>
+
     <modules>
         <module>core-api</module>
         <module>core-impl</module>
@@ -20,9 +26,6 @@
     <description>Next generation devops tool designed for the enterprise</description>
     <url>https://github.com/Kloudtek/kloudmake</url>
 
-    <properties>
-        <reflections.version>0.9.9-RC2</reflections.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>
