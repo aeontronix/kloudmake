@@ -18,7 +18,7 @@ import java.util.List;
 import static com.kloudtek.kloudmake.dsl.AntLRUtils.nullToEmpty;
 
 public class DSLScript {
-    private STContext ctx;
+    private KMContextImpl ctx;
     private String source;
     private String defaultPackage;
     private List<ResourceMatcher> imports = new ArrayList<>();
@@ -26,7 +26,7 @@ public class DSLScript {
     private List<Statement> statements = new ArrayList<>();
     private ResourceMatcher defaultPkgMatcher;
 
-    public DSLScript(@NotNull STContext ctx, @Nullable String defaultPackage, @NotNull KloudmakeLangParser.ScriptContext startContext) throws InvalidScriptException {
+    public DSLScript(@NotNull KMContextImpl ctx, @Nullable String defaultPackage, @NotNull KloudmakeLangParser.ScriptContext startContext) throws InvalidScriptException {
         source = ctx.getSourceUrl();
         this.ctx = ctx;
         this.defaultPackage = defaultPackage;
@@ -35,7 +35,7 @@ public class DSLScript {
         }
     }
 
-    public STContext getCtx() {
+    public KMContextImpl getCtx() {
         return ctx;
     }
 
@@ -83,7 +83,7 @@ public class DSLScript {
         defines.add(resourceDefStatement);
     }
 
-    public void execute(STContext ctx) throws InvalidResourceDefinitionException, ScriptException {
+    public void execute(KMContextImpl ctx) throws InvalidResourceDefinitionException, ScriptException {
         ResourceManager resourceManager = ctx.getResourceManager();
         for (DSLResourceDefinition define : defines) {
             ResourceDefinition resourceDefinition = define.toResDef(ctx);

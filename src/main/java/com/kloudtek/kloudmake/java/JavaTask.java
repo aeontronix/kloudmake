@@ -42,11 +42,11 @@ public class JavaTask extends AbstractTask {
     }
 
     @Override
-    public void execute(STContext context, Resource resource) throws STRuntimeException {
+    public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
         invoke(context, resource, method);
     }
 
-    private Object invoke(STContext context, Resource resource, Method method) throws STRuntimeException {
+    private Object invoke(KMContextImpl context, Resource resource, Method method) throws STRuntimeException {
         Object javaImpl = resource.getJavaImpl(implClass);
         if (javaImpl == null) {
             try {
@@ -64,7 +64,7 @@ public class JavaTask extends AbstractTask {
     }
 
     @Override
-    public boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException {
+    public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
         if (verifyMethod != null) {
             return (boolean) invoke(context, resource, verifyMethod);
         }
@@ -72,7 +72,7 @@ public class JavaTask extends AbstractTask {
     }
 
     @Override
-    public boolean supports(STContext context, Resource resource) throws STRuntimeException {
+    public boolean supports(KMContextImpl context, Resource resource) throws STRuntimeException {
         if (onlyIf != null && !onlyIf.isEmpty()) {
             for (EnforceOnlyIf enforceOnlyIf : onlyIf) {
                 if (!enforceOnlyIf.execAllowed(context, resource)) {
@@ -83,7 +83,7 @@ public class JavaTask extends AbstractTask {
         return true;
     }
 
-    protected void injectAndValidate(Resource resource, Object javaImpl, STContext ctx) throws FieldInjectionException, ResourceValidationException {
+    protected void injectAndValidate(Resource resource, Object javaImpl, KMContextImpl ctx) throws FieldInjectionException, ResourceValidationException {
         for (Injector injector : injectors) {
             injector.inject(resource, javaImpl, ctx);
         }

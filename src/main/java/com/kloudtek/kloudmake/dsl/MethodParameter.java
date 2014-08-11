@@ -4,9 +4,9 @@
 
 package com.kloudtek.kloudmake.dsl;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Parameters;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public class MethodParameter extends Parameter {
     }
 
     @Override
-    public String eval(STContext ctx, Resource resource) throws STRuntimeException {
+    public String eval(KMContextImpl ctx, Resource resource) throws STRuntimeException {
         return ctx.invokeMethod(name, params).toString();
     }
 }

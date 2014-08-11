@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.query;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ import java.util.List;
 public abstract class Expression {
     private static final Logger logger = LoggerFactory.getLogger(Expression.class);
 
-    public static Expression create(KloudmakeLangParser.QueryExpressionContext expr, String query, STContext context, Resource baseResource) throws InvalidQueryException {
+    public static Expression create(KloudmakeLangParser.QueryExpressionContext expr, String query, KMContextImpl context, Resource baseResource) throws InvalidQueryException {
         if (expr.attrMatch != null) {
             return new AttrMatchExpression(expr.attrMatch, query, context);
         } else if (expr.bOp != null) {
@@ -47,5 +47,5 @@ public abstract class Expression {
         }
     }
 
-    public abstract boolean matches(STContext context, Resource resource);
+    public abstract boolean matches(KMContextImpl context, Resource resource);
 }

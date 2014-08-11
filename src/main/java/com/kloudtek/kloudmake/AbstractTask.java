@@ -79,12 +79,12 @@ public abstract class AbstractTask implements Task {
     }
 
     @Override
-    public boolean supports(STContext context, Resource resource) throws STRuntimeException {
+    public boolean supports(KMContextImpl context, Resource resource) throws STRuntimeException {
         return true;
     }
 
     @Override
-    public boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException {
+    public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
         return true;
     }
 }

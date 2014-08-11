@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.statement;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.DSLScript;
 import com.kloudtek.kloudmake.dsl.InvalidScriptException;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
@@ -25,13 +25,13 @@ public class DepLinkedCreateResourceStatement extends Statement {
     private Statement rightStatement;
     private boolean forwardDep;
 
-    public DepLinkedCreateResourceStatement(STContext ctx, KloudmakeLangParser.CreateResourceContext createResourceContext) throws InvalidScriptException {
+    public DepLinkedCreateResourceStatement(KMContextImpl ctx, KloudmakeLangParser.CreateResourceContext createResourceContext) throws InvalidScriptException {
         forwardDep = createResourceContext.rlk != null;
         leftStatement = createSubStatement(ctx, createResourceContext.ldep);
         rightStatement = createSubStatement(ctx, createResourceContext.rdep);
     }
 
-    private Statement createSubStatement(STContext ctx, KloudmakeLangParser.CreateResourceContext createResourceContext) throws InvalidScriptException {
+    private Statement createSubStatement(KMContextImpl ctx, KloudmakeLangParser.CreateResourceContext createResourceContext) throws InvalidScriptException {
         if (createResourceContext.rlk != null || createResourceContext.llk != null) {
             return new DepLinkedCreateResourceStatement(ctx, createResourceContext);
         } else {

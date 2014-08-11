@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.service.credstore;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.Stage;
 import com.kloudtek.kloudmake.annotation.Function;
 import com.kloudtek.kloudmake.annotation.Inject;
@@ -37,7 +37,7 @@ public class CredStore implements AutoCloseable {
     public static final byte[] MAGIC;
     public static final int BLOCKSIZE = 16;
     @Inject
-    private STContext ctx;
+    private KMContextImpl ctx;
     private final SecureRandom rng = new SecureRandom();
     private static final char[] supportedSymbols = new char[]{'!', '@', '$', '%', '^', '&', '*', '(', ')', '-', '=',
             '[', ']', '{', '}', ';', ':', '|', '<', '>', '?'};
@@ -52,7 +52,7 @@ public class CredStore implements AutoCloseable {
         }
     }
 
-    public static CredStore get(STContext ctx) throws InvalidServiceException {
+    public static CredStore get(KMContextImpl ctx) throws InvalidServiceException {
         return ctx.getServiceManager().getService(CredStore.class);
     }
 

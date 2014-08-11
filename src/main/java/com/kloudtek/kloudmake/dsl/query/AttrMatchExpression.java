@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.query;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.AntLRUtils;
 import com.kloudtek.kloudmake.dsl.LogOp;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
@@ -27,7 +27,7 @@ public class AttrMatchExpression extends Expression {
     private final String attr;
     private boolean not;
 
-    public AttrMatchExpression(KloudmakeLangParser.QueryAttrMatchContext attrMatch, String query, STContext context) throws InvalidQueryException {
+    public AttrMatchExpression(KloudmakeLangParser.QueryAttrMatchContext attrMatch, String query, KMContextImpl context) throws InvalidQueryException {
         attr = attrMatch.attr.getText();
         if (isEmpty(attr)) {
             throw new InvalidQueryException(attrMatch.attr.getStart(), query);
@@ -52,7 +52,7 @@ public class AttrMatchExpression extends Expression {
     }
 
     @Override
-    public boolean matches(STContext context, Resource resource) {
+    public boolean matches(KMContextImpl context, Resource resource) {
         String attrVal = resource.get(attr);
         boolean result = eval(attrVal);
         return not ? !result : result;

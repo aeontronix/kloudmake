@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ResourceManager extends Iterable<Resource> {
-    void setContext(STContext context);
+    void setContext(KMContextImpl context);
 
     List<ResourceDefinition> getResourceDefinitions();
 

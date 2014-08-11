@@ -93,7 +93,7 @@ public class FQName {
         this.pkg = pkg;
     }
 
-    public boolean matches(FQName fqname, STContext ctx) {
+    public boolean matches(FQName fqname, KMContextImpl ctx) {
         if (isNotEmpty(pkg)) {
             return equals(fqname);
         } else {

@@ -27,11 +27,11 @@ public class JavaResourceTests extends AbstractContextTest {
 
     public static class InjectContext {
         @Inject
-        private STContext context;
+        private KMContextImpl context;
 
         @Prepare
         public void test() {
-            assertEquals(context, STContext.get());
+            assertEquals(context, KMContextImpl.get());
         }
     }
 

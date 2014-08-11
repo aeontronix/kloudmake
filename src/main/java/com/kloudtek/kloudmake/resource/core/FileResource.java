@@ -5,8 +5,8 @@
 package com.kloudtek.kloudmake.resource.core;
 
 import com.kloudtek.kloudmake.FQName;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.annotation.*;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
@@ -46,7 +46,7 @@ public class FileResource {
     private static final Logger logger = LoggerFactory.getLogger(FileResource.class);
     private static final byte[] EMPTYSTRSHA1 = DigestUtils.sha1(new byte[0]);
     @Inject
-    private STContext ctx;
+    private KMContextImpl ctx;
     @Service
     protected FileStore fileStore;
     @Inject
@@ -220,7 +220,7 @@ public class FileResource {
                     DataFile dataFile = fileStore.create(source);
                     if (template) {
                         Template templateObj = getTemplate(dataFile);
-                        STContext context = STContext.get();
+                        KMContextImpl context = KMContextImpl.get();
                         HashMap<String, Object> map = new HashMap<>();
                         Resource res;
                         if (templateResource != null) {

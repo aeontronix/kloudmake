@@ -23,11 +23,11 @@ import java.util.concurrent.locks.Lock;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class ResourceManagerImpl implements ResourceManager {
-    private STContext context;
+    private KMContextImpl context;
     private static final Logger logger = LoggerFactory.getLogger(ResourceManagerImpl.class);
     private boolean closed;
 
-    public ResourceManagerImpl(STContext context) {
+    public ResourceManagerImpl(KMContextImpl context) {
         this.context = context;
     }
 
@@ -42,7 +42,7 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public void setContext(STContext context) {
+    public void setContext(KMContextImpl context) {
         this.context = context;
     }
 

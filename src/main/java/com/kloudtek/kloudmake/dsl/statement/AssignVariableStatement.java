@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.statement;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.DSLScript;
 import com.kloudtek.kloudmake.dsl.InvalidScriptException;
 import com.kloudtek.kloudmake.dsl.Parameter;
@@ -23,11 +23,11 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class AssignVariableStatement extends Statement {
-    private final STContext ctx;
+    private final KMContextImpl ctx;
     private String name;
     private Parameter param;
 
-    public AssignVariableStatement(STContext ctx, KloudmakeLangParser.AssignVariableStatementContext vctx) throws InvalidScriptException {
+    public AssignVariableStatement(KMContextImpl ctx, KloudmakeLangParser.AssignVariableStatementContext vctx) throws InvalidScriptException {
         this.ctx = ctx;
         name = vctx.var.getText();
         param = Parameter.create(vctx.val);

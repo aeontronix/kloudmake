@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 
 public class StaticParameter extends Parameter {
     private String value;
@@ -31,7 +31,7 @@ public class StaticParameter extends Parameter {
     }
 
     @Override
-    public String eval(STContext ctx, Resource resource) {
+    public String eval(KMContextImpl ctx, Resource resource) {
         return value;
     }
 

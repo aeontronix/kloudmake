@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.java;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.annotation.OnlyIf;
 import com.kloudtek.kloudmake.annotation.OnlyIfOperatingSystem;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
@@ -20,7 +20,7 @@ import java.util.Set;
  * Base class for all OnlyIf annotation enforcement.
  */
 public abstract class EnforceOnlyIf {
-    public abstract boolean execAllowed(STContext context, Resource resource) throws STRuntimeException;
+    public abstract boolean execAllowed(KMContextImpl context, Resource resource) throws STRuntimeException;
 
     public static Set<EnforceOnlyIf> find(Class<?> clazz) throws InvalidResourceDefinitionException {
         HashSet<EnforceOnlyIf> list = new HashSet<>();

@@ -4,7 +4,7 @@
 
 package com.kloudtek.kloudmake.dsl;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import org.jetbrains.annotations.NotNull;
 
 import javax.script.ScriptEngine;
@@ -23,9 +23,9 @@ import java.util.List;
 public class DSLScriptingEngineFactory implements ScriptEngineFactory {
     public static final String NAME = "KloudmakeDSL";
     private List<String> exts = Arrays.asList("stl");
-    private STContext ctx;
+    private KMContextImpl ctx;
 
-    public DSLScriptingEngineFactory(@NotNull STContext ctx) {
+    public DSLScriptingEngineFactory(@NotNull KMContextImpl ctx) {
         this.ctx = ctx;
     }
 

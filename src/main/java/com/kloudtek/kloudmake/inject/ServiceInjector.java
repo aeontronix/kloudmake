@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.inject;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.ServiceManager;
 import com.kloudtek.kloudmake.annotation.Service;
 import com.kloudtek.kloudmake.exception.FieldInjectionException;
@@ -28,7 +28,7 @@ public class ServiceInjector extends Injector {
     }
 
     @Override
-    public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
+    public void inject(Resource resource, Object obj, KMContextImpl ctx) throws FieldInjectionException {
         try {
             ServiceManager serviceManager = ctx.getServiceManager();
             boolean nameSpecified = isNotEmpty(name);

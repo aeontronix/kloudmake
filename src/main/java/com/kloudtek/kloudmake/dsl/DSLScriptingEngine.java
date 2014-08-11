@@ -4,7 +4,7 @@
 
 package com.kloudtek.kloudmake.dsl;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
 import com.kloudtek.util.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +17,10 @@ import static javax.script.ScriptContext.ENGINE_SCOPE;
 
 public class DSLScriptingEngine extends AbstractScriptEngine {
     private DSLParser parser = new AntlrDSLParser();
-    private final STContext ctx;
+    private final KMContextImpl ctx;
     private ScriptEngineFactory factory;
 
-    public DSLScriptingEngine(@NotNull STContext ctx, @NotNull DSLScriptingEngineFactory factory) {
+    public DSLScriptingEngine(@NotNull KMContextImpl ctx, @NotNull DSLScriptingEngineFactory factory) {
         this.ctx = ctx;
         this.factory = factory;
     }

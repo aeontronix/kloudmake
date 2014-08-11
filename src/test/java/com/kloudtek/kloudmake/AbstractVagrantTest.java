@@ -26,13 +26,13 @@ public class AbstractVagrantTest {
     public static final String UNIQUETEST = "test.uniquetest";
     public static final String VAGRANTDIR = "_vagrant";
     public static final String TESTDIR = VAGRANTDIR + File.separator + "_vagrant";
-    protected STContext ctx;
+    protected KMContextImpl ctx;
     protected ResourceManager resourceManager;
     protected Host host;
     protected SshHost sshHost;
 
     public void init() throws STRuntimeException, InvalidResourceDefinitionException, ResourceCreationException, InjectException, IOException {
-        ctx = new STContext();
+        ctx = new KMContextImpl();
         host = ctx.getHost();
         Executor exec = new DefaultExecutor();
         File vagrantDir = new File(VAGRANTDIR);

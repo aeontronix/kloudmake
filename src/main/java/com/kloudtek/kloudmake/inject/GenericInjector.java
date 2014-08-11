@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.inject;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.ServiceManager;
 import com.kloudtek.kloudmake.exception.FieldInjectionException;
 import com.kloudtek.kloudmake.exception.InvalidAttributeException;
@@ -23,7 +23,7 @@ public class GenericInjector extends AttrInjector {
     public GenericInjector(Class<?> clazz, Field field) {
         super(clazz, field.getName(), field);
         fieldType = field.getType();
-        if (STContext.class.isAssignableFrom(fieldType)) {
+        if (KMContextImpl.class.isAssignableFrom(fieldType)) {
             type = Type.CONTEXT;
         } else if (Resource.class.isAssignableFrom(fieldType)) {
             type = Type.RESOURCE;
@@ -37,7 +37,7 @@ public class GenericInjector extends AttrInjector {
     }
 
     @Override
-    public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
+    public void inject(Resource resource, Object obj, KMContextImpl ctx) throws FieldInjectionException {
         switch (type) {
             case CONTEXT:
                 inject(obj, ctx);

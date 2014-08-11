@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ResourceImpl implements Resource {
     private static final Logger logger = LoggerFactory.getLogger(Resource.class);
     private Map<String, String> attributes = new HashMap<>();
-    private transient STContext context;
+    private transient KMContextImpl context;
     private ResourceDefinition definition;
     private Resource parent;
     private boolean executable = true;
@@ -46,7 +46,7 @@ public class ResourceImpl implements Resource {
     final HashMap<String, List<Resource>> requires = new HashMap<>();
     final VariableMap variables = new VariableMap(this);
 
-    public ResourceImpl(STContext context, ResourceDefinition definition, String id, String uid, Resource parent) {
+    public ResourceImpl(KMContextImpl context, ResourceDefinition definition, String id, String uid, Resource parent) {
         this.context = context;
         this.definition = definition;
         this.parent = parent;
@@ -493,7 +493,7 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public STContext context() {
+    public KMContextImpl context() {
         return context;
     }
 

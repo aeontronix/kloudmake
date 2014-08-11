@@ -54,7 +54,7 @@ public class TestResource {
 
     @Prepare
     public void prepare() throws STRuntimeException {
-        STContext ctx = STContext.get();
+        KMContextImpl ctx = KMContextImpl.get();
         assertNotNull(ctx);
         resource = findResource(ctx);
         prepared = new Date();
@@ -66,7 +66,7 @@ public class TestResource {
         if (childs != null) {
             for (String id : childs) {
                 try {
-                    STContext.get().getResourceManager().createResource("test.test", id, resource);
+                    KMContextImpl.get().getResourceManager().createResource("test.test", id, resource);
                 } catch (ResourceCreationException e) {
                     throw new STRuntimeException(e.getMessage(), e);
                 }
@@ -114,7 +114,7 @@ public class TestResource {
             throw new STRuntimeException("Failed execution as requested");
         }
         if (createElementDuringExecute) {
-            STContext.get().getResourceManager().createResource("test.test", id + "-exechildren");
+            KMContextImpl.get().getResourceManager().createResource("test.test", id + "-exechildren");
         }
     }
 
@@ -298,7 +298,7 @@ public class TestResource {
         }
     }
 
-    public Resource findResource(STContext context) throws STRuntimeException {
+    public Resource findResource(KMContextImpl context) throws STRuntimeException {
         for (Resource resource : context.getResourceManager()) {
             if (resource.getJavaImpl(TestResource.class) != null) {
                 return resource;
@@ -318,7 +318,7 @@ public class TestResource {
         }
 
         @Override
-        public void execute(STContext context, Resource resource) throws STRuntimeException {
+        public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
             try {
                 logger.info("Creating children {} for resource {}", name, parent);
                 context.getResourceManager().createResource(AbstractContextTest.TEST, name, parent);

@@ -46,7 +46,7 @@ public class MethodInvoker {
         }
     }
 
-    public Object invoke(STContext ctx, @NotNull Parameters params) throws STRuntimeException {
+    public Object invoke(KMContextImpl ctx, @NotNull Parameters params) throws STRuntimeException {
         Object[] plist = new Object[paramCount];
         List<Parameter> parameters = params.getParameters();
         if (parameters.size() > paramCount) {

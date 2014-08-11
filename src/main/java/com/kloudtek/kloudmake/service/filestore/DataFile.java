@@ -4,7 +4,7 @@
 
 package com.kloudtek.kloudmake.service.filestore;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
@@ -25,7 +25,7 @@ public abstract class DataFile implements AutoCloseable {
     public String copyToTemp() throws STRuntimeException {
         try {
             InputStream fileStream = new BufferedInputStream(getStream());
-            Host host = STContext.get().host();
+            Host host = KMContextImpl.get().host();
             String tempFile = host.createTempFile();
             host.writeToFile(tempFile, fileStream);
             return tempFile;
@@ -36,7 +36,7 @@ public abstract class DataFile implements AutoCloseable {
 
     public boolean copyTo(String path) throws STRuntimeException {
         try {
-            Host host = STContext.get().host();
+            Host host = KMContextImpl.get().host();
             if (host.fileExists(path)) {
                 byte[] hostSha1 = host.getFileSha1(path);
                 if (hostSha1 != null) {

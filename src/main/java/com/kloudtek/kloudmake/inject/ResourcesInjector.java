@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.inject;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.FieldInjectionException;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
 
@@ -21,7 +21,7 @@ public class ResourcesInjector extends Injector {
     }
 
     @Override
-    public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
+    public void inject(Resource resource, Object obj, KMContextImpl ctx) throws FieldInjectionException {
         try {
             List<Resource> resources = ctx.findResources(query);
             inject(obj, resources);

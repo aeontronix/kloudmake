@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.InvalidVariableException;
 
 /**
@@ -39,7 +39,7 @@ public class VariableParameter extends Parameter {
     }
 
     @Override
-    public String eval(STContext ctx, Resource resource) throws InvalidVariableException {
+    public String eval(KMContextImpl ctx, Resource resource) throws InvalidVariableException {
         return resolveVariable(resource, parameterId);
     }
 

@@ -31,7 +31,7 @@ public class ResourceInitTask extends AbstractTask {
     }
 
     @Override
-    public void execute(STContext context, Resource resource) throws STRuntimeException {
+    public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
         try {
             ((ResourceImpl) resource).addJavaImpl(clazz.newInstance());
             for (String require : requires) {

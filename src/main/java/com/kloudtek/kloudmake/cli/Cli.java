@@ -10,7 +10,7 @@ import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.core.ConsoleAppender;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
 import com.kloudtek.kloudmake.host.SshHost;
 import com.kloudtek.kloudmake.service.credstore.CredStore;
@@ -64,7 +64,7 @@ public class Cli {
 
     public int execute() {
         try {
-            STContext context = new STContext();
+            KMContextImpl context = new KMContextImpl();
             if (StringUtils.isNotEmpty(ssh)) {
                 Matcher sshMatcher = RGXSSH.matcher(ssh);
                 if (!sshMatcher.find()) {
@@ -127,7 +127,7 @@ public class Cli {
         }
     }
 
-    private void registerLibs(STContext context) {
+    private void registerLibs(KMContextImpl context) {
         if (moduleDirs == null) {
             moduleDirs = new ArrayList<>();
         }
@@ -145,7 +145,7 @@ public class Cli {
         }
     }
 
-    private CredStore configureCredStore(STContext context) throws InvalidServiceException, IOException, UnableToDecryptException {
+    private CredStore configureCredStore(KMContextImpl context) throws InvalidServiceException, IOException, UnableToDecryptException {
         CredStore credStore = CredStore.get(context);
         if (cryptPw != null) {
             crypt = true;

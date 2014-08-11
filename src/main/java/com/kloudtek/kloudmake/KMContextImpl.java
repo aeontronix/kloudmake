@@ -40,11 +40,11 @@ import static javax.script.ScriptContext.ENGINE_SCOPE;
 /**
  * This is the "brains" of Kloudmake, which contains the application's state
  */
-public class STContext implements AutoCloseable {
+public class KMContextImpl implements AutoCloseable, KMContext {
     private static final HashMap<String, String> scriptingSupport = new HashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(STContext.class);
-    static ThreadLocal<STContext> ctx = new ThreadLocal<>();
-    private STCLifecycleExecutor lifecycleExecutor = new STCLifecycleExecutor(this);
+    private static final Logger logger = LoggerFactory.getLogger(KMContextImpl.class);
+    static ThreadLocal<KMContextImpl> ctx = new ThreadLocal<>();
+    private KMLifecycleExecutor lifecycleExecutor = new KMLifecycleExecutor(this);
 
     // Generic
 
@@ -64,7 +64,7 @@ public class STContext implements AutoCloseable {
     boolean newLibAdded;
     Reflections reflections;
     List<Library> libraries = new ArrayList<>();
-    LibraryClassLoader libraryClassloader = new LibraryClassLoader(new URL[0], STContext.class.getClassLoader());
+    LibraryClassLoader libraryClassloader = new LibraryClassLoader(new URL[0], KMContextImpl.class.getClassLoader());
 
     // Resources
 
@@ -106,17 +106,17 @@ public class STContext implements AutoCloseable {
 
     static {
         try {
-            scriptingSupport.put("rb", IOUtils.toString(STContext.class.getResourceAsStream("ruby/kloudmake.rb")));
+            scriptingSupport.put("rb", IOUtils.toString(KMContextImpl.class.getResourceAsStream("ruby/kloudmake.rb")));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public STContext() throws InvalidResourceDefinitionException, STRuntimeException {
+    public KMContextImpl() throws InvalidResourceDefinitionException, STRuntimeException {
         this(new LocalHost());
     }
 
-    public STContext(Host host) throws InvalidResourceDefinitionException, STRuntimeException {
+    public KMContextImpl(Host host) throws InvalidResourceDefinitionException, STRuntimeException {
         this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
         resourceManager = new ResourceManagerImpl(this);
@@ -130,6 +130,7 @@ public class STContext implements AutoCloseable {
     // Libraries
     // ------------------------------------------------------------------------------------------
 
+    @Override
     public void registerLibraries(File libDir) {
         logger.debug("Scanning libraries directory {}", libDir);
         if (libDir.exists()) {
@@ -392,12 +393,12 @@ public class STContext implements AutoCloseable {
     // ------------------------------------------------------------------------------------------
 
     public boolean execute() throws STRuntimeException {
-        STContext.ctx.set(this);
+        KMContextImpl.ctx.set(this);
         try {
             return lifecycleExecutor.execute();
         } finally {
             host.close();
-            STContext.ctx.remove();
+            KMContextImpl.ctx.remove();
         }
     }
 
@@ -478,7 +479,7 @@ public class STContext implements AutoCloseable {
     // Other runtime methods for use by resources or calling code
     // ------------------------------------------------------------------------------------------
 
-    public static STContext get() {
+    public static KMContextImpl get() {
         return ctx.get();
     }
 
@@ -595,7 +596,7 @@ public class STContext implements AutoCloseable {
                     }
                     Inject inject = field.getAnnotation(Inject.class);
                     if (inject != null) {
-                        if (STContext.class.isAssignableFrom(type)) {
+                        if (KMContextImpl.class.isAssignableFrom(type)) {
                             if (!field.isAccessible()) {
                                 field.setAccessible(true);
                             }

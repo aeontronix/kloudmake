@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.statement;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.DSLScript;
 import com.kloudtek.kloudmake.dsl.InvalidScriptException;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
@@ -19,7 +19,7 @@ public abstract class Statement {
     @Nullable
     public abstract List<Resource> execute(@NotNull DSLScript dslScript, @NotNull Resource resource) throws ScriptException;
 
-    public static Statement create(STContext ctx, KloudmakeLangParser.StatementContext statementContext) throws InvalidScriptException {
+    public static Statement create(KMContextImpl ctx, KloudmakeLangParser.StatementContext statementContext) throws InvalidScriptException {
         if (statementContext.create != null) {
             if (statementContext.create.llk != null || statementContext.create.rlk != null) {
                 return new DepLinkedCreateResourceStatement(ctx, statementContext.create);

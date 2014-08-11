@@ -107,7 +107,7 @@ public class ManyToManyResourceDependency implements ResourceDependency {
                 '}';
     }
 
-    public Set<OneToManyResourceDependency> resolve(STContext context) throws InvalidDependencyException {
+    public Set<OneToManyResourceDependency> resolve(KMContextImpl context) throws InvalidDependencyException {
         Set<OneToManyResourceDependency> o2mSet = new HashSet<>();
         try {
             if (originRef != null) {

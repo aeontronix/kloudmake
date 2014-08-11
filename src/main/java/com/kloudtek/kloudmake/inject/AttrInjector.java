@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.inject;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.FieldInjectionException;
 import com.kloudtek.kloudmake.exception.InvalidAttributeException;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -27,7 +27,7 @@ public class AttrInjector extends Injector {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
+    public void inject(Resource resource, Object obj, KMContextImpl ctx) throws FieldInjectionException {
         Class<?> fieldType = field.getType();
         String val = resource.get(name);
         if (val != null) {

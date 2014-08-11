@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.query;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangLexer;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
@@ -25,9 +25,9 @@ import java.util.List;
  */
 public class ResourceQuery {
     private final Expression expression;
-    private final STContext context;
+    private final KMContextImpl context;
 
-    public ResourceQuery(STContext context, String query, Resource baseResource) throws InvalidQueryException {
+    public ResourceQuery(KMContextImpl context, String query, Resource baseResource) throws InvalidQueryException {
         this.context = context;
         KloudmakeLangParser parser = new KloudmakeLangParser(new CommonTokenStream(new KloudmakeLangLexer(new ANTLRInputStream(query))));
         parser.setErrorHandler(new BailErrorStrategy());

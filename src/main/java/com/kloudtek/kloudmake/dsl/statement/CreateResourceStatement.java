@@ -5,8 +5,8 @@
 package com.kloudtek.kloudmake.dsl.statement;
 
 import com.kloudtek.kloudmake.FQName;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.*;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import org.jetbrains.annotations.Nullable;
@@ -17,9 +17,9 @@ import java.util.*;
 public class CreateResourceStatement extends Statement {
     private FQName type;
     private List<Instance> instances = new ArrayList<>();
-    private STContext ctx;
+    private KMContextImpl ctx;
 
-    public CreateResourceStatement(STContext ctx, KloudmakeLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
+    public CreateResourceStatement(KMContextImpl ctx, KloudmakeLangParser.CreateResourceContext createElementsContext) throws InvalidScriptException {
         this.ctx = ctx;
         type = new FQName(createElementsContext.type.getText());
         Map<String, Parameter> params = new LinkedHashMap<>();

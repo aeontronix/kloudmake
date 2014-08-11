@@ -4,18 +4,18 @@
 
 package com.kloudtek.kloudmake.dsl;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 public class AntlrDSLParser implements DSLParser {
     @Override
-    public DSLScript parse(STContext ctx, String script) throws InvalidScriptException {
+    public DSLScript parse(KMContextImpl ctx, String script) throws InvalidScriptException {
         return parse(ctx, null, script);
     }
 
     @Override
-    public DSLScript parse(STContext ctx, String pkg, String script) throws InvalidScriptException {
+    public DSLScript parse(KMContextImpl ctx, String pkg, String script) throws InvalidScriptException {
         KloudmakeLangParser parser = createParser(script);
         try {
             return parseRoot(ctx, pkg, parser.script());
@@ -36,15 +36,15 @@ public class AntlrDSLParser implements DSLParser {
 
     @Override
     public DSLScript parse(String script) throws InvalidScriptException {
-        return parse(STContext.get(), script);
+        return parse(KMContextImpl.get(), script);
     }
 
     @Override
     public DSLScript parse(String pkg, String script) throws InvalidScriptException {
-        return parse(STContext.get(), script);
+        return parse(KMContextImpl.get(), script);
     }
 
-    private DSLScript parseRoot(STContext ctx, String pkg, KloudmakeLangParser.ScriptContext start) throws InvalidScriptException {
+    private DSLScript parseRoot(KMContextImpl ctx, String pkg, KloudmakeLangParser.ScriptContext start) throws InvalidScriptException {
         return new DSLScript(ctx, pkg, start);
     }
 

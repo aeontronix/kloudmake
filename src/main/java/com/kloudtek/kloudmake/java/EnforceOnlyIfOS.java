@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.java;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.host.OperatingSystem;
 
@@ -20,7 +20,7 @@ public class EnforceOnlyIfOS extends EnforceOnlyIf {
     }
 
     @Override
-    public boolean execAllowed(STContext context, Resource resource) throws STRuntimeException {
+    public boolean execAllowed(KMContextImpl context, Resource resource) throws STRuntimeException {
         OperatingSystem hostOS = resource.getHost().getMetadata().getOperatingSystem();
         for (OperatingSystem os : operatingSystems) {
             if (!hostOS.equals(os)) {

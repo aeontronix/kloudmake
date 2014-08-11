@@ -20,7 +20,7 @@ import java.util.*;
 import static com.kloudtek.kloudmake.Stage.*;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
-public class STCLifecycleExecutor {
+public class KMLifecycleExecutor {
     public boolean execute() throws STRuntimeException {
         context.stage = INIT;
         context.executionLock.writeLock().lock();
@@ -60,10 +60,10 @@ public class STCLifecycleExecutor {
         }
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(STCLifecycleExecutor.class);
-    private final STContext context;
+    private static final Logger logger = LoggerFactory.getLogger(KMLifecycleExecutor.class);
+    private final KMContextImpl context;
 
-    public STCLifecycleExecutor(STContext context) {
+    public KMLifecycleExecutor(KMContextImpl context) {
         this.context = context;
     }
 

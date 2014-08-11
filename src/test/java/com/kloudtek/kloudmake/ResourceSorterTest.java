@@ -15,7 +15,7 @@ import java.util.List;
 public class ResourceSorterTest {
     @Test
     public void testSortSuccessful() throws Exception {
-        STContext ctx = new STContext();
+        KMContextImpl ctx = new KMContextImpl();
         ResourceImpl seven = new ResourceImpl(ctx, null, null, null, null);
         ResourceImpl five = new ResourceImpl(ctx, null, null, null, null);
         ResourceImpl three = new ResourceImpl(ctx, null, null, null, null);
@@ -44,7 +44,7 @@ public class ResourceSorterTest {
 
     @Test(expectedExceptions = InvalidDependencyException.class)
     public void testSortCircular() throws Exception {
-        STContext ctx = new STContext();
+        KMContextImpl ctx = new KMContextImpl();
         ResourceDefinition rf = new ResourceDefinition("test", "file");
         // circular dependency  5 -> [ 7 -> 11 -> 2 -> 7 ]
         ResourceImpl seven = new ResourceImpl(ctx, rf, null, null, null);

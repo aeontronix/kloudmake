@@ -5,12 +5,11 @@
 package com.kloudtek.kloudmake.service.filestore;
 
 import com.kloudtek.kloudmake.FQName;
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Startable;
 import com.kloudtek.kloudmake.annotation.*;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FileFragmentDef;
-import com.kloudtek.util.crypto.CryptoUtils;
 import com.kloudtek.util.TempFile;
 import com.kloudtek.util.crypto.DigestUtils;
 import freemarker.template.Configuration;
@@ -48,7 +47,7 @@ import static com.kloudtek.util.StringUtils.*;
 @Service
 public class FileStore implements Startable, Closeable {
     @Inject
-    private STContext context;
+    private KMContextImpl context;
     private static final Logger logger = LoggerFactory.getLogger(FileStore.class);
     private LinkedHashSet<String> locations = new LinkedHashSet<>();
     private HttpClient httpClient = new HttpClient();
@@ -136,7 +135,7 @@ public class FileStore implements Startable, Closeable {
     @Function("lfile")
     public String createLibraryFileUrl(@Param("path") String path, @Param("encoding") @Default("UTF-8") String encoding) {
         if (!path.startsWith("/")) {
-            String sourceUrl = STContext.get().getSourceUrl();
+            String sourceUrl = KMContextImpl.get().getSourceUrl();
             if (sourceUrl != null) {
                 String urlStr = sourceUrl.toString();
                 int idx = urlStr.lastIndexOf('/');
@@ -215,7 +214,7 @@ public class FileStore implements Startable, Closeable {
             }
             if (temp) {
                 local = new TempFile("sttempfile", "tmp");
-                STContext.get().registerTempFile(local);
+                KMContextImpl.get().registerTempFile(local);
             } else {
                 cpfile = findInClasspath();
                 local = findUserManaged();
@@ -354,7 +353,7 @@ public class FileStore implements Startable, Closeable {
                     path = urlStr.substring(0, idx + 1) + path;
                 }
             }
-            URL resource = STContext.get().getLibraryClassloader().getResource(path);
+            URL resource = KMContextImpl.get().getLibraryClassloader().getResource(path);
             return resource != null;
         }
     }

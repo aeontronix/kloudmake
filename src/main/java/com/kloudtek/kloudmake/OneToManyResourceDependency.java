@@ -48,7 +48,7 @@ public class OneToManyResourceDependency implements ResourceDependency {
         this.optional = optional;
     }
 
-    public void resolve(STContext context) throws InvalidDependencyException {
+    public void resolve(KMContextImpl context) throws InvalidDependencyException {
         try {
             if (targetRef != null) {
                 List<Resource> resources = context.findResources(targetRef);

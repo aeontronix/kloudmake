@@ -101,7 +101,7 @@ public class ResourceSorter {
      *
      * @param context Context data
      */
-    public static void bringResourcesForwardDueToNotification(STContext context) {
+    public static void bringResourcesForwardDueToNotification(KMContextImpl context) {
         LinkedList<Resource> list = new LinkedList<>(context.resources);
         LinkedHashSet<Resource> sorted = new LinkedHashSet<>();
         while (!list.isEmpty()) {

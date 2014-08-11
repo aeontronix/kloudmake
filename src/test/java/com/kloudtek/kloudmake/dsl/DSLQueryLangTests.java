@@ -5,8 +5,8 @@
 package com.kloudtek.kloudmake.dsl;
 
 import com.kloudtek.kloudmake.AbstractContextTest;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.annotation.Execute;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -322,7 +322,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
 
         @Execute
         public void query() throws InvalidQueryException {
-            STContext ctx = STContext.get();
+            KMContextImpl ctx = KMContextImpl.get();
             found = ctx.findResources("childof");
         }
     }
@@ -399,7 +399,7 @@ public class DSLQueryLangTests extends AbstractContextTest {
 
         @Execute
         public void query() throws InvalidQueryException {
-            STContext ctx = STContext.get();
+            KMContextImpl ctx = KMContextImpl.get();
             found = ctx.findResources("depends");
         }
     }

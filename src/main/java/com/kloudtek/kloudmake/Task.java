@@ -14,7 +14,7 @@ public interface Task extends Comparable<Task> {
      * @param resource Resource being executed
      * @throws STRuntimeException If an error occurs during execution
      */
-    void execute(STContext context, Resource resource) throws STRuntimeException;
+    void execute(KMContextImpl context, Resource resource) throws STRuntimeException;
 
     /**
      * Checks if execution is required.
@@ -23,7 +23,7 @@ public interface Task extends Comparable<Task> {
      * @param resource
      * @return True if execution is required.
      */
-    boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException;
+    boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException;
 
     /**
      * Checks if this action supports running on the resource
@@ -34,7 +34,7 @@ public interface Task extends Comparable<Task> {
      * @throws STRuntimeException If an error occurs
      * @see #getAlternative()
      */
-    boolean supports(STContext context, Resource resource) throws STRuntimeException;
+    boolean supports(KMContextImpl context, Resource resource) throws STRuntimeException;
 
     /**
      * Get the order ranking (if two tasks are in the same stage, the higher order one will run first)
@@ -60,11 +60,11 @@ public interface Task extends Comparable<Task> {
     /**
      * Return the alternative id.
      * If any action on a resource has a non-null alternative value, this means that it will expect at least of the actions
-     * of that id to be supported (meaning that {@link #supports(com.kloudtek.kloudmake.STContext, Resource)} has returned
+     * of that id to be supported (meaning that {@link #supports(KMContextImpl, Resource)} has returned
      * true).
      *
      * @return Alternative id or null if not an alternative
-     * @see #supports(com.kloudtek.kloudmake.STContext, Resource)
+     * @see #supports(KMContextImpl, Resource)
      */
     String getAlternative();
 }

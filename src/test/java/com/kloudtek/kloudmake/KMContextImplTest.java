@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
-public class STContextTest extends AbstractContextTest {
+public class KMContextImplTest extends AbstractContextTest {
     @Test
     public void testSimpleElementCreation() throws Throwable {
         createTestResource("test1");
@@ -33,7 +33,7 @@ public class STContextTest extends AbstractContextTest {
         Resource test1 = createTestResource("test1");
         test1.addTask(new AbstractTask() {
             @Override
-            public void execute(STContext context, Resource resource) throws STRuntimeException {
+            public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
                 try {
                     context.getResourceManager().createResource(TEST);
                 } catch (ResourceCreationException e) {

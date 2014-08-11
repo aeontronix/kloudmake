@@ -41,7 +41,7 @@ public class RequiresExpression {
         }
     }
 
-    public ArrayList<Resource> resolveRequires(STContext ctx) throws InvalidVariableException, ResourceCreationException, InvalidAttributeException {
+    public ArrayList<Resource> resolveRequires(KMContextImpl ctx) throws InvalidVariableException, ResourceCreationException, InvalidAttributeException {
         ArrayList<Resource> allMatches = new ArrayList<>();
         for (RequiredDependency requiredDependency : requiredDependencies) {
             requiredDependency.resolveAttrs(ctx);
@@ -81,7 +81,7 @@ public class RequiresExpression {
             }
         }
 
-        private List<Resource> findMatches(STContext ctx) throws InvalidVariableException {
+        private List<Resource> findMatches(KMContextImpl ctx) throws InvalidVariableException {
             final ArrayList<Resource> matches = new ArrayList<>();
             for (Resource candidate : ctx.getResourceManager()) {
                 if (name.matches(candidate.getType(), ctx)) {
@@ -107,7 +107,7 @@ public class RequiresExpression {
             }
         }
 
-        public void resolveAttrs(STContext ctx) throws InvalidVariableException {
+        public void resolveAttrs(KMContextImpl ctx) throws InvalidVariableException {
             for (Map.Entry<String, Parameter> entry : attrs.entrySet()) {
                 try {
                     attrsResolved.put(entry.getKey(), entry.getValue().eval(ctx, resource));

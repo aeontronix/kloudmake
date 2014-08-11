@@ -25,7 +25,7 @@ public class DSLResourceDefinition {
     private Map<String, Parameter> defaultAttr = new HashMap<>();
     private Map<Stage, ArrayList<Statement>> statements = new HashMap<>();
 
-    public DSLResourceDefinition(STContext ctx, DSLScript dslScript, String pkg, KloudmakeLangParser.ResourceDefinitionContext defineElementContext) throws InvalidScriptException {
+    public DSLResourceDefinition(KMContextImpl ctx, DSLScript dslScript, String pkg, KloudmakeLangParser.ResourceDefinitionContext defineElementContext) throws InvalidScriptException {
         this.dslScript = dslScript;
         KloudmakeLangParser.FullyQualifiedIdContext fqid = defineElementContext.fullyQualifiedId();
         KloudmakeLangParser.PackageNameContext pkgCtx = fqid.packageName();
@@ -79,7 +79,7 @@ public class DSLResourceDefinition {
         return list;
     }
 
-    public ResourceDefinition toResDef(STContext ctx) throws InvalidResourceDefinitionException {
+    public ResourceDefinition toResDef(KMContextImpl ctx) throws InvalidResourceDefinitionException {
         ResourceDefinition resourceDefinition = new ResourceDefinition(pkg, name);
         for (Map.Entry<String, Parameter> attrEntry : defaultAttr.entrySet()) {
             Parameter value = attrEntry.getValue();
@@ -106,7 +106,7 @@ public class DSLResourceDefinition {
         }
 
         @Override
-        public void execute(STContext context, Resource resource) throws STRuntimeException {
+        public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
             logger.debug("Executing all DSL statements for " + resource.toString());
             String old = context.getSourceUrl();
             context.setSourceUrl(dslScript.getSourceUrl());
@@ -130,7 +130,7 @@ public class DSLResourceDefinition {
         }
 
         @Override
-        public boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException {
+        public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
             return true;
         }
     }

@@ -6,8 +6,8 @@ package com.kloudtek.kloudmake.dsl;
 
 import com.kloudtek.kloudmake.AbstractContextTest;
 import com.kloudtek.kloudmake.AbstractTask;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.annotation.Default;
 import com.kloudtek.kloudmake.annotation.Function;
 import com.kloudtek.kloudmake.annotation.Param;
@@ -41,7 +41,7 @@ public class DSLParserTest extends AbstractContextTest {
         r4.setHostOverride(h2);
         r2.addTask(new AbstractTask() {
             @Override
-            public void execute(STContext context, Resource resource) throws STRuntimeException {
+            public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
                 try {
                     List<Resource> samehost = ctx.findResources("is samehost");
                     if (samehost.size() == 1) {

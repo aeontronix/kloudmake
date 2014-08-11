@@ -107,7 +107,7 @@ public interface Resource {
 
     Logger logger();
 
-    STContext context();
+    KMContextImpl context();
 
     Host host();
 

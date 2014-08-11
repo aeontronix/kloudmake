@@ -4,7 +4,7 @@
 
 package com.kloudtek.kloudmake.service.filestore;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,7 +20,7 @@ public class FileDefinition {
     private String sourceUrl;
 
     public FileDefinition() {
-        sourceUrl = STContext.get().getSourceUrl();
+        sourceUrl = KMContextImpl.get().getSourceUrl();
     }
 
     public FileDefinition(String path) {

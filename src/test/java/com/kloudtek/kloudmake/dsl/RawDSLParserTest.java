@@ -10,7 +10,6 @@ import com.kloudtek.kloudmake.dsl.statement.InvokeMethodStatement;
 import com.kloudtek.kloudmake.dsl.statement.Statement;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
-import com.kloudtek.kloudmake.util.ReflectionHelper;
 import com.kloudtek.util.ReflectionUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -27,11 +26,11 @@ import static org.testng.Assert.*;
  */
 public class RawDSLParserTest {
     private ArrayList<RawDSLParserTester> testers = new ArrayList<>();
-    private STContext context;
+    private KMContextImpl context;
     private DSLParser parser = new AntlrDSLParser();
 
     public RawDSLParserTest() throws InvalidResourceDefinitionException, STRuntimeException {
-        context = new STContext();
+        context = new KMContextImpl();
     }
 
     @AfterMethod
@@ -165,7 +164,7 @@ public class RawDSLParserTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testParseRequiresExpression() throws STRuntimeException, InvalidResourceDefinitionException {
-        STContext ctx = new STContext();
+        KMContextImpl ctx = new KMContextImpl();
         Resource res = new ResourceImpl(ctx, null, null, null, null);
         RequiresExpression requiresExpression = new RequiresExpression(res, "test.val( bla = 'asd', ba=\"asdffdsa\", adsf=sfafdsa ), asfd.asds, foobar( x = 'z' )");
         ArrayList<RequiresExpression.RequiredDependency> deps = (ArrayList<RequiresExpression.RequiredDependency>) ReflectionUtils.get(requiresExpression, "requiredDependencies");

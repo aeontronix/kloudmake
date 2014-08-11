@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.java;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.FieldInjectionException;
 import com.kloudtek.kloudmake.inject.Injector;
 
@@ -30,7 +30,7 @@ public class RequiresInjector extends Injector {
     }
 
     @Override
-    public void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException {
+    public void inject(Resource resource, Object obj, KMContextImpl ctx) throws FieldInjectionException {
         List<Resource> list = resource.getResolvedRequires(expr);
         if (list != null) {
             int size = list.size();

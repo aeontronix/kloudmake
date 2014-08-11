@@ -4,7 +4,7 @@
 
 package com.kloudtek.kloudmake.provider;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.annotation.Provider;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
@@ -17,7 +17,7 @@ public class ProvidersManagementService {
     protected HashMap<Class<? extends ProviderManager>, ProviderManager> providerManagers = new HashMap<>();
     protected HashMap<Class<?>, ProviderManager> providerClasses = new HashMap<>();
     protected ListHashMap<Class<?>, Object> providerImplementations = new ListHashMap<>();
-    private STContext context;
+    private KMContextImpl context;
 
     public void registerProviderManager(Class<? extends ProviderManager> clazz) throws InvalidServiceException {
         try {

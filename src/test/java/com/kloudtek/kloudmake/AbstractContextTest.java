@@ -19,7 +19,7 @@ public class AbstractContextTest {
     public static final String JTEST = "test.jtest";
     public static final String TEST = "test.test";
     public static final String UNIQUETEST = "test.uniquetest";
-    protected STContext ctx;
+    protected KMContextImpl ctx;
     protected ResourceManager resourceManager;
 
     protected Resource findResource(String uid) {
@@ -50,7 +50,7 @@ public class AbstractContextTest {
     @SuppressWarnings("unchecked")
     @BeforeMethod
     public void init() throws STRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
-        ctx = new STContext();
+        ctx = new KMContextImpl();
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
         resourceManager.registerJavaResource(TestResource.class, JTEST);
@@ -279,12 +279,12 @@ public class AbstractContextTest {
         }
 
         @Override
-        public void execute(STContext context, Resource resource) throws STRuntimeException {
+        public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
             throw new STRuntimeException("Failing Task for test purpose");
         }
 
         @Override
-        public boolean checkExecutionRequired(STContext context, Resource resource) throws STRuntimeException {
+        public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
             return true;
         }
     }

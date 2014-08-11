@@ -4,15 +4,15 @@
 
 package com.kloudtek.kloudmake.dsl;
 
-import com.kloudtek.kloudmake.STContext;
+import com.kloudtek.kloudmake.KMContextImpl;
 
 /**
  * Interface for DSL parsers
  */
 public interface DSLParser {
-    DSLScript parse(STContext ctx, String script) throws InvalidScriptException;
+    DSLScript parse(KMContextImpl ctx, String script) throws InvalidScriptException;
 
-    DSLScript parse(STContext ctx, String pkg, String script) throws InvalidScriptException;
+    DSLScript parse(KMContextImpl ctx, String pkg, String script) throws InvalidScriptException;
 
     DSLScript parse(String script) throws InvalidScriptException;
 

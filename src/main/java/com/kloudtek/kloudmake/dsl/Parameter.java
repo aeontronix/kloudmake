@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -49,5 +49,5 @@ public abstract class Parameter {
 
     public abstract String getRawValue();
 
-    public abstract String eval(STContext ctx, Resource resource) throws STRuntimeException;
+    public abstract String eval(KMContextImpl ctx, Resource resource) throws STRuntimeException;
 }

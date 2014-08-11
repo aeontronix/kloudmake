@@ -26,12 +26,19 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
+        <module name="cli" />
         <module name="core" />
+        <module name="core-impl" />
+        <module name="kloudmake-core-api" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="cli" target="1.8" />
       <module name="core" target="1.8" />
+      <module name="core-api" target="1.8" />
+      <module name="core-impl" target="1.8" />
       <module name="kloudmake" target="1.8" />
+      <module name="kloudmake-core-api" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.dsl.query;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
 
@@ -22,7 +22,7 @@ public class DependsExpression extends Expression {
     boolean recurse;
     private ArrayList<Resource> resources = new ArrayList<>();
 
-    public DependsExpression(KloudmakeLangParser.QueryDependsMatchContext depCtx, String query, STContext context, Resource baseResource) throws InvalidQueryException {
+    public DependsExpression(KloudmakeLangParser.QueryDependsMatchContext depCtx, String query, KMContextImpl context, Resource baseResource) throws InvalidQueryException {
         if (depCtx.exp != null) {
             Expression expression = Expression.create(depCtx.exp, query, context, baseResource);
             for (Resource resource : context.getResourceManager()) {
@@ -41,7 +41,7 @@ public class DependsExpression extends Expression {
     }
 
     @Override
-    public boolean matches(STContext context, Resource resource) {
+    public boolean matches(KMContextImpl context, Resource resource) {
         // todo fail is dependency resolution not done
         if (recurse) {
             return false;

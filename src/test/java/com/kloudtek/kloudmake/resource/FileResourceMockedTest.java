@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.resource;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.ServiceManager;
 import com.kloudtek.kloudmake.exception.InjectException;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
@@ -16,7 +16,6 @@ import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.resource.core.FileResource;
 import com.kloudtek.kloudmake.service.filestore.DataFile;
 import com.kloudtek.kloudmake.service.filestore.FileStore;
-import com.kloudtek.util.crypto.CryptoUtils;
 import com.kloudtek.util.crypto.DigestUtils;
 import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
@@ -40,7 +39,7 @@ import static org.testng.Assert.assertTrue;
 public class FileResourceMockedTest {
     private Host adminMock = mock(Host.class);
     private FileStore fileStoreMock = mock(FileStore.class);
-    private STContext context;
+    private KMContextImpl context;
     public static final String PATH = "/somewhere";
     public static final String PATH2 = "/somewherelse";
     public static final String DATA = "testdata";
@@ -53,7 +52,7 @@ public class FileResourceMockedTest {
     public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException, InjectException {
         reset(adminMock);
         reset(fileStoreMock);
-        context = new STContext();
+        context = new KMContextImpl();
         ServiceManager sm = context.getServiceManager();
         context.setHost(adminMock);
         sm.addOverride("filestore", fileStoreMock);

@@ -13,5 +13,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>kloudmake-core</artifactId>
+    <artifactId>kloudmake-core-impl</artifactId>
+
+
 </project>

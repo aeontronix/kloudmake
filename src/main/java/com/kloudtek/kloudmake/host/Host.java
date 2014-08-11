@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * <p>The host is an abstraction layer to access the operating system of the host you wish to perform tasks against.</p>
  * <p>
- * Each context has it's own default host ({@link com.kloudtek.kloudmake.STContext#getHost()}), and each resource
+ * Each context has it's own default host ({@link com.kloudtek.kloudmake.KMContextImpl#getHost()}), and each resource
  * can have a host override ({@link com.kloudtek.kloudmake.Resource#setHostOverride(Host)}) which applies to itself
  * and any of it's childrens.
  * </p>

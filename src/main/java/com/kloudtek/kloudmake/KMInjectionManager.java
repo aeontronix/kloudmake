@@ -9,10 +9,10 @@ import com.kloudtek.kloudmake.inject.Injector;
 import java.util.List;
 import java.util.WeakHashMap;
 
-public class STCInjectionManager {
+public class KMInjectionManager {
     private final WeakHashMap<Class<?>, List<Injector>> injectors = new WeakHashMap<>();
 
-    public STCInjectionManager() {
+    public KMInjectionManager() {
     }
 
     public void register(Object obj) {

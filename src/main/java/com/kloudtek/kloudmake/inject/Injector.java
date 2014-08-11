@@ -4,8 +4,8 @@
 
 package com.kloudtek.kloudmake.inject;
 
+import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.STContext;
 import com.kloudtek.kloudmake.exception.FieldInjectionException;
 import com.kloudtek.kloudmake.exception.InvalidAttributeException;
 
@@ -44,7 +44,7 @@ public abstract class Injector {
         return field;
     }
 
-    public abstract void inject(Resource resource, Object obj, STContext ctx) throws FieldInjectionException;
+    public abstract void inject(Resource resource, Object obj, KMContextImpl ctx) throws FieldInjectionException;
 
     public void updateAttr(Resource resource, Object obj) throws IllegalAccessException, InvalidAttributeException {
     }

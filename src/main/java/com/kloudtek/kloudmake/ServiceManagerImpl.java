@@ -29,9 +29,9 @@ public class ServiceManagerImpl implements ServiceManager {
     private Map<String, Object> services = new HashMap<>();
     protected HashMap<String, LinkedList<Object>> overrides = new HashMap<>();
     protected HashMap<String, MethodInvoker> methods = new HashMap<>();
-    private STContext ctx;
+    private KMContextImpl ctx;
 
-    public ServiceManagerImpl(STContext ctx) {
+    public ServiceManagerImpl(KMContextImpl ctx) {
         this.ctx = ctx;
     }
 
