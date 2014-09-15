@@ -28,6 +28,7 @@
         <processorPath useClasspath="true" />
         <module name="cli" />
         <module name="core" />
+        <module name="core-api" />
         <module name="core-impl" />
         <module name="kloudmake-core-api" />
         <module name="lang-ruby" />

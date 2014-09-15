@@ -14,9 +14,11 @@ import com.kloudtek.kloudmake.host.FileInfo;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.service.filestore.DataFile;
 import com.kloudtek.kloudmake.service.filestore.FileStore;
+import com.kloudtek.kryptotek.Digest;
 import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.crypto.DigestAlgorithm;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestAlgorithm;
+import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.kryptotek.DigestOutputStream;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -30,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -243,7 +243,7 @@ public class FileResource {
                         map.put("res", res);
                         map.put("attrs", res.getAttributes());
                         map.put("vars", res.getVars());
-                        MessageDigest sha1Digest = DigestUtils.digest(DigestAlgorithm.SHA1);
+                        Digest sha1Digest = DigestUtils.digest(DigestAlgorithm.SHA1);
                         ByteArrayOutputStream buf = new ByteArrayOutputStream();
                         try (Writer fw = new OutputStreamWriter(new DigestOutputStream(buf, sha1Digest))) {
                             templateObj.process(map, fw);

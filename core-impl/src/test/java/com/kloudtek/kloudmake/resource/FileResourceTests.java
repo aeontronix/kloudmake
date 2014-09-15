@@ -9,7 +9,7 @@ import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.util.TempDir;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

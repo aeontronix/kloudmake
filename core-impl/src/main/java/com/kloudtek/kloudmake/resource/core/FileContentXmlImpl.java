@@ -9,7 +9,7 @@ import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.util.UnexpectedException;
 import com.kloudtek.util.XPathUtils;
 import com.kloudtek.util.XmlUtils;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

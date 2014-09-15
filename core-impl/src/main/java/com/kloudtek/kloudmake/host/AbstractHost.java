@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake.host;
 import com.kloudtek.kloudmake.annotation.Provider;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.util.DelayedLogger;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.exec.*;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.jetbrains.annotations.NotNull;

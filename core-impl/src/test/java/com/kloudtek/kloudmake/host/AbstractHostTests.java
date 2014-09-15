@@ -8,7 +8,7 @@ import com.jcraft.jsch.JSchException;
 import com.kloudtek.kloudmake.TestVagrantRuntime;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;

@@ -16,7 +16,7 @@ import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.resource.core.FileResource;
 import com.kloudtek.kloudmake.service.filestore.DataFile;
 import com.kloudtek.kloudmake.service.filestore.FileStore;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
 import org.mockito.ArgumentCaptor;

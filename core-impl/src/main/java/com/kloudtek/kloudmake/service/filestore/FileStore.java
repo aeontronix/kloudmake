@@ -11,7 +11,7 @@ import com.kloudtek.kloudmake.annotation.*;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FileFragmentDef;
 import com.kloudtek.util.TempFile;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;

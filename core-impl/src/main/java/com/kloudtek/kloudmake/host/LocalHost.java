@@ -8,7 +8,7 @@ import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FilePermissions;
 import com.kloudtek.kloudmake.util.ReflectionHelper;
 import com.kloudtek.util.TempFile;
-import com.kloudtek.util.crypto.DigestUtils;
+import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
