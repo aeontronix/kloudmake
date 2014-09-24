@@ -32,16 +32,18 @@
         <module name="core-impl" />
         <module name="kloudmake-core-api" />
         <module name="lang-ruby" />
+        <module name="testing" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="cli" target="1.8" />
+      <module name="cli" target="1.7" />
       <module name="core" target="1.8" />
-      <module name="core-api" target="1.8" />
-      <module name="core-impl" target="1.8" />
-      <module name="kloudmake" target="1.8" />
+      <module name="core-api" target="1.7" />
+      <module name="core-impl" target="1.7" />
+      <module name="kloudmake" target="1.7" />
       <module name="kloudmake-core-api" target="1.8" />
-      <module name="lang-ruby" target="1.8" />
+      <module name="lang-ruby" target="1.7" />
+      <module name="testing" target="1.7" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

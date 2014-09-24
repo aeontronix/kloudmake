@@ -6,14 +6,13 @@ package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.exception.*;
 import com.kloudtek.kloudmake.util.ReflectionHelper;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 
 import javax.script.ScriptException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-
-import static org.testng.Assert.*;
 
 public class AbstractContextTest {
     public static final String JTEST = "test.jtest";
@@ -33,17 +32,17 @@ public class AbstractContextTest {
 
     protected void assertResourceAttrs(String uid, String... attrs) {
         Resource resource = findResource(uid);
-        assertNotNull(resource, "Unable to find resource " + uid);
+        Assert.assertNotNull(resource, "Unable to find resource " + uid);
         HashMap<String, String> attr = new HashMap<>(resource.getAttributes());
         attr.remove("id");
         attr.remove("uid");
         for (int i = 0; i < attrs.length; i += 2) {
             String attrId = attrs[i];
-            assertEquals(resource.get(attrId), attrs[i + 1]);
+            Assert.assertEquals(resource.get(attrId), attrs[i + 1]);
             attr.remove(attrId);
         }
         if (!attr.isEmpty()) {
-            fail("Unexpected " + uid + " attributes: " + attr.toString());
+            Assert.fail("Unexpected " + uid + " attributes: " + attr.toString());
         }
     }
 
@@ -159,7 +158,7 @@ public class AbstractContextTest {
                 return impl;
             }
         }
-        fail("Unable to find java action of class " + clazz.getName());
+        Assert.fail("Unable to find java action of class " + clazz.getName());
         return null;
     }
 
@@ -182,7 +181,7 @@ public class AbstractContextTest {
 
     public AbstractContextTest execute(boolean expected) throws Throwable {
         try {
-            assertEquals(ctx.execute(), expected);
+            Assert.assertEquals(ctx.execute(), expected);
         } catch (STRuntimeException e) {
             if (e.getCause() != null) {
                 throw e.getCause();
@@ -214,8 +213,8 @@ public class AbstractContextTest {
     }
 
     protected void assertContainsSame(Collection<Resource> actual, Resource... expected) {
-        assertNotNull(actual);
-        assertEquals(actual.size(), expected.length);
+        Assert.assertNotNull(actual);
+        Assert.assertEquals(actual.size(), expected.length);
         ArrayList<Resource> list = new ArrayList<>(actual);
         for (Resource resource : expected) {
             boolean found = false;
@@ -227,11 +226,11 @@ public class AbstractContextTest {
                 }
             }
             if (!found) {
-                fail("Failed to find " + resource);
+                Assert.fail("Failed to find " + resource);
             }
         }
         if (!list.isEmpty()) {
-            fail("Unexpected resources " + list);
+            Assert.fail("Unexpected resources " + list);
         }
     }
 
@@ -241,22 +240,22 @@ public class AbstractContextTest {
             if (r == before) {
                 return;
             } else if (aftRes.contains(r)) {
-                fail("Resource " + r + " is before " + before);
+                Assert.fail("Resource " + r + " is before " + before);
             }
         }
     }
 
     public void assertResources(String... elements) {
-        assertEquals(ctx.getResources().size(), elements.length);
+        Assert.assertEquals(ctx.getResources().size(), elements.length);
         List<String> found = new ArrayList<>();
         for (Resource el : ctx.getResources()) {
             found.add(el.toString());
         }
         for (String expected : elements) {
-            assertTrue(found.remove(expected), "Did not find element " + expected);
+            Assert.assertTrue(found.remove(expected), "Did not find element " + expected);
         }
         if (!found.isEmpty()) {
-            fail("Unexcepted resource " + found.iterator().next());
+            Assert.fail("Unexcepted resource " + found.iterator().next());
         }
     }
 
@@ -264,9 +263,9 @@ public class AbstractContextTest {
         Resource actualParent = findResource(resource).getParent();
         Resource expectedParent = findResource(parent);
         if (parent != null) {
-            assertEquals(actualParent, expectedParent);
+            Assert.assertEquals(actualParent, expectedParent);
         } else {
-            assertNull(expectedParent);
+            Assert.assertNull(expectedParent);
         }
     }
 

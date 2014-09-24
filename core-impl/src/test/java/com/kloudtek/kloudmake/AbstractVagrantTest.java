@@ -15,6 +15,7 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.FileUtils;
+import org.testng.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,6 +103,6 @@ public class AbstractVagrantTest {
     }
 
     public void execute(boolean expected) throws STRuntimeException {
-        assertEquals(ctx.execute(), expected);
+        Assert.assertEquals(ctx.execute(), expected);
     }
 }
