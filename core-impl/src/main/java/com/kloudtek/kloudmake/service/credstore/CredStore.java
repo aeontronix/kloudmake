@@ -15,8 +15,8 @@ import com.kloudtek.kloudmake.exception.InvalidServiceException;
 import com.kloudtek.kloudmake.util.AESHelper;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnableToDecryptException;
-import com.kloudtek.util.XPathUtils;
-import com.kloudtek.util.XmlUtils;
+import com.kloudtek.util.xml.XPathUtils;
+import com.kloudtek.util.xml.XmlUtils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,8 +29,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.kloudtek.util.XmlUtils.createDocument;
-import static com.kloudtek.util.XmlUtils.createElement;
+import static com.kloudtek.util.xml.XmlUtils.createDocument;
+import static com.kloudtek.util.xml.XmlUtils.createElement;
 
 @Service
 public class CredStore implements AutoCloseable {

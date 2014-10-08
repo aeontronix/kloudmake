@@ -8,7 +8,7 @@ import com.kloudtek.kloudmake.annotation.STResource;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
 import com.kloudtek.kloudmake.resource.core.FileResource;
 import com.kloudtek.util.StringUtils;
-import com.kloudtek.util.XPathUtils;
+import com.kloudtek.util.xml.XPathUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
