@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
@@ -13,7 +13,7 @@ import org.slf4j.Logger;
  * Time: 22:37
  * To change this template use File | Settings | File Templates.
  */
-public class NoProviderFoundException extends STRuntimeException {
+public class NoProviderFoundException extends KMRuntimeException {
     public NoProviderFoundException() {
     }
 

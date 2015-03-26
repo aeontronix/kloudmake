@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl.query;
@@ -7,8 +7,8 @@ package com.kloudtek.kloudmake.dsl.query;
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.dsl.AntLRUtils;
-import com.kloudtek.kloudmake.dsl.LogOp;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
+import com.kloudtek.kloudmake.dsl.LogOp;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
 
 import java.math.BigDecimal;

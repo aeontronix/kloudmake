@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.java;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake.java;
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.util.ReflectionHelper;
 
 import java.lang.reflect.Method;
@@ -29,7 +29,7 @@ public class EnforceOnlyIfCustom extends EnforceOnlyIf {
     }
 
     @Override
-    public boolean execAllowed(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public boolean execAllowed(KMContextImpl context, Resource resource) throws KMRuntimeException {
         return (boolean) ReflectionHelper.invoke(method, clazz, resource);
     }
 }

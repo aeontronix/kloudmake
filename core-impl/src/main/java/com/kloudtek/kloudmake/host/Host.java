@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FilePermissions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,12 +26,12 @@ import java.util.Map;
  * </p>
  */
 public interface Host {
-    public static final int DEFAULT_TIMEOUT = 300000;
+    int DEFAULT_TIMEOUT = 300000;
 
     /**
      * Start this host.
      */
-    void start() throws STRuntimeException;
+    void start() throws KMRuntimeException;
 
     /**
      * Shutdown and release resources.
@@ -56,31 +56,31 @@ public interface Host {
      * @param logging         Specify if the script output should be logged all the time, never or only if the script fails
      * @param user            Use to run the script as
      * @return Execution result
-     * @throws STRuntimeException If an error occurs while running the script.
+     * @throws KMRuntimeException If an error occurs while running the script.
      */
-    ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
+    ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws KMRuntimeException;
 
-    String exec(String command) throws STRuntimeException;
+    String exec(String command) throws KMRuntimeException;
 
-    String exec(String command, String workdir) throws STRuntimeException;
+    String exec(String command, String workdir) throws KMRuntimeException;
 
-    String exec(String command, Map<String, String> env) throws STRuntimeException;
-
-    @NotNull
-    ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws STRuntimeException;
+    String exec(String command, Map<String, String> env) throws KMRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws STRuntimeException;
+    ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws KMRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException;
+    ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws KMRuntimeException;
 
     @NotNull
-    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, Map<String, String> env) throws STRuntimeException;
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws KMRuntimeException;
 
-    boolean fileExists(String path) throws STRuntimeException;
+    @NotNull
+    ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, Map<String, String> env) throws KMRuntimeException;
 
-    String getFilePathSeparator() throws STRuntimeException;
+    boolean fileExists(String path) throws KMRuntimeException;
+
+    String getFilePathSeparator() throws KMRuntimeException;
 
     /**
      * Retrieve file details.
@@ -89,55 +89,55 @@ public interface Host {
      *
      * @param path DataFile path
      * @return {@link FileInfo} object.
-     * @throws STRuntimeException If an error occured while retrieving file details, or if the file doesn't exist.
+     * @throws KMRuntimeException If an error occured while retrieving file details, or if the file doesn't exist.
      */
     @NotNull
-    FileInfo getFileInfo(String path) throws STRuntimeException;
+    FileInfo getFileInfo(String path) throws KMRuntimeException;
 
-    boolean mkdir(String path) throws STRuntimeException;
+    boolean mkdir(String path) throws KMRuntimeException;
 
-    boolean mkdirs(String path) throws STRuntimeException;
+    boolean mkdirs(String path) throws KMRuntimeException;
 
     /**
      * get a SHA1 checkum of a file.
      *
      * @param path file to calculate checksum from.
      * @return SHA1 digest
-     * @throws STRuntimeException If an error occurs calculating SHA1 checksum.
+     * @throws KMRuntimeException If an error occurs calculating SHA1 checksum.
      */
-    byte[] getFileSha1(String path) throws STRuntimeException;
+    byte[] getFileSha1(String path) throws KMRuntimeException;
 
-    byte[] readFileData(String path) throws STRuntimeException;
+    byte[] readFileData(String path) throws KMRuntimeException;
 
-    InputStream readFile(String path) throws STRuntimeException;
+    InputStream readFile(String path) throws KMRuntimeException;
 
-    String readTextFile(String path, String encoding) throws STRuntimeException;
+    String readTextFile(String path, String encoding) throws KMRuntimeException;
 
-    String readTextFile(String path) throws STRuntimeException;
+    String readTextFile(String path) throws KMRuntimeException;
 
-    void writeToFile(String path, String data) throws STRuntimeException;
+    void writeToFile(String path, String data) throws KMRuntimeException;
 
-    void writeToFile(String path, byte[] data) throws STRuntimeException;
+    void writeToFile(String path, byte[] data) throws KMRuntimeException;
 
-    void writeToFile(String path, InputStream data) throws STRuntimeException;
+    void writeToFile(String path, InputStream data) throws KMRuntimeException;
 
-    String exec(String command, Logging logging) throws STRuntimeException;
+    String exec(String command, Logging logging) throws KMRuntimeException;
 
-    void deleteFile(String path, boolean recursive) throws STRuntimeException;
+    void deleteFile(String path, boolean recursive) throws KMRuntimeException;
 
-    void createSymlink(String path, String target) throws STRuntimeException;
+    void createSymlink(String path, String target) throws KMRuntimeException;
 
-    void setFileOwner(String path, String owner) throws STRuntimeException;
+    void setFileOwner(String path, String owner) throws KMRuntimeException;
 
-    void setFileGroup(String path, String group) throws STRuntimeException;
+    void setFileGroup(String path, String group) throws KMRuntimeException;
 
-    void setFilePerms(String path, FilePermissions perms) throws STRuntimeException;
+    void setFilePerms(String path, FilePermissions perms) throws KMRuntimeException;
 
-    String createTempDir() throws STRuntimeException;
+    String createTempDir() throws KMRuntimeException;
 
-    String createTempFile() throws STRuntimeException;
+    String createTempFile() throws KMRuntimeException;
 
-    boolean fileIsSame(@NotNull String path, @NotNull String content) throws STRuntimeException;
+    boolean fileIsSame(@NotNull String path, @NotNull String content) throws KMRuntimeException;
 
     void setState(String id, Object state);
 
@@ -145,13 +145,13 @@ public interface Host {
 
     Map<String, Object> getState();
 
-    HostProvider getMetadata() throws STRuntimeException;
+    HostProvider getMetadata() throws KMRuntimeException;
 
-    public enum Logging {
+    enum Logging {
         NO, YES, ON_ERROR
     }
 
-    public enum ScriptType {
+    enum ScriptType {
         BASH
     }
 }

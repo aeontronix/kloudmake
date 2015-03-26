@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,5 +14,5 @@ import com.kloudtek.kloudmake.exception.STRuntimeException;
  * To change this template use File | Settings | File Templates.
  */
 public interface Startable {
-    void start() throws STRuntimeException;
+    void start() throws KMRuntimeException;
 }

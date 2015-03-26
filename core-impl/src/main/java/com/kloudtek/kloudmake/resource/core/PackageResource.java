@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
@@ -8,7 +8,7 @@ import com.kloudtek.kloudmake.annotation.Attr;
 import com.kloudtek.kloudmake.annotation.Execute;
 import com.kloudtek.kloudmake.annotation.Inject;
 import com.kloudtek.kloudmake.annotation.STResource;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class PackageResource {
     private Host host;
 
     @Execute
-    public void execute() throws STRuntimeException {
+    public void execute() throws KMRuntimeException {
         pkgProvider = new AptPackageProvider(host);
         pkgProvider.update();
         String installed = pkgProvider.checkCurrentlyInstalled(name);

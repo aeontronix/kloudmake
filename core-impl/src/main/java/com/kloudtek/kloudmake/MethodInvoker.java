@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -8,8 +8,8 @@ import com.kloudtek.kloudmake.annotation.Default;
 import com.kloudtek.kloudmake.annotation.Param;
 import com.kloudtek.kloudmake.dsl.Parameter;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.exception.MethodInvocationException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.util.ReflectionHelper;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -46,7 +46,7 @@ public class MethodInvoker {
         }
     }
 
-    public Object invoke(KMContextImpl ctx, @NotNull Parameters params) throws STRuntimeException {
+    public Object invoke(KMContextImpl ctx, @NotNull Parameters params) throws KMRuntimeException {
         Object[] plist = new Object[paramCount];
         List<Parameter> parameters = params.getParameters();
         if (parameters.size() > paramCount) {
@@ -81,11 +81,11 @@ public class MethodInvoker {
         try {
             Object service = ctx.getServiceManager().getService(serviceName);
             if (service == null) {
-                throw new STRuntimeException("BUG: Couldn't find service " + serviceName);
+                throw new KMRuntimeException("BUG: Couldn't find service " + serviceName);
             }
             return method.invoke(service, plist);
         } catch (IllegalAccessException | InvocationTargetException | InvalidServiceException e) {
-            throw new STRuntimeException(e.getMessage(), e);
+            throw new KMRuntimeException(e.getMessage(), e);
         }
     }
 

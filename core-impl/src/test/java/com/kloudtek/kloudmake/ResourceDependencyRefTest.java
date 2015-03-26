@@ -1,13 +1,12 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.exception.InvalidDependencyException;
 import com.kloudtek.kloudmake.exception.InvalidRefException;
-import com.kloudtek.kloudmake.exception.ResourceCreationException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -16,7 +15,7 @@ import static org.testng.Assert.assertTrue;
 
 public class ResourceDependencyRefTest extends AbstractContextTest {
     @Test(expectedExceptions = InvalidDependencyException.class)
-    public void testCircularDependency() throws ResourceCreationException, STRuntimeException {
+    public void testCircularDependency() throws KMRuntimeException {
         Resource test1 = resourceManager.createResource(JTEST);
         Resource test2 = resourceManager.createResource(JTEST);
         Resource test3 = resourceManager.createResource(JTEST);
@@ -27,7 +26,7 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
     }
 
     @Test
-    public void testDependencyResolution() throws InvalidRefException, STRuntimeException, ResourceCreationException {
+    public void testDependencyResolution() throws InvalidRefException, KMRuntimeException {
         Resource test1 = createJavaTestResource("test1");
         Resource test2 = createJavaTestResource("test2");
         Resource test3 = createJavaTestResource("test3");
@@ -42,14 +41,14 @@ public class ResourceDependencyRefTest extends AbstractContextTest {
     }
 
     @Test(expectedExceptions = InvalidDependencyException.class, expectedExceptionsMessageRegExp = "Mandatory dependency has not valid targets.*")
-    public void testNoMatchesMandatoryDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
+    public void testNoMatchesMandatoryDependencies() throws KMRuntimeException, InvalidRefException {
         Resource resource = createJavaTestResource();
         resource.addDependency("type te.tes");
         assertTrue(ctx.execute());
     }
 
     @Test
-    public void testNoMatchesOptionalDependencies() throws STRuntimeException, InvalidRefException, ResourceCreationException {
+    public void testNoMatchesOptionalDependencies() throws KMRuntimeException, InvalidRefException {
         Resource resource = createJavaTestResource();
         resource.addDependency("type t.tes", true);
         assertTrue(ctx.execute());

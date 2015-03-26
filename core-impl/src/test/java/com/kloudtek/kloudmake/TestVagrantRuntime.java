@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.google.common.reflect.AbstractInvocationHandler;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.LinuxMetadataProvider;
 import com.kloudtek.kloudmake.host.LocalHost;
 import com.kloudtek.kloudmake.host.SshHost;
@@ -48,7 +48,7 @@ public class TestVagrantRuntime {
             if (user != null) {
                 // TODO
             }
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -60,7 +60,7 @@ public class TestVagrantRuntime {
     public void close() {
         try {
             vagrantResource.postChildrens();
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

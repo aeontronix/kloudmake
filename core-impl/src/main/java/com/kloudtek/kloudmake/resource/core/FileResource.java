@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
@@ -9,16 +9,16 @@ import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.annotation.*;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.FileInfo;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.service.filestore.DataFile;
 import com.kloudtek.kloudmake.service.filestore.FileStore;
 import com.kloudtek.kryptotek.Digest;
-import com.kloudtek.util.StringUtils;
 import com.kloudtek.kryptotek.DigestAlgorithm;
-import com.kloudtek.kryptotek.DigestUtils;
 import com.kloudtek.kryptotek.DigestOutputStream;
+import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.util.StringUtils;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -96,7 +96,7 @@ public class FileResource {
     }
 
     @Verify("content")
-    public boolean checkContent() throws STRuntimeException, InvalidQueryException {
+    public boolean checkContent() throws KMRuntimeException, InvalidQueryException {
         delete = false;
         finfo = host.fileExists(path) ? host.getFileInfo(path) : null;
         switch (ensure) {
@@ -109,7 +109,7 @@ public class FileResource {
                             delete = true;
                         } else {
                             logger.error("Unable to create directory {} because a file is present in it's place (use 'force' flag to have it replaced)", path);
-                            throw new STRuntimeException();
+                            throw new KMRuntimeException();
                         }
                     }
                 }
@@ -129,14 +129,14 @@ public class FileResource {
                             delete = true;
                         } else {
                             logger.error("Unable to create file {} because a directory is present in it's place (use 'force' flag to have it replaced)", path);
-                            throw new STRuntimeException();
+                            throw new KMRuntimeException();
                         }
                     }
                 }
                 break;
             case SYMLINK:
                 if (StringUtils.isEmpty(target)) {
-                    throw new STRuntimeException("file " + id + " is SYMLINK but target is not set");
+                    throw new KMRuntimeException("file " + id + " is SYMLINK but target is not set");
                 }
                 if (finfo != null) {
                     if (finfo.isSymlink()) {
@@ -150,7 +150,7 @@ public class FileResource {
                             delete = true;
                         } else {
                             logger.error("Unable to create directory {} because a file is present in it's place (use 'force' flag to have it replaced)", path);
-                            throw new STRuntimeException();
+                            throw new KMRuntimeException();
                         }
                     }
                 }
@@ -161,14 +161,14 @@ public class FileResource {
                 }
                 break;
             default:
-                throw new STRuntimeException(ensure + " not supported");
+                throw new KMRuntimeException(ensure + " not supported");
         }
         return true;
     }
 
-    private void loadContent() throws STRuntimeException, InvalidQueryException {
+    private void loadContent() throws KMRuntimeException, InvalidQueryException {
         if( StringUtils.isEmpty(path) ) {
-            throw new STRuntimeException("file resource path not set");
+            throw new KMRuntimeException("file resource path not set");
         }
         // find all file fragments
         StringBuffer query = new StringBuffer( "is samehost ");
@@ -198,18 +198,18 @@ public class FileResource {
                             type = fragment.getType();
                             fileContent = fileStore.getFileFragmentDef(type).getFileContentClass().newInstance();
                         } catch (InstantiationException | IllegalAccessException e) {
-                            throw new STRuntimeException("Unable to instantiate file content class" + fileStore
+                            throw new KMRuntimeException("Unable to instantiate file content class" + fileStore
                                     .getFileFragmentDef(type).getFileContentClass());
                         }
                     } else if (!type.equals(fragment.getType())) {
-                        throw new STRuntimeException("Found file fragments of different types for file " + id);
+                        throw new KMRuntimeException("Found file fragments of different types for file " + id);
                     }
                 }
             }
             if (isNotEmpty(contentStr)) {
                 // Content attribute set is set, let's use that
                 if (!isEmpty(source)) {
-                    throw new STRuntimeException("File " + path + " cannot have content as well as source specified");
+                    throw new KMRuntimeException("File " + path + " cannot have content as well as source specified");
                 }
                 byte[] data;
                 try {
@@ -233,9 +233,9 @@ public class FileResource {
                         if (templateResource != null) {
                             List<Resource> list = context.findResources(templateResource);
                             if (list.isEmpty()) {
-                                throw new STRuntimeException("Found no matches for templateResource: " + templateResource);
+                                throw new KMRuntimeException("Found no matches for templateResource: " + templateResource);
                             } else if (list.size() > 1) {
-                                throw new STRuntimeException("Found multiple matches for templateResource: " + templateResource);
+                                throw new KMRuntimeException("Found multiple matches for templateResource: " + templateResource);
                             } else {
                                 res = list.iterator().next();
                             }
@@ -260,21 +260,21 @@ public class FileResource {
                         if (isNotEmpty(sha1)) {
                             try {
                                 if (!Arrays.equals(Hex.decodeHex(sha1.toCharArray()), dataFile.getSha1())) {
-                                    throw new STRuntimeException("File found in the file store does not match specified sha1: " +
+                                    throw new KMRuntimeException("File found in the file store does not match specified sha1: " +
                                             sha1 + " was instead " + Hex.encodeHex(dataFile.getSha1()));
                                 }
                             } catch (DecoderException e) {
-                                throw new STRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
+                                throw new KMRuntimeException("Invalid SHA1 value (must be in hexadecimal format): " + sha1);
                             }
                         }
                         fileContent.init(id, dataFile.getStream(), dataFile.getSha1());
                     }
                 } catch (TemplateException e) {
-                    throw new STRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
+                    throw new KMRuntimeException("Invalid template file " + path + ": " + e.getMessage(), e);
                 }
             }
         } catch (IOException e) {
-            throw new STRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
+            throw new KMRuntimeException("Failed to read file " + path + ": " + e.getMessage(), e);
         }
         // Merge fragments into file content
         if (!fragments.isEmpty()) {
@@ -296,18 +296,18 @@ public class FileResource {
         }
     }
 
-    private FQName checkFragmentType(List<Resource> fragments) throws STRuntimeException {
+    private FQName checkFragmentType(List<Resource> fragments) throws KMRuntimeException {
         FQName type = fragments.get(0).getType();
         for (Resource fragment : fragments) {
             if (!fragment.getType().equals(type)) {
-                throw new STRuntimeException("File " + path + " has multiple fragment types");
+                throw new KMRuntimeException("File " + path + " has multiple fragment types");
             }
         }
         return type;
     }
 
     @Sync(value = "content", order = 1)
-    public void syncContent() throws STRuntimeException {
+    public void syncContent() throws KMRuntimeException {
         // attempt to retrieve existing file metadata
         if (delete) {
             host.deleteFile(path, finfo.isDirectory());
@@ -335,7 +335,7 @@ public class FileResource {
                 }
                 break;
             default:
-                throw new STRuntimeException(ensure + " not supported");
+                throw new KMRuntimeException(ensure + " not supported");
         }
         assert host.fileExists(path);
         finfo = host.getFileInfo(path);
@@ -351,7 +351,7 @@ public class FileResource {
     }
 
     @Sync("permissions")
-    public void syncPermissions() throws STRuntimeException {
+    public void syncPermissions() throws KMRuntimeException {
         host.setFilePerms(path, new FilePermissions(permissions));
         logger.info("Changed permissions of {} from {} to {}", path, finfo.getPermissions(), permissions);
     }
@@ -366,7 +366,7 @@ public class FileResource {
     }
 
     @Sync("owner")
-    public void syncOwner() throws STRuntimeException {
+    public void syncOwner() throws KMRuntimeException {
         host.setFileOwner(path, owner);
         logger.info("Changed owner of {} from {} to {}", path, finfo.getOwner(), owner);
     }
@@ -381,7 +381,7 @@ public class FileResource {
     }
 
     @Sync("group")
-    public void syncGroup() throws STRuntimeException {
+    public void syncGroup() throws KMRuntimeException {
         host.setFileGroup(path, group);
         logger.info("Changed group of {} from {} to {}", path, finfo.getGroup(), group);
     }

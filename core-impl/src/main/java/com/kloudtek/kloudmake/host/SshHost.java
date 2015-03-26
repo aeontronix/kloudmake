@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
 import com.jcraft.jsch.*;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FilePermissions;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
@@ -63,7 +63,7 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public synchronized void start() throws STRuntimeException {
+    public synchronized void start() throws KMRuntimeException {
         super.start();
         try {
             jsch = new JSch();
@@ -78,7 +78,7 @@ public class SshHost extends AbstractHost {
             executor = new SshExecutor(session);
             rootUser = loginUser.equals("root");
         } catch (JSchException e) {
-            throw new STRuntimeException(e.getMessage(), e);
+            throw new KMRuntimeException(e.getMessage(), e);
         }
     }
 
@@ -90,7 +90,7 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public void deleteFile(String path, boolean recursive) throws STRuntimeException {
+    public void deleteFile(String path, boolean recursive) throws KMRuntimeException {
         try {
             if (recursive) {
                 exec("rm -rf " + path, 0, NO);
@@ -100,27 +100,27 @@ public class SshHost extends AbstractHost {
                     exec("rmdir " + path, 0, NO);
                 }
             }
-        } catch (STRuntimeException e) {
-            throw new STRuntimeException("Unable to delete " + path + ": " + e.getLocalizedMessage());
+        } catch (KMRuntimeException e) {
+            throw new KMRuntimeException("Unable to delete " + path + ": " + e.getLocalizedMessage());
         }
     }
 
     @NotNull
     @Override
-    public FileInfo getFileInfo(String path) throws STRuntimeException {
+    public FileInfo getFileInfo(String path) throws KMRuntimeException {
         try {
             FileInfo fileInfo = new FileInfo(path, exec(FileInfo.UNIX_STAT_CMD + path));
             if (fileInfo.getType() == FileInfo.Type.SYMLINK) {
                 fileInfo.setLinkTarget(exec("readlink " + path).trim());
             }
             return fileInfo;
-        } catch (STRuntimeException e) {
-            throw new STRuntimeException("Failed to retrieve file info for " + path + ": " + e.getMessage());
+        } catch (KMRuntimeException e) {
+            throw new KMRuntimeException("Failed to retrieve file info for " + path + ": " + e.getMessage());
         }
     }
 
     @Override
-    public boolean fileExists(String path) throws STRuntimeException {
+    public boolean fileExists(String path) throws KMRuntimeException {
         ExecutionResult result = exec("test -e " + path, null, NO);
         return result.getRetCode() == 0;
     }
@@ -131,16 +131,16 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public boolean mkdir(String path) throws STRuntimeException {
+    public boolean mkdir(String path) throws KMRuntimeException {
         if (isRootUser()) {
             try {
                 sftpChannel.mkdir(path);
                 return true;
             } catch (SftpException e) {
                 if (e.id == 2) {
-                    throw new STRuntimeException("Unable to create directory " + path + ", parent directory missing");
+                    throw new KMRuntimeException("Unable to create directory " + path + ", parent directory missing");
                 } else {
-                    throw new STRuntimeException("Unable to create directory " + path + ": " + e.getLocalizedMessage());
+                    throw new KMRuntimeException("Unable to create directory " + path + ": " + e.getLocalizedMessage());
                 }
             }
         } else {
@@ -153,7 +153,7 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public boolean mkdirs(String path) throws STRuntimeException {
+    public boolean mkdirs(String path) throws KMRuntimeException {
         if (!fileExists(path)) {
             exec("mkdir -p " + path);
             return true;
@@ -162,48 +162,48 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public byte[] getFileSha1(String path) throws STRuntimeException {
+    public byte[] getFileSha1(String path) throws KMRuntimeException {
         String result = exec("sha1sum " + path, getDefaultSuccessRetCode(), NO).getOutput();
         Matcher matcher = Pattern.compile("(\\S*?)\\s*" + path + "\n").matcher(result);
         if (!matcher.find()) {
-            throw new STRuntimeException("Invalid checksum returned by sha1sum: " + result);
+            throw new KMRuntimeException("Invalid checksum returned by sha1sum: " + result);
         }
         String checksum = matcher.group(1);
         try {
             return Hex.decodeHex(checksum.toCharArray());
         } catch (DecoderException e) {
-            throw new STRuntimeException("Error while retrieving file sha1: " + e.getMessage());
+            throw new KMRuntimeException("Error while retrieving file sha1: " + e.getMessage());
         }
     }
 
     @Override
-    public void writeToFile(String path, byte[] data) throws STRuntimeException {
+    public void writeToFile(String path, byte[] data) throws KMRuntimeException {
         writeToFile(path, new ByteArrayInputStream(data));
     }
 
     @Override
-    public byte[] readFileData(String path) throws STRuntimeException {
+    public byte[] readFileData(String path) throws KMRuntimeException {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         try {
             // TODO handle files non-root user can't read
             sftpChannel.get(path, buf);
             return buf.toByteArray();
         } catch (SftpException e) {
-            throw new STRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
+            throw new KMRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
         }
     }
 
     @Override
-    public InputStream readFile(String path) throws STRuntimeException {
+    public InputStream readFile(String path) throws KMRuntimeException {
         try {
             return sftpChannel.get(path);
         } catch (SftpException e) {
-            throw new STRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
+            throw new KMRuntimeException("Unable to read file " + path + ": " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void writeToFile(String path, InputStream dataStream) throws STRuntimeException {
+    public void writeToFile(String path, InputStream dataStream) throws KMRuntimeException {
         logger.debug("Writing stream to {} via SSH");
         String tmpfile = exec("mktemp", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), loginUser).getOutput().trim();
         logger.debug("Created temporary file {} on host {}", tmpfile);
@@ -211,7 +211,7 @@ public class SshHost extends AbstractHost {
         try {
             sftpChannel.put(dataStream, tmpfile, ChannelSftp.OVERWRITE);
         } catch (SftpException e) {
-            throw new STRuntimeException(e.getMessage(), e);
+            throw new KMRuntimeException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(dataStream);
         }
@@ -229,12 +229,12 @@ public class SshHost extends AbstractHost {
                 setFilePerms(path, new FilePermissions(oldFileInfo.getPermissions()));
             }
             logger.debug("moved temporary file {} to final destination {}", tmpfile, path);
-        } catch (RuntimeException | STRuntimeException e) {
+        } catch (RuntimeException | KMRuntimeException e) {
             try {
                 if (fileExists(tmpfile)) {
                     deleteFile(tmpfile, false);
                 }
-            } catch (STRuntimeException e1) {
+            } catch (KMRuntimeException e1) {
                 logger.warn("Error while attempting to delete temporary file: " + e.getLocalizedMessage());
             }
             throw e;
@@ -242,38 +242,38 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public void createSymlink(String path, String target) throws STRuntimeException {
+    public void createSymlink(String path, String target) throws KMRuntimeException {
         try {
             exec("ln -s " + target + " " + path);
-        } catch (STRuntimeException e) {
-            throw new STRuntimeException("Unable to create symlink: " + path + ": " + e.getMessage());
+        } catch (KMRuntimeException e) {
+            throw new KMRuntimeException("Unable to create symlink: " + path + ": " + e.getMessage());
         }
     }
 
     @Override
-    public void setFileOwner(String path, String owner) throws STRuntimeException {
+    public void setFileOwner(String path, String owner) throws KMRuntimeException {
         exec("chown " + owner + " " + path);
     }
 
     @Override
-    public void setFileGroup(String path, String group) throws STRuntimeException {
+    public void setFileGroup(String path, String group) throws KMRuntimeException {
         exec("chown :" + group + " " + path);
     }
 
     @Override
-    public void setFilePerms(String path, FilePermissions perms) throws STRuntimeException {
+    public void setFilePerms(String path, FilePermissions perms) throws KMRuntimeException {
         exec("chmod " + perms.toChmodString() + " " + path);
     }
 
     @Override
-    public String createTempDir() throws STRuntimeException {
+    public String createTempDir() throws KMRuntimeException {
         String tempdir = exec("mktemp -d", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), null).getOutput().trim();
         tempDirs.add(tempdir);
         return tempdir;
     }
 
     @Override
-    public String createTempFile() throws STRuntimeException {
+    public String createTempFile() throws KMRuntimeException {
         String tmpfile = exec("mktemp", getDefaultTimeout(), getDefaultSuccessRetCode(), getDefaultLogging(), null).getOutput().trim();
         tempFiles.add(tmpfile);
         return tmpfile;
@@ -286,7 +286,7 @@ public class SshHost extends AbstractHost {
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, @Nullable Map<String, String> env) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, @Nullable Map<String, String> env) throws KMRuntimeException {
         if (env == null || env.isEmpty()) {
             return super.exec(command, timeout, expectedRetCode, logging, user, workdir, env);
         } else {
@@ -300,7 +300,7 @@ public class SshHost extends AbstractHost {
     }
 
     @Override
-    public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
+    public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws KMRuntimeException {
         String tmpFile = createTempFile();
         try {
             writeToFile(tmpFile, script);
@@ -310,7 +310,7 @@ public class SshHost extends AbstractHost {
                     logger.debug("executing: {}", cmd);
                     return exec(cmd, timeout, expectedRetCode, logging, null);
                 default:
-                    throw new STRuntimeException("Unsupported script type: " + type.toString());
+                    throw new KMRuntimeException("Unsupported script type: " + type.toString());
             }
         } finally {
             deleteFile(tmpFile, false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.java;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake.java;
 import com.kloudtek.kloudmake.*;
 import com.kloudtek.kloudmake.annotation.Dependency;
 import com.kloudtek.kloudmake.exception.InvalidRefException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 import java.util.HashSet;
 
@@ -31,7 +31,7 @@ public class ResourceInitTask extends AbstractTask {
     }
 
     @Override
-    public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
         try {
             ((ResourceImpl) resource).addJavaImpl(clazz.newInstance());
             for (String require : requires) {
@@ -41,9 +41,9 @@ public class ResourceInitTask extends AbstractTask {
                 resource.addDependency(dependency.value(), dependency.optional());
             }
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new STRuntimeException("Unable to create java resource instance " + clazz.getName() + " : " + e.getMessage(), e);
+            throw new KMRuntimeException("Unable to create java resource instance " + clazz.getName() + " : " + e.getMessage(), e);
         } catch (InvalidRefException e) {
-            throw new STRuntimeException("Invalid @Dependency annotation in " + clazz.getName() + " " + e.getMessage(), e);
+            throw new KMRuntimeException("Invalid @Dependency annotation in " + clazz.getName() + " " + e.getMessage(), e);
         }
     }
 }

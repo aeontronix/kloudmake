@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -112,11 +112,11 @@ public class KMContextImpl implements AutoCloseable, KMContext {
         }
     }
 
-    public KMContextImpl() throws InvalidResourceDefinitionException, STRuntimeException {
+    public KMContextImpl() throws InvalidResourceDefinitionException, KMRuntimeException {
         this(new LocalHost());
     }
 
-    public KMContextImpl(Host host) throws InvalidResourceDefinitionException, STRuntimeException {
+    public KMContextImpl(Host host) throws InvalidResourceDefinitionException, KMRuntimeException {
         this.host = host;
         scriptEngineManager.registerEngineExtension("stl", new DSLScriptingEngineFactory(this));
         resourceManager = new ResourceManagerImpl(this);
@@ -352,14 +352,14 @@ public class KMContextImpl implements AutoCloseable, KMContext {
         return host;
     }
 
-    public void setHost(Host host) throws STRuntimeException {
+    public void setHost(Host host) throws KMRuntimeException {
         if (host == null) {
             throw new IllegalArgumentException("Host cannot be null");
         }
         executionLock.writeLock().lock();
         try {
             if (stage != null && stage.ordinal() >= Stage.EXECUTE.ordinal()) {
-                throw new STRuntimeException("The context host can only be changed before the execution stage");
+                throw new KMRuntimeException("The context host can only be changed before the execution stage");
             }
             if (this.host != null) {
                 this.host.close();
@@ -392,7 +392,7 @@ public class KMContextImpl implements AutoCloseable, KMContext {
     // Lifecycle
     // ------------------------------------------------------------------------------------------
 
-    public boolean execute() throws STRuntimeException {
+    public boolean execute() throws KMRuntimeException {
         KMContextImpl.ctx.set(this);
         try {
             return lifecycleExecutor.execute();
@@ -576,7 +576,7 @@ public class KMContextImpl implements AutoCloseable, KMContext {
         fatalExceptions = null;
     }
 
-    public Object invokeMethod(String name, Parameters params) throws STRuntimeException {
+    public Object invokeMethod(String name, Parameters params) throws KMRuntimeException {
         return serviceManager.invokeMethod(name, params);
     }
 

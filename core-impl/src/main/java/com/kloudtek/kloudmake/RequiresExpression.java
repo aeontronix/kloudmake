@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -111,7 +111,7 @@ public class RequiresExpression {
             for (Map.Entry<String, Parameter> entry : attrs.entrySet()) {
                 try {
                     attrsResolved.put(entry.getKey(), entry.getValue().eval(ctx, resource));
-                } catch (STRuntimeException e) {
+                } catch (KMRuntimeException e) {
                     throw new InvalidVariableException(e.getMessage(), e);
                 }
             }

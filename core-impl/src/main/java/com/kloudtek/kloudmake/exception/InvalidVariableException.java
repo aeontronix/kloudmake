@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
 
 import org.slf4j.Logger;
 
-public class InvalidVariableException extends STRuntimeException {
+public class InvalidVariableException extends KMRuntimeException {
     public InvalidVariableException() {
     }
 

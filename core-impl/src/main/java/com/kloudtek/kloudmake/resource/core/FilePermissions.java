@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
@@ -141,9 +141,8 @@ public class FilePermissions {
         if (otherWrite != that.otherWrite) return false;
         if (ownerExecute != that.ownerExecute) return false;
         if (ownerRead != that.ownerRead) return false;
-        if (ownerWrite != that.ownerWrite) return false;
+        return ownerWrite == that.ownerWrite;
 
-        return true;
     }
 
     @Override

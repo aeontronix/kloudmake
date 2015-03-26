@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.exception.InvalidAttributeException;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.exception.MultipleUniqueResourcesFoundException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.util.SetHashMap;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ import static com.kloudtek.kloudmake.Stage.*;
 import static com.kloudtek.util.StringUtils.isNotEmpty;
 
 public class KMLifecycleExecutor {
-    public boolean execute() throws STRuntimeException {
+    public boolean execute() throws KMRuntimeException {
         context.stage = INIT;
         context.executionLock.writeLock().lock();
         try {
@@ -67,7 +67,7 @@ public class KMLifecycleExecutor {
         this.context = context;
     }
 
-    public void prepare() throws STRuntimeException {
+    public void prepare() throws KMRuntimeException {
         context.resourceListLock.writeLock().lock();
         try {
             if (context.newLibAdded) {
@@ -131,7 +131,7 @@ public class KMLifecycleExecutor {
         }
     }
 
-    private void executePrepareActions() throws STRuntimeException {
+    private void executePrepareActions() throws KMRuntimeException {
         context.stage = PREPARE;
         for (Resource res = context.getUnpreparedResource(); res != null; res = context.getUnpreparedResource()) {
             context.resourceScope.set(res);
@@ -139,7 +139,7 @@ public class KMLifecycleExecutor {
                 logger.debug("Executing PREPARE stage for : {}", res);
                 ((ResourceImpl) res).executeTasks(PREPARE, false);
                 ((ResourceImpl) res).setStage(PREPARE);
-            } catch (STRuntimeException e) {
+            } catch (KMRuntimeException e) {
                 if (!e.isLogged()) {
                     logger.error(e.getLocalizedMessage());
                 }
@@ -240,7 +240,7 @@ public class KMLifecycleExecutor {
         }
     }
 
-    private void executeResources() throws STRuntimeException {
+    private void executeResources() throws KMRuntimeException {
         context.stage = EXECUTE;
         logger.debug("Starting stage EXECUTE");
         // initializing context host
@@ -291,7 +291,7 @@ public class KMLifecycleExecutor {
         logger.info("Finished stage EXECUTE");
     }
 
-    private void executeResourceTasks(ResourceImpl resource, Stage stage, boolean postChildren) throws STRuntimeException {
+    private void executeResourceTasks(ResourceImpl resource, Stage stage, boolean postChildren) throws KMRuntimeException {
         if (resource.isFailed()) {
             logger.warn("Skipping {} due to a previous error", resource);
         } else if (!resource.isExecutable()) {
@@ -300,7 +300,7 @@ public class KMLifecycleExecutor {
             try {
                 resource.executeTasks(stage, postChildren);
                 resource.setStage(stage);
-            } catch (STRuntimeException e) {
+            } catch (KMRuntimeException e) {
                 if (!e.isLogged()) {
                     logger.debug(e.getMessage(), e);
                     logger.error(e.getMessage());
@@ -325,14 +325,14 @@ public class KMLifecycleExecutor {
         }
     }
 
-    private void fatalFatalException(Throwable e) throws STRuntimeException {
-        if (e instanceof STRuntimeException && e.getCause() != null) {
+    private void fatalFatalException(Throwable e) throws KMRuntimeException {
+        if (e instanceof KMRuntimeException && e.getCause() != null) {
             e = e.getCause();
         }
         if (context.fatalExceptions != null && !context.fatalExceptions.isEmpty()) {
             for (Class<? extends Exception> fatalException : context.fatalExceptions) {
                 if (fatalException.isAssignableFrom(e.getClass())) {
-                    throw new STRuntimeException("Fatal exception caught: " + e.getLocalizedMessage(), e);
+                    throw new KMRuntimeException("Fatal exception caught: " + e.getLocalizedMessage(), e);
                 }
             }
         }
@@ -343,7 +343,7 @@ public class KMLifecycleExecutor {
             context.setResourceScope(resource);
             try {
                 ((ResourceImpl) resource).executeTasks(Stage.CLEANUP, false);
-            } catch (STRuntimeException e) {
+            } catch (KMRuntimeException e) {
                 logger.warn("Error occured during cleanup: " + e.getMessage(), e);
             }
             if (resource.getHostOverride() != null) {
@@ -468,9 +468,8 @@ public class KMLifecycleExecutor {
             AutoNotifyGroup that = (AutoNotifyGroup) o;
 
             if (!category.equals(that.category)) return false;
-            if (!target.equals(that.target)) return false;
+            return target.equals(that.target);
 
-            return true;
         }
 
         @Override

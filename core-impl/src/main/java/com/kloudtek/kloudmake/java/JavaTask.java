@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.java;
@@ -42,18 +42,18 @@ public class JavaTask extends AbstractTask {
     }
 
     @Override
-    public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
         invoke(context, resource, method);
     }
 
-    private Object invoke(KMContextImpl context, Resource resource, Method method) throws STRuntimeException {
+    private Object invoke(KMContextImpl context, Resource resource, Method method) throws KMRuntimeException {
         Object javaImpl = resource.getJavaImpl(implClass);
         if (javaImpl == null) {
             try {
                 javaImpl = implClass.newInstance();
                 ((ResourceImpl) resource).addJavaImpl(javaImpl);
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new STRuntimeException("Unable to create class " + implClass.getName() + " " + e.getMessage(), e);
+                throw new KMRuntimeException("Unable to create class " + implClass.getName() + " " + e.getMessage(), e);
             }
         }
         assert javaImpl != null;
@@ -64,7 +64,7 @@ public class JavaTask extends AbstractTask {
     }
 
     @Override
-    public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws KMRuntimeException {
         if (verifyMethod != null) {
             return (boolean) invoke(context, resource, verifyMethod);
         }
@@ -72,7 +72,7 @@ public class JavaTask extends AbstractTask {
     }
 
     @Override
-    public boolean supports(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public boolean supports(KMContextImpl context, Resource resource) throws KMRuntimeException {
         if (onlyIf != null && !onlyIf.isEmpty()) {
             for (EnforceOnlyIf enforceOnlyIf : onlyIf) {
                 if (!enforceOnlyIf.execAllowed(context, resource)) {

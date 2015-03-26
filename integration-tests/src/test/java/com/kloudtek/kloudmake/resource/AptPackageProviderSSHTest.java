@@ -1,11 +1,14 @@
+/*
+ * Copyright (c) 2015. Kelewan Technologies Ltd
+ */
+
 package com.kloudtek.kloudmake.resource;/*
  * Copyright (c) 2013 KloudTek Ltd
  */
 
 import com.kloudtek.kloudmake.AbstractVagrantTest;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.ResourceCreationException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.resource.core.AptPackageProvider;
 import org.testng.Assert;
@@ -23,7 +26,7 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
     private AptPackageProvider provider;
 
     @BeforeClass(groups = "vagrant")
-    public void init() throws STRuntimeException, IOException, ResourceCreationException, InvalidResourceDefinitionException {
+    public void init() throws KMRuntimeException, IOException, InvalidResourceDefinitionException {
         super.init();
         provider = new AptPackageProvider(sshHost);
         sshHost.exec("apt-get update");
@@ -102,21 +105,21 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
         assertEquals(installed, available);
     }
 
-    private String findVersion(String pkg) throws STRuntimeException {
+    private String findVersion(String pkg) throws KMRuntimeException {
         return sshHost.exec("apt-cache show " + pkg + " | grep Version").substring(9).trim();
     }
 
-    private void removePkg(String pkg) throws STRuntimeException {
+    private void removePkg(String pkg) throws KMRuntimeException {
         apt("purge -y " + pkg);
     }
 
-    private String apt(String cmd) throws STRuntimeException {
+    private String apt(String cmd) throws KMRuntimeException {
         HashMap<String, String> env = new HashMap<>();
         env.put("DEBIAN_FRONTEND", "noninteractive");
         return sshHost.exec(APTCMD + " " + cmd, null, Host.Logging.YES, env).getOutput();
     }
 
-    private void installPkg(String pkg) throws STRuntimeException {
+    private void installPkg(String pkg) throws KMRuntimeException {
         apt("install -y " + pkg);
         apt("upgrade -y " + pkg);
     }

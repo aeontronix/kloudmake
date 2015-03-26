@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FilePermissions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,7 @@ public class AutoStartHostWrapper implements Host {
         this.wrapped = wrapped;
     }
 
-    private void checkStarted() throws STRuntimeException {
+    private void checkStarted() throws KMRuntimeException {
         if (!wrapped.isStarted()) {
             start();
         }
@@ -34,7 +34,7 @@ public class AutoStartHostWrapper implements Host {
     }
 
     @Override
-    public void start() throws STRuntimeException {
+    public void start() throws KMRuntimeException {
         wrapped.start();
     }
 
@@ -44,186 +44,186 @@ public class AutoStartHostWrapper implements Host {
     }
 
     @Override
-    public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
+    public ExecutionResult execScript(String script, ScriptType type, long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws KMRuntimeException {
         checkStarted();
         return wrapped.execScript(script, type, timeout, expectedRetCode, logging, user);
     }
 
     @Override
-    public String exec(String command) throws STRuntimeException {
+    public String exec(String command) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command);
     }
 
     @Override
-    public String exec(String command, String workdir) throws STRuntimeException {
+    public String exec(String command, String workdir) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, workdir);
     }
 
     @Override
-    public String exec(String command, Map<String, String> env) throws STRuntimeException {
+    public String exec(String command, Map<String, String> env) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, env);
     }
 
     @Override
     @NotNull
-    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, expectedRetCode, logging);
     }
 
     @Override
     @NotNull
-    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, expectedRetCode, logging, env);
     }
 
     @Override
     @NotNull
-    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, timeout, expectedRetCode, logging, user);
     }
 
     @Override
     @NotNull
-    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, Map<String, String> env) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user, String workdir, Map<String, String> env) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, timeout, expectedRetCode, logging, user, workdir, env);
     }
 
     @Override
-    public boolean fileExists(String path) throws STRuntimeException {
+    public boolean fileExists(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.fileExists(path);
     }
 
     @Override
-    public String getFilePathSeparator() throws STRuntimeException {
+    public String getFilePathSeparator() throws KMRuntimeException {
         checkStarted();
         return wrapped.getFilePathSeparator();
     }
 
     @Override
     @NotNull
-    public FileInfo getFileInfo(String path) throws STRuntimeException {
+    public FileInfo getFileInfo(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.getFileInfo(path);
     }
 
     @Override
-    public boolean mkdir(String path) throws STRuntimeException {
+    public boolean mkdir(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.mkdir(path);
     }
 
     @Override
-    public boolean mkdirs(String path) throws STRuntimeException {
+    public boolean mkdirs(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.mkdirs(path);
     }
 
     @Override
-    public byte[] getFileSha1(String path) throws STRuntimeException {
+    public byte[] getFileSha1(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.getFileSha1(path);
     }
 
     @Override
-    public byte[] readFileData(String path) throws STRuntimeException {
+    public byte[] readFileData(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.readFileData(path);
     }
 
     @Override
-    public InputStream readFile(String path) throws STRuntimeException {
+    public InputStream readFile(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.readFile(path);
     }
 
     @Override
-    public String readTextFile(String path, String encoding) throws STRuntimeException {
+    public String readTextFile(String path, String encoding) throws KMRuntimeException {
         checkStarted();
         return wrapped.readTextFile(path, encoding);
     }
 
     @Override
-    public String readTextFile(String path) throws STRuntimeException {
+    public String readTextFile(String path) throws KMRuntimeException {
         checkStarted();
         return wrapped.readTextFile(path);
     }
 
     @Override
-    public void writeToFile(String path, String data) throws STRuntimeException {
+    public void writeToFile(String path, String data) throws KMRuntimeException {
         checkStarted();
         wrapped.writeToFile(path, data);
     }
 
     @Override
-    public void writeToFile(String path, byte[] data) throws STRuntimeException {
+    public void writeToFile(String path, byte[] data) throws KMRuntimeException {
         checkStarted();
         wrapped.writeToFile(path, data);
     }
 
     @Override
-    public void writeToFile(String path, InputStream data) throws STRuntimeException {
+    public void writeToFile(String path, InputStream data) throws KMRuntimeException {
         checkStarted();
         wrapped.writeToFile(path, data);
     }
 
     @Override
-    public String exec(String command, Logging logging) throws STRuntimeException {
+    public String exec(String command, Logging logging) throws KMRuntimeException {
         checkStarted();
         return wrapped.exec(command, logging);
     }
 
     @Override
-    public void deleteFile(String path, boolean recursive) throws STRuntimeException {
+    public void deleteFile(String path, boolean recursive) throws KMRuntimeException {
         checkStarted();
         wrapped.deleteFile(path, recursive);
     }
 
     @Override
-    public void createSymlink(String path, String target) throws STRuntimeException {
+    public void createSymlink(String path, String target) throws KMRuntimeException {
         checkStarted();
         wrapped.createSymlink(path, target);
     }
 
     @Override
-    public void setFileOwner(String path, String owner) throws STRuntimeException {
+    public void setFileOwner(String path, String owner) throws KMRuntimeException {
         checkStarted();
         wrapped.setFileOwner(path, owner);
     }
 
     @Override
-    public void setFileGroup(String path, String group) throws STRuntimeException {
+    public void setFileGroup(String path, String group) throws KMRuntimeException {
         checkStarted();
         wrapped.setFileGroup(path, group);
     }
 
     @Override
-    public void setFilePerms(String path, FilePermissions perms) throws STRuntimeException {
+    public void setFilePerms(String path, FilePermissions perms) throws KMRuntimeException {
         checkStarted();
         wrapped.setFilePerms(path, perms);
     }
 
     @Override
-    public String createTempDir() throws STRuntimeException {
+    public String createTempDir() throws KMRuntimeException {
         checkStarted();
         return wrapped.createTempDir();
     }
 
     @Override
-    public String createTempFile() throws STRuntimeException {
+    public String createTempFile() throws KMRuntimeException {
         checkStarted();
         return wrapped.createTempFile();
     }
 
     @Override
-    public boolean fileIsSame(@NotNull String path, @NotNull String content) throws STRuntimeException {
+    public boolean fileIsSame(@NotNull String path, @NotNull String content) throws KMRuntimeException {
         checkStarted();
         return wrapped.fileIsSame(path, content);
     }
@@ -244,7 +244,7 @@ public class AutoStartHostWrapper implements Host {
     }
 
     @Override
-    public HostProvider getMetadata() throws STRuntimeException {
+    public HostProvider getMetadata() throws KMRuntimeException {
         checkStarted();
         return wrapped.getMetadata();
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
 
 import com.kloudtek.kloudmake.annotation.*;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.ExecutionResult;
 import com.kloudtek.kloudmake.host.Host;
 import org.slf4j.Logger;
@@ -33,11 +33,11 @@ public class ExecResource {
     private Host.Logging loggingEnum;
 
     @Verify
-    public boolean testIfAndUnless() throws STRuntimeException {
+    public boolean testIfAndUnless() throws KMRuntimeException {
         try {
             loggingEnum = Host.Logging.valueOf(logging.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new STRuntimeException("Invalid logging attribute: " + logging);
+            throw new KMRuntimeException("Invalid logging attribute: " + logging);
         }
         if (unless != null) {
             ExecutionResult exec = host.exec(unless, null, loggingEnum);
@@ -55,10 +55,10 @@ public class ExecResource {
     }
 
     @Sync
-    public void exec() throws STRuntimeException {
+    public void exec() throws KMRuntimeException {
         ExecutionResult exec = host.exec(command, timeout * 1000, null, loggingEnum, null);
         if (exec.getRetCode() != returns) {
-            throw new STRuntimeException("Execution of " + command + " returned " + exec.getRetCode());
+            throw new KMRuntimeException("Execution of " + command + " returned " + exec.getRetCode());
         }
     }
 }

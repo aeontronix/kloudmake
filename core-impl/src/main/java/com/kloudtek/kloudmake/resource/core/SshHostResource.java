@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
@@ -9,7 +9,7 @@ import com.kloudtek.kloudmake.annotation.Attr;
 import com.kloudtek.kloudmake.annotation.Execute;
 import com.kloudtek.kloudmake.annotation.STResource;
 import com.kloudtek.kloudmake.annotation.Service;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.SshHost;
 import com.kloudtek.kloudmake.service.filestore.FileStore;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -30,7 +30,7 @@ public class SshHostResource {
     private SshHost sshHost;
 
     @Execute
-    public void execute() throws STRuntimeException {
+    public void execute() throws KMRuntimeException {
         sshHost = new SshHost();
         sshHost.setAddress(address);
         sshHost.setPort(port != null ? port : 22);
@@ -38,7 +38,7 @@ public class SshHostResource {
     }
 
     @Execute(postChildren = true)
-    public void executePostChildren() throws STRuntimeException {
+    public void executePostChildren() throws KMRuntimeException {
         serviceManager.removeOverride("host", sshHost);
     }
 }

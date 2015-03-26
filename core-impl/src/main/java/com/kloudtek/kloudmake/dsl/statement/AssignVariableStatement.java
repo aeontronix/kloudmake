@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl.statement;
@@ -8,9 +8,9 @@ import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.dsl.DSLScript;
 import com.kloudtek.kloudmake.dsl.InvalidScriptException;
-import com.kloudtek.kloudmake.dsl.Parameter;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.dsl.Parameter;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 import javax.script.ScriptException;
 import java.util.List;
@@ -38,7 +38,7 @@ public class AssignVariableStatement extends Statement {
         try {
             resource.setVar(name, param.eval(ctx, resource));
             return null;
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             throw new ScriptException(e);
         }
     }

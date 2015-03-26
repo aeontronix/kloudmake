@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
  * Time: 14:10
  * To change this template use File | Settings | File Templates.
  */
-public class FieldInjectionException extends STRuntimeException {
+public class FieldInjectionException extends KMRuntimeException {
     Field field;
 
     public FieldInjectionException(Field field) {

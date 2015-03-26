@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.util;
 
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,17 +20,17 @@ public class ReflectionHelper {
         return field.getDeclaringClass().getName() + "#" + field.getName();
     }
 
-    public static Object invoke(Method method, Class<?> clazz, Resource resource) throws STRuntimeException {
+    public static Object invoke(Method method, Class<?> clazz, Resource resource) throws KMRuntimeException {
         return invoke(method, resource.getJavaImpl(clazz));
     }
 
-    public static Object invoke(Method method, Object obj) throws STRuntimeException {
+    public static Object invoke(Method method, Object obj) throws KMRuntimeException {
         try {
             return method.invoke(obj);
         } catch (IllegalAccessException e) {
-            throw new STRuntimeException("Function " + ReflectionHelper.toString(method) + " cannot be invoked: " + e.getMessage(), e);
+            throw new KMRuntimeException("Function " + ReflectionHelper.toString(method) + " cannot be invoked: " + e.getMessage(), e);
         } catch (InvocationTargetException e) {
-            throw STRuntimeException.getCause(e);
+            throw KMRuntimeException.getCause(e);
         }
     }
 

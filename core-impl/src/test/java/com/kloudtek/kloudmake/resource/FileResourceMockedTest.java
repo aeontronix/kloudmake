@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource;
@@ -9,14 +9,14 @@ import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.ServiceManager;
 import com.kloudtek.kloudmake.exception.InjectException;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.InvalidServiceException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.FileInfo;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.resource.core.FileResource;
 import com.kloudtek.kloudmake.service.filestore.DataFile;
 import com.kloudtek.kloudmake.service.filestore.FileStore;
 import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.util.StringUtils;
 import freemarker.template.TemplateException;
 import org.apache.commons.io.IOUtils;
 import org.mockito.ArgumentCaptor;
@@ -49,7 +49,7 @@ public class FileResourceMockedTest {
     private static String defaultPermission = "rwx";
 
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, InvalidServiceException, InjectException {
+    public void init() throws KMRuntimeException, InvalidResourceDefinitionException, InjectException {
         reset(adminMock);
         reset(fileStoreMock);
         context = new KMContextImpl();
@@ -61,7 +61,7 @@ public class FileResourceMockedTest {
     }
 
     @Test
-    public void testCreateMissingDir() throws STRuntimeException {
+    public void testCreateMissingDir() throws KMRuntimeException {
         file.set("ensure", FileResource.Ensure.DIRECTORY);
         fileDoesntExist();
         fileExists();
@@ -70,7 +70,7 @@ public class FileResourceMockedTest {
     }
 
     @Test
-    public void testCreateExistingDir() throws STRuntimeException {
+    public void testCreateExistingDir() throws KMRuntimeException {
         file.set("ensure", FileResource.Ensure.DIRECTORY);
         mockGetFileInfo(DIRECTORY, PATH);
         fileExists();
@@ -78,17 +78,18 @@ public class FileResourceMockedTest {
         verify(adminMock, times(0)).mkdir(PATH);
     }
 
-    private void mockGetFileInfo(FileInfo.Type type, String path) throws STRuntimeException {
+    private void mockGetFileInfo(FileInfo.Type type, String path) throws KMRuntimeException {
         FileInfo fileInfo = new FileInfo(path, type);
         fileInfo.setPermissions(defaultPermission);
         when(adminMock.getFileInfo(PATH)).thenReturn(fileInfo);
     }
 
     @Test
-    public void testCreateExistingSameFile() throws STRuntimeException {
+    public void testCreateExistingSameFile() throws KMRuntimeException {
         file.set("ensure", FileResource.Ensure.FILE);
         file.set("content", DATA);
         fileExists();
+        fileChecksum(StringUtils.utf8(DATA));
         mockGetFileInfo(FILE, PATH);
         when(adminMock.getFileSha1(PATH)).thenReturn(DATA_SHA);
 
@@ -98,7 +99,7 @@ public class FileResourceMockedTest {
     }
 
     @Test
-    public void testDeleteExistingFile() throws STRuntimeException {
+    public void testDeleteExistingFile() throws KMRuntimeException {
         file.set("ensure", ABSENT);
         fileExists();
         mockGetFileInfo(FILE, PATH);
@@ -108,7 +109,7 @@ public class FileResourceMockedTest {
     }
 
     @Test
-    public void testDeleteNonExistingFile() throws STRuntimeException {
+    public void testDeleteNonExistingFile() throws KMRuntimeException {
         file.set("ensure", ABSENT);
         fileDoesntExist();
         assertTrue(context.execute());
@@ -116,7 +117,7 @@ public class FileResourceMockedTest {
     }
 
     @Test
-    public void testCreateSymlink() throws STRuntimeException {
+    public void testCreateSymlink() throws KMRuntimeException {
         file.set("ensure", SYMLINK);
         file.set("target", PATH2);
         fileDoesntExist();
@@ -127,12 +128,12 @@ public class FileResourceMockedTest {
         verify(adminMock, times(1)).createSymlink(PATH, PATH2);
     }
 
-    private void execute() throws STRuntimeException {
+    private void execute() throws KMRuntimeException {
         assertTrue(context.execute());
     }
 
     @Test
-    public void testCreateFileFromSource() throws STRuntimeException, IOException, TemplateException {
+    public void testCreateFileFromSource() throws KMRuntimeException, IOException, TemplateException {
         context.setFatalExceptions(Exception.class);
         file.set("source", PATH);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(DATA.getBytes());
@@ -160,15 +161,19 @@ public class FileResourceMockedTest {
         assertEquals(DATA, IOUtils.toString(inputStreamArgumentCaptor.getValue()));
     }
 
-    private void fileExists() throws STRuntimeException {
+    private void fileExists() throws KMRuntimeException {
         when(adminMock.fileExists(PATH)).thenReturn(true);
     }
 
-    private void fileDoesntExist() throws STRuntimeException {
+    private void fileChecksum(byte[] data) throws KMRuntimeException {
+        when(adminMock.getFileSha1(PATH)).thenReturn(DigestUtils.sha1(data));
+    }
+
+    private void fileDoesntExist() throws KMRuntimeException {
         when(adminMock.fileExists(PATH)).thenReturn(false);
     }
 
-    private void checkNoWrite() throws STRuntimeException {
+    private void checkNoWrite() throws KMRuntimeException {
         verify(adminMock, never()).writeToFile(any(String.class), any(String.class));
         verify(adminMock, never()).writeToFile(any(String.class), any(byte[].class));
         verify(adminMock, never()).writeToFile(any(String.class), any(InputStream.class));

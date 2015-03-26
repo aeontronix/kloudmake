@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -48,7 +48,7 @@ public class AbstractContextTest {
 
     @SuppressWarnings("unchecked")
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
+    public void init() throws KMRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
         ctx = new KMContextImpl();
         ctx.setFatalExceptions(Exception.class);
         resourceManager = ctx.getResourceManager();
@@ -182,7 +182,7 @@ public class AbstractContextTest {
     public AbstractContextTest execute(boolean expected) throws Throwable {
         try {
             Assert.assertEquals(ctx.execute(), expected);
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             if (e.getCause() != null) {
                 throw e.getCause();
             } else {
@@ -278,12 +278,12 @@ public class AbstractContextTest {
         }
 
         @Override
-        public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
-            throw new STRuntimeException("Failing Task for test purpose");
+        public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
+            throw new KMRuntimeException("Failing Task for test purpose");
         }
 
         @Override
-        public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
+        public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws KMRuntimeException {
             return true;
         }
     }

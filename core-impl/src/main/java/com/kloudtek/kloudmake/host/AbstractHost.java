@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
 import com.kloudtek.kloudmake.annotation.Provider;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.util.DelayedLogger;
 import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.exec.*;
@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.kloudtek.kloudmake.host.Host.Logging.*;
-import static com.kloudtek.kloudmake.util.DelayedLogger.Severity.DEBUG;
-import static com.kloudtek.kloudmake.util.DelayedLogger.Severity.ERROR;
-import static com.kloudtek.kloudmake.util.DelayedLogger.Severity.INFO;
+import static com.kloudtek.kloudmake.util.DelayedLogger.Severity.*;
 
 /**
  * Mandatory abstract implementation for host implementations
@@ -50,7 +48,7 @@ public abstract class AbstractHost implements Host {
     /**
      * {@inheritDoc}
      */
-    public synchronized void start() throws STRuntimeException {
+    public synchronized void start() throws KMRuntimeException {
         if (started) {
             return;
         }
@@ -68,14 +66,14 @@ public abstract class AbstractHost implements Host {
         for (String tempDir : tempDirs) {
             try {
                 deleteFile(tempDir, true);
-            } catch (STRuntimeException e) {
+            } catch (KMRuntimeException e) {
                 logger.warn("Failed to delete temporary directory " + tempDir);
             }
         }
         for (String tempFile : tempFiles) {
             try {
                 deleteFile(tempFile, false);
-            } catch (STRuntimeException e) {
+            } catch (KMRuntimeException e) {
                 logger.warn("Failed to delete temporary directory " + tempFile);
             }
         }
@@ -96,47 +94,47 @@ public abstract class AbstractHost implements Host {
     }
 
     @Override
-    public String exec(String command) throws STRuntimeException {
+    public String exec(String command) throws KMRuntimeException {
         return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, null, null).getOutput();
     }
 
     @Override
-    public String exec(String command, String workdir) throws STRuntimeException {
+    public String exec(String command, String workdir) throws KMRuntimeException {
         return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, workdir, null).getOutput();
     }
 
     @Override
-    public String exec(String command, Map<String, String> env) throws STRuntimeException {
+    public String exec(String command, Map<String, String> env) throws KMRuntimeException {
         return exec(command, defaultTimeout, defaultSuccessRetCode, defaultLogging, null, null, env).getOutput();
     }
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging) throws KMRuntimeException {
         return exec(command, defaultTimeout, expectedRetCode, logging, null, null, null);
     }
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Integer expectedRetCode, Logging logging, @Nullable Map<String, String> env) throws KMRuntimeException {
         return exec(command, defaultTimeout, expectedRetCode, logging, null, null, env);
     }
 
     @Override
-    public String exec(String command, Logging logging) throws STRuntimeException {
+    public String exec(String command, Logging logging) throws KMRuntimeException {
         return exec(command, defaultTimeout, defaultSuccessRetCode, logging, null, null, null).getOutput();
     }
 
     @NotNull
     @Override
-    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws STRuntimeException {
+    public ExecutionResult exec(String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging, String user) throws KMRuntimeException {
         return exec(command, timeout, expectedRetCode, logging, user, null, null);
     }
 
     @NotNull
     @Override
     public ExecutionResult exec(final String command, @Nullable Long timeout, @Nullable Integer expectedRetCode, Logging logging,
-                                String user, String workdir, @Nullable Map<String, String> env) throws STRuntimeException {
+                                String user, String workdir, @Nullable Map<String, String> env) throws KMRuntimeException {
         CommandLine cmdLine;
         if (user == null) {
             user = this.getDefaultUser();
@@ -182,7 +180,7 @@ public abstract class AbstractHost implements Host {
                         try {
                             doNothingExecResultHandler.wait();
                         } catch (InterruptedException e) {
-                            throw new STRuntimeException(e.getLocalizedMessage());
+                            throw new KMRuntimeException(e.getLocalizedMessage());
                         }
                     }
                 }
@@ -204,23 +202,23 @@ public abstract class AbstractHost implements Host {
             delayedLogger.log();
         }
         if (failed) {
-            throw new STRuntimeException(toString() + " failed to execute '" + command + "'");
+            throw new KMRuntimeException(toString() + " failed to execute '" + command + "'");
         }
         return result;
     }
 
     @Override
-    public String readTextFile(String path, String encoding) throws STRuntimeException {
+    public String readTextFile(String path, String encoding) throws KMRuntimeException {
         return new String(readFileData(path), Charset.forName(encoding));
     }
 
     @Override
-    public String readTextFile(String path) throws STRuntimeException {
+    public String readTextFile(String path) throws KMRuntimeException {
         return readTextFile(path, "UTF-8");
     }
 
     @Override
-    public void writeToFile(String path, String data) throws STRuntimeException {
+    public void writeToFile(String path, String data) throws KMRuntimeException {
         writeToFile(path, data.getBytes());
     }
 
@@ -237,7 +235,7 @@ public abstract class AbstractHost implements Host {
     }
 
     @Override
-    public boolean fileIsSame(@NotNull String path, @NotNull String content) throws STRuntimeException {
+    public boolean fileIsSame(@NotNull String path, @NotNull String content) throws KMRuntimeException {
         return fileExists(path) && Arrays.equals(DigestUtils.sha1(content.getBytes()), getFileSha1(path));
     }
 

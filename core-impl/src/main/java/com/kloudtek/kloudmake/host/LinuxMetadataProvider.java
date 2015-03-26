@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
 import com.kloudtek.kloudmake.annotation.Provider;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 import java.util.HashMap;
 
@@ -16,7 +16,7 @@ public class LinuxMetadataProvider extends UnixAbstractMetadataProvider {
     }
 
     @Override
-    public boolean supports(Host host, HashMap<String, Object> datacache) throws STRuntimeException {
+    public boolean supports(Host host, HashMap<String, Object> datacache) throws KMRuntimeException {
         ExecutionResult res = host.exec("uname", null, Host.Logging.ON_ERROR);
         if (res.getRetCode() == 0) {
             if (res.getOutput().trim().equals("Linux")) {

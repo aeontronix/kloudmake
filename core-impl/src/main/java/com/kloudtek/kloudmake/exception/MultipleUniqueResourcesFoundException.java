@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 /**
  * Thrown when multiple unique resources are found in their scope
  */
-public class MultipleUniqueResourcesFoundException extends STRuntimeException {
+public class MultipleUniqueResourcesFoundException extends KMRuntimeException {
     public MultipleUniqueResourcesFoundException() {
     }
 

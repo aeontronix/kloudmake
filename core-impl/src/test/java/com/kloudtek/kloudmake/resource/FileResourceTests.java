@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource;
@@ -7,9 +7,9 @@ package com.kloudtek.kloudmake.resource;
 import com.kloudtek.kloudmake.AbstractContextTest;
 import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
-import com.kloudtek.util.TempDir;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.util.TempDir;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -31,7 +31,7 @@ public class FileResourceTests extends AbstractContextTest {
     private TempDir tempdir;
 
     @BeforeMethod
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
+    public void init() throws KMRuntimeException, InvalidResourceDefinitionException, IOException, ScriptException {
         tempdir = new TempDir("frt");
         super.init();
     }

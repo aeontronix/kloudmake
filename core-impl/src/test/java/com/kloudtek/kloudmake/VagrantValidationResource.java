@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake;
 import com.kloudtek.kloudmake.annotation.Execute;
 import com.kloudtek.kloudmake.annotation.STResource;
 import com.kloudtek.kloudmake.annotation.Service;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.host.OperatingSystem;
 
@@ -20,7 +20,7 @@ public class VagrantValidationResource {
     private boolean validated;
 
     @Execute
-    public void validate() throws STRuntimeException {
+    public void validate() throws KMRuntimeException {
         assertEquals(host.getMetadata().getOperatingSystem(), OperatingSystem.LINUX);
         validated = true;
     }

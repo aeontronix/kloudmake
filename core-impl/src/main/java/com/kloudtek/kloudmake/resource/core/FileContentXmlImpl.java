@@ -1,15 +1,15 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
 
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
+import com.kloudtek.kryptotek.DigestUtils;
 import com.kloudtek.util.UnexpectedException;
 import com.kloudtek.util.xml.XPathUtils;
 import com.kloudtek.util.xml.XmlUtils;
-import com.kloudtek.kryptotek.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -18,7 +18,7 @@ import org.xml.sax.SAXException;
 import javax.validation.constraints.NotNull;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.*;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,17 +43,17 @@ public class FileContentXmlImpl implements FileContent {
     }
 
     @Override
-    public void init(String id, @NotNull InputStream stream, @NotNull byte[] sha1) throws STRuntimeException, IOException {
+    public void init(String id, @NotNull InputStream stream, @NotNull byte[] sha1) throws KMRuntimeException, IOException {
         this.sha1 = sha1;
         try {
             xml = XmlUtils.parse(stream);
         } catch (SAXException e) {
-            throw new STRuntimeException("File " + id + " is not a valid XML file");
+            throw new KMRuntimeException("File " + id + " is not a valid XML file");
         }
     }
 
     @Override
-    public void merge(Collection<Resource> fragments) throws STRuntimeException {
+    public void merge(List<Resource> fragments) throws KMRuntimeException {
         for (Resource fragment : fragments) {
             String uid = fragment.getUid();
             String type = fragment.get("type").toLowerCase();
@@ -66,7 +66,7 @@ public class FileContentXmlImpl implements FileContent {
                     xmlFragment = xml.importNode(XmlUtils.parse(new StringReader(val)).getDocumentElement(), true);
                 } else {
                     if (!type.equals("delete")) {
-                        throw new STRuntimeException("Missing xml attribute in file fragment " + uid + " : " + type);
+                        throw new KMRuntimeException("Missing xml attribute in file fragment " + uid + " : " + type);
                     }
                 }
                 switch (type) {
@@ -80,12 +80,12 @@ public class FileContentXmlImpl implements FileContent {
                         node.getParentNode().removeChild(node);
                         break;
                     default:
-                        throw new STRuntimeException("Invalid type in file fragment " + uid + " : " + type);
+                        throw new KMRuntimeException("Invalid type in file fragment " + uid + " : " + type);
                 }
             } catch (XPathExpressionException e) {
-                throw new STRuntimeException("Invalid xpath value in file fragment " + uid + " : " + xpath);
+                throw new KMRuntimeException("Invalid xpath value in file fragment " + uid + " : " + xpath);
             } catch (SAXException e) {
-                throw new STRuntimeException("Invalid xml value in file fragment " + uid + " : " + xml);
+                throw new KMRuntimeException("Invalid xml value in file fragment " + uid + " : " + xml);
             } catch (IOException e) {
                 throw new UnexpectedException(e);
             }

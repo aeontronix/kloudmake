@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 /**
  * Used to invoke actionsByStage during lifecycle stage processing.
@@ -95,12 +95,12 @@ public abstract class AbstractTask implements Task {
     }
 
     @Override
-    public boolean supports(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public boolean supports(KMContextImpl context, Resource resource) throws KMRuntimeException {
         return true;
     }
 
     @Override
-    public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
+    public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws KMRuntimeException {
         return true;
     }
 }

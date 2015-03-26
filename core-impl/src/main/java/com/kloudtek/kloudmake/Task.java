@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 public interface Task extends Comparable<Task> {
     /**
@@ -12,9 +12,9 @@ public interface Task extends Comparable<Task> {
      *
      * @param context  Context
      * @param resource Resource being executed
-     * @throws STRuntimeException If an error occurs during execution
+     * @throws KMRuntimeException If an error occurs during execution
      */
-    void execute(KMContextImpl context, Resource resource) throws STRuntimeException;
+    void execute(KMContextImpl context, Resource resource) throws KMRuntimeException;
 
     /**
      * Checks if execution is required.
@@ -23,7 +23,7 @@ public interface Task extends Comparable<Task> {
      * @param resource
      * @return True if execution is required.
      */
-    boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException;
+    boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws KMRuntimeException;
 
     /**
      * Checks if this action supports running on the resource
@@ -31,10 +31,10 @@ public interface Task extends Comparable<Task> {
      * @param context  Context
      * @param resource Resource
      * @return True if the action supports running on the resource and it's environment.
-     * @throws STRuntimeException If an error occurs
+     * @throws KMRuntimeException If an error occurs
      * @see #getAlternative()
      */
-    boolean supports(KMContextImpl context, Resource resource) throws STRuntimeException;
+    boolean supports(KMContextImpl context, Resource resource) throws KMRuntimeException;
 
     /**
      * Get the order ranking (if two tasks are in the same stage, the higher order one will run first)

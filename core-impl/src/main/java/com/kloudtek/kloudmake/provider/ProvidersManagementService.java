@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.provider;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake.provider;
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.annotation.Provider;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.util.ListHashMap;
 import org.reflections.Reflections;
 
@@ -37,7 +37,7 @@ public class ProvidersManagementService {
     }
 
     @SuppressWarnings("unchecked")
-    public void init(Reflections libraries) throws STRuntimeException {
+    public void init(Reflections libraries) throws KMRuntimeException {
         Set<Class<?>> classes = libraries.getTypesAnnotatedWith(Provider.class);
         ArrayList<Class<? extends ProviderManager>> pmlist = new ArrayList<>();
         ArrayList<Class<?>> plist = new ArrayList<>();
@@ -54,7 +54,7 @@ public class ProvidersManagementService {
                 providerManagers.put(clazz, providerManager);
                 providerClasses.put(providerManager.getProviderInterface(), providerManager);
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new STRuntimeException("Unable to instantiate provider manager " + clazz.getName());
+                throw new KMRuntimeException("Unable to instantiate provider manager " + clazz.getName());
             }
         }
         for (Class<?> clazz : plist) {
@@ -79,7 +79,7 @@ public class ProvidersManagementService {
                     }
                 }
             } catch (InstantiationException | IllegalAccessException e) {
-                throw new STRuntimeException("Unable to instantiate provider " + clazz.getName());
+                throw new KMRuntimeException("Unable to instantiate provider " + clazz.getName());
             }
         }
     }

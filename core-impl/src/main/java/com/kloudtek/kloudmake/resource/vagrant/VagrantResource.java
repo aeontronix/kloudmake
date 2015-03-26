@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.vagrant;
@@ -8,7 +8,7 @@ import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.ServiceManager;
 import com.kloudtek.kloudmake.annotation.*;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.host.SshHost;
 import org.apache.commons.io.FileUtils;
@@ -60,13 +60,13 @@ public class VagrantResource {
     }
 
     @Prepare
-    public void init() throws STRuntimeException {
+    public void init() throws KMRuntimeException {
         sshHost = new SshHost();
         resource.setChildrensHostOverride(sshHost);
     }
 
     @Execute
-    public void exec() throws STRuntimeException {
+    public void exec() throws KMRuntimeException {
         String vagrantfile = "Vagrant::Config.run do |config|\n" +
                 "  config.vm.box = \"" + box + "\"\n" +
                 "end\n";
@@ -83,7 +83,7 @@ public class VagrantResource {
         initHost(sshHost, host, dir);
     }
 
-    public static SshHost initHost(SshHost sshHost, Host current, String vagrantDir) throws STRuntimeException {
+    public static SshHost initHost(SshHost sshHost, Host current, String vagrantDir) throws KMRuntimeException {
         SshConfig sshConfig = new SshConfig(current.exec("vagrant ssh-config", vagrantDir));
         logger.debug("Vagrant VM SSH config: {}", sshConfig);
         File pkeyFile = new File(sshConfig.getPkey());
@@ -92,7 +92,7 @@ public class VagrantResource {
             try {
                 privKey = FileUtils.readFileToByteArray(pkeyFile);
             } catch (IOException e) {
-                throw new STRuntimeException("Error loading vagrant keyfile " + sshConfig.getPkey() + ": " + e.getMessage(), e);
+                throw new KMRuntimeException("Error loading vagrant keyfile " + sshConfig.getPkey() + ": " + e.getMessage(), e);
             }
             sshHost.setAddress(sshConfig.getHostname());
             sshHost.setPort(sshConfig.getPort());
@@ -100,22 +100,22 @@ public class VagrantResource {
             sshHost.setPrivKey(privKey);
             return sshHost;
         } else {
-            throw new STRuntimeException("Vagrant keyfile does not exist or is a directory: " + sshConfig.getPkey());
+            throw new KMRuntimeException("Vagrant keyfile does not exist or is a directory: " + sshConfig.getPkey());
         }
     }
 
     @Execute(postChildren = true)
-    public void postChildrens() throws STRuntimeException {
+    public void postChildrens() throws KMRuntimeException {
         try {
             if (after != null) {
                 changeStatus(after);
             }
         } catch (InvalidServiceException e) {
-            throw new STRuntimeException(e.getMessage(), e);
+            throw new KMRuntimeException(e.getMessage(), e);
         }
     }
 
-    private void changeStatus(Ensure newState) throws STRuntimeException {
+    private void changeStatus(Ensure newState) throws KMRuntimeException {
         Ensure status;
         String statusStr = host.exec("vagrant status", dir);
         if (statusStr.contains("The VM is powered off") || statusStr.contains("To resume this VM")) {
@@ -127,7 +127,7 @@ public class VagrantResource {
         } else if (statusStr.contains("The VM is in an aborted state.")) {
             status = Ensure.ABORTED;
         } else {
-            throw new STRuntimeException("Invalid vagrant status: " + statusStr);
+            throw new KMRuntimeException("Invalid vagrant status: " + statusStr);
         }
         if (!status.equals(newState)) {
             switch (newState) {
@@ -145,7 +145,7 @@ public class VagrantResource {
                     host.exec("vagrant destroy -f", dir);
                     break;
                 case ABORTED:
-                    throw new STRuntimeException("ABORTED is not a valid state to set this VM to");
+                    throw new KMRuntimeException("ABORTED is not a valid state to set this VM to");
             }
         }
     }
@@ -165,7 +165,7 @@ public class VagrantResource {
         private String user;
         private String pkey;
 
-        public SshConfig(String config) throws STRuntimeException {
+        public SshConfig(String config) throws KMRuntimeException {
             this.config = config;
             hostname = parse(REGEX_HOSTNAME);
             port = parseInt(REGEX_PORT);
@@ -199,7 +199,7 @@ public class VagrantResource {
                     '}';
         }
 
-        private String parse(Pattern pattern) throws STRuntimeException {
+        private String parse(Pattern pattern) throws KMRuntimeException {
             Matcher matcher = pattern.matcher(config);
             if (matcher.find()) {
                 String text = matcher.group(1);
@@ -208,15 +208,15 @@ public class VagrantResource {
                 }
                 return text;
             } else {
-                throw new STRuntimeException("Invalid vagrant ssh-config: " + config);
+                throw new KMRuntimeException("Invalid vagrant ssh-config: " + config);
             }
         }
 
-        private int parseInt(Pattern pattern) throws STRuntimeException {
+        private int parseInt(Pattern pattern) throws KMRuntimeException {
             try {
                 return Integer.parseInt(parse(pattern));
             } catch (NumberFormatException e) {
-                throw new STRuntimeException("Invalid vagrant ssh-config: " + config);
+                throw new KMRuntimeException("Invalid vagrant ssh-config: " + config);
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -331,7 +331,7 @@ public class ResourceManagerImpl implements ResourceManager {
     }
 
     @Override
-    public List<Resource> findResourcesById(@NotNull String id) throws STRuntimeException {
+    public List<Resource> findResourcesById(@NotNull String id) throws KMRuntimeException {
         rlock();
         try {
             ArrayList<Resource> list = new ArrayList<>();

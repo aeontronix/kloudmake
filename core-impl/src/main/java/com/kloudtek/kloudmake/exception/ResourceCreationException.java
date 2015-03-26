@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 /**
  * Thrown when a resource creation fails.
  */
-public class ResourceCreationException extends STRuntimeException {
+public class ResourceCreationException extends KMRuntimeException {
     public ResourceCreationException() {
     }
 

@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.apache.commons.exec.CommandLine;
 
 import java.util.HashMap;
 
 public interface HostProvider {
-    boolean supports(Host host, HashMap<String, Object> datacache) throws STRuntimeException;
+    boolean supports(Host host, HashMap<String, Object> datacache) throws KMRuntimeException;
 
     OperatingSystem getOperatingSystem();
 
@@ -18,5 +18,5 @@ public interface HostProvider {
 
     boolean isAbsolutePath(String workdir);
 
-    String getWorkingDir(Host abstractHost) throws STRuntimeException;
+    String getWorkingDir(Host abstractHost) throws KMRuntimeException;
 }

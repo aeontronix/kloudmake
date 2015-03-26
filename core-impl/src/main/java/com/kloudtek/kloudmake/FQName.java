@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -130,9 +130,8 @@ public class FQName {
         FQName fqName = (FQName) o;
 
         if (!name.equals(fqName.name)) return false;
-        if (pkg != null ? !pkg.equals(fqName.pkg) : fqName.pkg != null) return false;
+        return !(pkg != null ? !pkg.equals(fqName.pkg) : fqName.pkg != null);
 
-        return true;
     }
 
     @Override

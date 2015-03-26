@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.service.filestore;
@@ -8,10 +8,10 @@ import com.kloudtek.kloudmake.FQName;
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Startable;
 import com.kloudtek.kloudmake.annotation.*;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.resource.core.FileFragmentDef;
-import com.kloudtek.util.TempFile;
 import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.util.TempFile;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -65,13 +65,13 @@ public class FileStore implements Startable, Closeable {
     }
 
     @Override
-    public synchronized void start() throws STRuntimeException {
+    public synchronized void start() throws KMRuntimeException {
         fileFragmentDefs.clear();
         fileFragmentDefsTypeIndex.clear();
         Set<Class<?>> fileFragmentsClasses = context.getLibraryReflections().getTypesAnnotatedWith(FileFragment.class);
         for (Class<?> clazz : fileFragmentsClasses) {
             if (clazz.getAnnotation(STResource.class) == null) {
-                throw new STRuntimeException("Class " + clazz.getName() + " is annotated with @FileFragment but not @STResource");
+                throw new KMRuntimeException("Class " + clazz.getName() + " is annotated with @FileFragment but not @STResource");
             }
             FQName type = new FQName(clazz);
             FileFragmentDef def = new FileFragmentDef(clazz.getAnnotation(FileFragment.class).fileContentClass(), type);

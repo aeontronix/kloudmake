@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl;
 
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.HashMap;
@@ -49,5 +49,5 @@ public abstract class Parameter {
 
     public abstract String getRawValue();
 
-    public abstract String eval(KMContextImpl ctx, Resource resource) throws STRuntimeException;
+    public abstract String eval(KMContextImpl ctx, Resource resource) throws KMRuntimeException;
 }

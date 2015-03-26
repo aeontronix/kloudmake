@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 public interface ServiceManager {
     Object getService(String id) throws InvalidServiceException;
@@ -20,11 +20,11 @@ public interface ServiceManager {
 
     void close();
 
-    void start() throws STRuntimeException;
+    void start() throws KMRuntimeException;
 
     void stop();
 
-    Object invokeMethod(String name, Parameters parameters) throws STRuntimeException;
+    Object invokeMethod(String name, Parameters parameters) throws KMRuntimeException;
 
     void registerService(String name, Object service) throws InvalidServiceException;
 

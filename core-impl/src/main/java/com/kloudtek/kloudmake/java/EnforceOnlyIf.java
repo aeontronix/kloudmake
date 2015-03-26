@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.java;
@@ -9,7 +9,7 @@ import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.annotation.OnlyIf;
 import com.kloudtek.kloudmake.annotation.OnlyIfOperatingSystem;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
@@ -20,7 +20,7 @@ import java.util.Set;
  * Base class for all OnlyIf annotation enforcement.
  */
 public abstract class EnforceOnlyIf {
-    public abstract boolean execAllowed(KMContextImpl context, Resource resource) throws STRuntimeException;
+    public abstract boolean execAllowed(KMContextImpl context, Resource resource) throws KMRuntimeException;
 
     public static Set<EnforceOnlyIf> find(Class<?> clazz) throws InvalidResourceDefinitionException {
         HashSet<EnforceOnlyIf> list = new HashSet<>();

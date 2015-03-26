@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
 import static com.kloudtek.util.StringUtils.isEmpty;
@@ -43,5 +43,5 @@ public abstract class NotificationHandler {
         return handlerCategory.isEmpty() ? isEmpty(category) : handlerCategory.equalsIgnoreCase(category);
     }
 
-    public abstract void handleNotification(Notification notification) throws STRuntimeException;
+    public abstract void handleNotification(Notification notification) throws KMRuntimeException;
 }

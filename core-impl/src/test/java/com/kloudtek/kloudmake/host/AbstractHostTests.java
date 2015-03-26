@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
 import com.jcraft.jsch.JSchException;
 import com.kloudtek.kloudmake.TestVagrantRuntime;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
-import com.kloudtek.util.StringUtils;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kryptotek.DigestUtils;
+import com.kloudtek.util.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -46,7 +46,7 @@ public abstract class AbstractHostTests {
     }
 
     @BeforeClass
-    public void setup() throws IOException, JSchException, STRuntimeException {
+    public void setup() throws IOException, JSchException, KMRuntimeException {
         if (type == Type.LOCAL) {
             setup(LocalHost.createStandalone(), System.getProperty("user.name"));
         } else {
@@ -55,7 +55,7 @@ public abstract class AbstractHostTests {
         }
     }
 
-    private void setup(Host host, String fileUser) throws IOException, STRuntimeException {
+    private void setup(Host host, String fileUser) throws IOException, KMRuntimeException {
         this.host = host;
         this.fileUser = fileUser;
         String os = System.getProperty("os.name");
@@ -90,7 +90,7 @@ public abstract class AbstractHostTests {
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testExecSuccessfulWithLogging() throws STRuntimeException {
+    public void testExecSuccessfulWithLogging() throws KMRuntimeException {
         TestFile file = new TestFile().writeTestData();
         ExecutionResult result = host.exec("ls " + file.path, 0, YES);
         assertEquals(normalize(result.getOutput().trim()), file.path);
@@ -99,7 +99,7 @@ public abstract class AbstractHostTests {
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testExecSuccessfulWithoutException() throws STRuntimeException {
+    public void testExecSuccessfulWithoutException() throws KMRuntimeException {
         TestFile file = new TestFile().writeTestData();
         ExecutionResult result = host.exec("ls " + file.path, null, YES);
         assertEquals(normalize(result.getOutput().trim()), file.path);
@@ -107,19 +107,19 @@ public abstract class AbstractHostTests {
         file.assertNoOtherFiles();
     }
 
-    @Test(expectedExceptions = STRuntimeException.class)
-    public void testExecUnsuccessfulWithException() throws STRuntimeException {
+    @Test(expectedExceptions = KMRuntimeException.class)
+    public void testExecUnsuccessfulWithException() throws KMRuntimeException {
         host.exec("ls sfdafadsfsda");
     }
 
     @Test()
-    public void testExecUnsuccessfulWithRetCode() throws STRuntimeException {
+    public void testExecUnsuccessfulWithRetCode() throws KMRuntimeException {
         ExecutionResult result = host.exec("ls asffdsa", null, YES);
         assertTrue(result.getRetCode() != 0);
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testExecScript() throws IOException, STRuntimeException {
+    public void testExecScript() throws IOException, KMRuntimeException {
         TestFile file1 = new TestFile().writeTestData();
         TestFile file2 = new TestFile().writeTestData();
         String script = "#!/bin/bash\nls " + file1.path + "\nls  " + file2.path;
@@ -139,40 +139,40 @@ public abstract class AbstractHostTests {
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testFileEmptyExistExpectSuccess() throws STRuntimeException {
+    public void testFileEmptyExistExpectSuccess() throws KMRuntimeException {
         TestFile file = new TestFile().writeEmpty();
         assertTrue(host.fileExists(file.path));
         file.assertNoOtherFiles();
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testNonEmptyFileExistExpectSuccess() throws STRuntimeException {
+    public void testNonEmptyFileExistExpectSuccess() throws KMRuntimeException {
         TestFile file = new TestFile().writeTestData();
         assertTrue(host.fileExists(file.path));
         file.assertNoOtherFiles();
     }
 
     @Test
-    public void testFileExistExpectFailure() throws STRuntimeException {
+    public void testFileExistExpectFailure() throws KMRuntimeException {
         assertFalse(host.fileExists("/afdsfasfasfsadfsafasafs"));
     }
 
     @Test
-    public void testMkdirSuccessful() throws STRuntimeException {
+    public void testMkdirSuccessful() throws KMRuntimeException {
         TestFile dir = new TestFile();
         host.mkdir(dir.path);
         dir.assertIsDir();
         dir.assertNoOtherFiles();
     }
 
-    @Test(expectedExceptions = STRuntimeException.class)
-    public void testMkdirFails() throws STRuntimeException {
+    @Test(expectedExceptions = KMRuntimeException.class)
+    public void testMkdirFails() throws KMRuntimeException {
         host.mkdir(testPath + "/does/not/exist");
         assertNoFilesExist();
     }
 
     @Test()
-    public void testWriteFileByteArraySuccessful() throws STRuntimeException, IOException {
+    public void testWriteFileByteArraySuccessful() throws KMRuntimeException, IOException {
         TestFile file = new TestFile();
         host.writeToFile(file.path, testData2);
         assertEquals(FileUtils.readFileToByteArray(file.realFile), testData2);
@@ -180,77 +180,77 @@ public abstract class AbstractHostTests {
     }
 
     @Test
-    public void testWriteFileStreamSuccessful() throws STRuntimeException, IOException {
+    public void testWriteFileStreamSuccessful() throws KMRuntimeException, IOException {
         TestFile file = new TestFile();
         host.writeToFile(file.path, new ByteArrayInputStream(testData2));
         assertEquals(FileUtils.readFileToByteArray(file.realFile), testData2);
         file.assertNoOtherFiles();
     }
 
-    @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = {"testWriteFileByteArraySuccessful"})
-    public void testWriteFileFails() throws STRuntimeException {
+    @Test(expectedExceptions = KMRuntimeException.class, dependsOnMethods = {"testWriteFileByteArraySuccessful"})
+    public void testWriteFileFails() throws KMRuntimeException {
         host.writeToFile(testPath + "/does/not/exist", new ByteArrayInputStream(testData2));
         assertNoFilesExist();
     }
 
     @Test
-    public void testGetShaOnExistingFile() throws STRuntimeException {
+    public void testGetShaOnExistingFile() throws KMRuntimeException {
         TestFile file = new TestFile().writeTestData();
         assertEquals(host.getFileSha1(file.path), testData1Sha);
     }
 
-    @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = "testGetShaOnExistingFile")
-    public void testGetShaOnNonExistingFile() throws STRuntimeException {
+    @Test(expectedExceptions = KMRuntimeException.class, dependsOnMethods = "testGetShaOnExistingFile")
+    public void testGetShaOnNonExistingFile() throws KMRuntimeException {
         host.getFileSha1("/afsdfasdfsda/fsdafdsafdsa");
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testDeleteExistingFile() throws IOException, STRuntimeException {
+    public void testDeleteExistingFile() throws IOException, KMRuntimeException {
         TestFile file = new TestFile().writeTestData();
         host.deleteFile(file.path, false);
         assertNoFilesExist();
     }
 
     @Test(dependsOnMethods = "testMkdirSuccessful")
-    public void testDeleteEmptyDir() throws IOException, STRuntimeException {
+    public void testDeleteEmptyDir() throws IOException, KMRuntimeException {
         TestFile file = new TestFile().mkdir().assertExists();
         host.deleteFile(file.path, false);
         file.assertAbsent();
     }
 
-    @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = {"testDeleteEmptyDir", "testMkdirSuccessful", "testWriteFileByteArraySuccessful"})
-    public void testDeleteNonEmptyDir() throws IOException, STRuntimeException {
+    @Test(expectedExceptions = KMRuntimeException.class, dependsOnMethods = {"testDeleteEmptyDir", "testMkdirSuccessful", "testWriteFileByteArraySuccessful"})
+    public void testDeleteNonEmptyDir() throws IOException, KMRuntimeException {
         TestFile dir = new TestFile().mkdir().createChild();
         host.deleteFile(dir.path, false);
     }
 
     @Test(dependsOnMethods = {"testDeleteEmptyDir", "testMkdirSuccessful", "testWriteFileByteArraySuccessful"})
-    public void testDeleteNonEmptyDirRecursive() throws IOException, STRuntimeException {
+    public void testDeleteNonEmptyDirRecursive() throws IOException, KMRuntimeException {
         TestFile dir = new TestFile().mkdir().createChild();
         host.deleteFile(dir.path, true);
         dir.assertAbsent();
     }
 
     @Test(dependsOnMethods = "testWriteFileByteArraySuccessful")
-    public void testFileInfoOnExistingFile() throws STRuntimeException, IOException {
+    public void testFileInfoOnExistingFile() throws KMRuntimeException, IOException {
         TestFile file = new TestFile().writeTestData();
         compare(file);
     }
 
-    @Test(expectedExceptions = STRuntimeException.class, dependsOnMethods = "testFileInfoOnExistingFile")
-    public void testFileInfoOnNonExistingFile() throws STRuntimeException {
+    @Test(expectedExceptions = KMRuntimeException.class, dependsOnMethods = "testFileInfoOnExistingFile")
+    public void testFileInfoOnNonExistingFile() throws KMRuntimeException {
         host.getFileInfo("/dfsafdsafdasfadsfdsa");
     }
 
     @Test(dependsOnMethods = "testMkdirSuccessful")
-    public void testFileInfoOnExistingDir() throws STRuntimeException, IOException {
+    public void testFileInfoOnExistingDir() throws KMRuntimeException, IOException {
         TestFile file = new TestFile().mkdir();
         compare(file);
     }
 
     @Test(dependsOnMethods = {"testWriteFileByteArraySuccessful", "testExecSuccessfulWithLogging",
             "testFileEmptyExistExpectSuccess", "testMkdirSuccessful"})
-    public void testCreateSymlink() throws STRuntimeException {
+    public void testCreateSymlink() throws KMRuntimeException {
         String path = createAltTestDir();
         TestFile target = new TestFile().writeTestData();
         String name = path + "/" + rndName();
@@ -260,7 +260,7 @@ public abstract class AbstractHostTests {
     }
 
     @Test(dependsOnMethods = "testExecSuccessfulWithoutException")
-    public void testFileInfoOnSymlink() throws STRuntimeException, IOException {
+    public void testFileInfoOnSymlink() throws KMRuntimeException, IOException {
         String path = createAltTestDir();
         host.exec("ln -s /test " + path + "/testsymlink");
         FileInfo fileInfo = host.getFileInfo(path + "/testsymlink");
@@ -269,7 +269,7 @@ public abstract class AbstractHostTests {
     }
 
     @Test
-    public void testEchoSetVariable() throws STRuntimeException {
+    public void testEchoSetVariable() throws KMRuntimeException {
         final String key = "TESTVAL";
         final String value = "yay";
         final String keyvalue = key + "=" + value;
@@ -286,7 +286,7 @@ public abstract class AbstractHostTests {
         assertFalse(stdout.contains(keyvalue));
     }
 
-    private void compare(TestFile file) throws STRuntimeException, IOException {
+    private void compare(TestFile file) throws KMRuntimeException, IOException {
         String path = file.path;
         Path realPath = file.realPath;
         FileInfo fileInfo = host.getFileInfo(path);
@@ -326,7 +326,7 @@ public abstract class AbstractHostTests {
         return StringUtils.urlEncode(UUID.randomUUID().toString());
     }
 
-    private String createAltTestDir() throws STRuntimeException {
+    private String createAltTestDir() throws KMRuntimeException {
         if (host instanceof SshHost) {
             if (!host.fileExists("/test2")) {
                 host.mkdir("/test2");
@@ -383,17 +383,17 @@ public abstract class AbstractHostTests {
             return this;
         }
 
-        public TestFile mkdir() throws STRuntimeException {
+        public TestFile mkdir() throws KMRuntimeException {
             host.mkdir(path);
             return this;
         }
 
-        public TestFile writeTestData() throws STRuntimeException {
+        public TestFile writeTestData() throws KMRuntimeException {
             host.writeToFile(path, testData1);
             return this;
         }
 
-        public TestFile writeEmpty() throws STRuntimeException {
+        public TestFile writeEmpty() throws KMRuntimeException {
             host.writeToFile(path, new byte[0]);
             return this;
         }
@@ -408,13 +408,13 @@ public abstract class AbstractHostTests {
             return this;
         }
 
-        public TestFile createChild() throws STRuntimeException {
+        public TestFile createChild() throws KMRuntimeException {
             TestFile children = new TestFile(this);
             children.writeTestData();
             return this;
         }
 
-        public TestFile mksymlink(TestFile target) throws STRuntimeException {
+        public TestFile mksymlink(TestFile target) throws KMRuntimeException {
             host.createSymlink(path, target.name);
             this.target = target.name;
             return this;

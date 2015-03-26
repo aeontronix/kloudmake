@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.exception.ResourceCreationException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.util.ValidateUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -108,7 +108,7 @@ public class ResourceDefinition implements AutoCloseable {
                 resource.addNotificationHandler(notificationHandler);
             }
             return resource;
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             throw new ResourceCreationException(e.getMessage(), e);
         }
     }

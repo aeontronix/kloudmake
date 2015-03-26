@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -252,12 +252,12 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public synchronized void setHostOverride(Host hostOverride) throws STRuntimeException {
+    public synchronized void setHostOverride(Host hostOverride) throws KMRuntimeException {
         if (this.hostOverride != null && this.hostOverride != hostOverride) {
             this.hostOverride.close();
         }
         if (context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal()) {
-            throw new STRuntimeException("Host overrides cannot be changed after the prepare stage");
+            throw new KMRuntimeException("Host overrides cannot be changed after the prepare stage");
         }
         this.hostOverride = hostOverride;
         if (hostOverride != null) {
@@ -271,12 +271,12 @@ public class ResourceImpl implements Resource {
     }
 
     @Override
-    public void setChildrensHostOverride(Host childrensHostOverride) throws STRuntimeException {
+    public void setChildrensHostOverride(Host childrensHostOverride) throws KMRuntimeException {
         if (this.childrensHostOverride != null && this.childrensHostOverride != childrensHostOverride) {
             this.childrensHostOverride.close();
         }
         if (context.getStage() != null && context.getStage().ordinal() >= Stage.EXECUTE.ordinal()) {
-            throw new STRuntimeException("Children host overrides cannot be changed after the prepare stage");
+            throw new KMRuntimeException("Children host overrides cannot be changed after the prepare stage");
         }
         this.childrensHostOverride = childrensHostOverride;
         if (childrensHostOverride != null) {
@@ -511,7 +511,7 @@ public class ResourceImpl implements Resource {
     // Processing Methods
     // ----------------------------------------------------------------------
 
-    public void executeTasks(Stage stage, boolean postChildren) throws STRuntimeException {
+    public void executeTasks(Stage stage, boolean postChildren) throws KMRuntimeException {
         HashSet<String> supportedAlternatives = new HashSet<>();
         HashSet<String> requiredAlternatives = new HashSet<>();
         for (Task task : tasks) {
@@ -542,7 +542,7 @@ public class ResourceImpl implements Resource {
         }
     }
 
-    public void handleNotification(Notification notification) throws STRuntimeException {
+    public void handleNotification(Notification notification) throws KMRuntimeException {
         synchronized (notificationHandlers) {
             for (NotificationHandler handler : notificationHandlers) {
                 if (handler.isSameCategory(handler.getCategory()) && (!handler.isOnlyIfAfter() || stage.ordinal() >= Stage.EXECUTE.ordinal())) {

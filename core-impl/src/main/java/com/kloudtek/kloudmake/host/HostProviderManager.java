@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
 import com.kloudtek.kloudmake.annotation.Provider;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.provider.ProviderManager;
 import org.apache.commons.exec.CommandLine;
 
@@ -26,7 +26,7 @@ public class HostProviderManager implements ProviderManager<HostProvider> {
         providers.add(provider);
     }
 
-    public HostProvider find(Host host) throws STRuntimeException {
+    public HostProvider find(Host host) throws KMRuntimeException {
         HashMap<String, Object> datacache = new HashMap<>();
         for (HostProvider provider : providers) {
             if (provider.supports(host, datacache)) {
@@ -38,7 +38,7 @@ public class HostProviderManager implements ProviderManager<HostProvider> {
 
     class UnsupportedMetadataProvider implements HostProvider {
         @Override
-        public boolean supports(Host host, HashMap<String, Object> datacache) throws STRuntimeException {
+        public boolean supports(Host host, HashMap<String, Object> datacache) throws KMRuntimeException {
             return true;
         }
 
@@ -58,7 +58,7 @@ public class HostProviderManager implements ProviderManager<HostProvider> {
         }
 
         @Override
-        public String getWorkingDir(Host abstractHost) throws STRuntimeException {
+        public String getWorkingDir(Host abstractHost) throws KMRuntimeException {
             return null;
         }
     }

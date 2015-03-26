@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.service.filestore;
 
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 
 import java.io.BufferedInputStream;
@@ -22,7 +22,7 @@ public abstract class DataFile implements AutoCloseable {
 
     public abstract byte[] getSha1() throws IOException;
 
-    public String copyToTemp() throws STRuntimeException {
+    public String copyToTemp() throws KMRuntimeException {
         try {
             InputStream fileStream = new BufferedInputStream(getStream());
             Host host = KMContextImpl.get().host();
@@ -30,11 +30,11 @@ public abstract class DataFile implements AutoCloseable {
             host.writeToFile(tempFile, fileStream);
             return tempFile;
         } catch (IOException | InvalidServiceException e) {
-            throw new STRuntimeException(e.getMessage(), e);
+            throw new KMRuntimeException(e.getMessage(), e);
         }
     }
 
-    public boolean copyTo(String path) throws STRuntimeException {
+    public boolean copyTo(String path) throws KMRuntimeException {
         try {
             Host host = KMContextImpl.get().host();
             if (host.fileExists(path)) {
@@ -48,7 +48,7 @@ public abstract class DataFile implements AutoCloseable {
             host.writeToFile(path, getStream());
             return true;
         } catch (IOException | InvalidServiceException e) {
-            throw new STRuntimeException(e.getMessage(), e);
+            throw new KMRuntimeException(e.getMessage(), e);
         }
     }
 }

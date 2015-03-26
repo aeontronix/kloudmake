@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.resource.core;
 
 import com.kloudtek.kloudmake.Resource;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,12 +31,12 @@ public class FileContentPropertyFileImpl implements FileContent {
     }
 
     @Override
-    public void init(String path, @NotNull InputStream stream, @NotNull byte[] sha1) throws STRuntimeException, IOException {
+    public void init(String path, @NotNull InputStream stream, @NotNull byte[] sha1) throws KMRuntimeException, IOException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public void merge(Collection<Resource> fragments) throws STRuntimeException {
+    public void merge(List<Resource> fragments) throws KMRuntimeException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

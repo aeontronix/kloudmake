@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake.exception;
 /**
  * Thrown when invalid dependencies are found (not existent references or circular dependencies)
  */
-public class InvalidDependencyException extends STRuntimeException {
+public class InvalidDependencyException extends KMRuntimeException {
     public InvalidDependencyException() {
     }
 

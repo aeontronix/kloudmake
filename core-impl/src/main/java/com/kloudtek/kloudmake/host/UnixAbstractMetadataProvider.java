@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.host;
 
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.util.StringUtils;
 import org.apache.commons.exec.CommandLine;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public abstract class UnixAbstractMetadataProvider extends AbstractHostProvider 
     }
 
     @Override
-    public String getWorkingDir(Host host) throws STRuntimeException {
+    public String getWorkingDir(Host host) throws KMRuntimeException {
         return host.exec("pwd") + "/";
     }
 

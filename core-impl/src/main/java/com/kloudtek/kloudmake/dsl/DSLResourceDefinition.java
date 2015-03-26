@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake.dsl;
 import com.kloudtek.kloudmake.*;
 import com.kloudtek.kloudmake.dsl.statement.Statement;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,7 @@ public class DSLResourceDefinition {
         }
 
         @Override
-        public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
+        public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
             logger.debug("Executing all DSL statements for " + resource.toString());
             String old = context.getSourceUrl();
             context.setSourceUrl(dslScript.getSourceUrl());
@@ -116,7 +116,7 @@ public class DSLResourceDefinition {
                         try {
                             statement.execute(dslScript, resource);
                         } catch (ScriptException e) {
-                            throw new STRuntimeException(e.getMessage(), e);
+                            throw new KMRuntimeException(e.getMessage(), e);
                         }
                     }
                 }
@@ -130,7 +130,7 @@ public class DSLResourceDefinition {
         }
 
         @Override
-        public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws STRuntimeException {
+        public boolean checkExecutionRequired(KMContextImpl context, Resource resource) throws KMRuntimeException {
             return true;
         }
     }

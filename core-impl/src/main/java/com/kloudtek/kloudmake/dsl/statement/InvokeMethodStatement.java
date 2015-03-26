@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl.statement;
@@ -11,7 +11,7 @@ import com.kloudtek.kloudmake.dsl.AntLRUtils;
 import com.kloudtek.kloudmake.dsl.DSLScript;
 import com.kloudtek.kloudmake.dsl.InvalidScriptException;
 import com.kloudtek.kloudmake.dsl.KloudmakeLangParser;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.antlr.v4.runtime.Token;
 
 import javax.script.ScriptException;
@@ -42,7 +42,7 @@ public class InvokeMethodStatement extends Statement {
     public List<Resource> execute(DSLScript dslScript, Resource resource) throws ScriptException {
         try {
             ctx.getServiceManager().invokeMethod(methodName, parameters);
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             ScriptException scriptException = new ScriptException(e.getMessage(), null, token.getLine(), token.getCharPositionInLine());
             scriptException.initCause(e);
             throw scriptException;

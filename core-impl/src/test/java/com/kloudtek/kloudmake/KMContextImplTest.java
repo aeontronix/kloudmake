@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.annotation.Unique;
 import com.kloudtek.kloudmake.exception.InvalidAttributeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.exception.MultipleUniqueResourcesFoundException;
 import com.kloudtek.kloudmake.exception.ResourceCreationException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.host.LocalHost;
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
@@ -33,11 +33,11 @@ public class KMContextImplTest extends AbstractContextTest {
         Resource test1 = createTestResource("test1");
         test1.addTask(new AbstractTask() {
             @Override
-            public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
+            public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
                 try {
                     context.getResourceManager().createResource(TEST);
                 } catch (ResourceCreationException e) {
-                    throw new STRuntimeException(e.getMessage(), e);
+                    throw new KMRuntimeException(e.getMessage(), e);
                 }
             }
         });
@@ -45,7 +45,7 @@ public class KMContextImplTest extends AbstractContextTest {
     }
 
     @Test
-    public void testResourcesDependenciesAndSorting() throws ResourceCreationException, STRuntimeException {
+    public void testResourcesDependenciesAndSorting() throws KMRuntimeException {
         Resource test1 = createTestResource("test1");
         Resource test2 = createTestResource("test2");
         Resource test3 = createTestResource("test3");
@@ -144,7 +144,7 @@ public class KMContextImplTest extends AbstractContextTest {
     }
 
     @Test
-    public void testGenerateId() throws STRuntimeException, InvalidAttributeException, ResourceCreationException {
+    public void testGenerateId() throws KMRuntimeException, ResourceCreationException {
         Resource el1Parent = createTestResource("parent");
         Resource el1 = createChildJavaTestResource("test2", el1Parent);
         Resource el2 = createTestResource("testval");
@@ -158,7 +158,7 @@ public class KMContextImplTest extends AbstractContextTest {
     }
 
     @Test
-    public void testFailurePropagation() throws InvalidAttributeException, STRuntimeException, ResourceCreationException {
+    public void testFailurePropagation() throws KMRuntimeException {
         ctx.clearFatalException();
         Resource el1 = createTestResource("1");
         el1.addTask(new FailTask(Stage.EXECUTE));

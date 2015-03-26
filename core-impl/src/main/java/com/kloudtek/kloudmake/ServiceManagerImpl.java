@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -8,7 +8,7 @@ import com.kloudtek.kloudmake.annotation.Function;
 import com.kloudtek.kloudmake.annotation.Service;
 import com.kloudtek.kloudmake.exception.InjectException;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +36,10 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public Object invokeMethod(String name, Parameters parameters) throws STRuntimeException {
+    public Object invokeMethod(String name, Parameters parameters) throws KMRuntimeException {
         MethodInvoker methodInvoker = methods.get(name.toLowerCase());
         if (methodInvoker == null) {
-            throw new STRuntimeException("There is no method named " + name);
+            throw new KMRuntimeException("There is no method named " + name);
         }
         return methodInvoker.invoke(ctx, parameters);
     }
@@ -186,7 +186,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public void start() throws STRuntimeException {
+    public void start() throws KMRuntimeException {
         for (Object service : services.values()) {
             if (service instanceof Startable) {
                 ((Startable) service).start();

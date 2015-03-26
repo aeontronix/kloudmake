@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
 
 import com.kloudtek.kloudmake.annotation.*;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.exception.ResourceCreationException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class TestResource {
     private Date syncSpecificTS;
 
     @Prepare
-    public void prepare() throws STRuntimeException {
+    public void prepare() throws KMRuntimeException {
         KMContextImpl ctx = KMContextImpl.get();
         assertNotNull(ctx);
         resource = findResource(ctx);
@@ -67,13 +67,13 @@ public class TestResource {
                 try {
                     KMContextImpl.get().getResourceManager().createResource("test.test", id, resource);
                 } catch (ResourceCreationException e) {
-                    throw new STRuntimeException(e.getMessage(), e);
+                    throw new KMRuntimeException(e.getMessage(), e);
                 }
             }
         }
         if (failPreparation) {
             logger.info("{} : PREPARING FAILING AS SPECIFIED", id);
-            throw new STRuntimeException("Failed prepare as requested");
+            throw new KMRuntimeException("Failed prepare as requested");
         }
         logger.info("{} : PREPARING DONE", id);
     }
@@ -105,12 +105,12 @@ public class TestResource {
     }
 
     @Execute
-    public void execute() throws STRuntimeException, ResourceCreationException {
+    public void execute() throws KMRuntimeException {
         executed = new Date();
         executeOrder = executeCounter.incrementAndGet();
         logger.info("{} : EXECUTING (O={})", id, executeOrder);
         if (failExecution) {
-            throw new STRuntimeException("Failed execution as requested");
+            throw new KMRuntimeException("Failed execution as requested");
         }
         if (createElementDuringExecute) {
             KMContextImpl.get().getResourceManager().createResource("test.test", id + "-exechildren");
@@ -118,7 +118,7 @@ public class TestResource {
     }
 
     @Execute(postChildren = true)
-    public void executePostChildren() throws STRuntimeException {
+    public void executePostChildren() throws KMRuntimeException {
         postChildrenOrder = postChildrenCounter.incrementAndGet();
         postChildrenExecuted = new Date();
         postExecReceived = true;
@@ -297,13 +297,13 @@ public class TestResource {
         }
     }
 
-    public Resource findResource(KMContextImpl context) throws STRuntimeException {
+    public Resource findResource(KMContextImpl context) throws KMRuntimeException {
         for (Resource resource : context.getResourceManager()) {
             if (resource.getJavaImpl(TestResource.class) != null) {
                 return resource;
             }
         }
-        throw new STRuntimeException("Unable to find resource");
+        throw new KMRuntimeException("Unable to find resource");
     }
 
     public static class CreateChildrenTask extends AbstractTask {
@@ -317,12 +317,12 @@ public class TestResource {
         }
 
         @Override
-        public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
+        public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
             try {
                 logger.info("Creating children {} for resource {}", name, parent);
                 context.getResourceManager().createResource(AbstractContextTest.TEST, name, parent);
             } catch (ResourceCreationException e) {
-                throw new STRuntimeException(e.getMessage(), e);
+                throw new KMRuntimeException(e.getMessage(), e);
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -55,7 +55,7 @@ public interface ResourceManager extends Iterable<Resource> {
     @NotNull
     List<Resource> findResources(@Nullable String pkg, @Nullable String name, @Nullable String id);
 
-    List<Resource> findResourcesById(@NotNull String id) throws STRuntimeException;
+    List<Resource> findResourcesById(@NotNull String id) throws KMRuntimeException;
 
     void registerJavaResource(Class<?> clazz) throws InvalidResourceDefinitionException;
 
@@ -94,7 +94,7 @@ public interface ResourceManager extends Iterable<Resource> {
     List<Resource> findResources(@NotNull String query) throws InvalidQueryException;
 
     @NotNull
-    ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws MultipleResourceMatchException, ResourceNotFoundException, ResourceCreationException;
+    ResourceDefinition findResourceDefinition(FQName name, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException;
 
     Resource findResourcesByUid(String uid);
 }

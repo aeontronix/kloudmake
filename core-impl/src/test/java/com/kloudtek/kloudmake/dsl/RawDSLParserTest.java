@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl;
@@ -9,7 +9,7 @@ import com.kloudtek.kloudmake.dsl.statement.CreateResourceStatement;
 import com.kloudtek.kloudmake.dsl.statement.InvokeMethodStatement;
 import com.kloudtek.kloudmake.dsl.statement.Statement;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.util.ReflectionUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -29,7 +29,7 @@ public class RawDSLParserTest {
     private KMContextImpl context;
     private DSLParser parser = new AntlrDSLParser();
 
-    public RawDSLParserTest() throws InvalidResourceDefinitionException, STRuntimeException {
+    public RawDSLParserTest() throws InvalidResourceDefinitionException, KMRuntimeException {
         context = new KMContextImpl();
     }
 
@@ -44,13 +44,13 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testCreateResource() throws InvalidScriptException, STRuntimeException {
+    public void testCreateResource() throws InvalidScriptException, KMRuntimeException {
         parse("foo {}").dec("foo").run();
         parse("def {}").dec("def").run();
     }
 
     @Test
-    public void testCreateResourceFQN() throws InvalidScriptException, STRuntimeException {
+    public void testCreateResourceFQN() throws InvalidScriptException, KMRuntimeException {
         parse("foo.bar {}").dec("foo.bar").run();
         parse("foo.bar.baz {}").dec("foo.bar.baz").run();
     }
@@ -61,22 +61,22 @@ public class RawDSLParserTest {
 //    }
 
     @Test(expectedExceptions = InvalidScriptException.class, expectedExceptionsMessageRegExp = "\\[1:7] unexpected token: :")
-    public void testInvalidDefine() throws InvalidScriptException, STRuntimeException {
+    public void testInvalidDefine() throws InvalidScriptException, KMRuntimeException {
         parse("def bar:foo {}").run();
     }
 
     @Test(expectedExceptions = InvalidScriptException.class, expectedExceptionsMessageRegExp = "\\[1:5] unexpected token: \\)")
-    public void testInvalidCreateResource() throws InvalidScriptException, STRuntimeException {
+    public void testInvalidCreateResource() throws InvalidScriptException, KMRuntimeException {
         parse("foo {)");
     }
 
     @Test(expectedExceptions = InvalidScriptException.class, expectedExceptionsMessageRegExp = "\\[1:5] unexpected token: <EOF>")
-    public void testInvalidCreateResource2() throws InvalidScriptException, STRuntimeException {
+    public void testInvalidCreateResource2() throws InvalidScriptException, KMRuntimeException {
         parse("foo {");
     }
 
     @Test
-    public void testSimpleDefResource() throws InvalidScriptException, STRuntimeException {
+    public void testSimpleDefResource() throws InvalidScriptException, KMRuntimeException {
         parse("def foo {}").def("foo").run();
     }
 
@@ -91,12 +91,12 @@ public class RawDSLParserTest {
     }
 
     @Test(expectedExceptions = InvalidScriptException.class, expectedExceptionsMessageRegExp = "\\[1:10] unexpected token: <EOF>")
-    public void testInvalidImport() throws InvalidScriptException, STRuntimeException {
+    public void testInvalidImport() throws InvalidScriptException, KMRuntimeException {
         parse("import foo");
     }
 
     @Test
-    public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, STRuntimeException {
+    public void testDefineWithSingleSimpleCreateEl() throws InvalidScriptException, KMRuntimeException {
         DSLScript script = parser.parse(context, "def test { test2 { 'test': } }");
         assertEquals(script.getDefines().size(), 1);
         DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
@@ -110,7 +110,7 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, STRuntimeException {
+    public void testDefineWithSingleCreateElWithParams() throws InvalidScriptException, KMRuntimeException {
         DSLScript script = parser.parse(context, "def test { test2 { 'tval': attr1=\"test\", attr2=22 , attr = 'value', attr3 = uid } }");
         assertEquals(script.getDefines().size(), 1);
         DSLResourceDefinition resourceDefStatement = script.getDefines().get(0);
@@ -137,14 +137,14 @@ public class RawDSLParserTest {
     }
 
     @Test
-    public void testSimpleCreateElementWithFQName() throws InvalidScriptException, STRuntimeException {
+    public void testSimpleCreateElementWithFQName() throws InvalidScriptException, KMRuntimeException {
         DSLScript script = parser.parse(context, "foo.bar.bla { 'dfsa' }");
         validateStatements(script, CreateResourceStatement.class);
         validateResourceInstance(script, "foo.bar", "bla", 0, 0, "dfsa");
     }
 
     @Test
-    public void testInvokeMethod() throws InvalidScriptException, STRuntimeException {
+    public void testInvokeMethod() throws InvalidScriptException, KMRuntimeException {
         DSLScript script = parser.parse(context, "invokemethod('bla',\"bazz\",'xx',foo='bar',baz=bla)");
         validateStatements(script, InvokeMethodStatement.class);
         InvokeMethodStatement statement = (InvokeMethodStatement) script.getStatements().get(0);
@@ -163,7 +163,7 @@ public class RawDSLParserTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testParseRequiresExpression() throws STRuntimeException, InvalidResourceDefinitionException {
+    public void testParseRequiresExpression() throws KMRuntimeException, InvalidResourceDefinitionException {
         KMContextImpl ctx = new KMContextImpl();
         Resource res = new ResourceImpl(ctx, null, null, null, null);
         RequiresExpression requiresExpression = new RequiresExpression(res, "test.val( bla = 'asd', ba=\"asdffdsa\", adsf=sfafdsa ), asfd.asds, foobar( x = 'z' )");
@@ -202,7 +202,7 @@ public class RawDSLParserTest {
         }
     }
 
-    private void validateParams(HashMap<String, Map<String, Parameter>> p, String id, String... params) throws STRuntimeException {
+    private void validateParams(HashMap<String, Map<String, Parameter>> p, String id, String... params) throws KMRuntimeException {
         for (int i = 0; i < params.length; i += 2) {
             assertEquals(p.get(id).get(params[i]).eval(null, null), params[i + 1]);
         }
@@ -217,14 +217,14 @@ public class RawDSLParserTest {
         assertEquals(createEl.getInstances().size(), instanceCount);
     }
 
-    private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) throws STRuntimeException {
+    private void validateResourceInstance(DSLScript script, String pkg, String name, int idx, int instanceNb, String id, String... params) throws KMRuntimeException {
         CreateResourceStatement statement = (CreateResourceStatement) script.getStatements().get(idx);
         assertEquals(statement.getType().getPkg(), pkg);
         assertEquals(statement.getType().getName(), name);
         validateResourceInstance(statement, instanceNb, id, params);
     }
 
-    private void validateResourceInstance(CreateResourceStatement createEl, int instanceNb, String id, String... params) throws STRuntimeException {
+    private void validateResourceInstance(CreateResourceStatement createEl, int instanceNb, String id, String... params) throws KMRuntimeException {
         CreateResourceStatement.Instance instance = createEl.getInstances().get(instanceNb);
         if (id == null) {
             assertNull(instance.getId());

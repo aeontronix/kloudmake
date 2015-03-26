@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl;
@@ -12,7 +12,7 @@ import com.kloudtek.kloudmake.annotation.Default;
 import com.kloudtek.kloudmake.annotation.Function;
 import com.kloudtek.kloudmake.annotation.Param;
 import com.kloudtek.kloudmake.exception.InvalidQueryException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.LocalHost;
 import com.kloudtek.util.ReflectionUtils;
 import org.testng.annotations.Test;
@@ -41,14 +41,14 @@ public class DSLParserTest extends AbstractContextTest {
         r4.setHostOverride(h2);
         r2.addTask(new AbstractTask() {
             @Override
-            public void execute(KMContextImpl context, Resource resource) throws STRuntimeException {
+            public void execute(KMContextImpl context, Resource resource) throws KMRuntimeException {
                 try {
                     List<Resource> samehost = ctx.findResources("is samehost");
                     if (samehost.size() == 1) {
                         resource.set("found", samehost.iterator().next().getId());
                     }
                 } catch (InvalidQueryException e) {
-                    throw new STRuntimeException(e);
+                    throw new KMRuntimeException(e);
                 }
             }
         });

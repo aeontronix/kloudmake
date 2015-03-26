@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -7,7 +7,7 @@ package com.kloudtek.kloudmake;
 import com.kloudtek.kloudmake.exception.InvalidAttributeException;
 import com.kloudtek.kloudmake.exception.InvalidRefException;
 import com.kloudtek.kloudmake.exception.InvalidStageException;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 public interface Resource {
-    static final String SUBSCRIBE = "subscribe";
-    static final String NOTIFY = "notify";
+    String SUBSCRIBE = "subscribe";
+    String NOTIFY = "notify";
 
     Set<Resource> getChildrens();
 
@@ -61,11 +61,11 @@ public interface Resource {
 
     Host getHostOverride();
 
-    void setHostOverride(Host hostOverride) throws STRuntimeException;
+    void setHostOverride(Host hostOverride) throws KMRuntimeException;
 
     Host getChildrensHostOverride();
 
-    void setChildrensHostOverride(Host childrensHostOverride) throws STRuntimeException;
+    void setChildrensHostOverride(Host childrensHostOverride) throws KMRuntimeException;
 
     ResourceDefinition getDefinition();
 

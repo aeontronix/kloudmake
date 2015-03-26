@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.exception;
@@ -13,7 +13,7 @@ import org.slf4j.Logger;
  * Time: 02:05
  * To change this template use File | Settings | File Templates.
  */
-public class MethodInvocationException extends STRuntimeException {
+public class MethodInvocationException extends KMRuntimeException {
     public MethodInvocationException() {
     }
 

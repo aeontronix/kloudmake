@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake.dsl.statement;
@@ -8,7 +8,7 @@ import com.kloudtek.kloudmake.FQName;
 import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.Resource;
 import com.kloudtek.kloudmake.dsl.*;
-import com.kloudtek.kloudmake.exception.STRuntimeException;
+import com.kloudtek.kloudmake.exception.KMRuntimeException;
 import org.jetbrains.annotations.Nullable;
 
 import javax.script.ScriptException;
@@ -87,7 +87,7 @@ public class CreateResourceStatement extends Statement {
                 }
             }
             return resources;
-        } catch (STRuntimeException e) {
+        } catch (KMRuntimeException e) {
             throw new ScriptException(e);
         }
     }
@@ -173,7 +173,7 @@ public class CreateResourceStatement extends Statement {
     }
 
     public interface CreateAction {
-        void execute(DSLScript dslScript, Resource resource) throws STRuntimeException, ScriptException;
+        void execute(DSLScript dslScript, Resource resource) throws KMRuntimeException, ScriptException;
     }
 
     public class SetAttrAction implements CreateAction {
@@ -186,7 +186,7 @@ public class CreateResourceStatement extends Statement {
         }
 
         @Override
-        public void execute(DSLScript dslScript, Resource resource) throws STRuntimeException {
+        public void execute(DSLScript dslScript, Resource resource) throws KMRuntimeException {
             resource.set(paramName, value.eval(ctx, resource));
         }
     }
@@ -199,7 +199,7 @@ public class CreateResourceStatement extends Statement {
         }
 
         @Override
-        public void execute(DSLScript dslScript, Resource resource) throws STRuntimeException, ScriptException {
+        public void execute(DSLScript dslScript, Resource resource) throws KMRuntimeException, ScriptException {
             statement.execute(dslScript, resource);
         }
     }
@@ -214,7 +214,7 @@ public class CreateResourceStatement extends Statement {
         }
 
         @Override
-        public void execute(DSLScript dslScript, Resource resource) throws STRuntimeException, ScriptException {
+        public void execute(DSLScript dslScript, Resource resource) throws KMRuntimeException, ScriptException {
             resource.setVar(name, value.eval(ctx, resource));
         }
     }

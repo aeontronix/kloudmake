@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 KloudTek Ltd
+ * Copyright (c) 2015. Kelewan Technologies Ltd
  */
 
 package com.kloudtek.kloudmake;
@@ -20,8 +20,6 @@ import org.testng.Assert;
 import java.io.File;
 import java.io.IOException;
 
-import static org.testng.Assert.assertEquals;
-
 public class AbstractVagrantTest {
     public static final String TEST = "test.test";
     public static final String UNIQUETEST = "test.uniquetest";
@@ -32,7 +30,7 @@ public class AbstractVagrantTest {
     protected Host host;
     protected SshHost sshHost;
 
-    public void init() throws STRuntimeException, InvalidResourceDefinitionException, ResourceCreationException, InjectException, IOException {
+    public void init() throws KMRuntimeException, InvalidResourceDefinitionException, InjectException, IOException {
         ctx = new KMContextImpl();
         host = ctx.getHost();
         Executor exec = new DefaultExecutor();
@@ -98,11 +96,11 @@ public class AbstractVagrantTest {
         return createTestResource().set(attr, val);
     }
 
-    public void execute() throws STRuntimeException {
+    public void execute() throws KMRuntimeException {
         execute(true);
     }
 
-    public void execute(boolean expected) throws STRuntimeException {
+    public void execute(boolean expected) throws KMRuntimeException {
         Assert.assertEquals(ctx.execute(), expected);
     }
 }
