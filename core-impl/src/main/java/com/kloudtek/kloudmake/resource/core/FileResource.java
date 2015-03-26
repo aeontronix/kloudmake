@@ -167,17 +167,24 @@ public class FileResource {
     }
 
     private void loadContent() throws STRuntimeException, InvalidQueryException {
-        // find all file fragments
-        StringBuffer query = new StringBuffer("is samehost and ( ");
-        Iterator<FileFragmentDef> fileFragIt = fileStore.getFileFragmentDefs().iterator();
-        while (fileFragIt.hasNext()) {
-            FileFragmentDef fileFragmentDef = fileFragIt.next();
-            query.append("type ").append(fileFragmentDef.getResourceType());
-            if (fileFragIt.hasNext()) {
-                query.append(" or ");
-            }
+        if( StringUtils.isEmpty(path) ) {
+            throw new STRuntimeException("file resource path not set");
         }
-        query.append(" ) and @path eq '").append(path).append("'");
+        // find all file fragments
+        StringBuffer query = new StringBuffer( "is samehost ");
+        Iterator<FileFragmentDef> fileFragIt = fileStore.getFileFragmentDefs().iterator();
+        if( fileFragIt.hasNext() ) {
+            query.append("and ( ");
+            while (fileFragIt.hasNext()) {
+                FileFragmentDef fileFragmentDef = fileFragIt.next();
+                query.append("type ").append(fileFragmentDef.getResourceType());
+                if (fileFragIt.hasNext()) {
+                    query.append(" or ");
+                }
+            }
+            query.append(" ) ");
+        }
+        query.append("and @path eq '").append(path).append("'");
         List<Resource> fragments = ctx.findResources(query.toString(), resource);
         // If there are no file fragments, then let's create a binary file content object
         try {

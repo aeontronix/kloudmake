@@ -29,8 +29,24 @@ public abstract class AbstractTask implements Task {
         this.postChildren = postChildren;
     }
 
-    public void type(Stage stage) {
+    public void stage(Stage stage) {
         this.stage = stage;
+    }
+
+    public void stageInit() {
+        stage = Stage.INIT;
+    }
+
+    public void stagePrepare() {
+        stage = Stage.PREPARE;
+    }
+
+    public void stageExecute() {
+        stage = Stage.EXECUTE;
+    }
+
+    public void stageCleanup() {
+        stage = Stage.CLEANUP;
     }
 
     public void order(int order) {

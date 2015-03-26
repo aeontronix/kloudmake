@@ -288,8 +288,8 @@ public class KMContextImpl implements AutoCloseable, KMContext {
             Bindings bindings = scriptEngine.getBindings(ENGINE_SCOPE);
             bindings.put("package", pkg);
             bindings.put("ctx", this);
-            bindings.put("stsm", getServiceManager());
-            bindings.put("strm", getResourceManager());
+            bindings.put("kmsm", getServiceManager());
+            bindings.put("kmrm", getResourceManager());
             String support = scriptingSupport.get(ext);
             if (support != null) {
                 scriptEngine.eval(support, bindings);

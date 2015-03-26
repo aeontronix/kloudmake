@@ -1,7 +1,9 @@
-class MyAction < Action
+include Kloudmake
+
+class MyAction < Task
   def initialize
     super
-    type "PREPARE"
+    stagePrepare
     order 1
   end
 
@@ -10,4 +12,4 @@ class MyAction < Action
   end
 end
 
-newres("test.test", "myres", {"key1" => "val1", "key2" => "val2"}).addAction(MyAction.new())
+Kloudmake.create("test.test", "myres", {"key1" => "val1", "key2" => "val2"}).addTask(MyAction.new())
