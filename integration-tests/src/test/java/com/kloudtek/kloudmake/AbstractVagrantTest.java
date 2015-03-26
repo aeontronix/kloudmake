@@ -50,8 +50,8 @@ public class AbstractVagrantTest {
         exec.setStreamHandler(new PumpStreamHandler(System.out));
         exec.execute(CommandLine.parse("vagrant up"));
         resourceManager = ctx.getResourceManager();
-        resourceManager.registerJavaResource(TestResource.class, TEST);
-        resourceManager.registerJavaResource(UniqueTestResource.class, UNIQUETEST);
+//        resourceManager.registerJavaResource(TestResource.class, TEST);
+//        resourceManager.registerJavaResource(UniqueTestResource.class, UNIQUETEST);
         Resource vagrant = resourceManager.createResource("vagrant:vagrant");
         vagrant.set("dir", VAGRANTDIR);
         vagrant.set("box", "ubuntu-precise64");

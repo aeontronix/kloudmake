@@ -1,8 +1,6 @@
-/*
+package com.kloudtek.kloudmake.resource;/*
  * Copyright (c) 2013 KloudTek Ltd
  */
-
-package com.kloudtek.kloudmake.resource;
 
 import com.kloudtek.kloudmake.AbstractVagrantTest;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
@@ -10,6 +8,7 @@ import com.kloudtek.kloudmake.exception.ResourceCreationException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.host.Host;
 import com.kloudtek.kloudmake.resource.core.AptPackageProvider;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -34,7 +33,7 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
     public void testCheckCurrentlyInstalledThatIs() throws Exception {
         String version = findVersion(AESPIPE);
         installPkg(AESPIPE);
-        assertEquals(provider.checkCurrentlyInstalled(AESPIPE), version);
+        Assert.assertEquals(provider.checkCurrentlyInstalled(AESPIPE), version);
     }
 
     @Test(groups = "vagrant")
@@ -46,7 +45,7 @@ public class AptPackageProviderSSHTest extends AbstractVagrantTest {
     @Test(groups = "vagrant")
     public void testCheckAvailableExistent() throws Exception {
         String version = findVersion(AESPIPE);
-        assertEquals(provider.checkLatestAvailable(AESPIPE), version);
+        Assert.assertEquals(provider.checkLatestAvailable(AESPIPE), version);
     }
 
     @Test(groups = "vagrant")

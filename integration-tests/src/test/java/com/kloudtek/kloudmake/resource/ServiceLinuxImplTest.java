@@ -10,6 +10,7 @@ import com.kloudtek.kloudmake.exception.InvalidQueryException;
 import com.kloudtek.kloudmake.exception.InvalidResourceDefinitionException;
 import com.kloudtek.kloudmake.exception.STRuntimeException;
 import com.kloudtek.kloudmake.host.ExecutionResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -39,9 +40,9 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
     public void testStartInitdService() throws STRuntimeException, InvalidQueryException {
         sshHost.exec("/etc/init.d/nginx stop");
         Resource resource = resourceManager.createResource("core.service").set("name", "nginx");
-        assertEquals(ctx.findResources("type core.service").size(), 1);
+        Assert.assertEquals(ctx.findResources("type core.service").size(), 1);
         execute();
-        assertEquals(ctx.findResources("type core.service").size(), 1);
+        Assert.assertEquals(ctx.findResources("type core.service").size(), 1);
         sshHost.exec("/etc/init.d/nginx status");
     }
 
@@ -50,9 +51,9 @@ public class ServiceLinuxImplTest extends AbstractVagrantTest {
         sshHost.exec("/etc/init.d/nginx start");
         sshHost.exec("/etc/init.d/nginx status");
         Resource resource = resourceManager.createResource("core.service").set("name", "nginx").set("running", false);
-        assertEquals(ctx.findResources("type core.service").size(), 1);
+        Assert.assertEquals(ctx.findResources("type core.service").size(), 1);
         execute();
-        assertEquals(ctx.findResources("type core.service").size(), 1);
+        Assert.assertEquals(ctx.findResources("type core.service").size(), 1);
         ExecutionResult exec = sshHost.exec("/etc/init.d/nginx status", null, null);
         assertTrue(exec.getRetCode() != 0);
     }

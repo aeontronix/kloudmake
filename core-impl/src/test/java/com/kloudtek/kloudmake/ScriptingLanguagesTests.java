@@ -12,13 +12,13 @@ import org.testng.annotations.Test;
 public class ScriptingLanguagesTests extends AbstractContextTest {
     @Test
     public void testRubyResourceCreation() throws Throwable {
-        execute("$strm.createResource( 'test.test' )", "rb");
+        execute("$kmrm.createResource( 'test.test' )", "rb");
         assertResources("test.test:test.test1");
     }
 
     @Test
     public void testRubyResourceCreationWithAttributes() throws Throwable {
-        execute("$strm.createResource( 'test.test', 'myid' ).set( {'tkey' => 'tval'} )", "rb");
+        execute("$kmrm.createResource( 'test.test', 'myid' ).set( {'tkey' => 'tval'} )", "rb");
         assertResources("test.test:myid");
         assertResourceAttrs("test.test:myid", "tkey", "tval");
     }

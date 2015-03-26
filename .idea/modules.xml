@@ -5,10 +5,10 @@
       <module fileurl="file://$PROJECT_DIR$/cli/cli.iml" filepath="$PROJECT_DIR$/cli/cli.iml" />
       <module fileurl="file://$PROJECT_DIR$/core-api/core-api.iml" filepath="$PROJECT_DIR$/core-api/core-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/core-impl/core-impl.iml" filepath="$PROJECT_DIR$/core-impl/core-impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/integration-tests/integration-tests.iml" filepath="$PROJECT_DIR$/integration-tests/integration-tests.iml" />
       <module fileurl="file://$PROJECT_DIR$/kloudmake.iml" filepath="$PROJECT_DIR$/kloudmake.iml" />
       <module fileurl="file://$PROJECT_DIR$/lang-ruby/lang-ruby.iml" filepath="$PROJECT_DIR$/lang-ruby/lang-ruby.iml" />
       <module fileurl="file://$PROJECT_DIR$/testing/testing.iml" filepath="$PROJECT_DIR$/testing/testing.iml" />
     </modules>
   </component>
 </project>
-
