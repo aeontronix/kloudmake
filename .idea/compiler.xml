@@ -26,26 +26,62 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="cli" />
         <module name="core" />
-        <module name="core-api" />
-        <module name="core-impl" />
-        <module name="integration-tests" />
         <module name="kloudmake-core-api" />
+      </profile>
+      <profile default="false" name="Annotation profile for core-impl" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="core-impl" />
+      </profile>
+      <profile default="false" name="Annotation profile for core-api" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="core-api" />
+      </profile>
+      <profile default="false" name="Annotation profile for cli" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="cli" />
+      </profile>
+      <profile default="false" name="Annotation profile for lang-ruby" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
         <module name="lang-ruby" />
+      </profile>
+      <profile default="false" name="Annotation profile for testing" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
         <module name="testing" />
+      </profile>
+      <profile default="false" name="Annotation profile for integration-tests" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="integration-tests" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="cli" target="1.7" />
+      <module name="cli" target="1.8" />
       <module name="core" target="1.8" />
-      <module name="core-api" target="1.7" />
+      <module name="core-api" target="1.8" />
       <module name="core-impl" target="1.7" />
-      <module name="integration-tests" target="1.7" />
-      <module name="kloudmake" target="1.7" />
+      <module name="integration-tests" target="1.8" />
+      <module name="kloudmake" target="1.8" />
       <module name="kloudmake-core-api" target="1.8" />
-      <module name="lang-ruby" target="1.7" />
-      <module name="testing" target="1.7" />
+      <module name="lang-ruby" target="1.8" />
+      <module name="testing" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
