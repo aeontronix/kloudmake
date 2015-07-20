@@ -16,10 +16,10 @@
     </properties>
 
     <modules>
-        <module>core-api</module>
-        <module>core-impl</module>
+        <module>core/api</module>
+        <module>core/impl</module>
         <module>cli</module>
-        <module>lang-ruby</module>
+        <module>lang/ruby</module>
         <module>testing</module>
         <module>integration-tests</module>
     </modules>
