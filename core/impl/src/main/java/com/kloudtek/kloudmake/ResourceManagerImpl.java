@@ -17,7 +17,6 @@ import javax.script.ScriptException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 import static com.kloudtek.util.StringUtils.isNotEmpty;
@@ -230,15 +229,23 @@ public class ResourceManagerImpl implements ResourceManager {
 
     @Override
     public Resource createResource(@NotNull Object obj) throws ResourceCreationException {
+        return createResource(obj, null);
+    }
+
+    @Override
+    public Resource createResource(@NotNull Object obj, @Nullable Resource parent) throws ResourceCreationException {
         Class<?> clazz = obj.getClass();
         KMResource annotation = clazz.getAnnotation(KMResource.class);
         if (annotation == null) {
-            throw new ResourceCreationException("Attempted to create resource using java class which is not annotated with @STResource: " + obj.getClass().getName());
+            throw new ResourceCreationException("Attempted to create resource using java class which is not annotated with @KMResource: " + obj.getClass().getName());
         }
         try {
-            ResourceDefinition resourceDefinition = JavaResourceDefinitionFactory.create(clazz, null);
-            registerResourceDefinition(resourceDefinition);
-            Resource resource = createResource(resourceDefinition.getFQName());
+            ResourceDefinition resourceDefinition = findResourceDefinition(new FQName(clazz, null));
+            if (resourceDefinition == null) {
+                resourceDefinition = JavaResourceDefinitionFactory.create(clazz, null);
+                registerResourceDefinition(resourceDefinition);
+            }
+            Resource resource = createResource(resourceDefinition.getFQName(), parent);
             // TODO copy attributes
             return resource;
         } catch (InvalidResourceDefinitionException e) {

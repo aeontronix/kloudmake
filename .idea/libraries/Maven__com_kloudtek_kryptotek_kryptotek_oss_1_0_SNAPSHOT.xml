@@ -1,13 +1,13 @@
 <component name="libraryTable">
   <library name="Maven: com.kloudtek.kryptotek:kryptotek-oss:1.0-SNAPSHOT">
     <CLASSES>
-      <root url="jar://$MAVEN_REPOSITORY$/com/kloudtek/kryptotek/kryptotek-oss/1.0-SNAPSHOT/kryptotek-oss-1.0-20141021.203018-13.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/kloudtek/kryptotek/kryptotek-oss/1.0-SNAPSHOT/kryptotek-oss-1.0-SNAPSHOT.jar!/" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/com/kloudtek/kryptotek/kryptotek-oss/1.0-SNAPSHOT/kryptotek-oss-1.0-20141021.203018-13-javadoc.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/kloudtek/kryptotek/kryptotek-oss/1.0-SNAPSHOT/kryptotek-oss-1.0-SNAPSHOT-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$MAVEN_REPOSITORY$/com/kloudtek/kryptotek/kryptotek-oss/1.0-SNAPSHOT/kryptotek-oss-1.0-20141021.203018-13-sources.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/com/kloudtek/kryptotek/kryptotek-oss/1.0-SNAPSHOT/kryptotek-oss-1.0-SNAPSHOT-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

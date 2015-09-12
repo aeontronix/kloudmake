@@ -4,6 +4,8 @@
 
 package com.kloudtek.kloudmake;
 
+import com.kloudtek.kloudmake.exception.ResourceCreationException;
+
 import java.io.File;
 
 /**
@@ -11,4 +13,6 @@ import java.io.File;
  */
 public interface KMContext {
     void registerLibraries(File libDir);
+
+    Resource add(Object javaResource) throws ResourceCreationException;
 }

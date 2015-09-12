@@ -27,7 +27,6 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="core" />
-        <module name="kloudmake-core-api" />
       </profile>
       <profile default="false" name="Annotation profile for core-impl" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -71,6 +70,34 @@
         <processorPath useClasspath="true" />
         <module name="integration-tests" />
       </profile>
+      <profile default="false" name="Annotation profile for kloudmake-ruby" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="kloudmake-ruby" />
+      </profile>
+      <profile default="false" name="Annotation profile for kloudmake-core-impl" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="kloudmake-core-impl" />
+      </profile>
+      <profile default="false" name="Annotation profile for kloudmake-core-api" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="kloudmake-core-api" />
+      </profile>
+      <profile default="false" name="Annotation profile for kloudmake-integrationtests" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="kloudmake-integrationtests" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="cli" target="1.8" />
@@ -80,6 +107,9 @@
       <module name="integration-tests" target="1.8" />
       <module name="kloudmake" target="1.8" />
       <module name="kloudmake-core-api" target="1.8" />
+      <module name="kloudmake-core-impl" target="1.7" />
+      <module name="kloudmake-integrationtests" target="1.8" />
+      <module name="kloudmake-ruby" target="1.8" />
       <module name="lang-ruby" target="1.8" />
       <module name="testing" target="1.8" />
     </bytecodeTargetLevel>

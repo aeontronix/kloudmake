@@ -26,6 +26,8 @@ public interface ResourceManager extends Iterable<Resource> {
 
     void setCreateAllowed(boolean createAllowed);
 
+    Resource createResource(@NotNull Object obj, @Nullable Resource parent) throws ResourceCreationException;
+
     Resource createResource(@NotNull String fqname, @Nullable Collection<ResourceMatcher> importPaths, @Nullable Resource parent) throws ResourceCreationException;
 
     Resource createResource(@NotNull FQName fqname, String id, @Nullable Resource parent, @Nullable Collection<ResourceMatcher> importPaths) throws ResourceCreationException;

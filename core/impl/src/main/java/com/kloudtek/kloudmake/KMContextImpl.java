@@ -26,12 +26,10 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -611,6 +609,11 @@ public class KMContextImpl implements AutoCloseable, KMContext {
             }
             cl = cl.getSuperclass();
         }
+    }
+
+    @Override
+    public Resource add(Object javaResource) throws ResourceCreationException {
+        return resourceManager.createResource(javaResource);
     }
 
 

@@ -74,9 +74,31 @@
 
     <repositories>
         <repository>
+            <id>kloudtek-com-releases</id>
+            <name>Kloudtek Commercial releases</name>
+            <url>${repo.com.release.url}</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>kloudtek-com-snapshots</id>
+            <name>Kloudtek Commercial snapshots</name>
+            <url>${repo.com.snapshot.url}</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
             <id>kloudtek-oss-releases</id>
             <name>Kloudtek OSS releases</name>
-            <url>https://s3.amazonaws.com/maven.kloudtek.com/release</url>
+            <url>${repo.oss.release.url}</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -87,7 +109,7 @@
         <repository>
             <id>kloudtek-oss-snapshots</id>
             <name>Kloudtek OSS snapshots</name>
-            <url>https://s3.amazonaws.com/maven.kloudtek.com/snapshot</url>
+            <url>${repo.oss.snapshot.url}</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -107,33 +129,37 @@
             </snapshots>
         </repository>
         <repository>
-            <id>kloudtek-releases</id>
-            <name>Kloudtek private release</name>
-            <url>s3://kloudtek-maven-private/release</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>kloudtek-snapshots</id>
-            <name>Kloudtek private snapshots</name>
-            <url>s3://kloudtek-maven-private/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>crashlytics-repo</id>
+            <url>http://download.crashlytics.com/maven</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
+            <id>kloudtek-com-releases</id>
+            <name>Kloudtek Commercial releases</name>
+            <url>${repo.com.release.url}</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>kloudtek-com-snapshots</id>
+            <name>Kloudtek Commercial snapshots</name>
+            <url>${repo.com.snapshot.url}</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
             <id>kloudtek-oss-releases</id>
             <name>Kloudtek OSS releases</name>
-            <url>https://s3.amazonaws.com/maven.kloudtek.com/release</url>
+            <url>${repo.oss.release.url}</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -144,7 +170,7 @@
         <pluginRepository>
             <id>kloudtek-oss-snapshots</id>
             <name>Kloudtek OSS snapshots</name>
-            <url>https://s3.amazonaws.com/maven.kloudtek.com/snapshot</url>
+            <url>${repo.oss.snapshot.url}</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -161,41 +187,19 @@
             </releases>
             <snapshots>
                 <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>kloudtek-releases</id>
-            <name>Kloudtek private releases</name>
-            <url>s3://kloudtek-maven-private/release</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>kloudtek-snapshots</id>
-            <name>Kloudtek private snapshots</name>
-            <url>s3://kloudtek-maven-private/snapshot</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
     <distributionManagement>
         <repository>
-            <id>kloudtek-releases</id>
-            <name>Kloudtek private releases</name>
-            <url>s3://kloudtek-maven-private/release</url>
+            <id>kloudtek-com-releases</id>
+            <name>Kloudtek Commercial Releases Repository</name>
+            <url>${repo.com.release.url}</url>
         </repository>
         <snapshotRepository>
-            <id>kloudtek-snapshots</id>
-            <name>Kloudtek private snapshots</name>
-            <url>s3://kloudtek-maven-private/snapshot</url>
+            <id>kloudtek-com-snapshots</id>
+            <name>Kloudtek Commercial Snapshots Repository</name>
+            <url>${repo.com.snapshot.url}</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

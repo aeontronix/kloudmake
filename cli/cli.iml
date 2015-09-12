@@ -11,27 +11,15 @@
       <excludeFolder url="file://$MODULE_DIR$/${project.build.directory}/test-classes" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="core-impl" />
+    <orderEntry type="module" module-name="kloudmake-core-impl" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.3" level="project" />
     <orderEntry type="library" name="Maven: org.abego.treelayout:org.abego.treelayout.core:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-annotations:4.3" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.7" level="project" />
     <orderEntry type="library" name="Maven: com.kloudtek.kryptotek:kryptotek-oss:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-core:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-jetty:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-android:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-geo:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-io:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-jee:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-jsf:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-logging:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-selenium:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-spring:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-testing:1.2-SNAPSHOT" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-xml:1.2-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.hibernate:hibernate-validator:5.1.2.Final" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.logging:jboss-logging:3.1.3.GA" level="project" />
@@ -82,7 +70,7 @@
     <orderEntry type="module-library">
       <library name="Maven: sun.jdk:tools:1.8.0">
         <CLASSES>
-          <root url="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home/lib/tools.jar!/" />
+          <root url="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_60.jdk/Contents/Home/lib/tools.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
