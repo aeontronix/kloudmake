@@ -35,8 +35,8 @@
         </dependency>
         <dependency>
             <groupId>com.kloudtek.kryptotek</groupId>
-            <artifactId>kryptotek-oss</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>kryptotek-core</artifactId>
+            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.kloudtek.ktutils</groupId>
             <artifactId>ktutils</artifactId>
-            <version>1.2-SNAPSHOT</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -66,7 +66,6 @@
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
@@ -129,15 +128,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
                 <version>4.3</version>
@@ -148,26 +138,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.reflections</groupId>
-                <artifactId>reflections-maven</artifactId>
-                <version>${reflections.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>reflections</goal>
-                        </goals>
-                        <phase>process-classes</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

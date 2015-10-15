@@ -15,7 +15,7 @@ import javax.script.ScriptException;
 import java.io.IOException;
 
 public class FileResourceVagrantTest extends AbstractVagrantTest {
-    @BeforeClass
+    @BeforeClass(groups = "vagrant")
     public void init() throws InvalidResourceDefinitionException, IOException, KMRuntimeException {
         super.init();
     }
