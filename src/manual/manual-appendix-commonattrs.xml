@@ -76,6 +76,6 @@ test.test {
     <section>
         <title>subscribe</title>
         <para>Type: Resource Query</para>
-        <para>Specified resources which execution will cause this resource to be notified..</para>
+        <para>Specified resources which execution will cause this resource to be notified.</para>
     </section>
 </appendix>

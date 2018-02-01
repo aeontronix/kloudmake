@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>com.kloudtek.kloudmake</groupId>
-            <artifactId>kloudmake-core-impl</artifactId>
+            <artifactId>kloudmake-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

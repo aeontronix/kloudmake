@@ -14,9 +14,9 @@ import com.kloudtek.kloudmake.KMContextImpl;
 import com.kloudtek.kloudmake.exception.InvalidServiceException;
 import com.kloudtek.kloudmake.host.SshHost;
 import com.kloudtek.kloudmake.service.credstore.CredStore;
+import com.kloudtek.util.FileUtils;
 import com.kloudtek.util.StringUtils;
 import com.kloudtek.util.UnableToDecryptException;
-import org.apache.commons.io.FileUtils;
 import org.hibernate.validator.internal.util.Version;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -91,7 +91,7 @@ public class Cli {
                     logger.error("Unable to find key file: " + sshPrivKeyFile.getPath());
                     return 3;
                 }
-                byte[] sshPrivKey = FileUtils.readFileToByteArray(sshPrivKeyFile);
+                byte[] sshPrivKey = FileUtils.toByteArray(sshPrivKeyFile);
                 SshHost sshHost = new SshHost(sshPrivKeyFile.getPath(), sshPrivKey, null, null, user, addr, port);
                 context.getServiceManager().assignService("host", sshHost);
             }
@@ -152,7 +152,7 @@ public class Cli {
             if (cryptPw.exists()) {
                 logger.error("Encryption password file " + cryptPw + " does not exist");
             }
-            credStore.setCryptPw(FileUtils.readFileToString(cryptPw));
+            credStore.setCryptPw(FileUtils.toString(cryptPw));
         }
         if (credsfile != null && credsfile.exists()) {
             credStore.load(new FileInputStream(credsfile));

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+  <component name="FacetManager">
+    <facet type="ios" name="iOS">
+      <configuration />
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -13,27 +18,17 @@
     </content>
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="kloudmake-core-impl" />
+    <orderEntry type="module" module-name="kloudmake-core" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.3" level="project" />
     <orderEntry type="library" name="Maven: org.abego.treelayout:org.abego.treelayout.core:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-annotations:4.3" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.7" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.kryptotek:kryptotek-core:1.0.4" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-core:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-io:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-dao:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktserializer:ktserializer-runtime:1.1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-jetty:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-android:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-geo:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-jee:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-jsf:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-logging:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-selenium:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-spring:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-testing:1.2" level="project" />
-    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-xml:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.kryptotek:kryptotek-core:1.0.19" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-core:1.2.4" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-io:1.2.4" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils-dao:1.2.4" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktserializer:ktserializer-runtime:1.2.17" level="project" />
+    <orderEntry type="library" name="Maven: com.kloudtek.ktutils:ktutils:1.3.7" level="project" />
     <orderEntry type="library" name="Maven: org.hibernate:hibernate-validator:5.1.2.Final" level="project" />
     <orderEntry type="library" name="Maven: javax.validation:validation-api:1.1.0.Final" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.logging:jboss-logging:3.1.3.GA" level="project" />
@@ -44,9 +39,8 @@
     <orderEntry type="library" name="Maven: com.google.guava:guava:15.0" level="project" />
     <orderEntry type="library" name="Maven: org.javassist:javassist:3.19.0-GA" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:annotations:2.0.1" level="project" />
-    <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.51" level="project" />
-    <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.20" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.54" level="project" />
+    <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15on:1.51" level="project" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.0.4" level="project" />
@@ -79,15 +73,6 @@
     <orderEntry type="library" name="Maven: com.martiansoftware:nailgun-server:0.9.1" level="project" />
     <orderEntry type="library" name="Maven: org.jruby:yecht:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.headius:options:1.2" level="project" />
-    <orderEntry type="module-library">
-      <library name="Maven: sun.jdk:tools:1.8.0">
-        <CLASSES>
-          <root url="jar:///Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home/lib/tools.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.1.2" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.1.2" level="project" />
     <orderEntry type="library" name="Maven: com.beust:jcommander:1.35" level="project" />

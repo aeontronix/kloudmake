@@ -10,11 +10,11 @@ import com.kloudtek.kloudmake.host.LocalHost;
 import com.kloudtek.kloudmake.host.SshHost;
 import com.kloudtek.kloudmake.resource.vagrant.SharedFolder;
 import com.kloudtek.kloudmake.resource.vagrant.VagrantResource;
+import com.kloudtek.util.FileUtils;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.Executor;
 import org.apache.commons.exec.PumpStreamHandler;
-import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 
 import java.io.File;
@@ -42,7 +42,7 @@ public class AbstractVagrantTest {
         }
         File vagrantfile = new File(vagrantDir, "Vagrantfile");
         if (!vagrantfile.exists()) {
-            FileUtils.writeStringToFile(vagrantfile, "Vagrant::Config.run do |config|\n  config.vm.box = \"ubuntu-precise64\"\nend\n");
+            FileUtils.toString(vagrantfile, "Vagrant::Config.run do |config|\n  config.vm.box = \"ubuntu-precise64\"\nend\n");
         }
         exec.setWorkingDirectory(vagrantDir);
         exec.setStreamHandler(new PumpStreamHandler(System.out));
