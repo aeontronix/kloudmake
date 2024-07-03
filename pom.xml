@@ -20,6 +20,7 @@
         <module>cli</module>
         <module>integration-tests</module>
     </modules>
+
     <packaging>pom</packaging>
     <name>AeonBuild</name>
     <description>Next generation devops tool designed for the enterprise</description>
