@@ -1,0 +1,3 @@
+include:
+  - project: aeontronix/commercial-software/ci-pipeline-lib
+    file: gitlab/maven-lib.yml
