@@ -1,0 +1,13 @@
+<!--
+  ~ Copyright (c) 2024 Aeontronix Inc
+  -->
+
+<aeonbuild>
+    <pkg>com.aeontronix.aeonbuild.resource.core</pkg>
+    <pkg>com.aeontronix.aeonbuild.resource.db</pkg>
+    <pkg>com.aeontronix.aeonbuild.resource.vagrant</pkg>
+    <pkg>com.aeontronix.aeonbuild.resource.intellij</pkg>
+    <pkg>com.aeontronix.aeonbuild.service.credstore</pkg>
+    <pkg>com.aeontronix.aeonbuild.service.filestore</pkg>
+    <pkg>com.aeontronix.aeonbuild.host</pkg>
+</aeonbuild>

@@ -1,11 +1,11 @@
 <!--
-  ~ Copyright (c) 2015. Kelewan Technologies Ltd
+  ~ Copyright (c) 2024 Aeontronix Inc
   -->
 
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
-    <title>Using the Kloudmake Language (DSL)</title>
+    <title>Using the AeonBuild Language (DSL)</title>
     <xi:include href="manual-dsl-create.xml"/>
     <section>
         <title>String handling</title>
@@ -305,7 +305,7 @@ core:file { path = “/root/myfile1.txt”, content = “Hello World” }</progr
         </para>
         <para>
             A refresh will only occur if the notifying/subscribed resource is executed after the resource has been
-            executed. Kloudmake will try to be as efficient and perform the least refreshes possible. This means:
+            executed. AeonBuild will try to be as efficient and perform the least refreshes possible. This means:
             <itemizedlist>
                 <listitem>
                     It will attempt to execute the notifying/subscribed resources before the refreshed resource (if

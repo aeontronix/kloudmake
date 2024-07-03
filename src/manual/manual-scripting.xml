@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2015. Kelewan Technologies Ltd
+  ~ Copyright (c) 2024 Aeontronix Inc
   -->
 
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -15,9 +15,9 @@
     </para>
     <simplelist>
         <member><emphasis role="strong">package</emphasis>: Package of the script</member>
-        <member><emphasis role="strong">ctx</emphasis>: Kloudmake Context (the java STContext instance).</member>
-        <member><emphasis role="strong">stsm</emphasis>: Kloudmake Service Manager.</member>
-        <member><emphasis role="strong">strm</emphasis>: Kloudmake Resource Manager.</member>
+        <member><emphasis role="strong">ctx</emphasis>: AeonBuild Context (the java STContext instance).</member>
+        <member><emphasis role="strong">stsm</emphasis>: AeonBuild Service Manager.</member>
+        <member><emphasis role="strong">strm</emphasis>: AeonBuild Resource Manager.</member>
     </simplelist>
     <para>
         Those can then be used to perform any required functions. For example, if you wanted to use ruby to perform the

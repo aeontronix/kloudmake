@@ -1,4 +1,4 @@
-include Kloudmake
+include AeonBuild
 
 class MyAction < Task
   def initialize
@@ -12,4 +12,4 @@ class MyAction < Task
   end
 end
 
-Kloudmake.create("test.test", "myres", {"key1" => "val1", "key2" => "val2"}).addTask(MyAction.new())
+AeonBuild.create("test.test", "myres", {"key1" => "val1", "key2" => "val2"}).addTask(MyAction.new())

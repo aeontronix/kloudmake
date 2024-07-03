@@ -2,11 +2,11 @@
 
 if [ "$1" = "-u" ];
 then
-    echo "Un-installing Kloudmake"
+    echo "Un-installing AeonBuild"
     rm -rf /usr/share/kloudmake
     rm -f /usr/bin/kloudmake
 else
-    echo "Installing Kloudmake"
+    echo "Installing AeonBuild"
     COUNT=`awk '/^__SOURCE__/ { print NR + 1; exit 0; }' $0`
     THIS=`pwd`/$0
     rm -rf /usr/share/kloudmake/*

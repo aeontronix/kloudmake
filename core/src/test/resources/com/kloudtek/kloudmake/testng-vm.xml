@@ -1,21 +1,21 @@
 <!--
-  ~ Copyright (c) 2015. Kelewan Technologies Ltd
+  ~ Copyright (c) 2024 Aeontronix Inc
   -->
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="Kloudmake Test Suite" verbose="1">
+<suite name="AeonBuild Test Suite" verbose="1">
     <test name="Engine">
         <packages>
-            <package name="com.kloudtek.kloudmake"/>
-            <package name="com.kloudtek.kloudmake.context"/>
-            <package name="com.kloudtek.kloudmake.dsl"/>
-            <package name="com.kloudtek.kloudmake.host"/>
+            <package name="com.aeontronix.aeonbuild"/>
+            <package name="com.aeontronix.aeonbuild.context"/>
+            <package name="com.aeontronix.aeonbuild.dsl"/>
+            <package name="com.aeontronix.aeonbuild.host"/>
         </packages>
     </test>
     <test name="Core Modules">
         <packages>
-            <package name="com.kloudtek.kloudmake.resource"/>
+            <package name="com.aeontronix.aeonbuild.resource"/>
         </packages>
     </test>
 </suite>

@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <!--
-  ~ Copyright (c) 2015. Kelewan Technologies Ltd
+  ~ Copyright (c) 2024 Aeontronix Inc
   -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml" version="1.0">

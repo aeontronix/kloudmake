@@ -9,4 +9,4 @@ then
     JOPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 ${JOPTS}"
 fi
 
-java -classpath "${SYSTYRANT_ANT}/lib/*" ${JOPTS} com.kloudtek.kloudmake.cli.Cli $@
+java -classpath "${SYSTYRANT_ANT}/lib/*" ${JOPTS} com.aeontronix.aeonbuild.cli.Cli $@

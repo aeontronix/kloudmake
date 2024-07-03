@@ -1,1 +1,1 @@
-myfileres = Kloudmake.create( 'core.file', "testfile", { path => '/tmp/test.txt', content => "Hello World" } )
+myfileres = AeonBuild.create( 'core.file', "testfile", { path => '/tmp/test.txt', content => "Hello World" } )

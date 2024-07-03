@@ -1,21 +1,21 @@
 <!--
-  ~ Copyright (c) 2015. Kelewan Technologies Ltd
+  ~ Copyright (c) 2024 Aeontronix Inc
   -->
 
 <chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://docbook.org/ns/docbook http://docbook.org/xml/5.0/xsd/docbook.xsd">
     <title>Introduction</title>
     <para>
-        Kloudmake is a configuration management tool designed to easily manage even the most complex software
+        AeonBuild is a configuration management tool designed to easily manage even the most complex software
         stacks.
     </para>
     <para>
-        In order to use Kloudmake, you just need to create a script defining resources (which can represent any
-        elements of a software stack ie: an application, a server, etc), and use the Kloudmake command line tool
+        In order to use AeonBuild, you just need to create a script defining resources (which can represent any
+        elements of a software stack ie: an application, a server, etc), and use the AeonBuild command line tool
         which will perform any required tasks to setup the infrastructure.
     </para>
     <para>
-        Some of the main features of Kloudmake are:
+        Some of the main features of AeonBuild are:
     </para>
     <itemizedlist>
         <listitem>

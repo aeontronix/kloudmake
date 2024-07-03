@@ -6,19 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="kloudmake-cli" />
         <module name="kloudmake-core" />
-        <module name="kloudmake-docgen" />
+        <module name="kloudmake-cli" />
         <module name="kloudmake-integrationtests" />
-        <module name="kloudmake-testing" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="kloudmake" target="1.8" />
-      <module name="kloudmake-cli" target="1.8" />
-      <module name="kloudmake-core" target="1.8" />
       <module name="kloudmake-docgen" target="1.8" />
-      <module name="kloudmake-integrationtests" target="1.8" />
       <module name="kloudmake-testing" target="1.8" />
     </bytecodeTargetLevel>
   </component>
